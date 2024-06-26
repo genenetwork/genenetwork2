@@ -43,7 +43,7 @@ class SearchResultPage:
 
         self.uc_id = uuid.uuid4()
         self.go_term = None
-        self.search_type = kw['search_type']
+        self.search_type = "sql" # Assume it's an SQL search by default, since all searches will work with SQL
 
         if kw['search_terms_or']:
             self.and_or = "or"
@@ -90,7 +90,7 @@ class SearchResultPage:
             else:
                 self.gen_search_result()
 
-    def gen_search_result(self, search_type="sql"):
+    def gen_search_result(self):
         """
         Get the info displayed in the search result table from the set of results computed in
         the "search" function
@@ -279,7 +279,8 @@ class SearchResultPage:
         # Set of terms compatible with Xapian currently (None is a search without a term)
         xapian_terms = ["POSITION", "MEAN", "LRS", "LOD"]
 
-        if self.search_type == "xapian" and all([(the_term['key'] in xapian_terms) or not the_term['key'] for the_term in self.search_terms]):
+        if all([(the_term['key'] in xapian_terms) or (not the_term['key'] and self.dataset.type != "Publish") for the_term in self.search_terms]):
+            self.search_type = "xapian"
             self.results = requests.get(generate_xapian_request(self.dataset, self.search_terms, self.and_or)).json()
         else:
             self.search_type = "sql"
