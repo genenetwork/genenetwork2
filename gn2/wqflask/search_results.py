@@ -26,7 +26,7 @@ from gn2.utility.hmac import hmac_creation
 from gn2.utility.tools import get_setting, GN2_BASE_URL, GN3_LOCAL_URL
 from gn2.utility.type_checking import is_str
 
-MAX_SEARCH_RESULTS = 20000 # Max number of search results, passed to Xapian search
+MAX_SEARCH_RESULTS = 20000 # Max number of search results, passed to Xapian search (this needs to match the value in GN3!)
 
 class SearchResultPage:
     #maxReturn = 3000
@@ -517,14 +517,14 @@ def create_xapian_term(dataset, term):
             return xapian_term + f"author:{search_term[0]}"
         case 'LRS':
             xapian_term += f"peak:{search_term[0]}..{search_term[1]}"
-            if len(term) == 5:
-                xapian_term += f"peakchr:{search_term[2].lower().replace('chr', '')} AND peakmb:{float(search_term[3])*10**6}..{float(search_term[4])*10**6}"
+            if len(search_term) == 5:
+                xapian_term += f" AND peakchr:{search_term[2].lower().replace('chr', '')} AND peakmb:{float(search_term[3])}..{float(search_term[4])}"
             return xapian_term
         case 'LOD': # Basically just LRS search but all values are multiplied by 4.61
             xapian_term += f"peak:{float(search_term[0]) * 4.61}..{float(search_term[1]) * 4.61}"
-            if len(term) == 5:
-                xapian_term += f"peakchr:{search_term[2].lower().replace('chr', '')} AND "
-                xapian_term += f"peakmb:{float(search_term[3]) * 4.61}..{float(search_term[4]) * 4.61}"
+            if len(search_term) == 5:
+                xapian_term += f" AND peakchr:{search_term[2].lower().replace('chr', '')}"
+                xapian_term += f" AND peakmb:{float(search_term[3])}..{float(search_term[4])}"
             return xapian_term
         case None:
             return xapian_term + f"{search_term[0]}"
