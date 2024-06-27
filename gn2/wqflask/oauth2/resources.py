@@ -4,6 +4,7 @@ from flask import (
     flash, request, url_for, redirect, Response, Blueprint)
 
 from . import client
+from . import session
 from .ui import render_ui as _render_ui
 from .checks import require_oauth2
 from .client import oauth2_get, oauth2_post
@@ -58,7 +59,7 @@ def create_resource():
         flash("Resource created successfully", "alert-success")
         return redirect(url_for("oauth2.resource.user_resources"))
     return oauth2_post(
-        "auth/resource/create", data=request.form).either(
+        "auth/resource/create", json=dict(request.form)).either(
             __perr__, __psuc__)
 
 def __compute_page__(submit, current_page):
@@ -66,7 +67,7 @@ def __compute_page__(submit, current_page):
         return current_page + 1
     return (current_page - 1) or 1
 
-@resources.route("/view/<uuid:resource_id>", methods=["GET"])
+@resources.route("/<uuid:resource_id>/view", methods=["GET"])
 @require_oauth2
 def view_resource(resource_id: UUID):
     """View the given resource."""
@@ -212,10 +213,10 @@ def unlink_data_from_resource():
 @require_oauth2
 def assign_role(resource_id: UUID) -> Response:
     form = request.form
-    group_role_id = form.get("group_role_id", "")
+    role_id = form.get("role_id", "")
     user_email = form.get("user_email", "")
     try:
-        assert bool(group_role_id), "The role must be provided."
+        assert bool(role_id), "The role must be provided."
         assert bool(user_email), "The user email must be provided."
 
         def __assign_error__(error):
@@ -231,8 +232,8 @@ def assign_role(resource_id: UUID) -> Response:
 
         return oauth2_post(
             f"auth/resource/{resource_id}/user/assign",
-            data={
-                "group_role_id": group_role_id,
+            json={
+                "role_id": role_id,
                 "user_email": user_email
             }).either(__assign_error__, __assign_success__)
     except AssertionError as aserr:
@@ -243,10 +244,10 @@ def assign_role(resource_id: UUID) -> Response:
 @require_oauth2
 def unassign_role(resource_id: UUID) -> Response:
     form = request.form
-    group_role_id = form.get("group_role_id", "")
+    role_id = form.get("role_id", "")
     user_id = form.get("user_id", "")
     try:
-        assert bool(group_role_id), "The role must be provided."
+        assert bool(role_id), "The role must be provided."
         assert bool(user_id), "The user id must be provided."
 
         def __unassign_error__(error):
@@ -262,8 +263,8 @@ def unassign_role(resource_id: UUID) -> Response:
 
         return oauth2_post(
             f"auth/resource/{resource_id}/user/unassign",
-            data={
-                "group_role_id": group_role_id,
+            json={
+                "role_id": role_id,
                 "user_id": user_id
             }).either(__unassign_error__, __unassign_success__)
     except AssertionError as aserr:
@@ -285,7 +286,7 @@ def toggle_public(resource_id: UUID):
             "oauth2.resource.view_resource", resource_id=resource_id))
 
     return oauth2_post(
-        f"auth/resource/{resource_id}/toggle-public", data={}).either(
+        f"auth/resource/{resource_id}/toggle-public").either(
             lambda err: __handle_error__(err),
             lambda suc: __handle_success__(suc))
 
@@ -301,7 +302,7 @@ def delete_resource(resource_id: UUID):
     """Delete the given resource."""
     return "WOULD DELETE THE GIVEN RESOURCE"
 
-@resources.route("/<uuid:resource_id>/role/<uuid:role_id>", methods=["GET"])
+@resources.route("/<uuid:resource_id>/roles/<uuid:role_id>", methods=["GET"])
 @require_oauth2
 def view_resource_role(resource_id: UUID, role_id: UUID):
     """View resource role page."""
@@ -350,7 +351,7 @@ def view_resource_role(resource_id: UUID, role_id: UUID):
                 resource_error=process_error(error)),
             lambda resource: __fetch_resource_role__(resource=resource))
 
-@resources.route("/<uuid:resource_id>/role/<uuid:role_id>/unassign-privilege",
+@resources.route("/<uuid:resource_id>/roles/<uuid:role_id>/unassign-privilege",
                  methods=["GET", "POST"])
 @require_oauth2
 def unassign_privilege_from_resource_role(resource_id: UUID, role_id: UUID):
@@ -397,3 +398,57 @@ def unassign_privilege_from_resource_role(resource_id: UUID, role_id: UUID):
         f"auth/resource/view/{resource_id}").either(
             with_flash_error(returnto),
             __fetch_resource_role__)
+
+
+@resources.route("/<uuid:resource_id>/roles/create-role",
+                 methods=["GET", "POST"])
+@require_oauth2
+def create_resource_role(resource_id: UUID):
+    """Create new role for the resource."""
+    def __render__(**kwargs):
+        return render_ui("oauth2/create-role.html", **kwargs)
+
+    def __fetch_resource_roles__(resource):
+        user = session.session_info()["user"]
+        return oauth2_get(
+            f"auth/resource/{resource_id}/users/{user['user_id']}"
+            "/roles").either(
+                lambda error: {
+                    "resource": resource,
+                    "resource_role_error": process_error(error)
+                },
+                lambda roles: {"resource": resource, "roles": roles})
+
+    if request.method == "GET":
+        return oauth2_get(f"auth/resource/view/{resource_id}").map(
+            __fetch_resource_roles__).either(
+            lambda error: __render__(resource_error=error),
+            lambda kwargs: __render__(**kwargs))
+
+    formdata = request.form
+    privileges = formdata.getlist("privileges[]")
+    if not bool(privileges):
+        flash(
+            "You must provide at least one privilege for creation of the new "
+            "role.",
+            "alert-danger")
+        return redirect(url_for("oauth2.resource.create_resource_role",
+                                resource_id=resource_id))
+
+    def __handle_error__(error):
+        flash_error(process_error(error))
+        return redirect(url_for(
+            "oauth2.resource.create_resource_role", resource_id=resource_id))
+
+    def __handle_success__(success):
+        flash("Role successfully created.", "alert-success")
+        return redirect(url_for(
+            "oauth2.resource.view_resource", resource_id=resource_id))
+
+    return oauth2_post(
+        f"auth/resource/{resource_id}/roles/create",
+        json={
+            "role_name": formdata["role_name"],
+            "privileges": privileges
+        }).either(
+            __handle_error__, __handle_success__)
