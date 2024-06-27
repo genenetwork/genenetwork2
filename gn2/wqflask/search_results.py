@@ -282,91 +282,11 @@ class SearchResultPage:
         if all([(the_term['key'] in xapian_terms) or (not the_term['key'] and self.dataset.type != "Publish") for the_term in self.search_terms]):
             self.search_type = "xapian"
             self.results = requests.get(generate_xapian_request(self.dataset, self.search_terms, self.and_or)).json()
+            if not len(self.results) or 'error' in self.results:
+                self.results = []
+                self.sql_search()
         else:
-            self.search_type = "sql"
-            combined_from_clause = ""
-            combined_where_clause = ""
-            # The same table can't be referenced twice in the from clause
-            previous_from_clauses = []
-
-            for i, a_search in enumerate(self.search_terms):
-                if a_search['key'] == "GO":
-                    self.go_term = a_search['search_term'][0]
-                    gene_list = get_GO_symbols(a_search)
-                    self.search_terms += gene_list
-                    continue
-                else:
-                    the_search = self.get_search_ob(a_search)
-                    if the_search != None:
-                        if a_search['key'] == None and self.dataset.type == "ProbeSet":
-                            alias_terms = get_alias_terms(a_search['search_term'][0], self.dataset.group.species)
-                            alias_where_clauses = []
-                            for alias_search in alias_terms:
-                                alias_search_ob = self.get_search_ob(alias_search)
-                                if alias_search_ob != None:
-                                    get_from_clause = getattr(
-                                        alias_search_ob, "get_from_clause", None)
-                                    if callable(get_from_clause):
-                                        from_clause = alias_search_ob.get_from_clause()
-                                        if from_clause in previous_from_clauses:
-                                            pass
-                                        else:
-                                            previous_from_clauses.append(from_clause)
-                                            combined_from_clause += from_clause
-                                    where_clause = alias_search_ob.get_alias_where_clause()
-                                    alias_where_clauses.append(where_clause)
-
-                            get_from_clause = getattr(
-                                the_search, "get_from_clause", None)
-                            if callable(get_from_clause):
-                                from_clause = the_search.get_from_clause()
-                                if from_clause in previous_from_clauses:
-                                    pass
-                                else:
-                                    previous_from_clauses.append(from_clause)
-                                    combined_from_clause += from_clause
-
-                            where_clause = the_search.get_where_clause()
-                            alias_where_clauses.append(where_clause)
-
-                            combined_where_clause += "(" + " OR ".join(alias_where_clauses) + ")"
-                            if (i + 1) < len(self.search_terms):
-                                if self.and_or == "and":
-                                    combined_where_clause += "AND"
-                                else:
-                                    combined_where_clause += "OR"
-                        else:
-                            get_from_clause = getattr(
-                                the_search, "get_from_clause", None)
-                            if callable(get_from_clause):
-                                from_clause = the_search.get_from_clause()
-                                if from_clause in previous_from_clauses:
-                                    pass
-                                else:
-                                    previous_from_clauses.append(from_clause)
-                                    combined_from_clause += from_clause
-
-                            where_clause = the_search.get_where_clause()
-                            combined_where_clause += "(" + where_clause + ")"
-                            if (i + 1) < len(self.search_terms):
-                                if self.and_or == "and":
-                                    combined_where_clause += "AND"
-                                else:
-                                    combined_where_clause += "OR"
-                    else:
-                        self.search_term_exists = False
-
-            if self.search_term_exists:
-                combined_where_clause = "(" + combined_where_clause + ")"
-                final_query = the_search.compile_final_query(
-                    combined_from_clause, combined_where_clause)
-
-                results = the_search.execute(final_query)
-                self.results.extend(results)
-
-            if self.search_term_exists:
-                if the_search != None:
-                    self.header_fields = the_search.header_fields
+            self.sql_search()
 
     def get_search_ob(self, a_search):
         search_term = a_search['search_term']
@@ -389,6 +309,93 @@ class SearchResultPage:
             return the_search
         else:
             return None
+
+    def sql_search(self):
+        self.search_type = "sql"
+        combined_from_clause = ""
+        combined_where_clause = ""
+        # The same table can't be referenced twice in the from clause
+        previous_from_clauses = []
+
+        for i, a_search in enumerate(self.search_terms):
+            if a_search['key'] == "GO":
+                self.go_term = a_search['search_term'][0]
+                gene_list = get_GO_symbols(a_search)
+                self.search_terms += gene_list
+                continue
+            else:
+                the_search = self.get_search_ob(a_search)
+                if the_search != None:
+                    if a_search['key'] == None and self.dataset.type == "ProbeSet":
+                        alias_terms = get_alias_terms(a_search['search_term'][0], self.dataset.group.species)
+                        alias_where_clauses = []
+                        for alias_search in alias_terms:
+                            alias_search_ob = self.get_search_ob(alias_search)
+                            if alias_search_ob != None:
+                                get_from_clause = getattr(
+                                    alias_search_ob, "get_from_clause", None)
+                                if callable(get_from_clause):
+                                    from_clause = alias_search_ob.get_from_clause()
+                                    if from_clause in previous_from_clauses:
+                                        pass
+                                    else:
+                                        previous_from_clauses.append(from_clause)
+                                        combined_from_clause += from_clause
+                                where_clause = alias_search_ob.get_alias_where_clause()
+                                alias_where_clauses.append(where_clause)
+
+                        get_from_clause = getattr(
+                            the_search, "get_from_clause", None)
+                        if callable(get_from_clause):
+                            from_clause = the_search.get_from_clause()
+                            if from_clause in previous_from_clauses:
+                                pass
+                            else:
+                                previous_from_clauses.append(from_clause)
+                                combined_from_clause += from_clause
+
+                        where_clause = the_search.get_where_clause()
+                        alias_where_clauses.append(where_clause)
+
+                        combined_where_clause += "(" + " OR ".join(alias_where_clauses) + ")"
+                        if (i + 1) < len(self.search_terms):
+                            if self.and_or == "and":
+                                combined_where_clause += "AND"
+                            else:
+                                combined_where_clause += "OR"
+                    else:
+                        get_from_clause = getattr(
+                            the_search, "get_from_clause", None)
+                        if callable(get_from_clause):
+                            from_clause = the_search.get_from_clause()
+                            if from_clause in previous_from_clauses:
+                                pass
+                            else:
+                                previous_from_clauses.append(from_clause)
+                                combined_from_clause += from_clause
+
+                        where_clause = the_search.get_where_clause()
+                        combined_where_clause += "(" + where_clause + ")"
+                        if (i + 1) < len(self.search_terms):
+                            if self.and_or == "and":
+                                combined_where_clause += "AND"
+                            else:
+                                combined_where_clause += "OR"
+                else:
+                    self.search_term_exists = False
+
+        if self.search_term_exists:
+            combined_where_clause = "(" + combined_where_clause + ")"
+            final_query = the_search.compile_final_query(
+                combined_from_clause, combined_where_clause)
+
+            results = the_search.execute(final_query)
+            self.results.extend(results)
+
+        if self.search_term_exists:
+            if the_search != None:
+                self.header_fields = the_search.header_fields
+
 
 def trait_info_str(trait, dataset_type):
     """Provide a string representation for given trait"""
