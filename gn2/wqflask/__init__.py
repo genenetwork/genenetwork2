@@ -33,6 +33,7 @@ from gn2.wqflask.api.markdown import environments_blueprint
 from gn2.wqflask.api.markdown import facilities_blueprint
 from gn2.wqflask.api.markdown import blogs_blueprint
 from gn2.wqflask.api.markdown import news_blueprint
+from gn2.wqflask.api.markdown import xapian_syntax_blueprint
 from gn2.wqflask.api.jobs import jobs as jobs_bp
 from gn2.wqflask.oauth2.routes import oauth2
 from gn2.wqflask.oauth2.client import user_logged_in
@@ -127,6 +128,7 @@ app.register_blueprint(environments_blueprint, url_prefix="/environments")
 app.register_blueprint(facilities_blueprint, url_prefix="/facilities")
 app.register_blueprint(blogs_blueprint, url_prefix="/blogs")
 app.register_blueprint(news_blueprint, url_prefix="/news")
+app.register_blueprint(xapian_syntax_blueprint, url_prefix="/search-syntax")
 app.register_blueprint(jupyter_notebooks, url_prefix="/jupyter_notebooks")
 
 app.register_blueprint(resource_management, url_prefix="/resource-management")
