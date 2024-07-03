@@ -611,3 +611,34 @@ def retrieve_trait_info(trait, dataset, get_qtl_info=False):
                 f"{repr(trait.name)} information is not found in the database "
                 f"for dataset '{dataset.name}' with id '{dataset.id}'.")
         return trait
+
+def fetch_symbols(trait_db_list):
+    """
+    Fetch list of trait symbols
+
+    From a list of traits and datasets (where each item has
+    the trait and dataset name separated by a colon), return
+
+    """
+
+    trimmed_trait_list = [trait_db for trait_db in trait_db_list
+                          if 'Publish' not in trait_db and 'Geno' not in trait_db.split(":")[1]]
+
+    symbol_list = []
+    with database_connection(get_setting("SQL_URI")) as conn, conn.cursor() as cursor:
+        for trait_db in trimmed_trait_list:
+            symbol_query = """
+                SELECT ps.Symbol
+                FROM ProbeSet as ps
+                    INNER JOIN ProbeSetXRef psx ON psx.ProbeSetId = ps.Id
+                    INNER JOIN ProbeSetFreeze psf ON psx.ProbeSetFreezeId = psf.Id
+                WHERE
+                    ps.Name = %(trait_name)s AND
+                    psf.Name = %(db_name)s
+            """
+
+            cursor.execute(symbol_query, {'trait_name': trait_db.split(":")[0],
+                                          'db_name': trait_db.split(":")[1]})
+            symbol_list.append(cursor.fetchone()[0])
+
+    return "+".join(symbol_list)

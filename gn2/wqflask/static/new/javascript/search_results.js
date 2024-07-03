@@ -309,7 +309,7 @@ $(function() {
       return submit_special("/loading")
   });
 
-  $("#send_to_webgestalt, #send_to_bnw, #send_to_geneweaver").on("click", function() {
+  $("#send_to_webgestalt, #send_to_bnw, #send_to_geneweaver, #send_to_genecup").on("click", function() {
       traits = getTraitsFromTable()
       $("#trait_list").val(traits)
       url = $(this).data("url")

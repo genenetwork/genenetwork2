@@ -68,6 +68,8 @@ RGD_URL = "https://rgd.mcw.edu/rgdweb/elasticResults.html?term=%s&category=Gene&
 PHENOGEN_URL = "https://phenogen.org/gene.jsp?speciesCB=Rn&auto=Y&geneTxt=%s&genomeVer=rn7&section=geneEQTL"
 RRID_MOUSE_URL = "https://www.jax.org/strain/%s"
 RRID_RAT_URL = "https://rgd.mcw.edu/rgdweb/report/strain/main.html?id=%s"
+GENE_CUP_URL = "https://genecup.org/progress?type=GWAS&type=addiction&type=drug&type=brain&type=stress&type=psychiatric&type=cell&type=function&query=%s"
+
 
 # Temporary storage (note that this TMPDIR can be set as an
 # environment variable - use utility.tools.TEMPDIR when you
