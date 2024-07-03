@@ -46,12 +46,12 @@ from gn2.wqflask import search_results
 from gn2.wqflask import server_side
 # Used by YAML in marker_regression
 from gn2.base.data_set import create_dataset
+from gn2.base.trait import fetch_symbols
 from gn2.wqflask.show_trait import show_trait
 from gn2.wqflask.show_trait import export_trait_data
 from gn2.wqflask.show_trait.show_trait import get_diff_of_vals
 from gn2.wqflask.heatmap import heatmap
-from gn2.wqflask.external_tools import send_to_bnw
-from gn2.wqflask.external_tools import send_to_webgestalt
+from gn2.wqflask.external_tools import send_to_bnw, send_to_webgestalt
 from gn2.wqflask.external_tools import send_to_geneweaver
 from gn2.wqflask.comparison_bar_chart import comparison_bar_chart
 from gn2.wqflask.marker_regression import run_mapping
@@ -88,8 +88,8 @@ from gn2.utility.redis_tools import get_redis_conn
 
 import gn2.utility.hmac as hmac
 
-from gn2.base.webqtlConfig import TMPDIR
-from gn2.base.webqtlConfig import GENERATED_IMAGE_DIR
+from gn2.base.webqtlConfig import TMPDIR, GENERATED_IMAGE_DIR
+from gn2.base.webqtlConfig import GENE_CUP_URL
 
 from gn2.wqflask.database import database_connection
 
@@ -739,6 +739,22 @@ def geneweaver_page():
             "empty_collection.html", **{'tool': 'GeneWeaver'})
 
     return rendered_template
+
+
+@app.route("/genecup", methods=('POST',))
+def genecup_page():
+    start_vars = request.form
+
+    traits = [trait.strip() for trait in start_vars['trait_list'].split(',')]
+
+    if traits[0] != "":
+        symbol_string = fetch_symbols(traits)
+        return redirect(GENE_CUP_URL % symbol_string)
+    else:
+        rendered_template = render_template(
+            "empty_collection.html", **{'tool': 'GeneWeaver'})
+
+        return rendered_template
 
 
 @app.route("/comparison_bar_chart", methods=('POST',))
