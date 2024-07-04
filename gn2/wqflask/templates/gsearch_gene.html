@@ -258,8 +258,10 @@
                 "scroller": true
                 {% endif %}
             }
-
-            create_table(tableId, traitsJson, columnDefs, tableSettings);
+            
+            if traitsJson.length > 0 {
+              create_table(tableId, traitsJson, columnDefs, tableSettings);
+            }
 
         });
         
