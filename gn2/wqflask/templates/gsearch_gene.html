@@ -261,6 +261,8 @@
             
             if (traitsJson.length > 0) {
               create_table(tableId, traitsJson, columnDefs, tableSettings);
+            } else {
+              $("#" + tableId +" td").replaceWith("<td>No data</td>")
             }
 
         });
