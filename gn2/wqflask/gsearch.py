@@ -28,10 +28,16 @@ class GSearch:
         hmac = curry(3, lambda trait_name, dataset, data_hmac: f"{trait_name}:{dataset}:{data_hmac}")
         convert_lod = lambda x: x / 4.61
         self.trait_list = []
-        for i, trait in enumerate(requests.get(
+        response = requests.get(
                 urljoin(GN3_LOCAL_URL, "/api/search?" + urlencode({"query": self.terms,
                                                                    "type": self.type,
-                                                                   "per_page": MAX_SEARCH_RESULTS}))).json()):
+                                                                   "per_page": MAX_SEARCH_RESULTS})))
+        if response.status_code == 400 and "parsererror" in response.text.lower():
+            raise ValueError(f"Query `{self.terms}` has a problem: {response.json()}")
+        response.raise_for_status()
+        response_json = response.json()
+
+        for i, trait in enumerate(response_json):
             trait = MonadicDict(trait)
             trait["index"] = Just(i)
             trait["location_repr"] = (Maybe.apply(chr_mb)
