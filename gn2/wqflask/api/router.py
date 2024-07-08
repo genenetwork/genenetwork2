@@ -379,23 +379,28 @@ def fetch_traits(dataset_name, file_format="json"):
         if len(trait_ids) > 0:
             if data_type == "ProbeSet":
                 query = """
-                            SELECT
-                                ProbeSet.Id, ProbeSet.Name, ProbeSet.Symbol, ProbeSet.description, ProbeSet.Chr, ProbeSet.Mb, ProbeSet.alias,
-                                ProbeSetXRef.mean, ProbeSetXRef.se, ProbeSetXRef.Locus, ProbeSetXRef.LRS, ProbeSetXRef.pValue, ProbeSetXRef.additive, ProbeSetXRef.h2
-                            FROM
-                                ProbeSet, ProbeSetXRef, ProbeSetFreeze
+                            SELECT DISTINCT
+                                ProbeSet.`Id`, ProbeSet.`Name`, ProbeSet.`Symbol`, ProbeSet.`description`,
+                                ProbeSet.`Chr`, ProbeSet.`Mb`, ProbeSet.`alias`, ProbeSetXRef.`mean`,
+                                ProbeSetXRef.`se`, ProbeSetXRef.`Locus`, ProbeSetXRef.`LRS`,
+                                ProbeSetXRef.`pValue`, ProbeSetXRef.`additive`, ProbeSetXRef.`h2`,
+                                Geno.`Chr`, Geno.`Mb`
+                            FROM 
+                                Species
+                                INNER JOIN InbredSet ON InbredSet.`SpeciesId`= Species.`Id`
+                                INNER JOIN ProbeFreeze ON ProbeFreeze.`InbredSetId` = InbredSet.`Id`
+                                INNER JOIN Tissue ON ProbeFreeze.`TissueId` = Tissue.`Id`
+                                INNER JOIN ProbeSetFreeze ON ProbeSetFreeze.`ProbeFreezeId` = ProbeFreeze.`Id`
+                                INNER JOIN ProbeSetXRef ON ProbeSetXRef.`ProbeSetFreezeId` = ProbeSetFreeze.`Id`
+                                INNER JOIN ProbeSet ON ProbeSet.`Id` = ProbeSetXRef.`ProbeSetId`
+                                LEFT JOIN Geno ON ProbeSetXRef.`Locus` = Geno.`Name` AND Geno.`SpeciesId` = Species.`Id`
                             WHERE
-                                ProbeSetXRef.ProbeSetFreezeId = "{0}" AND
-                                ProbeSetXRef.ProbeSetId = ProbeSet.Id AND
-                                ProbeSetXRef.ProbeSetFreezeId = ProbeSetFreeze.Id AND
-                                ProbeSetFreeze.public > 0 AND
-                                ProbeSetFreeze.confidentiality < 1
+                                ProbeSetXRef.ProbeSetFreezeId = "{0}"
                             ORDER BY
-                                ProbeSet.Id
-                        """
+                                ProbeSet.Id"""
 
-                field_list = ["Id", "Name", "Symbol", "Description", "Chr", "Mb",
-                              "Aliases", "Mean", "SE", "Locus", "LRS", "P-Value", "Additive", "h2"]
+                field_list = ["Id", "Name", "Symbol", "Description", "Chr", "Mb", "Aliases", "Mean",
+                              "SE", "Locus", "LRS", "P-Value", "Additive", "h2", "Peak Chr", "Peak Mb"]
             elif data_type == "Geno":
                 query = """
                             SELECT
