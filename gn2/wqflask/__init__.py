@@ -158,21 +158,6 @@ def before_request():
     g.request_start_time = time.time()
     g.request_time = lambda: "%.5fs" % (time.time() - g.request_start_time)
 
-    token = session.get("oauth2_token", False)
-    if token and not bool(session.get("user_details", False)):
-        from gn2.wqflask.oauth2.client import oauth2_client
-        config = current_app.config
-        resp = oauth2_client().client.get(
-            urljoin(config["GN_SERVER_URL"], "oauth2/user"))
-        user_details = resp.json()
-        session["user_details"] = user_details
-
-        if user_details.get("error") == "invalid_token":
-            flash(user_details["error_description"], "alert-danger")
-            flash("You are now logged out.", "alert-info")
-            session.pop("user_details", None)
-            session.pop("oauth2_token", None)
-
 @app.context_processor
 def include_admin_role_class():
     return {'AdminRole': AdminRole}
