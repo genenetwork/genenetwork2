@@ -64,13 +64,6 @@ def session_info() -> SessionInfo:
             "masquerading": None
         }))
 
-def expired():
-    the_session = session_info()
-    def __expired__(token):
-        return datetime.now() > datetime.fromtimestamp(token["expires_at"])
-    return the_session["user"]["token"].either(
-        lambda left: False,
-        __expired__)
 
 def set_user_token(token: str) -> SessionInfo:
     """Set the user's token."""
