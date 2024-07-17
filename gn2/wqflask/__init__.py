@@ -77,7 +77,7 @@ def dev_loggers(appl: Flask) -> None:
 
     root_logger = logging.getLogger()
     root_logger.addHandler(stderr_handler)
-    root_logger.setLevel(appl.config.get("LOGLEVEL", "WARNING"))
+    root_logger.setLevel(appl.config.get("LOG_LEVEL", "WARNING"))
 
 
 def gunicorn_loggers(appl: Flask) -> None:
@@ -94,12 +94,20 @@ def setup_logging(appl: Flask) -> None:
 
 
 app = Flask(__name__)
-setup_logging(app)
-
+## BEGIN: Setup configurations ##
 # See http://flask.pocoo.org/docs/config/#configuring-from-files
 # Note no longer use the badly named WQFLASK_OVERRIDES (nyi)
 app.config.from_object('gn2.default_settings')
 app.config.from_envvar('GN2_SETTINGS')
+app.config["SESSION_REDIS"] = redis.from_url(app.config["REDIS_URL"])
+# BEGIN: SECRETS -- Should be the last of the settings to load
+secrets_file = Path(app.config.get("GN2_SECRETS", "")).absolute()
+if secrets_file.exists() and secrets_file.is_file():
+    app.config.from_pyfile(str(secrets_file))
+# END: SECRETS
+## END: Setup configurations ##
+setup_logging(app)
+### DO NOT USE logging BEFORE THIS POINT!!!! ###
 
 app.jinja_env.globals.update(
     undefined=jinja2.StrictUndefined,
@@ -109,14 +117,6 @@ app.jinja_env.globals.update(
     user_details=user_details,
     num_collections=numcoll,
     datetime=datetime)
-
-app.config["SESSION_REDIS"] = redis.from_url(app.config["REDIS_URL"])
-
-## BEGIN: SECRETS -- Should be the last of the settings to load
-secrets_file = Path(app.config.get("GN2_SECRETS", "")).absolute()
-if secrets_file.exists() and secrets_file.is_file():
-    app.config.from_pyfile(str(secrets_file))
-## END: SECRETS
 
 
 # Registering blueprints
