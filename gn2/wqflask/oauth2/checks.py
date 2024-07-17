@@ -6,7 +6,6 @@ from flask import flash, request, redirect
 from authlib.integrations.requests_client import OAuth2Session
 
 from . import session
-from .session import clear_session_info
 from .client import (
     oauth2_get,
     oauth2_client,
@@ -33,7 +32,7 @@ def require_oauth2(func):
             if not user_details.get("error", False):
                 return func(*args, **kwargs)
 
-            return clear_session_info(token)
+            return __clear_session__(token)
 
         return session.user_token().either(__clear_session__, __with_token__)
 
