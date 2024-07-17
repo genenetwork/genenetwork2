@@ -31,12 +31,7 @@ def oauth2_clientsecret():
 def user_logged_in():
     """Check whether the user has logged in."""
     suser = session.session_info()["user"]
-    if suser["logged_in"]:
-        if session.expired():
-            session.clear_session_info()
-            return False
-        return suser["token"].is_right()
-    return False
+    return suser["logged_in"] and suser["token"].is_right()
 
 
 def oauth2_client():
