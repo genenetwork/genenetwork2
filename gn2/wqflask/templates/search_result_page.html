@@ -238,9 +238,9 @@
                   description = data.description.slice(0, 200) + '...'
                 }
                 try {
-                  return decodeURIComponent(escape(description))
+                  return decodeURIComponent(description)
                 } catch(err){
-                  return escape(description)
+                  return description
                 }
               }
             },
@@ -306,9 +306,9 @@
                   description = data.description.slice(0, 200) + '...'
                 }
                 try {
-                  return decodeURIComponent(escape(description))
+                  return decodeURIComponent(description)
                 } catch(err){
-                  return escape(description)
+                  return description
                 }
               }
             },
