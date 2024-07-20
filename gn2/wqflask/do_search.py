@@ -254,8 +254,10 @@ class PhenotypeSearch(DoSearch):
         # and comment here
 
         # if "'" not in self.search_term[0]:
-        search_term = "%" + \
-            self.handle_wildcard(self.search_term[0]) + "%"
+        search_term = self.search_term[0]
+        if not self.search_term[0].isnumeric() or len(self.search_term[0]) != 5: # To make sure phenotype trait IDs aren't included in a fulltext search
+            search_term = "%" + \
+                self.handle_wildcard(self.search_term[0]) + "%"
         if "_" in self.search_term[0]:
             if len(self.search_term[0].split("_")[0]) == 3:
                 search_term = "%" + self.handle_wildcard(
