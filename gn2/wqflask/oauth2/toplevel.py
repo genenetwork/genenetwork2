@@ -3,10 +3,15 @@ import uuid
 import datetime
 from urllib.parse import urljoin, urlparse, urlunparse
 
-from authlib.jose import jwt
-from flask import (
-    flash, request, Blueprint, url_for, redirect, render_template,
-    current_app as app)
+from authlib.jose import jwt, KeySet
+from flask import (flash,
+                   request,
+                   url_for,
+                   jsonify,
+                   redirect,
+                   Blueprint,
+                   render_template,
+                   current_app as app)
 
 from . import session
 from .checks import require_oauth2
@@ -80,3 +85,12 @@ def authorisation_code():
                 lambda err: __error__(process_error(err)), __success__)
     flash("AuthorisationError: No code was provided.", "alert-danger")
     return redirect("/")
+
+
+@toplevel.route("/public-jwks", methods=["GET"])
+def public_jwks():
+    """Provide endpoint that returns the public keys."""
+    return jsonify({
+        "documentation": "Returns a static key for the time being. This will change.",
+        "jwks": KeySet([app.config["SSL_PRIVATE_KEY"]]).as_dict().get("keys")
+    })
