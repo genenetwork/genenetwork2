@@ -28,7 +28,7 @@ if WEBSERVER_MODE == 'DEBUG':
             port=SERVER_PORT,
             debug=True,
             use_debugger=False,
-            threaded=False,
+            threaded=True,
             processes=0,
             use_reloader=True)
 elif WEBSERVER_MODE == 'DEV':
@@ -37,7 +37,7 @@ elif WEBSERVER_MODE == 'DEV':
             port=SERVER_PORT,
             debug=False,
             use_debugger=False,
-            threaded=False,
+            threaded=True,
             processes=0,
             use_reloader=True)
 else:  # staging/production modes
