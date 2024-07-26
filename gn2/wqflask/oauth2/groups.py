@@ -44,7 +44,7 @@ def create_group():
     def __setup_group__(response):
         session["user_details"]["group"] = response
 
-    resp = oauth2_post("auth/group/create", data=dict(request.form))
+    resp = oauth2_post("auth/group/create", json=dict(request.form))
     return resp.either(
         handle_error("oauth2.group.join_or_create"),
         handle_success(
@@ -116,7 +116,7 @@ def accept_join_request():
         return redirect(url_for("oauth2.group.list_join_requests"))
     return oauth2_post(
         "auth/group/requests/join/accept",
-        data=request.form).either(
+        json=dict(request.form)).either(
             handle_error("oauth2.group.list_join_requests"),
             __success__)
 
@@ -132,7 +132,7 @@ def reject_join_request():
         return redirect(url_for("oauth2.group.list_join_requests"))
     return oauth2_post(
         "auth/group/requests/join/reject",
-        data=request.form).either(
+        json=dict(request.form)).either(
             handle_error("oauth2.group.list_join_requests"),
             __success__)
 
@@ -163,7 +163,7 @@ def add_delete_privilege_to_role(
         }
         return oauth2_post(
             uris[direction],
-            data={
+            json={
                 "group_role_id": group_role_id,
                 "privilege_id": privilege_id
             }).either(__error__, __success__)
