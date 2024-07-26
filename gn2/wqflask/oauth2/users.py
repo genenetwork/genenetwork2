@@ -67,7 +67,7 @@ def request_add_to_group() -> Response:
         return redirect(url_for("oauth2.user.user_profile"))
 
     return oauth2_post(f"auth/group/requests/join/{group_id}",
-                       data=form).either(__error__, __success__)
+                       json=form).either(__error__, __success__)
 
 
 @users.route("/logout", methods=["GET", "POST"])
@@ -108,7 +108,7 @@ def register_user():
     form = request.form
     response = requests.post(
         urljoin(authserver_uri(), "auth/user/register"),
-        data = {
+        json = {
             "user_name": form.get("user_name"),
             "email": form.get("email_address"),
             "password": form.get("password"),

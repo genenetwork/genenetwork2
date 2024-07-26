@@ -173,7 +173,7 @@ def link_data_to_resource():
             flash(f"Data linked to resource successfully", "alert-success")
             return redirect(url_for(
                 "oauth2.resource.view_resource", resource_id=resource_id))
-        return oauth2_post("auth/resource/data/link", data=dict(form)).either(
+        return oauth2_post("auth/resource/data/link", json=dict(form)).either(
             __error__,
             __success__)
     except AssertionError as aserr:
@@ -202,7 +202,7 @@ def unlink_data_from_resource():
             return redirect(url_for(
                 "oauth2.resource.view_resource", resource_id=resource_id))
         return oauth2_post(
-            "auth/resource/data/unlink", data=dict(form)).either(
+            "auth/resource/data/unlink", json=dict(form)).either(
             __error__, __success__)
     except AssertionError as aserr:
         flash(aserr.args[0], "alert-danger")
