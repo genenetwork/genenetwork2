@@ -34,7 +34,7 @@ MAXLRS = 460.0
 PUBLICTHRESH = 0
 
 # Groups to treat as unique when drawing correlation dropdowns (not sure if this logic even makes sense or is necessary)
-BXD_GROUP_EXCEPTIONS = ['BXD-Longevity', 'BXD-AE', 'BXD-Heart-Metals', 'BXD-NIA-AD']
+BXD_GROUP_EXCEPTIONS = ['BXD-Longevity', 'BXD-AE', 'BXD-Heart-Metals', 'BXD-NIA-AD', 'BXD-JAX-OFS']
 
 # EXTERNAL LINK ADDRESSES
 PUBMEDLINK_URL = "http://www.ncbi.nlm.nih.gov/entrez/query.fcgi?cmd=Retrieve&db=PubMed&list_uids=%s&dopt=Abstract"
