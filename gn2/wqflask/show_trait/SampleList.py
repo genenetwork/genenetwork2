@@ -132,7 +132,8 @@ class SampleList:
                 "CaseAttribute, CaseAttributeXRefNew WHERE "
                 "CaseAttributeXRefNew.CaseAttributeId = CaseAttribute.CaseAttributeId "
                 "AND CaseAttributeXRefNew.InbredSetId = %s "
-                "ORDER BY CaseAttribute.CaseAttributeId", (str(self.dataset.group.id),)
+                "AND CaseAttribute.InbredSetId = %s "
+                "ORDER BY CaseAttribute.CaseAttributeId", (str(self.dataset.group.id),str(self.dataset.group.id))
             )
 
             self.attributes = {}
