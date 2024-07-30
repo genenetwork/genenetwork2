@@ -1362,7 +1362,7 @@ def edit_case_attributes(inbredset_id: int) -> Response:
         return monad_requests.post(
             urljoin(
                 current_app.config["GN_SERVER_URL"],
-                f"/api/case-attribute/{inbredset_id}/edit"),
+                f"case-attribute/{inbredset_id}/edit"),
             json={
                 "edit-data": reduce(__process_data__, form.items(), {})
             },
@@ -1374,29 +1374,33 @@ def edit_case_attributes(inbredset_id: int) -> Response:
     def __fetch_strains__(inbredset_group):
         return monad_requests.get(urljoin(
             current_app.config["GN_SERVER_URL"],
-            f"/api/case-attribute/{inbredset_id}/strains")).then(
+            f"case-attribute/{inbredset_id}/strains")).then(
                 lambda resp: {**inbredset_group, "strains": resp.json()})
 
     def __fetch_names__(strains):
         return monad_requests.get(urljoin(
             current_app.config["GN_SERVER_URL"],
-            f"/api/case-attribute/{inbredset_id}/names")).then(
+            f"case-attribute/{inbredset_id}/names")).then(
                 lambda resp: {**strains, "case_attribute_names": resp.json()})
 
     def __fetch_values__(canames):
         return monad_requests.get(urljoin(
             current_app.config["GN_SERVER_URL"],
-            f"/api/case-attribute/{inbredset_id}/values")).then(
+            f"case-attribute/{inbredset_id}/values")).then(
                 lambda resp: {**canames, "case_attribute_values": {
                     value["StrainName"]: value for value in resp.json()}})
 
+    def __view_error__(err):
+        current_app.logger.error("%s", err)
+        return "We experienced an error"
+
     return monad_requests.get(urljoin(
         current_app.config["GN_SERVER_URL"],
-        f"/api/case-attribute/{inbredset_id}")).then(
+        f"case-attribute/{inbredset_id}")).then(
             lambda resp: {"inbredset_group": resp.json()}).then(
                 __fetch_strains__).then(__fetch_names__).then(
                     __fetch_values__).either(
-                        lambda err: err,  # TODO: Handle error better
+                        __view_error__,
                         lambda values: render_template(
                             "edit_case_attributes.html", inbredset_id=inbredset_id, **values))
 
