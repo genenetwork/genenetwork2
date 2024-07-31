@@ -41,8 +41,10 @@ def process_error(error: Response,
     if error.status_code in range(400, 500):
         try:
             err = error.json()
-            msg = err.get(
-                "error_message", err.get("error_description", f"{error.reason}"))
+            potential_keys = [key for key in err.keys() if key.startswith("error")]
+            msg = f"{error.reason}"
+            if potential_keys:
+                msg = " ; ".join([f"{k}: {err[k]}" for k in potential_keys])
         except simplejson.errors.JSONDecodeError as _jde:
             msg = message
         return {
