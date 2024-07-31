@@ -42,7 +42,7 @@ GN_PROXY_URL="https://genenetwork.org/gn3-proxy/"
 SQL_URI = "mysql://gn2:mysql_password@localhost/db_webqtl_s"
 SQL_ALCHEMY_POOL_RECYCLE = 3600
 GN_SERVER_URL = "http://localhost:8880/api/" # REST API server
-AUTH_SERVER_URL="http://localhost:9094/"
+AUTH_SERVER_URL="http://localhost:8081/"
 GN2_BASE_URL = "http://genenetwork.org/" # to pick up REST API
 GN2_BRANCH_URL = GN2_BASE_URL
 
@@ -116,6 +116,8 @@ CORRELATION_COMMAND = os.environ["GN2_PROFILE"] + "/bin/correlation_rust"
 
 OAUTH2_CLIENT_ID="0bbfca82-d73f-4bd4-a140-5ae7abb4a64d"
 OAUTH2_CLIENT_SECRET="yadabadaboo"
+AUTH_SERVER_SSL_PUBLIC_KEY = "/absolute/path/to/ssl_public_key.pem"
+SSL_PRIVATE_KEY = "/absolute/path/to/ssl-private-key.pem"
 
 SESSION_TYPE = "redis"
 SESSION_PERMANENT = True
