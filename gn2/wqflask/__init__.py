@@ -70,7 +70,7 @@ def parse_ssl_key(app: Flask, keyconfig: str):
 def dev_loggers(appl: Flask) -> None:
     """Default development logging."""
     formatter = logging.Formatter(
-        fmt="[%(asctime)s] %(levelname)s in %(module)s: %(message)s")
+        fmt="[%(asctime)s] %(levelname)s [%(thread)d -- %(threadName)s] in %(module)s: %(message)s")
     stderr_handler = logging.StreamHandler(stream=sys.stderr)
     stderr_handler.setFormatter(formatter)
     appl.logger.addHandler(stderr_handler)
