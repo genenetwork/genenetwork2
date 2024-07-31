@@ -1,5 +1,7 @@
 """Common oauth2 client utilities."""
 import json
+import time
+import random
 import requests
 from typing import Optional
 from urllib.parse import urljoin
@@ -38,10 +40,36 @@ def oauth2_client():
     def __update_token__(token, refresh_token=None, access_token=None):
         """Update the token when refreshed."""
         session.set_user_token(token)
+        return token
 
-    def __client__(token) -> OAuth2Session:
+    def __validate_token__(token):
         _jwt = jwt.decode(token["access_token"],
                           app.config["AUTH_SERVER_SSL_PUBLIC_KEY"])
+        return token
+
+    def __delay__():
+        """Do a tiny delay."""
+        time.sleep(random.choice(tuple(i/1000.0 for i in range(0,100))))
+
+    def __refresh_token__(token):
+        """Synchronise token refresh."""
+        if session.is_token_expired():
+            __delay__()
+            if session.is_token_refreshing():
+                while session.is_token_refreshing():
+                    __delay__()
+                    _token = session.user_token().either(None, lambda _tok: _tok)
+                    return _token
+
+            session.toggle_token_refreshing()
+            _client = __client__(token)
+            _client.get(urljoin(authserver_uri(), "auth/user/"))
+            session.toggle_token_refreshing()
+            return _client.token
+
+        return token
+
+    def __client__(token) -> OAuth2Session:
         client = OAuth2Session(
             oauth2_clientid(),
             oauth2_clientsecret(),
@@ -51,9 +79,10 @@ def oauth2_client():
             token=token,
             update_token=__update_token__)
         return client
-    return session.user_token().either(
-        lambda _notok: __client__(None),
-        lambda token: __client__(token))
+    return session.user_token().then(__validate_token__).then(
+        __refresh_token__).either(
+            lambda _notok: __client__(None),
+            lambda token: __client__(token))
 
 def __no_token__(_err) -> Left:
     """Handle situation where request is attempted with no token."""
