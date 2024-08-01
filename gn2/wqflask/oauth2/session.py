@@ -23,6 +23,7 @@ class SessionInfo(TypedDict):
     ip_addr: str
     masquerade: Optional[UserDetails]
     refreshing_token: bool
+    auth_server_jwks: Optional[dict[str, Any]]
 
 __SESSION_KEY__ = "GN::2::session_info" # Do not use this outside this module!!
 
@@ -112,13 +113,6 @@ def toggle_token_refreshing():
     return save_session_info({
         **_session,
         "token_refreshing": not _session.get("token_refreshing", False)})
-
-
-def is_token_expired():
-    """Check whether the token is expired."""
-    return user_token().either(
-        lambda _no_token: False,
-        lambda token: datetime.now().timestamp() > token["expires_at"])
 
 
 def is_token_refreshing():
