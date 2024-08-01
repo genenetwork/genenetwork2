@@ -56,17 +56,6 @@ def numcoll():
         return "ERROR"
 
 
-def parse_ssl_key(app: Flask, keyconfig: str):
-    """Parse key file paths into objects"""
-    keypath = app.config.get(keyconfig, "").strip()
-    if not bool(keypath):
-        app.logger.error("Expected configuration '%s'", keyconfig)
-        return
-
-    with open(keypath) as _sslkey:
-            app.config[keyconfig] = JsonWebKey.import_key(_sslkey.read())
-
-
 def dev_loggers(appl: Flask) -> None:
     """Default development logging."""
     formatter = logging.Formatter(
@@ -149,9 +138,6 @@ except StartupError as serr:
     app.register_blueprint(startup_errors, url_prefix="/")
 
 server_session = Session(app)
-
-parse_ssl_key(app, "SSL_PRIVATE_KEY")
-parse_ssl_key(app, "AUTH_SERVER_SSL_PUBLIC_KEY")
 
 @app.before_request
 def before_request():
