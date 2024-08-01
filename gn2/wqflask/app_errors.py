@@ -51,7 +51,7 @@ def handle_invalid_token_error(exc: InvalidTokenError):
     flash("An invalid session token was detected. "
           "You have been logged out of the system.",
           "alert-danger")
-    current_app.logger.error("Invalit token detected. %s", request.url, exc_info=True)
+    current_app.logger.error("Invalid token detected. %s", request.url, exc_info=True)
     session.clear_session_info()
     return redirect("/")
 
