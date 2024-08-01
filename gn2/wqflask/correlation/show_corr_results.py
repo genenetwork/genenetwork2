@@ -154,7 +154,7 @@ def get_user_filters(start_vars):
 
     if all(keys in start_vars for keys in ["loc_chr",
                                            "min_loc_mb",
-                                           "max_location_mb"]):
+                                           "max_loc_mb"]):
 
         location_chr = get_string(start_vars, "loc_chr")
         min_location_mb = get_int(start_vars, "min_loc_mb")
