@@ -13,6 +13,7 @@ from flask import (flash,
                    render_template,
                    current_app as app)
 
+from . import jwks
 from . import session
 from .checks import require_oauth2
 from .request_utils import user_details, process_error
@@ -34,7 +35,9 @@ def authorisation_code():
     code = request.args.get("code", "")
     if bool(code):
         base_url = urlparse(request.base_url, scheme=request.scheme)
-        jwtkey = app.config["SSL_PRIVATE_KEY"]
+        jwtkey = jwks.newest_jwk_with_rotation(
+            jwks.jwks_directory(app, "GN2_SECRETS"),
+            int(app.config["JWKS_ROTATION_AGE_DAYS"]))
         issued = datetime.datetime.now()
         request_data = {
             "grant_type": "urn:ietf:params:oauth:grant-type:jwt-bearer",
@@ -81,7 +84,7 @@ def authorisation_code():
             return redirect("/")
 
         return no_token_post(
-            "auth/token", json=request_data).either(
+            "auth/token", data=request_data).either(
                 lambda err: __error__(process_error(err)), __success__)
     flash("AuthorisationError: No code was provided.", "alert-danger")
     return redirect("/")
@@ -92,5 +95,6 @@ def public_jwks():
     """Provide endpoint that returns the public keys."""
     return jsonify({
         "documentation": "Returns a static key for the time being. This will change.",
-        "jwks": KeySet([app.config["SSL_PRIVATE_KEY"]]).as_dict().get("keys")
+        "jwks": KeySet(jwks.list_jwks(
+            jwks.jwks_directory(app, "GN2_SECRETS"))).as_dict().get("keys")
     })
