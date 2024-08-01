@@ -30,6 +30,8 @@
                (bootloader grub-bootloader)
                (targets (list "does-not-matter"))))
   (file-systems %base-file-systems)
+  (packages (cons mariadb  ;; for the mysql CLI client
+                  %base-packages))
   (services (cons* (service mysql-service-type)
                    (service redis-service-type)
                    (simple-service 'set-permissions
