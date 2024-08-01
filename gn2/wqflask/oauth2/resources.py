@@ -129,8 +129,10 @@ def view_resource(resource_id: UUID):
         dataset_type = resource["resource_category"]["resource_category_key"]
         return oauth2_get(f"auth/group/{dataset_type}/unlinked-data").either(
             lambda err: render_ui(
-                "oauth2/view-resource.html", resource=resource,
-                unlinked_error=process_error(err)),
+                "oauth2/view-resource.html",
+                resource=resource,
+                unlinked_error=process_error(err),
+                count_per_page=count_per_page),
             lambda unlinked: __unlinked_success__(resource, unlinked))
 
     def __fetch_resource_data__(resource):
