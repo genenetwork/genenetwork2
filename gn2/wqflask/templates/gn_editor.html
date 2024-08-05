@@ -19,6 +19,7 @@
       <ul class="nav navbar-nav navbar-right">
         <li><a href="#">Commit</a></li>
 	<li><a href="#">Refresh</a></li>
+	<li><a href="#">Help</a></li>
         <li class="dropdown">
           <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Settings <span class="caret"></span></a>
           <ul class="dropdown-menu">
@@ -40,7 +41,7 @@
 	</section>
 	<section class="col-sm-6">
 	  <div class="row">
-	    <section class="col-sm-10 col-sm-offset-1">
+	    <section class="col-sm-10 col-sm-offset-1" id="output" style="height:100vh;overflow-y:scroll">
 	      	  Tristique nulla aliquet enim tortor, at auctor urna nunc id cursus metus aliquam eleifend mi in nulla posuere sollicitudin aliquam ultrices sagittis orci, a scelerisque! Laoreet suspendisse interdum consectetur libero.
 	    </section>
 	  </div>
@@ -61,7 +62,8 @@
 
  
 <script src="//ajaxorg.github.io/ace-builds/src-min-noconflict/ace.js"></script>
-
+<script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+ <script src="https://cdn.jsdelivr.net/npm/marked-highlight/lib/index.umd.js"></script>
 <script type="text/javascript">
 
  document.addEventListener('DOMContentLoaded', function() {
@@ -123,9 +125,37 @@
 
 var editor = ace.edit("editor");
 editor.setOptions(editor_configurations);
-editor.container.style.resize = "horizontal"; 
- });
+     editor.container.style.resize = "horizontal";
+     function updatePreview(){
+	 const {markedHighlight} = globalThis.markedHighlight;
+	 let new_marked = new marked.Marked(
+                 markedHighlight({
+                  langPrefix: 'hljs language-',
+                  highlight(code, lang) {
+      const language = hljs.getLanguage(lang) ? lang : 'plaintext';
+      return hljs.highlight(code, { language }).value;
+    }
+  })
+	 );
+	   new_marked.use({
+          pedantic: false,
+          gfm: true,
+           });
 
+	 previewContent = document.querySelector("#output");
+        var markdownContent = editor.getValue();
+        var htmlContent = new_marked.parse(markdownContent)
+         previewContent.innerHTML = htmlContent;		 
+     }     
+
+     editor.getSession().on("change", function(e){
+	 updatePreview()
+     })
+
+     
+
+     
+ });
 
  
   
