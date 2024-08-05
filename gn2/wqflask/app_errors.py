@@ -72,7 +72,7 @@ def handle_oauth_error(exc: OAuthError):
     flash((f"{type(exc).__name__}: {__build_message__(exc)} "
            "Please log in again to continue."),
           "alert-danger")
-    current_app.logger.error("Invalit token detected. %s", request.url, exc_info=True)
+    current_app.logger.error("Invalid token detected. %s", request.url, exc_info=True)
     session.clear_session_info()
     return redirect("/")
 
