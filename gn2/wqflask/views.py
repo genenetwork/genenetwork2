@@ -310,6 +310,11 @@ def gnqna():
     return render_template("gnqa.html", prev_queries=prev_queries)
 
 
+@app.route("/editor/", methods=["GET"])
+def edit_gn_file():
+    return render_template("gn_editor.html")
+
+
 @app.route("/gnqna/hist/", methods=["GET"])
 @require_oauth2
 def get_hist_titles():
