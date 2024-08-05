@@ -90,10 +90,9 @@ def apply_filters(trait, target_trait, target_dataset, **filters):
     def __location_filter__(location_type, location_chr,
                             min_location_mb, max_location_mb):
 
-        if not target_trait['mb'] or not target_trait['chr']:
-            return True
-
         if target_dataset["type"] in ["ProbeSet", "Geno"] and location_type == "gene":
+            if not target_trait['mb'] or not target_trait['chr']:
+                return True
             return (
                 ((location_chr!=None) and (target_trait["chr"]!=location_chr))
                      or
