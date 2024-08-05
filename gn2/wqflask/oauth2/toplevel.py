@@ -94,7 +94,7 @@ def authorisation_code():
 def public_jwks():
     """Provide endpoint that returns the public keys."""
     return jsonify({
-        "documentation": "Returns a static key for the time being. This will change.",
+        "documentation": "The keys are listed in order of creation.",
         "jwks": KeySet(jwks.list_jwks(
             jwks.jwks_directory(app, "GN2_SECRETS"))).as_dict().get("keys")
     })
