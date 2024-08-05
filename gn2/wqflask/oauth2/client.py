@@ -9,8 +9,9 @@ from datetime import datetime, timedelta
 
 from flask import current_app as app
 from pymonad.either import Left, Right, Either
-from authlib.jose import KeySet, JsonWebKey, JsonWebToken
+from authlib.common.urls import url_decode
 from authlib.jose.errors import BadSignatureError
+from authlib.jose import KeySet, JsonWebKey, JsonWebToken
 from authlib.integrations.requests_client import OAuth2Session
 
 from gn2.wqflask.oauth2 import session
@@ -137,6 +138,16 @@ def oauth2_client():
 
         return token
 
+    def __json_auth__(client, method, uri, headers, body):
+        return (
+            uri,
+            {**headers, "Content-Type": "application/json"},
+            json.dumps({
+                **dict(url_decode(body)),
+                "client_id": oauth2_clientid(),
+                "client_secret": oauth2_clientsecret()
+            }))
+
     def __client__(token) -> OAuth2Session:
         client = OAuth2Session(
             oauth2_clientid(),
@@ -146,6 +157,8 @@ def oauth2_client():
             token_endpoint_auth_method="client_secret_post",
             token=token,
             update_token=__update_token__)
+        client.register_client_auth_method(
+            ("client_secret_post", __json_auth__))
         return client
 
     __update_auth_server_jwks__()
