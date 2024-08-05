@@ -83,9 +83,8 @@ def authorisation_code():
             })
             return redirect("/")
 
-        return no_token_post(
-            "auth/token", json=request_data).either(
-                lambda err: __error__(process_error(err)), __success__)
+        return no_token_post("auth/token", json=request_data).either(
+            lambda err: __error__(process_error(err)), __success__)
     flash("AuthorisationError: No code was provided.", "alert-danger")
     return redirect("/")
 
