@@ -15,12 +15,17 @@ function search_mrna() {
     selected = JSON.parse(document.getElementById(
 	"tbl-link").getAttribute("data-datasets"));
     species_name = document.getElementById("txt-species-name").value
+    bearer_token = document.getElementById("bearer_token").value
     search_endpoint = "/auth/data/mrna/search"
     search_table = new TableDataSource(
 	"#tbl-search", "data-datasets", search_checkbox);
     $.ajax(
 	form.action,
 	{
+
+	    "beforeSend": function (xhr) {
+		xhr.setRequestHeader('Authorization', 'Bearer ' + bearer_token);
+	    },
 	    "method": "POST",
 	    "contentType": "application/json; charset=utf-8",
 	    "dataType": "json",
