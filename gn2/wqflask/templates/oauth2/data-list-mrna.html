@@ -95,6 +95,8 @@
 	  action="{{search_uri}}"
 	  method="POST">
       <legend>Search: mRNA Assay</legend>
+
+      <input type="hidden" id="bearer_token" name="bearer_token" value="{{bearer_token}}" />
       <input type="hidden" value="{{species_name}}" name="species"
 	     id="txt-species-name" />
       <input type="hidden" value="{{dataset_type}}" name="dataset_type"
