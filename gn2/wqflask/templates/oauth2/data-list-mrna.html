@@ -92,11 +92,9 @@
   <div class="row">
     <span id="search-messages" class="alert-danger" style="display:none"></span>
     <form id="frm-search"
-	  action="{{search_uri}}"
+	  action="{{url_for('oauth2.data.json_search_mrna')}}"
 	  method="POST">
       <legend>Search: mRNA Assay</legend>
-
-      <input type="hidden" id="bearer_token" name="bearer_token" value="{{bearer_token}}" />
       <input type="hidden" value="{{species_name}}" name="species"
 	     id="txt-species-name" />
       <input type="hidden" value="{{dataset_type}}" name="dataset_type"
