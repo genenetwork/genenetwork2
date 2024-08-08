@@ -13,7 +13,7 @@
       </div>
       <br>
       <div class="row">
-        <textarea class="col-sm-12" name="message" required>
+        <textarea rows="12" class="col-sm-12" name="message" required>
         </textarea>
 
       </div>
@@ -21,9 +21,6 @@
     <br>
     <br>
     <div class="row">
-      <button class="btn btn-secondary col-sm-2 col-sm-offset-1">
-        Cancel
-      </button>
       <button  hx-post="/editor/commit"
 	       hx-target="#output"
 	       hx-swap= "innerHTML"

@@ -30,12 +30,10 @@
   <div>
     <div class="row">
       <section class="col-sm-6" id="editor" style="height:100vh">
-
       </section>
       <section class="col-sm-6">
         <div class="row">
           <section class="col-sm-10 col-sm-offset-1" id="output" style="height:100vh;overflow-y:scroll" id="swap">
-            Tristique nulla aliquet enim tortor, at auctor urna nunc id cursus metus aliquam eleifend mi in nulla posuere sollicitudin aliquam ultrices sagittis orci, a scelerisque! Laoreet suspendisse interdum consectetur libero.
           </section>
         </div>
 
@@ -118,8 +116,6 @@
    
 
           document.querySelector("#output").addEventListener("updateEditor", function(event){
-              console.log(event.detail.payload)
-              console.log(event)
               editor.setOptions({
                   ...editor_configurations,
                   ...event.detail.payload
@@ -147,16 +143,19 @@
               previewContent = document.querySelector("#output");
               var markdownContent = editor.getValue();
               var htmlContent = new_marked.parse(markdownContent)
+	      console.log(htmlContent)
               previewContent.innerHTML = htmlContent;
           }
 
-          editor.getSession().on("change", function(e){
+      editor.getSession().on("change", function(e){
               updatePreview()
           })
-
+      //do the fetch here
+      var data = {{ content|tojson }}
+      editor.setValue(data, -1);
+    
 
       });
-
 
 
 </script>

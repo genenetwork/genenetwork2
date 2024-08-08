@@ -6,11 +6,21 @@
       </div>
     </div>
     <br>
-    <div>
-      <h3>Commit Sha:</h3>
-
-      <h3>Commit Message</h3>
+    {% if error %}
+    <h1> error occurred *error message hereh </h1>
+    {% else %}
+      <div>
+	<h3>Commit Sha: <span class="lead">
+	    <mark style="font-family: 'Linux Libertine','Georgia','Times','Source Serif Pro',serif;"><b><i>commit hash</i></b></mark>
+	</span></h3>
+         <br/>
+	<div class="lead"> <h3>Commit Message:
+	        <mark style="font-family: 'Linux Libertine','Georgia','Times','Source Serif Pro',serif;"><b><i>commit message</i></b></mark>
+	  </h3>
+	  
+	</div>
     </div>
+    {% endif %}
     <br> 
   </div>
 </section>
