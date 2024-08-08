@@ -9,46 +9,39 @@
 {% block search %}{% endblock %}
 {% block content %}
 <section class="container-fluid">
-    <header class="row">
-<nav class="navbar-inverse">
-  <div class="container-fluid">
-    <div class="navbar-header">
-      <a class="navbar-brand" href="#"><strong>GN Editor<strong></a>
-    </div>
-    <div >
-      <ul class="nav navbar-nav navbar-right">
-        <li><a href="#">Commit</a></li>
-	<li><a href="#">Refresh</a></li>
-	<li><a href="#">Help</a></li>
-        <li class="dropdown">
-          <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Settings <span class="caret"></span></a>
-          <ul class="dropdown-menu">
-            <li><a href="#">Action</a></li>
-            <li><a href="#">Another action</a></li>           
+  <header class="row">
+    <nav class="navbar-inverse">
+      <div class="container-fluid">
+        <div class="navbar-header">
+          <a class="navbar-brand" href="#"><strong>GN Editor<strong></a>
+        </div>
+        <div >
+          <ul class="nav navbar-nav navbar-right">
+            <li><a href="#">Commit</a></li>
+            <li><a href="#" hx-get="/editor/commit" hx-target="#output" hx-trigger="click" hx-swap="innerHTML"  >Settings </a></li>
+            <li><a href="#">Help</a></li>
           </ul>
-        </li>
-      </ul>
+        </div>
+      </div>
+    </nav>
+
+  </header>
+
+  <div>
+    <div class="row">
+      <section class="col-sm-6" id="editor" style="height:100vh">
+
+      </section>
+      <section class="col-sm-6">
+        <div class="row">
+          <section class="col-sm-10 col-sm-offset-1" id="output" style="height:100vh;overflow-y:scroll" id="swap">
+            Tristique nulla aliquet enim tortor, at auctor urna nunc id cursus metus aliquam eleifend mi in nulla posuere sollicitudin aliquam ultrices sagittis orci, a scelerisque! Laoreet suspendisse interdum consectetur libero.
+          </section>
+        </div>
+
+      </section>
     </div>
   </div>
-</nav>
-    
-    </header>
-
-    <div>
-      <div class="row">
-	<section class="col-sm-6" id="editor" style="height:100vh">
-
-	</section>
-	<section class="col-sm-6">
-	  <div class="row">
-	    <section class="col-sm-10 col-sm-offset-1" id="output" style="height:100vh;overflow-y:scroll">
-	      	  Tristique nulla aliquet enim tortor, at auctor urna nunc id cursus metus aliquam eleifend mi in nulla posuere sollicitudin aliquam ultrices sagittis orci, a scelerisque! Laoreet suspendisse interdum consectetur libero.
-	    </section>
-	  </div>
-
-	</section>
-      </div>      
-    </div>    
 </section>
 
 {% endblock %}
@@ -60,105 +53,109 @@
 
 <script language="javascript" type="text/javascript" src="{{ url_for('js', filename='htmx.min.js') }}"></script>
 
- 
+
 <script src="//ajaxorg.github.io/ace-builds/src-min-noconflict/ace.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
- <script src="https://cdn.jsdelivr.net/npm/marked-highlight/lib/index.umd.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/marked-highlight/lib/index.umd.js"></script>
 <script type="text/javascript">
 
- document.addEventListener('DOMContentLoaded', function() {
-     $('footer').hide()
-  var editor_configurations = {
-  selectionStyle: 'line',// "line"|"text"
-  highlightActiveLine: true, // boolean
-  highlightSelectedWord: true, // boolean
-  readOnly: false, // boolean: true if read only
-  cursorStyle: 'ace', // "ace"|"slim"|"smooth"|"wide"
-  mergeUndoDeltas: true, // false|true|"always"
-  behavioursEnabled: true, // boolean: true if enable custom behaviours
-  wrapBehavioursEnabled: true, // boolean
-  autoScrollEditorIntoView: undefined, // boolean: this is needed if editor is inside scrollable 
-  keyboardHandler: null, // function: handle custom keyboard events
-  
-  // renderer options
-  animatedScroll: false, // boolean: true if scroll should be animated
-  displayIndentGuides: false, // boolean: true if the indent should be shown. See 'showInvisibles'
-  showInvisibles: false, // boolean -> displayIndentGuides: true if show the invisible tabs/spaces in indents
-  showPrintMargin: true, // boolean: true if show the vertical print margin
-  printMarginColumn: 80, // number: number of columns for vertical print margin
-  printMargin: undefined, // boolean | number: showPrintMargin | printMarginColumn
-  showGutter: true, // boolean: true if show line gutter
-  fadeFoldWidgets: false, // boolean: true if the fold lines should be faded
-  showFoldWidgets: true, // boolean: true if the fold lines should be shown ?
-  showLineNumbers: true,
-  highlightGutterLine: false, // boolean: true if the gutter line should be highlighted
-  hScrollBarAlwaysVisible: false, // boolean: true if the horizontal scroll bar should be shown regardless
-  vScrollBarAlwaysVisible: false, // boolean: true if the vertical scroll bar should be shown regardless
-  fontSize: 16, // number | string: set the font size to this many pixels
-  fontFamily: undefined, // string: set the font-family css value
-  maxLines: undefined, // number: set the maximum lines possible. This will make the editor height changes
-  minLines: undefined, // number: set the minimum lines possible. This will make the editor height changes
-  maxPixelHeight: 0, // number -> maxLines: set the maximum height in pixel, when 'maxLines' is defined. 
-  scrollPastEnd: 0, // number -> !maxLines: if positive, user can scroll pass the last line and go n * editorHeight more distance 
-  fixedWidthGutter: false, // boolean: true if the gutter should be fixed width
-  theme: "ace/theme/dracula", // theme string from ace/theme or custom?
+  document.addEventListener('DOMContentLoaded', function() {
+      $('footer').hide()
+      var editor_configurations = {
+          selectionStyle: 'line',// "line"|"text"
+          highlightActiveLine: true, // boolean
+          highlightSelectedWord: true, // boolean
+          readOnly: false, // boolean: true if read only
+          cursorStyle: 'ace', // "ace"|"slim"|"smooth"|"wide"
+          mergeUndoDeltas: true, // false|true|"always"
+          behavioursEnabled: true, // boolean: true if enable custom behaviours
+          wrapBehavioursEnabled: true, // boolean
+          autoScrollEditorIntoView: undefined, // boolean: this is needed if editor is inside scrollable
+          keyboardHandler: null, // function: handle custom keyboard events
 
-  // mouseHandler options
-  scrollSpeed: 2, // number: the scroll speed index
-  dragDelay: 0, // number: the drag delay before drag starts. it's 150ms for mac by default 
-  dragEnabled: true, // boolean: enable dragging
-  focusTimout: 0, // number: the focus delay before focus starts.
-  tooltipFollowsMouse: true, // boolean: true if the gutter tooltip should follow mouse
+          // renderer options
+          animatedScroll: false, // boolean: true if scroll should be animated
+          displayIndentGuides: false, // boolean: true if the indent should be shown. See 'showInvisibles'
+          showInvisibles: false, // boolean -> displayIndentGuides: true if show the invisible tabs/spaces in indents
+          showPrintMargin: true, // boolean: true if show the vertical print margin
+          printMarginColumn: 80, // number: number of columns for vertical print margin
+          printMargin: undefined, // boolean | number: showPrintMargin | printMarginColumn
+          showGutter: true, // boolean: true if show line gutter
+          fadeFoldWidgets: false, // boolean: true if the fold lines should be faded
+          showFoldWidgets: true, // boolean: true if the fold lines should be shown ?
+          showLineNumbers: true,
+          highlightGutterLine: false, // boolean: true if the gutter line should be highlighted
+          hScrollBarAlwaysVisible: false, // boolean: true if the horizontal scroll bar should be shown regardless
+          vScrollBarAlwaysVisible: false, // boolean: true if the vertical scroll bar should be shown regardless
+          fontSize: 16, // number | string: set the font size to this many pixels
+          fontFamily: undefined, // string: set the font-family css value
+          maxLines: undefined, // number: set the maximum lines possible. This will make the editor height changes
+          minLines: undefined, // number: set the minimum lines possible. This will make the editor height changes
+          maxPixelHeight: 0, // number -> maxLines: set the maximum height in pixel, when 'maxLines' is defined.
+          scrollPastEnd: 0, // number -> !maxLines: if positive, user can scroll pass the last line and go n * editorHeight more distance
+          fixedWidthGutter: false, // boolean: true if the gutter should be fixed width
+          theme: "ace/theme/dracula", // theme string from ace/theme or custom?
 
-  // session options
-  firstLineNumber: 1, // number: the line number in first line
-  overwrite: false, // boolean
-  newLineMode: 'auto', // "auto" | "unix" | "windows"
-  useWorker: true, // boolean: true if use web worker for loading scripts
-  useSoftTabs: true, // boolean: true if we want to use spaces than tabs
-  tabSize: 4, // number
-  wrap: true, // boolean | string | number: true/'free' means wrap instead of horizontal scroll, false/'off' means horizontal scroll instead of wrap, and number means number of column before wrap. -1 means wrap at print margin
-  indentedSoftWrap: true, // boolean
-  foldStyle: 'markbegin', // enum: 'manual'/'markbegin'/'markbeginend'.
-  mode: 'ace/mode/markdown'  	 
-}
+          // mouseHandler options
+          scrollSpeed: 2, // number: the scroll speed index
+          dragDelay: 0, // number: the drag delay before drag starts. it's 150ms for mac by default
+          dragEnabled: true, // boolean: enable dragging
+          focusTimout: 0, // number: the focus delay before focus starts.
+          tooltipFollowsMouse: true, // boolean: true if the gutter tooltip should follow mouse
 
-var editor = ace.edit("editor");
-editor.setOptions(editor_configurations);
-     editor.container.style.resize = "horizontal";
-     function updatePreview(){
-	 const {markedHighlight} = globalThis.markedHighlight;
-	 let new_marked = new marked.Marked(
-                 markedHighlight({
-                  langPrefix: 'hljs language-',
-                  highlight(code, lang) {
-      const language = hljs.getLanguage(lang) ? lang : 'plaintext';
-      return hljs.highlight(code, { language }).value;
-    }
-  })
-	 );
-	   new_marked.use({
-          pedantic: false,
-          gfm: true,
-           });
+          // session options
+          firstLineNumber: 1, // number: the line number in first line
+          overwrite: false, // boolean
+          newLineMode: 'auto', // "auto" | "unix" | "windows"
+          useWorker: true, // boolean: true if use web worker for loading scripts
+          useSoftTabs: true, // boolean: true if we want to use spaces than tabs
+          tabSize: 4, // number
+          wrap: true, // boolean | string | number: true/'free' means wrap instead of horizontal scroll, false/'off' means horizontal scroll instead of wrap, and number means number of column before wrap. -1 means wrap at print margin
+          indentedSoftWrap: true, // boolean
+          foldStyle: 'markbegin', // enum: 'manual'/'markbegin'/'markbeginend'.
+          mode: 'ace/mode/markdown'
 
-	 previewContent = document.querySelector("#output");
-        var markdownContent = editor.getValue();
-        var htmlContent = new_marked.parse(markdownContent)
-         previewContent.innerHTML = htmlContent;		 
-     }     
+          document.querySelector("#output").addEventListener("updateEditor", function(event){
+              console.log(event.detail.payload)
+              console.log(event)
+              editor.setOptions({
+                  ...editor_configurations,
+                  ...event.detail.payload
+              })
+              editor.renderer.updateFull();
+          })
 
-     editor.getSession().on("change", function(e){
-	 updatePreview()
-     })
+          var editor = ace.edit("editor");
+          editor.setOptions(editor_configurations);
+          editor.container.style.resize = "horizontal";
+          function updatePreview(){
+              const {markedHighlight} = globalThis.markedHighlight;
+              let new_marked = new marked.Marked(
+                  markedHighlight({
+                      langPrefix: 'hljs language-',
+                      highlight(code, lang) {
+                          const language = hljs.getLanguage(lang) ? lang : 'plaintext';
+                          return hljs.highlight(code, { language }).value;
+                      }}));
+              new_marked.use({
+                  pedantic: false,
+                  gfm: true,
+              });
 
-     
+              previewContent = document.querySelector("#output");
+              var markdownContent = editor.getValue();
+              var htmlContent = new_marked.parse(markdownContent)
+              previewContent.innerHTML = htmlContent;
+          }
 
-     
- });
+          editor.getSession().on("change", function(e){
+              updatePreview()
+          })
 
- 
-  
+
+      });
+
+
+
 </script>
 {% endblock %}
-

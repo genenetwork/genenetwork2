@@ -315,6 +315,11 @@ def edit_gn_file():
     return render_template("gn_editor.html")
 
 
+@app.route("/editor/commit", methods=["GET"])
+def commit_page():
+    return render_template("gn_editor_settings.html")
+
+
 @app.route("/gnqna/hist/", methods=["GET"])
 @require_oauth2
 def get_hist_titles():
