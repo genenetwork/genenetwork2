@@ -1,5 +1,5 @@
 <section classs="row commit-content"  style="padding-top:25px">
-  <div  class="col-sm-10 col-sm-offset-1">
+  <form  action="/editor/commit" method="POST" class="col-sm-10 col-sm-offset-1">
     <div>
       <div>
         <h2> <i>Commit your Changes</i></h2>
@@ -8,12 +8,12 @@
     <br>
     <div>
       <div class="row">
-        <label class="col-sm-4" for="message-text"> <i>*Commit Message*</i></label>
+        <label class="col-sm-4" for="message"> <i>*Commit Message*</i></label>
 
       </div>
       <br>
       <div class="row">
-        <textarea class="col-sm-12">
+        <textarea class="col-sm-12" name="message" required>
         </textarea>
 
       </div>
@@ -24,12 +24,14 @@
       <button class="btn btn-secondary col-sm-2 col-sm-offset-1">
         Cancel
       </button>
-
-      <button class="btn btn-primary col-sm-2 col-sm-offset-1">
+      <button  hx-post="/editor/commit"
+	       hx-target="#output"
+	       hx-swap= "innerHTML"
+	       class="btn btn-primary col-sm-2 col-sm-offset-1">
         Commit
       </button>
     </div>
     <br>
 
-  </div>
+  </form>
 </section>
