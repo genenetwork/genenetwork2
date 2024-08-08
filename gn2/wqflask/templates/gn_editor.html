@@ -95,15 +95,13 @@
           scrollPastEnd: 0, // number -> !maxLines: if positive, user can scroll pass the last line and go n * editorHeight more distance
           fixedWidthGutter: false, // boolean: true if the gutter should be fixed width
           theme: "ace/theme/dracula", // theme string from ace/theme or custom?
+	  scrollSpeed: 2, // number: the scroll speed index
 
-          // mouseHandler options
-          scrollSpeed: 2, // number: the scroll speed index
           dragDelay: 0, // number: the drag delay before drag starts. it's 150ms for mac by default
           dragEnabled: true, // boolean: enable dragging
           focusTimout: 0, // number: the focus delay before focus starts.
           tooltipFollowsMouse: true, // boolean: true if the gutter tooltip should follow mouse
-
-          // session options
+                 // session options
           firstLineNumber: 1, // number: the line number in first line
           overwrite: false, // boolean
           newLineMode: 'auto', // "auto" | "unix" | "windows"
@@ -111,9 +109,13 @@
           useSoftTabs: true, // boolean: true if we want to use spaces than tabs
           tabSize: 4, // number
           wrap: true, // boolean | string | number: true/'free' means wrap instead of horizontal scroll, false/'off' means horizontal scroll instead of wrap, and number means number of column before wrap. -1 means wrap at print margin
+	  
           indentedSoftWrap: true, // boolean
           foldStyle: 'markbegin', // enum: 'manual'/'markbegin'/'markbeginend'.
           mode: 'ace/mode/markdown'
+
+      }
+   
 
           document.querySelector("#output").addEventListener("updateEditor", function(event){
               console.log(event.detail.payload)

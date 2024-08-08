@@ -324,6 +324,7 @@ def editor_settings():
 def commit_editor():
     if request.method == "GET":
         return render_template("gn_editor_commit.html")
+    return render_template("gn_editor_results_page.html")
 
 
 @app.route("/gnqna/hist/", methods=["GET"])
