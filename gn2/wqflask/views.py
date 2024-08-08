@@ -312,7 +312,10 @@ def gnqna():
 
 @app.route("/editor/", methods=["GET"])
 def edit_gn_file():
-    return render_template("gn_editor.html")
+    import requests
+    results = requests.get("http://localhost:8091/edit?file_path=test.md")
+    data = results.json()
+    return render_template("gn_editor.html", **data)
 
 
 @app.route("/editor/settings", methods=["GET"])
