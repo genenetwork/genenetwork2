@@ -315,9 +315,15 @@ def edit_gn_file():
     return render_template("gn_editor.html")
 
 
-@app.route("/editor/commit", methods=["GET"])
-def commit_page():
+@app.route("/editor/settings", methods=["GET"])
+def editor_settings():
     return render_template("gn_editor_settings.html")
+
+
+@app.route("/editor/commit", methods=["GET", "POST"])
+def commit_editor():
+    if request.method == "GET":
+        return render_template("gn_editor_commit.html")
 
 
 @app.route("/gnqna/hist/", methods=["GET"])
