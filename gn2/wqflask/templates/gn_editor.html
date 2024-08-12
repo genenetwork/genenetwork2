@@ -94,8 +94,7 @@
           fixedWidthGutter: false, // boolean: true if the gutter should be fixed width
           theme: "ace/theme/dracula", // theme string from ace/theme or custom?
 	  scrollSpeed: 2, // number: the scroll speed index
-
-          dragDelay: 0, // number: the drag delay before drag starts. it's 150ms for mac by default
+          dragDelay: 0, 
           dragEnabled: true, // boolean: enable dragging
           focusTimout: 0, // number: the focus delay before focus starts.
           tooltipFollowsMouse: true, // boolean: true if the gutter tooltip should follow mouse
@@ -112,8 +111,13 @@
           foldStyle: 'markbegin', // enum: 'manual'/'markbegin'/'markbeginend'.
           mode: 'ace/mode/markdown'
 
-      }
-   
+    }
+    let hash = {{ hash|tojson }} 
+    let filePath = {{ file_path|tojson }}
+    localStorage.setItem("gn_editor_sha" ,hash)
+     document.querySelector("#output").addEventListener("commitEvent", function(event){    
+    htmx.ajax("POST", "/editor/commit", {target: "#output", swap:"innerHTML",values: {'msg':event.detail.payload, 'content': editor.getValue(), "hash": localStorage.getItem("gn_editor_sha"), "file_path": filePath}})
+          })
 
           document.querySelector("#output").addEventListener("updateEditor", function(event){
               editor.setOptions({
