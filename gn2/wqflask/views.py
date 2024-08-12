@@ -311,31 +311,31 @@ def gnqna():
 
 
 @app.route("/editor/", methods=["GET"])
-def edit_gn_file():
-    import requests
-    results = requests.get("http://localhost:8091/edit?file_path=test.md")
-    data = results.json()
-    return render_template("gn_editor.html", **data)
+def edit_gn_doc_file():
+    file_path = request.args.get("file_path", "")
+    response = requests.get(f"http://localhost:8091/edit?file_path={file_path}")
+    response.raise_for_status()
+    return render_template("gn_editor.html", **response.json())
 
 
 @app.route("/editor/settings", methods=["GET"])
-def editor_settings():
+def configure_gn_editor():
     return render_template("gn_editor_settings.html")
 
 
 @app.route("/editor/commit", methods=["GET", "POST"])
-def commit_editor():
+def commit_gn_doc():
+    # TODO  add gn-auth requirement for this endpoint
+    # TODO add env variable for gn-guile web server
     if request.method == "GET":
         return render_template("gn_editor_commit.html")
     results = requests.post("http://localhost:8091/commit", json={
                           "content":  request.form.get("content"),
                           "filename": request.form.get("file_path"),
-                          "email": "test@gmail.com", #replace this from auth 
-                          "username": "usernm1", # replace this username
+                          "email": "test@gmail.com",
+                          "username": "usernm1",
                           "commit_message": request.form.get("msg"),
                           "prev_commit": request.form.get("hash")})
-    # check if error here and show results page
-    # use ok here
     data = results.json()
     data["filename"] = request.form.get("file_path")
     return render_template("gn_editor_results_page.html", **data)
