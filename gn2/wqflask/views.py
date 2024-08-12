@@ -327,7 +327,18 @@ def editor_settings():
 def commit_editor():
     if request.method == "GET":
         return render_template("gn_editor_commit.html")
-    return render_template("gn_editor_results_page.html")
+    results = requests.post("http://localhost:8091/commit", json={
+                          "content":  request.form.get("content"),
+                          "filename": request.form.get("file_path"),
+                          "email": "test@gmail.com", #replace this from auth 
+                          "username": "usernm1", # replace this username
+                          "commit_message": request.form.get("msg"),
+                          "prev_commit": request.form.get("hash")})
+    # check if error here and show results page
+    # use ok here
+    data = results.json()
+    data["filename"] = request.form.get("file_path")
+    return render_template("gn_editor_results_page.html", **data)
 
 
 @app.route("/gnqna/hist/", methods=["GET"])
