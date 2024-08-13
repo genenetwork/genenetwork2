@@ -63,6 +63,26 @@
     </div>
   </form>
   <br>
+
+  <h4><i>Choose KeyBoard Binding:</i></h4>
+  <div class="form-check">
+    <input class="form-check-input" type="radio" name="keyboard" id="default" value="default" checked >
+    <label class="form-check-label" for="default">Default</label>
+  </div>
+
+  <div class="form-check">
+    <input class="form-check-input" type="radio" name="keyboard" id="vscode" value="vscode">
+    <label class="form-check-label" for="vscode">Vscode</label>
+  </div>
+  <div class="form-check">
+    <input class="form-check-input" type="radio" name="keyboard" id="emacs" value="emacs">
+    <label class="form-check-label" for="emacs">Emacs</label>
+  </div>
+  <div class="form-check">
+    <input class="form-check-input" type="radio" name="keyboard" id="vim" value="vim" >
+    <label class="form-check-label" for="vim">Vim</label>
+  </div>
+  <br>
   <div class="row">
     <div class="col-sm-offset-1">
       <button class="btn btn-primary" id="settingBtn">
@@ -85,7 +105,10 @@
           theme: `ace/theme/${$('input[name="theme"]:checked').val()}`,
           fontSize: parseInt($("#fontSizeRange").val()),
           wrap:$('input[name="wrap"]:checked').val()== "false" ? false : true,
-          cursorStyle: $('input[name="cursor"]:checked').val()
+          cursorStyle: $('input[name="cursor"]:checked').val(),
+          keyboardHandler:($('input[name="keyboard"]:checked').val()  == "default"?
+                           null: `ace/keyboard/${$('input[name="keyboard"]:checked').val()}`
+                          )
 
       }
       htmx.find("#output").dispatchEvent(

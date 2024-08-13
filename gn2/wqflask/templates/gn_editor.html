@@ -21,7 +21,7 @@
           <ul class="nav navbar-nav navbar-right">
             <li><a href="#" hx-get="/editor/commit" hx-target="#output" hx-trigger="click" hx-swap="innerHTML"  >Commit </a></li>
             <li><a href="#" hx-get="/editor/settings" hx-target="#output" hx-trigger="click" hx-swap="innerHTML"  >Settings </a></li>
-            <li><a href="#">Help</a></li>
+            <li><a href="https://github.com/ajaxorg/ace/wiki/Default-Keyboard-Shortcuts" target="_blank">Help</a></li>
           </ul>
         </div>
       </div>
@@ -73,7 +73,7 @@
           behavioursEnabled: true, // boolean: true if enable custom behaviours
           wrapBehavioursEnabled: true, // boolean
           autoScrollEditorIntoView: undefined, // boolean: this is needed if editor is inside scrollable
-          keyboardHandler: null, // function: handle custom keyboard events
+          keyboardHandler: "ace/keyboard/emacs",
 
           // renderer options
           animatedScroll: false, // boolean: true if scroll should be animated
@@ -96,7 +96,7 @@
           maxPixelHeight: 0, // number -> maxLines: set the maximum height in pixel, when 'maxLines' is defined.
           scrollPastEnd: 0, // number -> !maxLines: if positive, user can scroll pass the last line and go n * editorHeight more distance
           fixedWidthGutter: false, // boolean: true if the gutter should be fixed width
-          theme: "ace/theme/dracula", // theme string from ace/theme or custom?
+          theme: "ace/theme/text", // theme string from ace/theme or custom?
           scrollSpeed: 2, // number: the scroll speed index
           dragDelay: 0,
           dragEnabled: true, // boolean: enable dragging
