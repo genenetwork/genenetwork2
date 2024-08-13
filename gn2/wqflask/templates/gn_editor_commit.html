@@ -9,41 +9,50 @@
     <div>
       <div class="row">
         <label class="col-sm-4" for="message"> <i>*Commit Message*</i></label>
-
       </div>
       <br>
       <div class="row">
         <textarea rows="12" class="col-sm-12" name="message" required id="commit-message">
         </textarea>
-
       </div>
     </div>
     <br>
     <br>
     <div class="row">
       <button id="btn-commit"
-	       class="btn btn-primary col-sm-2 col-sm-offset-1">
+              class="btn btn-primary col-sm-2 col-sm-offset-1">
         Commit
+      </button>
+      <button id="btn-diff"
+              class="btn  col-sm-2 col-sm-offset-1">
+        Show Diff
       </button>
     </div>
     <br>
-
+    <div id="diff_page">
+    </div>
   </div>
 </section>
 {% block js %}
-
- <script>
+<script>
   htmx.on("#btn-commit", "click", function(event){
       let msg = htmx.find("#commit-message").value.trim()
       if (msg != ""){
-	  //fire custom event here re
-	  htmx.find("#output").dispatchEvent(
-          new CustomEvent("commitEvent", {
+          htmx.find("#output").dispatchEvent(
+              new CustomEvent("commitEvent", {
+                  bubbles: true,
+                  detail: {action: 'didInitialize', payload: msg},
+              }),
+          );
+      }
+  })
+  htmx.on("#btn-diff", "click", function(event){
+      htmx.find("#output").dispatchEvent(
+          new CustomEvent("diffEvent", {
               bubbles: true,
-              detail: {action: 'didInitialize', payload: msg},
+              detail: {},
           }),
       );
-      }
   })
 </script>
 {% endblock %}
