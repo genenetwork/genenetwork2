@@ -5,7 +5,7 @@
 
 <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/diff2html/bundles/css/diff2html.min.css" />
 <style>
-  
+
 </style>
 {% endblock %}
 {% block search %}{% endblock %}
@@ -110,7 +110,6 @@
           useSoftTabs: true, // boolean: true if we want to use spaces than tabs
           tabSize: 4, // number
           wrap: true, // boolean | string | number: true/'free' means wrap instead of horizontal scroll, false/'off' means horizontal scroll instead of wrap, and number means number of column before wrap. -1 means wrap at print margin
-
           indentedSoftWrap: true, // boolean
           foldStyle: 'markbegin', // enum: 'manual'/'markbegin'/'markbeginend'.
           mode: 'ace/mode/markdown'
@@ -119,7 +118,7 @@
       let hash = {{ hash|tojson }}
       let filePath = {{ file_path|tojson }}
       localStorage.setItem("gn_editor_sha" ,hash)
-      document.querySelector("#output").addEventListener("commitEvent", function(event){
+      htmx.on("#output", "commitEvent", function(event){
           htmx.ajax("POST", "/editor/commit", {target: "#output", swap:"innerHTML",values: {'msg':event.detail.payload, 'content': editor.getValue(), "hash": localStorage.getItem("gn_editor_sha"), "file_path": filePath}})
       })
 
@@ -134,17 +133,13 @@
           htmx.find("#output").innerHTML = diffHtml
       })
 
-
-      document.querySelector("#output").addEventListener("updateEditor", function(event){
+      htmx.on("#output", "updateEditor", function(event){
           editor.setOptions({
               ...editor_configurations,
               ...event.detail.payload
           })
           editor.renderer.updateFull();
       })
-      var editor = ace.edit("editor");
-      editor.setOptions(editor_configurations);
-      editor.container.style.resize = "horizontal";
       function updatePreview(){
           const {markedHighlight} = globalThis.markedHighlight;
           let new_marked = new marked.Marked(
@@ -163,12 +158,14 @@
           var htmlContent = new_marked.parse(markdownContent)    //work on error handling for invalid markdown
           previewContent.innerHTML = htmlContent;
       }
+      var editor = ace.edit("editor");
+      editor.setOptions(editor_configurations);
+      editor.container.style.resize = "horizontal";
       editor.getSession().on("change", function(e){
           updatePreview()
       })
       var data = {{ content|tojson }}
       editor.setValue(data, -1);
-
   });
 
 
