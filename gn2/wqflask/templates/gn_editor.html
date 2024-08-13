@@ -3,7 +3,8 @@
 
 {% block css %}
 
-<link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/diff2html/bundles/css/diff2html.min.css" />
+
+<link rel="stylesheet" type="text/css" href="{{ url_for('css', filename='diff2html/diff2html.min.css') }}" />
 <style>
 
 </style>
@@ -46,19 +47,17 @@
 
 {% block js %}
 <script src="{{ url_for('js', filename='jquery/jquery.min.js') }}" type="text/javascript"></script>
-
-<!-- Javascripts -->
-<script type="text/javascript" src="https://cdn.jsdelivr.net/npm/diff2html/bundles/js/diff2html-ui.min.js"></script>
-
+<script language="javascript" type="text/javascript" src="{{ url_for('js', filename='diff2html/diff2html.min.js') }}"></script>
 <script language="javascript" type="text/javascript" src="{{ url_for('js', filename='jquery-ui/jquery-ui.min.js') }}"></script>
 
 <script language="javascript" type="text/javascript" src="{{ url_for('js', filename='htmx.min.js') }}"></script>
 
-<script src="https://cdn.jsdelivr.net/npm/diff@5.1.0/dist/diff.min.js"></script>
-<script src="//ajaxorg.github.io/ace-builds/src-min-noconflict/ace.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/marked-highlight/lib/index.umd.js"></script>
-<script type="text/javascript" src="https://cdn.jsdelivr.net/npm/diff2html/bundles/js/diff2html.min.js"></script>
+
+<script language="javascript" type="text/javascript" src="{{ url_for('js', filename='jsdiff/diff.min.js') }}"></script>
+<script language="javascript" type="text/javascript" src="{{ url_for('js', filename='ace/ace.js') }}"></script>
+
+<script language="javascript" type="text/javascript" src="{{ url_for('js', filename='marked/marked.min.js') }}"></script>
+<script language="javascript" type="text/javascript" src="{{ url_for('js', filename='marked/marked-highlight.js') }}"></script>
 <script type="text/javascript">
 
   document.addEventListener('DOMContentLoaded', function() {
