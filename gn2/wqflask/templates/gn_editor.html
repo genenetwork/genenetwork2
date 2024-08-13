@@ -2,8 +2,10 @@
 {% block title %}Genenetwork Files Editor {% endblock %}
 
 {% block css %}
-<style>
 
+<link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/diff2html/bundles/css/diff2html.min.css" />
+<style>
+  
 </style>
 {% endblock %}
 {% block search %}{% endblock %}
@@ -17,18 +19,16 @@
         </div>
         <div >
           <ul class="nav navbar-nav navbar-right">
-	    <li><a href="#" hx-get="/editor/commit" hx-target="#output" hx-trigger="click" hx-swap="innerHTML"  >Commit </a></li>
+            <li><a href="#" hx-get="/editor/commit" hx-target="#output" hx-trigger="click" hx-swap="innerHTML"  >Commit </a></li>
             <li><a href="#" hx-get="/editor/settings" hx-target="#output" hx-trigger="click" hx-swap="innerHTML"  >Settings </a></li>
             <li><a href="#">Help</a></li>
           </ul>
         </div>
       </div>
     </nav>
-
   </header>
-
   <div>
-    <div class="row">
+    <div class="row" id="gn-editor">
       <section class="col-sm-6" id="editor" style="height:100vh">
       </section>
       <section class="col-sm-6">
@@ -47,14 +47,18 @@
 {% block js %}
 <script src="{{ url_for('js', filename='jquery/jquery.min.js') }}" type="text/javascript"></script>
 
+<!-- Javascripts -->
+<script type="text/javascript" src="https://cdn.jsdelivr.net/npm/diff2html/bundles/js/diff2html-ui.min.js"></script>
+
 <script language="javascript" type="text/javascript" src="{{ url_for('js', filename='jquery-ui/jquery-ui.min.js') }}"></script>
 
 <script language="javascript" type="text/javascript" src="{{ url_for('js', filename='htmx.min.js') }}"></script>
 
-
+<script src="https://cdn.jsdelivr.net/npm/diff@5.1.0/dist/diff.min.js"></script>
 <script src="//ajaxorg.github.io/ace-builds/src-min-noconflict/ace.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/marked-highlight/lib/index.umd.js"></script>
+<script type="text/javascript" src="https://cdn.jsdelivr.net/npm/diff2html/bundles/js/diff2html.min.js"></script>
 <script type="text/javascript">
 
   document.addEventListener('DOMContentLoaded', function() {
@@ -93,12 +97,12 @@
           scrollPastEnd: 0, // number -> !maxLines: if positive, user can scroll pass the last line and go n * editorHeight more distance
           fixedWidthGutter: false, // boolean: true if the gutter should be fixed width
           theme: "ace/theme/dracula", // theme string from ace/theme or custom?
-	  scrollSpeed: 2, // number: the scroll speed index
-          dragDelay: 0, 
+          scrollSpeed: 2, // number: the scroll speed index
+          dragDelay: 0,
           dragEnabled: true, // boolean: enable dragging
           focusTimout: 0, // number: the focus delay before focus starts.
           tooltipFollowsMouse: true, // boolean: true if the gutter tooltip should follow mouse
-                 // session options
+          // session options
           firstLineNumber: 1, // number: the line number in first line
           overwrite: false, // boolean
           newLineMode: 'auto', // "auto" | "unix" | "windows"
@@ -106,60 +110,66 @@
           useSoftTabs: true, // boolean: true if we want to use spaces than tabs
           tabSize: 4, // number
           wrap: true, // boolean | string | number: true/'free' means wrap instead of horizontal scroll, false/'off' means horizontal scroll instead of wrap, and number means number of column before wrap. -1 means wrap at print margin
-	  
+
           indentedSoftWrap: true, // boolean
           foldStyle: 'markbegin', // enum: 'manual'/'markbegin'/'markbeginend'.
           mode: 'ace/mode/markdown'
 
-    }
-    let hash = {{ hash|tojson }} 
-    let filePath = {{ file_path|tojson }}
-    localStorage.setItem("gn_editor_sha" ,hash)
-     document.querySelector("#output").addEventListener("commitEvent", function(event){    
-    htmx.ajax("POST", "/editor/commit", {target: "#output", swap:"innerHTML",values: {'msg':event.detail.payload, 'content': editor.getValue(), "hash": localStorage.getItem("gn_editor_sha"), "file_path": filePath}})
+      }
+      let hash = {{ hash|tojson }}
+      let filePath = {{ file_path|tojson }}
+      localStorage.setItem("gn_editor_sha" ,hash)
+      document.querySelector("#output").addEventListener("commitEvent", function(event){
+          htmx.ajax("POST", "/editor/commit", {target: "#output", swap:"innerHTML",values: {'msg':event.detail.payload, 'content': editor.getValue(), "hash": localStorage.getItem("gn_editor_sha"), "file_path": filePath}})
+      })
+
+      htmx.on("#output", "diffEvent", function(event){
+          var fileName = "{{ file_path }}"
+          var diffContent = Diff.createTwoFilesPatch(fileName,fileName, data, editor.getValue())
+          var diffHtml = Diff2Html.html(diffContent, {
+              drawFileList: true,
+              matching: 'lines',
+              outputFormat: 'line-by-line',
+          });
+          htmx.find("#output").innerHTML = diffHtml
+      })
+
+
+      document.querySelector("#output").addEventListener("updateEditor", function(event){
+          editor.setOptions({
+              ...editor_configurations,
+              ...event.detail.payload
           })
-
-          document.querySelector("#output").addEventListener("updateEditor", function(event){
-              editor.setOptions({
-                  ...editor_configurations,
-                  ...event.detail.payload
-              })
-              editor.renderer.updateFull();
-          })
-
-          var editor = ace.edit("editor");
-          editor.setOptions(editor_configurations);
-          editor.container.style.resize = "horizontal";
-          function updatePreview(){
-              const {markedHighlight} = globalThis.markedHighlight;
-              let new_marked = new marked.Marked(
-                  markedHighlight({
-                      langPrefix: 'hljs language-',
-                      highlight(code, lang) {
-                          const language = hljs.getLanguage(lang) ? lang : 'plaintext';
-                          return hljs.highlight(code, { language }).value;
-                      }}));
-              new_marked.use({
-                  pedantic: false,
-                  gfm: true,
-              });
-
-              previewContent = document.querySelector("#output");
-              var markdownContent = editor.getValue();
-              var htmlContent = new_marked.parse(markdownContent)
-	      console.log(htmlContent)
-              previewContent.innerHTML = htmlContent;
-          }
-
+          editor.renderer.updateFull();
+      })
+      var editor = ace.edit("editor");
+      editor.setOptions(editor_configurations);
+      editor.container.style.resize = "horizontal";
+      function updatePreview(){
+          const {markedHighlight} = globalThis.markedHighlight;
+          let new_marked = new marked.Marked(
+              markedHighlight({
+                  langPrefix: 'hljs language-',
+                  highlight(code, lang) {
+                      const language = hljs.getLanguage(lang) ? lang : 'plaintext';
+                      return hljs.highlight(code, { language }).value;
+                  }}));
+          new_marked.use({
+              pedantic: false,
+              gfm: true,
+          });
+          previewContent = document.querySelector("#output");
+          var markdownContent = editor.getValue();
+          var htmlContent = new_marked.parse(markdownContent)    //work on error handling for invalid markdown
+          previewContent.innerHTML = htmlContent;
+      }
       editor.getSession().on("change", function(e){
-              updatePreview()
-          })
-      //do the fetch here
+          updatePreview()
+      })
       var data = {{ content|tojson }}
       editor.setValue(data, -1);
-    
 
-      });
+  });
 
 
 </script>
