@@ -14,12 +14,12 @@
 {% block content %}
 <section class="container-fluid">
   <header class="row">
-    <nav class="navbar-inverse">
+    <nav class="navbar" style="background-color:#ccc">
       <div class="container-fluid">
         <div class="navbar-header">
           <a class="navbar-brand" href="#"><strong>GN Editor<strong></a>
         </div>
-        <div >
+        <div style="padding-right:3.6rem">
           <ul class="nav navbar-nav navbar-right">
             <li><a href="#" hx-get="/editor/commit" hx-target="#output" hx-trigger="click" hx-swap="innerHTML"  >Commit </a></li>
             <li><a href="#" hx-get="/editor/settings" hx-target="#output" hx-trigger="click" hx-swap="innerHTML"  >Settings </a></li>
@@ -35,7 +35,7 @@
       </section>
       <section class="col-sm-6">
         <div class="row">
-          <section class="col-sm-10 col-sm-offset-1" id="output" style="height:100vh;overflow-y:scroll" id="swap">
+          <section class="col-sm-10 col-sm-offset-1" id="output" style="height:100vh;overflow-y:scroll;padding-top:2.5rem"  id="swap">
           </section>
         </div>
 
@@ -57,8 +57,8 @@
 <script language="javascript" type="text/javascript" src="{{ url_for('js', filename='jsdiff/diff.min.js') }}"></script>
 <script language="javascript" type="text/javascript" src="{{ url_for('js', filename='ace/ace.js') }}"></script>
 <script language="javascript" type="text/javascript" src="{{ url_for('js', filename='marked/marked.min.js') }}"></script>
--<script language="javascript" type="text/javascript" src="{{ url_for('js', filename='marked/marked-highlight.js') }}"></script>
--<script language="javascript" type="text/javascript" src="{{ url_for('js', filename='highlight/highlight.min.js') }}"></script>>
+<script language="javascript" type="text/javascript" src="{{ url_for('js', filename='marked/marked-highlight.js') }}"></script>
+<script language="javascript" type="text/javascript" src="{{ url_for('js', filename='highlight/highlight.min.js') }}"></script>
 <script type="text/javascript">
 
   document.addEventListener('DOMContentLoaded', function() {
