@@ -312,7 +312,7 @@ def gnqna():
 
 @app.route("/editor/", methods=["GET"])
 def edit_gn_doc_file():
-    file_path = request.args.get("file_path", "")
+    file_path = request.args.get("file-path", "")
     response = requests.get(f"http://localhost:8091/edit?file_path={file_path}")
     response.raise_for_status()
     return render_template("gn_editor.html", **response.json())
