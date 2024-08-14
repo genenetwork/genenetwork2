@@ -45,6 +45,8 @@
         <div>
             <div class="row" id="gn-editor">
                 <section class="col-sm-6" id="editor" style="height:100vh">
+                    <textarea name="ckcontent" id="ckcontent" style='display:none'>
+        </textarea>
                 </section>
                 <section class="col-sm-6">
                     <div class="row">
@@ -88,8 +90,10 @@
     <script language="javascript"
             type="text/javascript"
             src="{{ url_for('js', filename='highlight/highlight.min.js') }}"></script>
+    <script language="javascript"
+            type="text/javascript"
+            src="{{ url_for('js', filename='ckeditor/ckeditor.js') }}"></script>
     <script type="text/javascript">
-
   document.addEventListener('DOMContentLoaded', function() {
       $('footer').hide()
       var editor_configurations = {
@@ -146,6 +150,9 @@
       }
       let hash = {{ hash|tojson }}
       let filePath = {{ file_path|tojson }}
+      let fileExt =   (filePath.substring(filePath.lastIndexOf('.')+1, filePath.length) || "md").toLowerCase();
+      let data = {{ content|tojson }}
+
       localStorage.setItem("gn_editor_sha" ,hash)
       htmx.on("#output", "commitEvent", function(event){
           htmx.ajax("POST", "/editor/commit", {target: "#output", swap:"innerHTML",values: {'msg':event.detail.payload, 'content': editor.getValue(), "hash": localStorage.getItem("gn_editor_sha"), "file_path": filePath}})
@@ -163,11 +170,14 @@
       })
 
       htmx.on("#output", "updateEditor", function(event){
-          editor.setOptions({
-              ...editor_configurations,
-              ...event.detail.payload
-          })
-          editor.renderer.updateFull();
+          if (fileExt != 'rtf'){
+              editor.setOptions({
+                  ...editor_configurations,
+                  ...event.detail.payload
+              })
+              editor.renderer.updateFull();
+          }
+
       })
       function updatePreview(){
           const {markedHighlight} = globalThis.markedHighlight;
@@ -188,14 +198,24 @@
           var htmlContent = new_marked.parse(markdownContent)    //work on error handling for invalid markdown
           previewContent.innerHTML = htmlContent;
       }
-      var editor = ace.edit("editor");
-      editor.setOptions(editor_configurations);
-      editor.container.style.resize = "horizontal";
-      editor.getSession().on("change", function(e){
-          updatePreview()
-      })
-      var data = {{ content|tojson }}
-      editor.setValue(data, -1);
+
+      if (fileExt == "rtf"){
+          var editor = CKEDITOR.replace('ckcontent',    {
+              height: '100vh',
+          });
+          editor.setData(data)
+          editor.getValue = editor.getData
+      }
+      else {
+          var editor = ace.edit("editor");
+          editor.setOptions(editor_configurations);
+          editor.container.style.resize = "horizontal";
+          editor.getSession().on("change", function(e){
+              updatePreview()
+          })
+          editor.setValue(data, -1);
+      }
+
   });
 
 
