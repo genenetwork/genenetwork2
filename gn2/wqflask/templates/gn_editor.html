@@ -5,6 +5,7 @@
 
 
 <link rel="stylesheet" type="text/css" href="{{ url_for('css', filename='diff2html/diff2html.min.css') }}" />
+<link rel="stylesheet" type="text/css" href="{{ url_for('css', filename='highlight/default.min.css') }}" />
 <style>
 
 </style>
@@ -55,9 +56,9 @@
 
 <script language="javascript" type="text/javascript" src="{{ url_for('js', filename='jsdiff/diff.min.js') }}"></script>
 <script language="javascript" type="text/javascript" src="{{ url_for('js', filename='ace/ace.js') }}"></script>
-
 <script language="javascript" type="text/javascript" src="{{ url_for('js', filename='marked/marked.min.js') }}"></script>
-<script language="javascript" type="text/javascript" src="{{ url_for('js', filename='marked/marked-highlight.js') }}"></script>
+-<script language="javascript" type="text/javascript" src="{{ url_for('js', filename='marked/marked-highlight.js') }}"></script>
+-<script language="javascript" type="text/javascript" src="{{ url_for('js', filename='highlight/highlight.min.js') }}"></script>>
 <script type="text/javascript">
 
   document.addEventListener('DOMContentLoaded', function() {
@@ -72,7 +73,7 @@
           behavioursEnabled: true, // boolean: true if enable custom behaviours
           wrapBehavioursEnabled: true, // boolean
           autoScrollEditorIntoView: undefined, // boolean: this is needed if editor is inside scrollable
-          keyboardHandler: "ace/keyboard/emacs",
+          keyboardHandler: null,
 
           // renderer options
           animatedScroll: false, // boolean: true if scroll should be animated
@@ -95,7 +96,7 @@
           maxPixelHeight: 0, // number -> maxLines: set the maximum height in pixel, when 'maxLines' is defined.
           scrollPastEnd: 0, // number -> !maxLines: if positive, user can scroll pass the last line and go n * editorHeight more distance
           fixedWidthGutter: false, // boolean: true if the gutter should be fixed width
-          theme: "ace/theme/text", // theme string from ace/theme or custom?
+          theme: "ace/theme/textmate", // theme string from ace/theme or custom?
           scrollSpeed: 2, // number: the scroll speed index
           dragDelay: 0,
           dragEnabled: true, // boolean: enable dragging
@@ -141,6 +142,7 @@
       })
       function updatePreview(){
           const {markedHighlight} = globalThis.markedHighlight;
+
           let new_marked = new marked.Marked(
               markedHighlight({
                   langPrefix: 'hljs language-',
