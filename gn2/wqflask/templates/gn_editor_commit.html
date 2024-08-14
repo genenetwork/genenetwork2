@@ -1,40 +1,37 @@
 <section classs="row commit-content"  style="padding-top:25px">
-  <div  class="col-sm-10 col-sm-offset-1">
-    <div>
-      <div>
-        <h2> <i>Commit your Changes</i></h2>
-      </div>
-    </div>
-    <br>
-    <div>
-      <div class="row">
-        <label class="col-sm-4" for="message"> <i>*Commit Message*</i></label>
-      </div>
-      <br>
-      <div class="row">
-        <textarea rows="12" class="col-sm-12" name="message" required id="commit-message">
+    <div class="col-sm-10 col-sm-offset-1">
+        <div>
+            <div>
+                <h2>
+                    <i>Commit your Changes</i>
+                </h2>
+            </div>
+        </div>
+        <br>
+        <div>
+            <div class="row">
+                <label class="col-sm-8" for="message">
+                    <i>*Commit Message*</i>
+                </label>
+            </div>
+            <br>
+            <div class="row">
+                <textarea rows="12" class="col-sm-12" name="message" required id="commit-message">
         </textarea>
-      </div>
+            </div>
+        </div>
+        <br>
+        <br>
+        <div class="row">
+            <button id="btn-commit" class="btn btn-primary col-lg-3 col-lg-offset-1 col-sm-4 col-sm-offset-1">Commit</button>
+            <button id="btn-diff" class="btn col-lg-3 col-lg-offset-1  col-sm-4 col-sm-offset-1">Show Diff</button>
+        </div>
+        <br>
+        <div id="diff_page"></div>
     </div>
-    <br>
-    <br>
-    <div class="row">
-      <button id="btn-commit"
-              class="btn btn-primary col-sm-2 col-sm-offset-1">
-        Commit
-      </button>
-      <button id="btn-diff"
-              class="btn  col-sm-2 col-sm-offset-1">
-        Show Diff
-      </button>
-    </div>
-    <br>
-    <div id="diff_page">
-    </div>
-  </div>
 </section>
 {% block js %}
-<script>
+    <script>
   htmx.on("#btn-commit", "click", function(event){
       let msg = htmx.find("#commit-message").value.trim()
       if (msg != ""){
@@ -54,5 +51,5 @@
           }),
       );
   })
-</script>
+    </script>
 {% endblock %}

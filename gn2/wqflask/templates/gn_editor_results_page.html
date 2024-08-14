@@ -1,39 +1,46 @@
 <section classs="row commit-content"  style="padding-top:25px">
-  <div  class="col-sm-10 col-sm-offset-1">
-    <div>
-      <div>
-        <h2> <i>Results status - {{status}}</i></h2>
-      </div>
-    </div>
-    <br>
-    {% if error %}
-    <h1> Error-type: <mark style="font-family: 'Linux Libertine','Georgia','Times','Source Serif Pro',serif;"><b><i>{{error}}</i></b></mark></h1>
-    <h3>Error-message:
-      <mark style="font-family: 'Linux Libertine','Georgia','Times','Source Serif Pro',serif;"><b><i>{{msg}}</i></b></mark></h3>
-    {% else %}
-    <div>
-      <h3>New Commit Sha: <span class="lead">
-          <mark style="font-family: 'Linux Libertine','Georgia','Times','Source Serif Pro',serif;"><b><i>{{commit_sha}}</i></b></mark>
-      </span></h3>
-      <br/>
-      <div class="lead"> <h3>Commit Message:
-          <mark style="font-family: 'Linux Libertine','Georgia','Times','Source Serif Pro',serif;"><b><i>{{message}}</i></b></mark>
-        </h3>
-
-      </div>
-    </div>
+    <div class="col-sm-10 col-sm-offset-1">
+        <div>
+            <div>
+                <h2>
+                    <i>Results status - {{ status }}</i>
+                </h2>
+            </div>
+        </div>
+        <br>
+        {% if error %}
+            <h1>
+                Error-type: <mark style="font-family: 'Linux Libertine','Georgia','Times','Source Serif Pro',serif"><b><i>{{ error }}</i></b></mark>
+            </h1>
+            <h3>
+                Error-message:
+                <mark style="font-family: 'Linux Libertine','Georgia','Times','Source Serif Pro',serif"><b><i>{{ msg }}</i></b></mark>
+            </h3>
+        {% else %}
+            <div>
+                <h3>
+                    New Commit Sha: <span class="lead">
+                    <mark style="font-family: 'Linux Libertine','Georgia','Times','Source Serif Pro',serif"><b><i>{{ commit_sha }}</i></b></mark>
+                </span>
+            </h3>
+            <br />
+            <div class="lead">
+                <h3>
+                    Commit Message:
+                    <mark style="font-family: 'Linux Libertine','Georgia','Times','Source Serif Pro',serif"><b><i>{{ message }}</i></b></mark>
+                </h3>
+            </div>
+        </div>
     {% endif %}
     <br>
-  </div>
+</div>
 </section>
-
 {% block js %}
-<script>
+    <script>
   var commitSha = "{{ commit_sha }}";
   if (commitSha !="" && commitSha!= undefined){
       localStorage.setItem("gn_editor_sha", commitSha)
   }
 
-</script>
-
+    </script>
 {% endblock %}
