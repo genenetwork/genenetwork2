@@ -1,100 +1,173 @@
 <section>
-  <h4><i>Select a theme</i></h4>
-  <form>
-    <div class="form-check">
-      <input class="form-check-input" type="radio" name="theme" id="twilightTheme" value="twilight" checked >
-      <label class="form-check-label" for="twilight">twilight</label>
-    </div>
-
-    <div class="form-check">
-      <input class="form-check-input" type="radio" name="theme" id="draculaTheme" value="dracula">
-      <label class="form-check-label" for="draculaTheme">dracula</label>
-    </div>
-    <div class="form-check">
-      <input class="form-check-input" type="radio" name="theme" id="normalTheme" value="textmate" checked >
-      <label class="form-check-label" for="normalTheme">Text</label>
-    </div>
-    <div class="form-check">
-      <input class="form-check-input" type="radio" name="theme" id="monokaiTheme" value="monokai" >
-      <label class="form-check-label" for="monokaiTheme">Monokai</label>
-    </div>
-    <div class="form-check">
-      <input class="form-check-input" type="radio" name="theme" id="customTheme" value="xcode">
-      <label class="form-check-label" for="customTheme">xcode</label>
-    </div>
-
+    <h4>
+        <i>Select a theme</i>
+    </h4>
+    <form>
+        <div class="form-check">
+            <input class="form-check-input"
+                   type="radio"
+                   name="theme"
+                   id="twilightTheme"
+                   value="twilight"
+                   checked>
+            <label class="form-check-label" for="twilight">twilight</label>
+        </div>
+        <div class="form-check">
+            <input class="form-check-input"
+                   type="radio"
+                   name="theme"
+                   id="draculaTheme"
+                   value="dracula">
+            <label class="form-check-label" for="draculaTheme">dracula</label>
+        </div>
+        <div class="form-check">
+            <input class="form-check-input"
+                   type="radio"
+                   name="theme"
+                   id="normalTheme"
+                   value="textmate"
+                   checked>
+            <label class="form-check-label" for="normalTheme">Text</label>
+        </div>
+        <div class="form-check">
+            <input class="form-check-input"
+                   type="radio"
+                   name="theme"
+                   id="monokaiTheme"
+                   value="monokai">
+            <label class="form-check-label" for="monokaiTheme">Monokai</label>
+        </div>
+        <div class="form-check">
+            <input class="form-check-input"
+                   type="radio"
+                   name="theme"
+                   id="customTheme"
+                   value="xcode">
+            <label class="form-check-label" for="customTheme">xcode</label>
+        </div>
+        <br>
+        <div class="form-group" style="padding-top:10px">
+            <h4>
+                <i>Select Font Size</i>
+            </h4>
+            <input type="range"
+                   class="form-control-range"
+                   id="fontSizeRange"
+                   name="fontSizeRange"
+                   min="10"
+                   max="36"
+                   step="1"
+                   value="16">
+            <em><span id="fontSizeValue">16</span> px</em>
+        </div>
+        <br>
+        <div>
+            <h4>
+                <i>Select Wrap Option:</i>
+            </h4>
+            <div class="form-check">
+                <input class="form-check-input"
+                       type="radio"
+                       name="wrap"
+                       id="normalTheme"
+                       value="true"
+                       checked>
+                <label class="form-check-label" for="normalTheme">True</label>
+            </div>
+            <div class="form-check">
+                <input class="form-check-input"
+                       type="radio"
+                       name="wrap"
+                       id="monokaiTheme"
+                       value="false">
+                <label class="form-check-label" for="monokaiTheme">False</label>
+            </div>
+        </div>
+        <div>
+            <h4>
+                <i>Cursor Styles:</i>
+            </h4>
+            <div class="form-check">
+                <input class="form-check-input"
+                       type="radio"
+                       name="cursor"
+                       id="aceCursor"
+                       value="ace"
+                       checked>
+                <label class="form-check-label" for="aceCursor">ace</label>
+            </div>
+            <div class="form-check">
+                <input class="form-check-input"
+                       type="radio"
+                       name="cursor"
+                       id="slimCursor"
+                       value="slim">
+                <label class="form-check-label" for="slimCursor">slim</label>
+            </div>
+            <div class="form-check">
+                <input class="form-check-input"
+                       type="radio"
+                       name="cursor"
+                       id="smoothCursor"
+                       value="smooth">
+                <label class="form-check-label" for="smoothCursor">smooth</label>
+            </div>
+            <div class="form-check">
+                <input class="form-check-input"
+                       type="radio"
+                       name="cursor"
+                       id="wideCursor"
+                       value="wide">
+                <label class="form-check-label" for="wideCursor">wide</label>
+            </div>
+        </div>
+    </form>
     <br>
-    <div class="form-group" style="padding-top:10px">
-      <h4> <i>Select Font Size</i></h4>
-      <input type="range" class="form-control-range" id="fontSizeRange" name="fontSizeRange" min="10" max="36" step="1" value="16">
-      <em><span id="fontSizeValue">16</span> px</em>
+    <h4>
+        <i>Choose KeyBoard Binding:</i>
+    </h4>
+    <div class="form-check">
+        <input class="form-check-input"
+               type="radio"
+               name="keyboard"
+               id="default"
+               value="default"
+               checked>
+        <label class="form-check-label" for="default">Default</label>
     </div>
-
+    <div class="form-check">
+        <input class="form-check-input"
+               type="radio"
+               name="keyboard"
+               id="vscode"
+               value="vscode">
+        <label class="form-check-label" for="vscode">Vscode</label>
+    </div>
+    <div class="form-check">
+        <input class="form-check-input"
+               type="radio"
+               name="keyboard"
+               id="emacs"
+               value="emacs">
+        <label class="form-check-label" for="emacs">Emacs</label>
+    </div>
+    <div class="form-check">
+        <input class="form-check-input"
+               type="radio"
+               name="keyboard"
+               id="vim"
+               value="vim">
+        <label class="form-check-label" for="vim">Vim</label>
+    </div>
     <br>
-    <div>
-      <h4><i>Select Wrap Option:</i></h4>
-      <div class="form-check">
-        <input class="form-check-input" type="radio" name="wrap" id="normalTheme" value="true"  checked>
-        <label class="form-check-label" for="normalTheme">True</label>
-      </div>
-      <div class="form-check">
-        <input class="form-check-input" type="radio" name="wrap" id="monokaiTheme" value="false">
-        <label class="form-check-label" for="monokaiTheme">False</label>
-      </div>
+    <div class="row">
+        <div class="col-sm-offset-1">
+            <button class="btn btn-primary" id="settingBtn">Save Settings</button>
+        </div>
     </div>
-    <div>
-      <h4><i>Cursor Styles:</i></h4>
-      <div class="form-check">
-        <input class="form-check-input" type="radio" name="cursor" id="aceCursor" value="ace" checked >
-        <label class="form-check-label" for="aceCursor">ace</label>
-      </div>
-      <div class="form-check">
-        <input class="form-check-input" type="radio" name="cursor" id="slimCursor" value="slim">
-        <label class="form-check-label" for="slimCursor">slim</label>
-      </div>
-      <div class="form-check">
-        <input class="form-check-input" type="radio" name="cursor" id="smoothCursor" value="smooth">
-        <label class="form-check-label" for="smoothCursor">smooth</label>
-      </div>
-      <div class="form-check">
-        <input class="form-check-input" type="radio" name="cursor" id="wideCursor" value="wide">
-        <label class="form-check-label" for="wideCursor">wide</label>
-      </div>
-    </div>
-  </form>
-  <br>
-
-  <h4><i>Choose KeyBoard Binding:</i></h4>
-  <div class="form-check">
-    <input class="form-check-input" type="radio" name="keyboard" id="default" value="default" checked >
-    <label class="form-check-label" for="default">Default</label>
-  </div>
-
-  <div class="form-check">
-    <input class="form-check-input" type="radio" name="keyboard" id="vscode" value="vscode">
-    <label class="form-check-label" for="vscode">Vscode</label>
-  </div>
-  <div class="form-check">
-    <input class="form-check-input" type="radio" name="keyboard" id="emacs" value="emacs">
-    <label class="form-check-label" for="emacs">Emacs</label>
-  </div>
-  <div class="form-check">
-    <input class="form-check-input" type="radio" name="keyboard" id="vim" value="vim" >
-    <label class="form-check-label" for="vim">Vim</label>
-  </div>
-  <br>
-  <div class="row">
-    <div class="col-sm-offset-1">
-      <button class="btn btn-primary" id="settingBtn">
-        Save Settings
-      </button>
-    </div>
-  </div>
 </section>
-
 {% block js %}
-<script>
-
+    <script>
   $('#fontSizeRange').on('input', function () {
       var fontSize = $(this).val();
       $('#fontSizeValue').text(fontSize);
@@ -118,5 +191,5 @@
           }),
       );
   })
-</script>
+    </script>
 {% endblock %}
