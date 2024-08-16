@@ -277,7 +277,7 @@ class SearchResultPage:
         self.search_terms = parser.parse(self.search_terms)
 
         # Set of terms compatible with Xapian currently (None is a search without a term)
-        xapian_terms = ["POSITION", "MEAN", "LRS", "LOD"]
+        xapian_terms = ["POSITION", "MEAN", "LRS", "LOD", "RIF", "WIKI"]
 
         if all([(the_term['key'] in xapian_terms) or (not the_term['key'] and self.dataset.type != "Publish") for the_term in self.search_terms]):
             self.search_type = "xapian"
@@ -523,6 +523,10 @@ def create_xapian_term(dataset, term):
             return xapian_term + f"chr:{search_term[0].lower().replace('chr', '')} AND position:{int(search_term[1])*10**6}..{int(search_term[2])*10**6}"
         case 'AUTHOR':
             return xapian_term + f"author:{search_term[0]}"
+        case 'RIF':
+            return xapian_term + f"rif:{search_term[0]}"
+        case 'WIKI':
+            return xapian_term + f"wiki:{search_term[0]}"
         case 'LRS':
             xapian_term += f"peak:{search_term[0]}..{search_term[1]}"
             if len(search_term) == 5:
