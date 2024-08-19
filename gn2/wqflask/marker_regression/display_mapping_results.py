@@ -773,8 +773,9 @@ class DisplayMappingResults:
             pass
 
         # draw position, no need to use a separate function
-        self.drawProbeSetPosition(
-            canvas, plotXScale, offset=newoffset, zoom=zoom)
+        if self.traitList[0].mb: # Only draw if position actually exists
+            self.drawProbeSetPosition(
+                canvas, plotXScale, offset=newoffset, zoom=zoom)
 
         return gifmap
 
