@@ -309,6 +309,7 @@ def gnqna():
 
 
 @app.route("/editor/", methods=["GET"])
+@require_oauth2
 def edit_gn_doc_file():
     file_path = request.args.get("file-path", "")
     response = requests.get(f"http://localhost:8091/edit?file_path={file_path}")
@@ -317,21 +318,22 @@ def edit_gn_doc_file():
 
 
 @app.route("/editor/settings", methods=["GET"])
+@require_oauth2
 def configure_gn_editor():
     return render_template("gn_editor_settings.html")
 
 
 @app.route("/editor/commit", methods=["GET", "POST"])
+@require_oauth2
 def commit_gn_doc():
-    # TODO  add gn-auth requirement for this endpoint
     # TODO add env variable for gn-guile web server
     if request.method == "GET":
         return render_template("gn_editor_commit.html")
     results = requests.post("http://localhost:8091/commit", json={
                           "content":  request.form.get("content"),
                           "filename": request.form.get("file_path"),
-                          "email": "test@gmail.com",
-                          "username": "usernm1",
+                          "username": session_info()["user"]["name"],
+                          "email": session_info()["user"]["email"],
                           "commit_message": request.form.get("msg"),
                           "prev_commit": request.form.get("hash")})
     data = results.json()
