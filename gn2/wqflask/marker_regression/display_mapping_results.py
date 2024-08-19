@@ -1131,7 +1131,7 @@ class DisplayMappingResults:
             )
             TEXT_Y_DISPLACEMENT = -8
             im_drawer.text(
-                text="Sequence Site",
+                text="Gene Location",
                 xy=(leftOffset + 20, startPosY + TEXT_Y_DISPLACEMENT), font=smallLabelFont,
                 fill=self.TOP_RIGHT_INFO_COLOR)
 
