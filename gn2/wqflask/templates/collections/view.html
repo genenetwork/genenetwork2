@@ -214,9 +214,9 @@
                     'render': function(data) {
                         if (Object.hasOwn(data, 'description')){
                             try {
-                                return decodeURIComponent(escape(data.description))
+                                return decodeURIComponent(data.description)
                             } catch(err){
-                                return escape(data.description)
+                                return data.description
                             }
                         } else if (Object.hasOwn(data, 'location')){
                             return data.location
