@@ -1,6 +1,11 @@
 {% extends "base.html" %}
 {% block title %}Genenetwork Files Editor{% endblock %}
 {% block css %}
+    <style>
+  #diffBtn {
+      cursor:pointer
+  }
+    </style>
     <link rel="stylesheet"
           type="text/css"
           href="{{ url_for('css', filename='diff2html/diff2html.min.css') }}" />
@@ -25,6 +30,9 @@
                                    hx-target="#output"
                                    hx-trigger="click"
                                    hx-swap="innerHTML">Commit</a>
+                            </li>
+                            <li>
+                                <a hx-trigger="click" id="diffBtn"  hx-swap="innerHTML">Diff</a>
                             </li>
                             <li>
                                 <a href="#"
@@ -178,6 +186,17 @@
               editor.renderer.updateFull();
           }
 
+      })
+
+      htmx.on("#diffBtn","click",function(event){
+          //dispatch your event here
+	  console.log("Clicked diff btn here")
+	  htmx.find("#output").dispatchEvent(
+          new CustomEvent("diffEvent", {
+              bubbles: true,
+              detail: {},
+          }),
+      );
       })
       function updatePreview(){
           const {markedHighlight} = globalThis.markedHighlight;
