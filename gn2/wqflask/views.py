@@ -308,7 +308,7 @@ def gnqna():
     return render_template("gnqa.html", prev_queries=prev_queries)
 
 
-@app.route("/editor/", methods=["GET"])
+@app.route("/editor/edit", methods=["GET"])
 @require_oauth2
 def edit_gn_doc_file():
     file_path = request.args.get("file-path", "")
