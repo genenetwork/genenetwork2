@@ -1,4 +1,5 @@
 """Main routing table for GN2"""
+
 import array
 import base64
 import csv
@@ -44,6 +45,7 @@ from flask import flash
 
 from gn2.wqflask import search_results
 from gn2.wqflask import server_side
+
 # Used by YAML in marker_regression
 from gn2.base.data_set import create_dataset
 from gn2.base.trait import fetch_symbols
@@ -1498,3 +1500,33 @@ def approve_reject_diff() -> Response:
         return redirect(url_for("view_diff",
                                 inbredset_id=inbredset_id,
                                 diff_id=form["diff_id"]))
+
+
+@app.route("/wiki/<int:comment_id>/edit")
+def edit_wiki(comment_id: int):
+    """fetch generif metadata from gn3 and display it"""
+    # FIXME: better error handling
+    last_wiki_content = (
+        monad_requests.get(urljoin(GN3_LOCAL_URL, f"/api/metadata/wiki/{comment_id}"))
+        .then(lambda res: res)
+        .either(lambda _: [], lambda x: x.json())
+    )
+    species_dict = (
+        monad_requests.get(urljoin(GN3_LOCAL_URL, "/api/metadata/wiki/species"))
+        .then(lambda res: res)
+        .either(lambda _: [], lambda x: x.json())
+    )
+    categories = (
+        monad_requests.get(urljoin(GN3_LOCAL_URL, "/api/metadata/wiki/categories"))
+        .then(lambda resp: resp)
+        .either(lambda _: [], lambda x: list(x.json().keys()))
+    )
+
+    grouped_categories = [categories[i : i + 3] for i in range(0, len(categories), 3)]
+
+    return render_template(
+        "wiki/edit_wiki.html",
+        content=last_wiki_content,
+        species_dict=species_dict,
+        grouped_categories=grouped_categories,
+    )
