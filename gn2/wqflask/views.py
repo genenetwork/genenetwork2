@@ -1057,7 +1057,8 @@ def corr_compute_page():
     with Redis.from_url(REDIS_URL, decode_responses=True) as rconn:
         if request.method == "POST":
             request_received = datetime.datetime.utcnow()
-            filename = hmac.hmac_creation(f"request_form_{request_received.isoformat()}")
+            filename = hmac.hmac_creation(
+                f"request_form_{request_received.isoformat()}")
             filepath = f"{TMPDIR}{filename}"
             with open(filepath, "wb") as pfile:
                 pickle.dump(request.form, pfile,
@@ -1364,7 +1365,8 @@ def edit_case_attributes(inbredset_id: int) -> Response:
 
         def flash_success(resp):
             def __succ__(remote_resp):
-                flash(f"Success: {remote_resp.json()['message']}", "alert-success")
+                flash(
+                    f"Success: {remote_resp.json()['message']}", "alert-success")
                 return resp
             return __succ__
         return monad_requests.post(
