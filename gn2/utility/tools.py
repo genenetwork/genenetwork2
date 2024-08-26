@@ -46,14 +46,11 @@ def get_setting(command_id, guess=None):
     """
     def value(command):
         if command:
-            # sys.stderr.write("Found "+command+"\n")
             app_set(command_id, command)
             return command
-        else:
-            return app.config.get(command_id)
+        return app.config.get(command_id)
 
     # ---- Check whether environment exists
-    # print("Looking for "+command_id+"\n")
     command = value(os.environ.get(command_id))
     if command is None or command == "":
         # ---- Check whether setting exists in app
@@ -61,10 +58,8 @@ def get_setting(command_id, guess=None):
         if command is None:
             command = value(guess)
             if command is None or command == "":
-                # print command
                 raise Exception(
                     command_id + ' setting unknown or faulty (update default_settings.py?).')
-    # print("Set "+command_id+"="+str(command))
     return command
 
 
