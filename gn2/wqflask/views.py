@@ -1226,7 +1226,7 @@ def display_genewiki_page(symbol):
     wiki = requests.get(
         urljoin(
             GN3_LOCAL_URL,
-            f"/api/metadata/genewiki/{symbol}"
+            f"/api/metadata/wiki/{symbol}"
         )
     ).json()
     return render_template(
