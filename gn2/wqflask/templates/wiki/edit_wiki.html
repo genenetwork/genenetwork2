@@ -14,6 +14,7 @@
 
 {% block content %}
 
+{{ flash_me() }}
 <section class="container center-block">
     <div class="row">
 	<div class="col-md-3"></div>
@@ -30,18 +31,26 @@
 		    <label for="species" class="col-sm-2">Species: </label>
 		    <select name="species" id="species">
 			{% for name, species_name in species_dict.items() %}
-			<option value="{{ name }}">{{ species_name }}</option>
+			    {% if name == content["species"] %}
+			    <option selected="selected" value="{{ name }}">{{ species_name }}</option>
+			    {% else %}
+			    <option value="{{ name }}">{{ species_name }}</option>
+			    {% endif %}
 			{% endfor %}
 		    </select>
 		</div>
 		<div class="form-group">
 		    <label for="pubmed_ids" class="col-sm-2">PubMed IDS: </label>
-		    <input type="text" name="pubmed_ids" size=25 maxlength=25>
+		    <input type="text" name="pubmed_ids" size=25 maxlength=25 value="{{ " ".join(content["pubmed_ids"]) }}">
 		    (optional, separate by blank space only)
 		</div>
 		<div class="form-group">
-		    <label for="weburl" class="col-sm-2">Web resource URL: </label>
-		    <input type="text" name="weburl" value="http://" size=50 maxlength=255>
+		    <label for="web_url" class="col-sm-2">Web resource URL: </label>
+		    {% if content["weburl"] %}
+		    <input type="text" name="web_url" value="{{ content["weburl"] }}" size=50 maxlength=255>
+		    {% else %}
+		    <input type="text" name="web_url" value="http://" size=50 maxlength=255>
+		    {% endif %}
 		    (optional)
 		</div>
 		<div class="form-group">
@@ -64,7 +73,11 @@
 		    <div class="row">
 		    {% for cat in group %}
 			<label class="checkbox-inline col-sm-3">
+			    {% if cat in content["categories"] %}
+			    <input checked type="checkbox" name="genecategory" value="{{ cat }}"> {{ cat }}
+			    {% else %}
 			    <input type="checkbox" name="genecategory" value="{{ cat }} "> {{ cat }}
+			    {% endif %}
 			</label>
 		    {% endfor %}
 		    </div>
@@ -72,21 +85,9 @@
 		</div>
 		<div class="form-group">
 		    <button type="submit" name="submit" class="btn btn-primary">Update GeneWiki Entry</button>
-		    <button type="reset" name="rest" class="btn btn-secondary">Reset</button>
+		    <button type="reset" name="rest" class="btn btn-secondary" onClick="window.location.reload();">Reset</button>
 		</div>
 	    </form>
 	</div>
     </div>
-<FORM METHOD="POST" ACTION="/webqtl/main.py" NAME="addgenerif">
-
-<INPUT TYPE="hidden" NAME="symbol" VALUE="shh">
-<INPUT TYPE="hidden" NAME="curStatus" VALUE="insertCheck">
-<INPUT TYPE="hidden" NAME="FormID" VALUE="geneWiki">
-<INPUT TYPE="hidden" NAME="reason" VALUE="">
-<INPUT TYPE="hidden" NAME="action" VALUE="update">
-<INPUT TYPE="hidden" NAME="Id" VALUE="230">
-<P>
-
-</FORM>
-
 {% endblock %}
