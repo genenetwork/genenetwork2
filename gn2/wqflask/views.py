@@ -1220,8 +1220,8 @@ def display_diffs_users():
                            files=files)
 
 
-@app.route("/genewiki/<symbol>")
-def display_genewiki_page(symbol):
+@app.route("/genewiki/<string:symbol>")
+def display_genewiki_page(symbol: str):
     """Fetch GeneRIF metadata from GN3 and display it"""
     wiki = requests.get(
         urljoin(
