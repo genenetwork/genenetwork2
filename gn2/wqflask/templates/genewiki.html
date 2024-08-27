@@ -65,32 +65,5 @@
                 <u> There are no GeneNetwork entries for < b > {{ symbol }}.</b></u>
             </p>
         {% endif %}
-        <h3>
-            <strong>GeneRIF from NCBI</strong>
-            <span class = "badge">{{ entries.ncbi_entries|length if entries.ncbi_entries[0] else 0 }}</span>:
-        </h3>
-        {% if entries.ncbi_entries[0] %}
-            <ol>
-                {% for entry in entries.ncbi_entries %}
-                    <li>
-                        {{ entry.entry.value }}
-                        ( <a href="{{ entry['generif']['value'] }}" target="_blank">{{ entry["speciesBinomialName"]["value"] }}</a> )
-                        {% if entry.PubMedId.value != "" %}
-                            {% set pmids = entry.PubMedId.value.split(",") %}
-                            (PubMed:
-                            {% for id in pmids %}
-                                < a href="http://rdf.ncbi.nlm.nih.gov/pubmed/{{ id }}" target="_blank" > {{ id }} < /a>
-                            {% endfor %}
-                            )
-                            <sup> <small><em>{{ entry.createdOn.value }}</em></small></sup>
-                        {% endif %}
-                    </li>
-                {% endfor %}
-            </ol>
-        {% else %}
-            <p class = "well">
-                <u> There are no NCBI entries for < b > {{ symbol }}.</b></u>
-            </p>
-        {% endif %}
     </div>
 {% endblock %}
