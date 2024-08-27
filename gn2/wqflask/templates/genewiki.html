@@ -1,101 +1,96 @@
-{% extends "base.html" %}
-
-{% block title %}
-GeneWiki Entry for {{ symbol }}
-{% endblock %}
-
+{% extends "base.html" % }
+{% block title %}GeneWiki Entry for {{ symbol }}{% endblock %}
 {% block css %}
-<style>
+    <style>
+        .badge {
+            vertical-align: top background-color: # 336699;
+        }
 
- .badge {
-     vertical-align: top;
-     background-color: #336699;
- }
+        .list-group {
+            counter-reset: gnentries
+        }
 
- .list-group {
-     counter-reset: gnentries;
- }
+        summary:: before {
+            counter-increment: gnentries content: counter(gnentries) "." " "
+        }
 
- summary::before {
-     counter-increment: gnentries;
-     content: counter(gnentries) "." " ";
- }
-
- summary:hover {
-     cursor: zoom-in;
- }
-</style>
-
+        summary: hover {
+            cursor: zoom-in
+        }
+    </style>
 {% endblock %}
 {% block content %}
-
-
-<div class="container">
-    <h1 class="page-header">GeneWiki For {{ symbol }}</h1>
-    <p class="well"><strong>GeneWiki</strong> enables you to enrich the annotation of genes and transcripts.</p>
-
-    <h3>
-	<strong>GeneNetwork</strong>
-	<span class="badge">
-	    {{ entries.gn_entries|length if entries.gn_entries[0] else 0 }}
-	</span>:
-    </h3>
-    {% if entries.gn_entries[0] %}
-    <ul class="list-group">
-	{% for entry in entries.gn_entries %}
-	<li class="list-group-item">
-	    <details>
-		<summary>
-		    {{ entry["entry"]["value"] }}
-		    {% if entry.get("weburl") %}
-		    <sup><small><a href="{{ entry.weburl.value }}" target="_blank"><span class="glyphicon glyphicon-globe" aria-hidden="true"></span> web</a></small></sup>
-		    {% endif %}
-		</summary>
-		<dl class="dl-horizontal">
-		    <dt>Author:</dt>
-		    <dd>{{ entry["author"]["value"] }}</dd>
-
-		    {% if entry.get("geneCategory") %}
-		    <dt>Category:</dt>
-		    <dd>{{ entry["geneCategory"]["value"]}}</dd>
-		    {% endif %}
-
-		    <dt>Add Time:</dt>
-		    <dd>{{ entry["created"]["value"]}}</dd>
-		</dl>
-	    </details>
-	</li>
-	{% endfor %}
-    </ul>
-
-    {% else %}
-
-    <p class="well"><u>There are no GeneNetwork entries for <b>{{ symbol }}.</b></u></p>
-
-    {% endif %}
-
-    <h3>
-	<strong>GeneRIF from NCBI</strong>
-	<span class="badge">
-	    {{ entries.ncbi_entries|length if entries.ncbi_entries[0] else 0 }}
-	</span>:
-    </h3>
-    {% if entries.ncbi_entries[0] %}
-	<ol>
-	{% for entry in entries.ncbi_entries %}
-	<li>
-	    {{ entry.entry.value }}
-	    (<a href="{{ entry['generif']['value'] }}" target="_blank">{{ entry["speciesBinomialName"]["value"] }}</a>)
-            {% if entry.PubMedId.value != "" %}
-	    {% set pmids = entry.PubMedId.value.split(",") %}
-	    (PubMed: {% for id in pmids %} <a href="http://rdf.ncbi.nlm.nih.gov/pubmed/{{ id }}" target="_blank">{{ id }}</a>{% endfor %})
-	    <sup><small><em>{{ entry.createdOn.value }}</em></small></sup>
-	    {% endif %}
-	</li>
-	{% endfor %}
-    </ol>
-    {% else %}
-    <p class="well"><u>There are no NCBI entries for <b>{{ symbol }}.</b></u></p>
-    {% endif %}
-</div>
+    <div class = "container">
+        <h1 class = "page-header">GeneWiki For {{ symbol }}</h1>
+        <p class = "well">
+            <strong>GeneWiki</strong> enables you to enrich the annotation of genes and transcripts.
+        </p>
+        <h3>
+            <strong>GeneNetwork</strong>
+            <span class = "badge">{{ entries.gn_entries|length if entries.gn_entries[0] else 0 }}</span>:
+        </h3>
+        {% if entries.gn_entries[0] % }
+            <ul class = "list-group">
+                {% for entry in entries.gn_entries % }
+                    <li class = "list-group-item">
+                        <details>
+                            <summary>
+                                {{ entry["entry"]["value"] }}
+                                {% if entry.get("weburl") % }
+                                    <sup> <small> <a href = "{{ entry.weburl.value }}" target = "_blank"> <span class = "glyphicon glyphicon-globe" aria-hidden = "true"></span> web < /a > </small> </sup>
+                                {% endif % }
+                            </summary>
+                            <dl class = "dl-horizontal">
+                                <dt>Author:</dt>
+                                <dd>
+                                    {{ entry["author"]["value"] }}
+                                </dd>
+                                {% if entry.get("geneCategory") %}
+                                    <dt>Category:</dt>
+                                    <dd>
+                                        {{ entry["geneCategory"]["value"] }}
+                                    </dd>
+                                {% endif %}
+                                <dt>Add Time:</dt>
+                                <dd>
+                                    {{ entry["created"]["value"] }}
+                                </dd>
+                            </dl>
+                        </details>
+                    </li>
+                {% endfor %}
+            </ul>
+        {% else %}
+            <p class = "well">
+                <u> There are no GeneNetwork entries for < b > {{ symbol }}.</b></u>
+            </p>
+        {% endif %}
+        <h3>
+            <strong>GeneRIF from NCBI</strong>
+            <span class = "badge">{{ entries.ncbi_entries|length if entries.ncbi_entries[0] else 0 }}</span>:
+        </h3>
+        {% if entries.ncbi_entries[0] %}
+            <ol>
+                {% for entry in entries.ncbi_entries %}
+                    <li>
+                        {{ entry.entry.value }}
+                        ( <a href="{{ entry['generif']['value'] }}" target="_blank">{{ entry["speciesBinomialName"]["value"] }}</a> )
+                        {% if entry.PubMedId.value != "" %}
+                            {% set pmids = entry.PubMedId.value.split(",") %}
+                            (PubMed:
+                            {% for id in pmids %}
+                                < a href="http://rdf.ncbi.nlm.nih.gov/pubmed/{{ id }}" target="_blank" > {{ id }} < /a>
+                            {% endfor %}
+                            )
+                            <sup> <small><em>{{ entry.createdOn.value }}</em></small></sup>
+                        {% endif %}
+                    </li>
+                {% endfor %}
+            </ol>
+        {% else %}
+            <p class = "well">
+                <u> There are no NCBI entries for < b > {{ symbol }}.</b></u>
+            </p>
+        {% endif %}
+    </div>
 {% endblock %}
