@@ -1494,31 +1494,46 @@ def approve_reject_diff() -> Response:
                                 diff_id=form["diff_id"]))
 
 
-@app.route("/wiki/<int:comment_id>/edit")
+@app.route("/wiki/<int:comment_id>/edit", methods=["GET", "POST"])
 def edit_wiki(comment_id: int):
     """fetch generif metadata from gn3 and display it"""
     # FIXME: better error handling
-    last_wiki_content = (
-        monad_requests.get(urljoin(GN3_LOCAL_URL, f"/api/metadata/wiki/{comment_id}"))
-        .then(lambda res: res)
-        .either(lambda _: [], lambda x: x.json())
-    )
-    species_dict = (
-        monad_requests.get(urljoin(GN3_LOCAL_URL, "/api/metadata/wiki/species"))
-        .then(lambda res: res)
-        .either(lambda _: [], lambda x: x.json())
-    )
-    categories = (
-        monad_requests.get(urljoin(GN3_LOCAL_URL, "/api/metadata/wiki/categories"))
-        .then(lambda resp: resp)
-        .either(lambda _: [], lambda x: list(x.json().keys()))
-    )
+    if request.method == "GET":
+        last_wiki_content = (
+            monad_requests.get(urljoin(GN3_LOCAL_URL, f"/api/metadata/wiki/{comment_id}"))
+            .either(lambda err: err.raise_for_status(), lambda x: x.json())
+        )
 
-    grouped_categories = [categories[i : i + 3] for i in range(0, len(categories), 3)]
+        species_dict = (
+            monad_requests.get(urljoin(GN3_LOCAL_URL, "/api/metadata/wiki/species"))
+            .either(lambda err: err.raise_for_status(), lambda x: x.json())
+        )
+        categories = (
+            monad_requests.get(urljoin(GN3_LOCAL_URL, "/api/metadata/wiki/categories"))
+            .either(lambda err: err.raise_for_status(), lambda x: list(x.json().keys()))
+        )
 
-    return render_template(
-        "wiki/edit_wiki.html",
-        content=last_wiki_content,
-        species_dict=species_dict,
-        grouped_categories=grouped_categories,
-    )
+        grouped_categories = [categories[i : i + 3] for i in range(0, len(categories), 3)]
+
+        return render_template(
+            "wiki/edit_wiki.html",
+            content=last_wiki_content,
+            species_dict=species_dict,
+            grouped_categories=grouped_categories,
+        )
+    if request.method == "POST":
+        post_data = request.form
+        payload = {
+            "symbol": post_data["symbol"],
+            "pubmed_ids": [x.strip() for x in post_data["pubmed_ids"].split()],
+            "species": post_data["species"],
+            "comment": post_data["comment"],
+            "email": post_data["email"],
+            "web_url": post_data["web_url"],
+            "initial": post_data["initial"],
+            "categories": post_data.getlist("genecategory"),
+            "reason": post_data["reason"],
+            }
+        post_res = monad_requests.post(urljoin(GN3_LOCAL_URL, f"api/metadata/wiki/{comment_id}/edit"), json=payload).either(lambda err: err.raise_for_status(), lambda success: success.json())
+        flash(f"Success: {post_res}", "alert-success")
+        return redirect(url_for("edit_wiki", comment_id=comment_id))
