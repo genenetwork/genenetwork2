@@ -1,68 +1,30 @@
-{% extends "base.html" % }
+{% extends "base.html" %}
 {% block title %}GeneWiki Entry for {{ symbol }}{% endblock %}
-{% block css %}
-    <style>
-        .badge {
-            vertical-align: top background-color: # 336699;
-        }
-
-        .list-group {
-            counter-reset: gnentries
-        }
-
-        summary:: before {
-            counter-increment: gnentries content: counter(gnentries) "." " "
-        }
-
-        summary: hover {
-            cursor: zoom-in
-        }
-    </style>
-{% endblock %}
+{% block css %}<style></style>{% endblock %}
 {% block content %}
     <div class = "container">
-        <h1 class = "page-header">GeneWiki For {{ symbol }}</h1>
-        <p class = "well">
-            <strong>GeneWiki</strong> enables you to enrich the annotation of genes and transcripts.
+        <h1 class = "page-header">GeneWiki Entries</h1>
+        <p>
+            GeneWiki enables you to enrich the annotation of genes and transcripts. Please submit or edit a GeneWiki note (500 characters max) related to a gene, its transcripts, or proteins. When possible include PubMed identifiers or web resource links (URL addresses). Please ensure that the additions will have widespread use. For additional information, check the GeneWiki <a href="https://gn1.genenetwork.org/GeneWikihelp.html" target="_blank">help document</a>.
         </p>
-        <h3>
-            <strong>GeneNetwork</strong>
-            <span class = "badge">{{ entries.gn_entries|length if entries.gn_entries[0] else 0 }}</span>:
-        </h3>
-        {% if entries.gn_entries[0] % }
-            <ul class = "list-group">
-                {% for entry in entries.gn_entries % }
-                    <li class = "list-group-item">
-                        <details>
-                            <summary>
-                                {{ entry["entry"]["value"] }}
-                                {% if entry.get("weburl") % }
-                                    <sup> <small> <a href = "{{ entry.weburl.value }}" target = "_blank"> <span class = "glyphicon glyphicon-globe" aria-hidden = "true"></span> web < /a > </small> </sup>
-                                {% endif % }
-                            </summary>
-                            <dl class = "dl-horizontal">
-                                <dt>Author:</dt>
-                                <dd>
-                                    {{ entry["author"]["value"] }}
-                                </dd>
-                                {% if entry.get("geneCategory") %}
-                                    <dt>Category:</dt>
-                                    <dd>
-                                        {{ entry["geneCategory"]["value"] }}
-                                    </dd>
-                                {% endif %}
-                                <dt>Add Time:</dt>
-                                <dd>
-                                    {{ entry["created"]["value"] }}
-                                </dd>
-                            </dl>
-                        </details>
+        <h3>GeneWiki For {{ symbol }}:</h3>
+        <h5>
+            <strong>GeneNetwork:</strong>
+        </h5>
+        {% if wiki %}
+            <ol>
+                {% for entry in wiki %}
+                    <li>
+                        {{ entry.get("comment") }}
+                        {% if entry.get("web_url") %}
+                            <sup> <small> <a href = "{{ entry.web_url }}" target = "_blank"> <span class = "glyphicon glyphicon-globe" aria-hidden = "true"></span>web</a></small></sup>
+                        {% endif %}
                     </li>
                 {% endfor %}
-            </ul>
+            </ol>
         {% else %}
             <p class = "well">
-                <u> There are no GeneNetwork entries for < b > {{ symbol }}.</b></u>
+                <u> There are no GeneNetwork entries for <b> {{ symbol }}.</b></u>
             </p>
         {% endif %}
     </div>
