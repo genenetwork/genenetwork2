@@ -1221,7 +1221,7 @@ def display_diffs_users():
 
 
 @app.route("/genewiki/<symbol>")
-def display_generif_page(symbol):
+def display_genewiki_page(symbol):
     """Fetch GeneRIF metadata from GN3 and display it"""
     entries = requests.get(
         urljoin(
@@ -1230,7 +1230,7 @@ def display_generif_page(symbol):
         )
     ).json()
     return render_template(
-        "generif.html",
+        "genewiki.html",
         symbol=symbol,
         entries=entries
     )
