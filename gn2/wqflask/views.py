@@ -1230,7 +1230,7 @@ def display_genewiki_page(symbol: str):
         )
     ).json()
     return render_template(
-        "genewiki.html",
+        "wiki/genewiki.html",
         symbol=symbol,
         wiki=wiki
     )
