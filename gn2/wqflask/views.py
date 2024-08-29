@@ -277,7 +277,7 @@ def gnqna():
             """
             token = session_info()["user"]["token"].either(
                 lambda err: err, lambda tok: tok["access_token"])
-            return monad_requests.post(
+            return monad_requests.put(
                 urljoin(GN3_LOCAL_URL,
                         "/api/llm/gnqna"),
                 json=dict(request.form),
