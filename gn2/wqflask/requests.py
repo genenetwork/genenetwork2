@@ -14,11 +14,8 @@ def get(url, params=None, **kwargs) -> Either:
 def post(url, data=None, json=None, **kwargs) -> Either:
     """Wrap requests post method with Either monad"""
     return __wrap_response__(requests.post(url, data=data, json=json, **kwargs))
-<<<<<<< HEAD
-=======
 
 
 def put(url, data=None, json=None, **kwargs) -> Either:
     """Wrap requests put  method with Either monad"""
     return __wrap_response__(requests.put(url, data=data, json=json, **kwargs))
->>>>>>> 0a3dc5f5 (Update docstring for put.)
