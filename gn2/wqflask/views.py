@@ -1223,12 +1223,18 @@ def display_diffs_users():
 @app.route("/genewiki/<string:symbol>")
 def display_genewiki_page(symbol: str):
     """Fetch GeneRIF metadata from GN3 and display it"""
-    wiki = requests.get(
-        urljoin(
-            GN3_LOCAL_URL,
-            f"/api/metadata/wiki/{symbol}"
+    wiki = {}
+    try:
+        wiki = requests.get(
+            urljoin(
+                GN3_LOCAL_URL,
+                f"/api/metadata/wiki/{symbol}"
+            )
         )
-    ).json()
+        wiki.raise_for_status()
+        wiki = wiki.json()
+    except requests.RequestException as excp:
+        flash(excp, "alert-warning")
     return render_template(
         "wiki/genewiki.html",
         symbol=symbol,
