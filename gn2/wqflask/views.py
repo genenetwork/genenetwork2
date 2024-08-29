@@ -299,7 +299,7 @@ def get_gnqa_history():
     token = session_info()["user"]["token"].either(
         lambda err: err, lambda tok: tok["access_token"])
     if request.method == "DELETE":
-        monad_requests.post(urljoin(GN3_LOCAL_URL, "/api/llm/history"),
+        monad_requests.delete(urljoin(GN3_LOCAL_URL, "/api/llm/history"),
                             json=dict(request.form),
                             headers={
                                  "Authorization": f"Bearer {token}"

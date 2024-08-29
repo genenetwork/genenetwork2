@@ -19,3 +19,8 @@ def post(url, data=None, json=None, **kwargs) -> Either:
 def put(url, data=None, json=None, **kwargs) -> Either:
     """Wrap requests put  method with Either monad"""
     return __wrap_response__(requests.put(url, data=data, json=json, **kwargs))
+
+
+def delete(url,  **kwargs) -> Either:
+    """Wrap requests delete  method with Either monad"""
+    return __wrap_response__(requests.delete(url,  **kwargs))
