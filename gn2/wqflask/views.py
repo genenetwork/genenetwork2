@@ -272,7 +272,7 @@ def gnqna():
                 return render_template("gnqa_answer.html", **{"gn_server_url": GN3_LOCAL_URL, **(resp.json())})
             token = session_info()["user"]["token"].either(
                 lambda err: err, lambda tok: tok["access_token"])
-            return monad_requests.post(
+            return monad_requests.put(
                 urljoin(GN3_LOCAL_URL,
                         "/api/llm/search"),
                 json=dict(request.form),
