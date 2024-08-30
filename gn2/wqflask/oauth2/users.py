@@ -1,6 +1,6 @@
 import requests
 from uuid import UUID
-from urllib.parse import urljoin
+from urllib.parse import urljoin, urlparse
 
 from authlib.integrations.base_client.errors import OAuthError
 from flask import (
@@ -11,10 +11,16 @@ from . import client
 from . import session
 from .ui import render_ui
 from .checks import require_oauth2
-from .client import (oauth2_get, oauth2_post, oauth2_client,
-                     authserver_uri, user_logged_in)
-from .request_utils import (
-    user_details, request_error, process_error, with_flash_error)
+from .client import (oauth2_get,
+                     oauth2_post,
+                     oauth2_client,
+                     authserver_uri,
+                     user_logged_in)
+from .request_utils import (user_details,
+                            request_error,
+                            process_error,
+                            with_flash_error,
+                            authserver_authorise_uri)
 
 users = Blueprint("user", __name__)
 
@@ -61,7 +67,7 @@ def request_add_to_group() -> Response:
         return redirect(url_for("oauth2.user.user_profile"))
 
     return oauth2_post(f"auth/group/requests/join/{group_id}",
-                       data=form).either(__error__, __success__)
+                       json=form).either(__error__, __success__)
 
 
 @users.route("/logout", methods=["GET", "POST"])
@@ -84,7 +90,8 @@ def logout():
             f"{the_session['masquerading']['name']} "
             f"({the_session['masquerading']['email']})",
             "alert-success")
-        return redirect("/")
+
+    return redirect("/")
 
 @users.route("/register", methods=["GET", "POST"])
 def register_user():
@@ -101,11 +108,14 @@ def register_user():
     form = request.form
     response = requests.post(
         urljoin(authserver_uri(), "auth/user/register"),
-        data = {
+        json = {
             "user_name": form.get("user_name"),
             "email": form.get("email_address"),
             "password": form.get("password"),
-            "confirm_password": form.get("confirm_password")})
+            "confirm_password": form.get("confirm_password"),
+            **dict(
+                item.split("=") for item in
+                urlparse(authserver_authorise_uri()).query.split("&"))})
     results = response.json()
     if "error" in results:
         error_messages = tuple(

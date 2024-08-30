@@ -36,7 +36,7 @@ def process_error(error: Response,
         try:
             err = error.json()
             msg = err.get(
-                "error", err.get("error_description", f"{error.reason}"))
+                "error_message", err.get("error_description", f"{error.reason}"))
         except simplejson.errors.JSONDecodeError as _jde:
             msg = message
         return {

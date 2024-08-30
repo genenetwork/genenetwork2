@@ -120,3 +120,9 @@ OAUTH2_CLIENT_SECRET="yadabadaboo"
 SESSION_TYPE = "redis"
 SESSION_PERMANENT = True
 SESSION_USE_SIGNER = True
+
+
+# BEGIN: JSON WEB KEYS #####
+JWKS_ROTATION_AGE_DAYS = 7 # Days (from creation) to keep a JWK in use.
+JWKS_DELETION_AGE_DAYS = 14 # Days (from creation) to keep a JWK around before deleting it.
+# END: JSON WEB KEYS #####

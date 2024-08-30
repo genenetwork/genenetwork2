@@ -46,12 +46,12 @@ from gn2.wqflask import search_results
 from gn2.wqflask import server_side
 # Used by YAML in marker_regression
 from gn2.base.data_set import create_dataset
+from gn2.base.trait import fetch_symbols
 from gn2.wqflask.show_trait import show_trait
 from gn2.wqflask.show_trait import export_trait_data
 from gn2.wqflask.show_trait.show_trait import get_diff_of_vals
 from gn2.wqflask.heatmap import heatmap
-from gn2.wqflask.external_tools import send_to_bnw
-from gn2.wqflask.external_tools import send_to_webgestalt
+from gn2.wqflask.external_tools import send_to_bnw, send_to_webgestalt
 from gn2.wqflask.external_tools import send_to_geneweaver
 from gn2.wqflask.comparison_bar_chart import comparison_bar_chart
 from gn2.wqflask.marker_regression import run_mapping
@@ -88,8 +88,8 @@ from gn2.utility.redis_tools import get_redis_conn
 
 import gn2.utility.hmac as hmac
 
-from gn2.base.webqtlConfig import TMPDIR
-from gn2.base.webqtlConfig import GENERATED_IMAGE_DIR
+from gn2.base.webqtlConfig import TMPDIR, GENERATED_IMAGE_DIR
+from gn2.base.webqtlConfig import GENE_CUP_URL
 
 from gn2.wqflask.database import database_connection
 
@@ -137,6 +137,10 @@ def handle_generic_exceptions(e):
                                          stack={formatted_lines},
                                          error_image=animation,
                                          version=current_app.config.get("GN_VERSION")))
+    try:
+        resp.status_code = exc_type.code
+    except AttributeError:
+        resp.status_code = 500
     resp.set_cookie(err_msg[:32], animation)
     return resp
 
@@ -258,28 +262,19 @@ def gsearchtable():
 @app.route("/gnqna", methods=["POST", "GET"])
 @require_oauth2
 def gnqna():
-
     if request.method == "POST":
         try:
-            def __error__(resp):
-                return resp.json()
-
             def error_page(resp):
                 return render_template("gnqa_errors.html",
                                        **{"status_code": resp.status_code, **resp.json()})
 
             def __success__(resp):
                 return render_template("gnqa_answer.html", **{"gn_server_url": GN3_LOCAL_URL, **(resp.json())})
-            """
-            disable gn-auth currently not stable
-            if not user_logged_in():
-                return error_page("Please Login/Register to  Genenetwork to access this Service")
-            """
             token = session_info()["user"]["token"].either(
                 lambda err: err, lambda tok: tok["access_token"])
-            return monad_requests.post(
+            return monad_requests.put(
                 urljoin(GN3_LOCAL_URL,
-                        "/api/llm/gnqna"),
+                        "/api/llm/search"),
                 json=dict(request.form),
                 headers={
                     "Authorization": f"Bearer {token}"
@@ -290,44 +285,39 @@ def gnqna():
                 error_page, __success__)
         except Exception as error:
             return flask.jsonify({"error": str(error)})
-    prev_queries = (monad_requests.get(
-        urljoin(GN3_LOCAL_URL,
-                "/api/llm/get_hist_names")
-    ).then(
-        lambda resp: resp
-    ).either(lambda x: [], lambda x: x.json()["prev_queries"]))
-
-    return render_template("gnqa.html", prev_queries=prev_queries)
+    return render_template("gnqa.html")
 
 
-@app.route("/gnqna/hist/", methods=["GET"])
+
+@app.route("/gnqna/hist", methods=["GET", "DELETE"])
 @require_oauth2
-def get_hist_titles():
+def get_gnqa_history():
+    def _error_(resp):
+        return render_template("gnqa_errors.html",
+                               **{"status_code": resp.status_code,
+                                  **resp.json()})
     token = session_info()["user"]["token"].either(
         lambda err: err, lambda tok: tok["access_token"])
+    if request.method == "DELETE":
+        monad_requests.delete(urljoin(GN3_LOCAL_URL, "/api/llm/history"),
+                            json=dict(request.form),
+                            headers={
+                                 "Authorization": f"Bearer {token}"
+                            }
+                            ).either(
+                   _error_, lambda x: x.json())
     response = monad_requests.get(urljoin(GN3_LOCAL_URL,
-                                          "/api/llm/hist/titles"),
+                 (f"/api/llm/history?search_term={request.args.get('search_term')}"
+                  if request.args.get("search_term") else "/api/llm/history")),
                                   headers={
         "Authorization": f"Bearer {token}"
     }
     ).then(lambda resp: resp).either(
-        lambda x:  x.json(), lambda x: x.json())
-    return render_template("gnqa_search_history.html", **response)
-
-
-@app.route("/gnqna/hist/search/<search_term>", methods=["GET"])
-@require_oauth2
-def fetch_hist_records(search_term):
-    token = session_info()["user"]["token"].either(
-        lambda err: err, lambda tok: tok["access_token"])
-    response = monad_requests.get(urljoin(GN3_LOCAL_URL,
-                                          f"/api/llm/history/{search_term}"),
-                                  headers={
-        "Authorization": f"Bearer {token}"
-    }
-    ).then(lambda resp: resp).either(
-        lambda x:  x.json(), lambda x: x.json())
-    return render_template("gnqa_answer.html", **response)
+        _error_, lambda x: x.json())
+    if request.args.get("search_term"):
+        return render_template("gnqa_answer.html", **response)
+    return render_template("gnqa_search_history.html",
+                           prev_queries=response)
 
 
 @app.route("/gnqna/rating/<task_id>/<int(signed=True):weight>",
@@ -739,6 +729,22 @@ def geneweaver_page():
             "empty_collection.html", **{'tool': 'GeneWeaver'})
 
     return rendered_template
+
+
+@app.route("/genecup", methods=('POST',))
+def genecup_page():
+    start_vars = request.form
+
+    traits = [trait.strip() for trait in start_vars['trait_list'].split(',')]
+
+    if traits[0] != "":
+        symbol_string = fetch_symbols(traits)
+        return redirect(GENE_CUP_URL % symbol_string)
+    else:
+        rendered_template = render_template(
+            "empty_collection.html", **{'tool': 'GeneWeaver'})
+
+        return rendered_template
 
 
 @app.route("/comparison_bar_chart", methods=('POST',))
@@ -1230,8 +1236,8 @@ def get_dataset(name):
         lambda err: {"roles": []},
         lambda val: val
     )
-
-    metadata["editable"] = "group:resource:edit-resource" in result["roles"]
+    if metadata:
+        metadata["editable"] = "group:resource:edit-resource" in result["roles"]
     return render_template(
         "dataset.html",
         name=name,
@@ -1346,7 +1352,7 @@ def edit_case_attributes(inbredset_id: int) -> Response:
         return monad_requests.post(
             urljoin(
                 current_app.config["GN_SERVER_URL"],
-                f"/api/case-attribute/{inbredset_id}/edit"),
+                f"case-attribute/{inbredset_id}/edit"),
             json={
                 "edit-data": reduce(__process_data__, form.items(), {})
             },
@@ -1358,29 +1364,33 @@ def edit_case_attributes(inbredset_id: int) -> Response:
     def __fetch_strains__(inbredset_group):
         return monad_requests.get(urljoin(
             current_app.config["GN_SERVER_URL"],
-            f"/api/case-attribute/{inbredset_id}/strains")).then(
+            f"case-attribute/{inbredset_id}/strains")).then(
                 lambda resp: {**inbredset_group, "strains": resp.json()})
 
     def __fetch_names__(strains):
         return monad_requests.get(urljoin(
             current_app.config["GN_SERVER_URL"],
-            f"/api/case-attribute/{inbredset_id}/names")).then(
+            f"case-attribute/{inbredset_id}/names")).then(
                 lambda resp: {**strains, "case_attribute_names": resp.json()})
 
     def __fetch_values__(canames):
         return monad_requests.get(urljoin(
             current_app.config["GN_SERVER_URL"],
-            f"/api/case-attribute/{inbredset_id}/values")).then(
+            f"case-attribute/{inbredset_id}/values")).then(
                 lambda resp: {**canames, "case_attribute_values": {
                     value["StrainName"]: value for value in resp.json()}})
 
+    def __view_error__(err):
+        current_app.logger.error("%s", err)
+        return "We experienced an error"
+
     return monad_requests.get(urljoin(
         current_app.config["GN_SERVER_URL"],
-        f"/api/case-attribute/{inbredset_id}")).then(
+        f"case-attribute/{inbredset_id}")).then(
             lambda resp: {"inbredset_group": resp.json()}).then(
                 __fetch_strains__).then(__fetch_names__).then(
                     __fetch_values__).either(
-                        lambda err: err,  # TODO: Handle error better
+                        __view_error__,
                         lambda values: render_template(
                             "edit_case_attributes.html", inbredset_id=inbredset_id, **values))
 

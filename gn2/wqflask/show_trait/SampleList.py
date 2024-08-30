@@ -81,7 +81,8 @@ class SampleList:
                             sample.extra_attributes['36'].append(
                                 webqtlConfig.RRID_MOUSE_URL % the_rrid)
                     elif self.dataset.group.species == "rat":
-                        if len(rrid_string):
+                        # Check if it's a list just in case a parent/f1 strain also shows up in the .geno file, to avoid being added twice
+                        if len(rrid_string) and not isinstance(sample.extra_attributes['36'], list):
                             the_rrid = rrid_string.split("_")[1]
                             sample.extra_attributes['36'] = [
                                 rrid_string]
@@ -131,7 +132,8 @@ class SampleList:
                 "CaseAttribute, CaseAttributeXRefNew WHERE "
                 "CaseAttributeXRefNew.CaseAttributeId = CaseAttribute.CaseAttributeId "
                 "AND CaseAttributeXRefNew.InbredSetId = %s "
-                "ORDER BY CaseAttribute.CaseAttributeId", (str(self.dataset.group.id),)
+                "AND CaseAttribute.InbredSetId = %s "
+                "ORDER BY CaseAttribute.CaseAttributeId", (str(self.dataset.group.id),str(self.dataset.group.id))
             )
 
             self.attributes = {}

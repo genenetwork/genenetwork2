@@ -72,7 +72,7 @@ def store_traits_list():
     return hash
 
 
-@app.route("/collections/add", methods=["POST"])
+@app.route("/collections/add", methods=('GET', 'POST'))
 def collections_add():
     anon_id = session_info()["anon_id"]
     traits = request.args.get("traits", request.form.get("traits"))

@@ -24,6 +24,7 @@ links_blueprint = Blueprint("links_blueprint", __name__)
 policies_blueprint = Blueprint("policies_blueprint", __name__)
 facilities_blueprint = Blueprint("facilities_blueprint", __name__)
 news_blueprint = Blueprint("news_blueprint", __name__)
+xapian_syntax_blueprint = Blueprint("xapian_syntax_blueprint", __name__)
 
 blogs_blueprint = Blueprint("blogs_blueprint", __name__)
 
@@ -115,6 +116,13 @@ def news():
     return render_template(
         "news.html",
         rendered_markdown=render_markdown("general/news/news.md")), 200
+
+
+@xapian_syntax_blueprint.route('/')
+def xapian():
+    return render_template(
+        "search-syntax.html",
+        rendered_markdown=render_markdown("general/search/xapian_syntax.md")), 200
 
 
 @environments_blueprint.route("/")

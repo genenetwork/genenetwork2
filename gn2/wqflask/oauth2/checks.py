@@ -2,12 +2,10 @@
 from functools import wraps
 from urllib.parse import urljoin
 
+from flask import flash, request, redirect
 from authlib.integrations.requests_client import OAuth2Session
-from flask import (
-    flash, request, redirect, session as flask_session)
 
 from . import session
-from .session import clear_session_info
 from .client import (
     oauth2_get,
     oauth2_client,
@@ -24,8 +22,6 @@ def require_oauth2(func):
 
         def __clear_session__(_no_token):
             session.clear_session_info()
-            flask_session.pop("oauth2_token", None)
-            flask_session.pop("user_details", None)
             flash("You need to be logged in.", "alert-warning")
             return redirect("/")
 
@@ -36,7 +32,7 @@ def require_oauth2(func):
             if not user_details.get("error", False):
                 return func(*args, **kwargs)
 
-            return clear_session_info(token)
+            return __clear_session__(token)
 
         return session.user_token().either(__clear_session__, __with_token__)
 

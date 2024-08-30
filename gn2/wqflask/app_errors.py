@@ -6,7 +6,8 @@ import traceback
 from uuid import uuid4
 
 from werkzeug.exceptions import InternalServerError
-from authlib.integrations.base_client.errors import InvalidTokenError
+from authlib.integrations.base_client.errors import (
+    OAuthError, InvalidTokenError)
 from flask import (
     flash, request, redirect, current_app, render_template, make_response)
 
@@ -46,13 +47,37 @@ def handle_authorisation_error(exc: AuthorisationError):
         "authorisation_error.html", error_type=type(exc).__name__, error=exc)
 
 def handle_invalid_token_error(exc: InvalidTokenError):
+    """Handle InvalidTokenError"""
     flash("An invalid session token was detected. "
           "You have been logged out of the system.",
           "alert-danger")
+    current_app.logger.error("Invalid token detected. %s", request.url, exc_info=True)
+    session.clear_session_info()
+    return redirect("/")
+
+def __build_message__(exc: OAuthError) -> str:
+    """Build up the message to flash for any OAuthError"""
+    match exc.args[0]:
+        case "ForbiddenAccess: Token does not belong to client.":
+            return "An invalid token was used. The session has been cleared."
+        case "ForbiddenAccess: Token is expired.":
+            return "The session has expired."
+        case "ForbiddenAccess: Token has previously been revoked.":
+            return "Revoked token was used. The session has been cleared."
+        case _:
+            return exc.args[0]
+
+def handle_oauth_error(exc: OAuthError):
+    """Handle generic OAuthError"""
+    flash((f"{type(exc).__name__}: {__build_message__(exc)} "
+           "Please log in again to continue."),
+          "alert-danger")
+    current_app.logger.error("Invalid token detected. %s", request.url, exc_info=True)
     session.clear_session_info()
     return redirect("/")
 
 __handlers__ = {
+    OAuthError: handle_oauth_error,
     AuthorisationError: handle_authorisation_error,
     ExternalRequestError: lambda exc: render_error(exc),
     InternalServerError: lambda exc: render_error(exc),

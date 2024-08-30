@@ -44,7 +44,7 @@ def create_group():
     def __setup_group__(response):
         session["user_details"]["group"] = response
 
-    resp = oauth2_post("auth/group/create", data=dict(request.form))
+    resp = oauth2_post("auth/group/create", json=dict(request.form))
     return resp.either(
         handle_error("oauth2.group.join_or_create"),
         handle_success(
@@ -116,7 +116,7 @@ def accept_join_request():
         return redirect(url_for("oauth2.group.list_join_requests"))
     return oauth2_post(
         "auth/group/requests/join/accept",
-        data=request.form).either(
+        json=dict(request.form)).either(
             handle_error("oauth2.group.list_join_requests"),
             __success__)
 
@@ -132,34 +132,10 @@ def reject_join_request():
         return redirect(url_for("oauth2.group.list_join_requests"))
     return oauth2_post(
         "auth/group/requests/join/reject",
-        data=request.form).either(
+        json=dict(request.form)).either(
             handle_error("oauth2.group.list_join_requests"),
             __success__)
 
-@groups.route("/role/<uuid:group_role_id>", methods=["GET"])
-@require_oauth2
-def group_role(group_role_id: uuid.UUID):
-    """View the details of a particular role."""
-    def __render_error__(**kwargs):
-        return render_ui("oauth2/view-group-role.html", **kwargs)
-
-    def __gprivs_success__(role, group_privileges):
-        return render_ui(
-            "oauth2/view-group-role.html", group_role=role,
-            group_privileges=tuple(
-                priv for priv in group_privileges
-                if priv not in role["role"]["privileges"]))
-
-    def __role_success__(role):
-        return oauth2_get("auth/group/privileges").either(
-            lambda err: __render_error__(
-                group_role=group_role,
-                group_privileges_error=process_error(err)),
-            lambda privileges: __gprivs_success__(role, privileges))
-
-    return oauth2_get(f"auth/group/role/{group_role_id}").either(
-        lambda err: __render_error__(group_role_error=process_error(err)),
-        __role_success__)
 
 def add_delete_privilege_to_role(
         group_role_id: uuid.UUID, direction: str) -> Response:
@@ -187,7 +163,7 @@ def add_delete_privilege_to_role(
         }
         return oauth2_post(
             uris[direction],
-            data={
+            json={
                 "group_role_id": group_role_id,
                 "privilege_id": privilege_id
             }).either(__error__, __success__)

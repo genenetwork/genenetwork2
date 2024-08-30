@@ -91,6 +91,8 @@ def apply_filters(trait, target_trait, target_dataset, **filters):
                             min_location_mb, max_location_mb):
 
         if target_dataset["type"] in ["ProbeSet", "Geno"] and location_type == "gene":
+            if not target_trait['mb'] or not target_trait['chr']:
+                return True
             return (
                 ((location_chr!=None) and (target_trait["chr"]!=location_chr))
                      or
@@ -154,7 +156,7 @@ def get_user_filters(start_vars):
 
     if all(keys in start_vars for keys in ["loc_chr",
                                            "min_loc_mb",
-                                           "max_location_mb"]):
+                                           "max_loc_mb"]):
 
         location_chr = get_string(start_vars, "loc_chr")
         min_location_mb = get_int(start_vars, "min_loc_mb")

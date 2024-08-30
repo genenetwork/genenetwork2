@@ -3,11 +3,17 @@ import uuid
 import datetime
 from urllib.parse import urljoin, urlparse, urlunparse
 
-from authlib.jose import jwt
-from flask import (
-    flash, request, Blueprint, url_for, redirect, render_template,
-    current_app as app)
+from authlib.jose import jwt, KeySet
+from flask import (flash,
+                   request,
+                   url_for,
+                   jsonify,
+                   redirect,
+                   Blueprint,
+                   render_template,
+                   current_app as app)
 
+from . import jwks
 from . import session
 from .checks import require_oauth2
 from .request_utils import user_details, process_error
@@ -29,7 +35,9 @@ def authorisation_code():
     code = request.args.get("code", "")
     if bool(code):
         base_url = urlparse(request.base_url, scheme=request.scheme)
-        jwtkey = app.config["SSL_PRIVATE_KEY"]
+        jwtkey = jwks.newest_jwk_with_rotation(
+            jwks.jwks_directory(app, "GN2_SECRETS"),
+            int(app.config["JWKS_ROTATION_AGE_DAYS"]))
         issued = datetime.datetime.now()
         request_data = {
             "grant_type": "urn:ietf:params:oauth:grant-type:jwt-bearer",
@@ -47,7 +55,7 @@ def authorisation_code():
                     "iss": str(oauth2_clientid()),
                     "sub": request.args["user_id"],
                     "aud": urljoin(authserver_uri(), "auth/token"),
-                    "exp": (issued + datetime.timedelta(minutes=5)),
+                    "exp": (issued + datetime.timedelta(minutes=5)).timestamp(),
                     "nbf": int(issued.timestamp()),
                     "iat": int(issued.timestamp()),
                     "jti": str(uuid.uuid4())},
@@ -75,8 +83,17 @@ def authorisation_code():
             })
             return redirect("/")
 
-        return no_token_post(
-            "auth/token", data=request_data).either(
-                lambda err: __error__(process_error(err)), __success__)
+        return no_token_post("auth/token", json=request_data).either(
+            lambda err: __error__(process_error(err)), __success__)
     flash("AuthorisationError: No code was provided.", "alert-danger")
     return redirect("/")
+
+
+@toplevel.route("/public-jwks", methods=["GET"])
+def public_jwks():
+    """Provide endpoint that returns the public keys."""
+    return jsonify({
+        "documentation": "The keys are listed in order of creation.",
+        "jwks": KeySet(jwks.list_jwks(
+            jwks.jwks_directory(app, "GN2_SECRETS"))).as_dict().get("keys")
+    })

@@ -33,6 +33,7 @@ from gn2.wqflask.api.markdown import environments_blueprint
 from gn2.wqflask.api.markdown import facilities_blueprint
 from gn2.wqflask.api.markdown import blogs_blueprint
 from gn2.wqflask.api.markdown import news_blueprint
+from gn2.wqflask.api.markdown import xapian_syntax_blueprint
 from gn2.wqflask.api.jobs import jobs as jobs_bp
 from gn2.wqflask.oauth2.routes import oauth2
 from gn2.wqflask.oauth2.client import user_logged_in
@@ -55,28 +56,17 @@ def numcoll():
         return "ERROR"
 
 
-def parse_ssl_key(app: Flask, keyconfig: str):
-    """Parse key file paths into objects"""
-    keypath = app.config.get(keyconfig, "").strip()
-    if not bool(keypath):
-        app.logger.error("Expected configuration '%s'", keyconfig)
-        return
-
-    with open(keypath) as _sslkey:
-            app.config[keyconfig] = JsonWebKey.import_key(_sslkey.read())
-
-
 def dev_loggers(appl: Flask) -> None:
     """Default development logging."""
     formatter = logging.Formatter(
-        fmt="[%(asctime)s] %(levelname)s in %(module)s: %(message)s")
+        fmt="[%(asctime)s] %(levelname)s [%(thread)d -- %(threadName)s] in %(module)s: %(message)s")
     stderr_handler = logging.StreamHandler(stream=sys.stderr)
     stderr_handler.setFormatter(formatter)
     appl.logger.addHandler(stderr_handler)
 
     root_logger = logging.getLogger()
     root_logger.addHandler(stderr_handler)
-    root_logger.setLevel(appl.config.get("LOGLEVEL", "WARNING"))
+    root_logger.setLevel(appl.config.get("LOG_LEVEL", "WARNING"))
 
 
 def gunicorn_loggers(appl: Flask) -> None:
@@ -93,12 +83,20 @@ def setup_logging(appl: Flask) -> None:
 
 
 app = Flask(__name__)
-setup_logging(app)
-
+## BEGIN: Setup configurations ##
 # See http://flask.pocoo.org/docs/config/#configuring-from-files
 # Note no longer use the badly named WQFLASK_OVERRIDES (nyi)
 app.config.from_object('gn2.default_settings')
 app.config.from_envvar('GN2_SETTINGS')
+app.config["SESSION_REDIS"] = redis.from_url(app.config["REDIS_URL"])
+# BEGIN: SECRETS -- Should be the last of the settings to load
+secrets_file = Path(app.config.get("GN2_SECRETS", "")).absolute()
+if secrets_file.exists() and secrets_file.is_file():
+    app.config.from_pyfile(str(secrets_file))
+# END: SECRETS
+## END: Setup configurations ##
+setup_logging(app)
+### DO NOT USE logging BEFORE THIS POINT!!!! ###
 
 app.jinja_env.globals.update(
     undefined=jinja2.StrictUndefined,
@@ -108,14 +106,6 @@ app.jinja_env.globals.update(
     user_details=user_details,
     num_collections=numcoll,
     datetime=datetime)
-
-app.config["SESSION_REDIS"] = redis.from_url(app.config["REDIS_URL"])
-
-## BEGIN: SECRETS -- Should be the last of the settings to load
-secrets_file = Path(app.config.get("GN2_SECRETS", "")).absolute()
-if secrets_file.exists() and secrets_file.is_file():
-    app.config.from_pyfile(str(secrets_file))
-## END: SECRETS
 
 
 # Registering blueprints
@@ -127,6 +117,7 @@ app.register_blueprint(environments_blueprint, url_prefix="/environments")
 app.register_blueprint(facilities_blueprint, url_prefix="/facilities")
 app.register_blueprint(blogs_blueprint, url_prefix="/blogs")
 app.register_blueprint(news_blueprint, url_prefix="/news")
+app.register_blueprint(xapian_syntax_blueprint, url_prefix="/search-syntax")
 app.register_blueprint(jupyter_notebooks, url_prefix="/jupyter_notebooks")
 
 app.register_blueprint(resource_management, url_prefix="/resource-management")
@@ -148,28 +139,10 @@ except StartupError as serr:
 
 server_session = Session(app)
 
-parse_ssl_key(app, "SSL_PRIVATE_KEY")
-parse_ssl_key(app, "AUTH_SERVER_SSL_PUBLIC_KEY")
-
 @app.before_request
 def before_request():
     g.request_start_time = time.time()
     g.request_time = lambda: "%.5fs" % (time.time() - g.request_start_time)
-
-    token = session.get("oauth2_token", False)
-    if token and not bool(session.get("user_details", False)):
-        from gn2.wqflask.oauth2.client import oauth2_client
-        config = current_app.config
-        resp = oauth2_client().client.get(
-            urljoin(config["GN_SERVER_URL"], "oauth2/user"))
-        user_details = resp.json()
-        session["user_details"] = user_details
-
-        if user_details.get("error") == "invalid_token":
-            flash(user_details["error_description"], "alert-danger")
-            flash("You are now logged out.", "alert-info")
-            session.pop("user_details", None)
-            session.pop("oauth2_token", None)
 
 @app.context_processor
 def include_admin_role_class():

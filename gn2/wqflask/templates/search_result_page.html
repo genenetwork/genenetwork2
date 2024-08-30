@@ -224,7 +224,8 @@
               'type': "natural",
               'width': "{{ max_widths.symbol * 8 }}px",
               'targets': 3,
-              'data': "symbol"
+              'data': "symbol",
+              'defaultContent': "N/A"
             },
             {
               'title': "Description",
@@ -237,9 +238,9 @@
                   description = data.description.slice(0, 200) + '...'
                 }
                 try {
-                  return decodeURIComponent(escape(description))
+                  return decodeURIComponent(description)
                 } catch(err){
-                  return escape(description)
+                  return description
                 }
               }
             },
@@ -248,14 +249,16 @@
               'type': "natural-minus-na",
               'width': "130px",
               'targets': 5,
-              'data': "location"
+              'data': "location",
+              'defaultContent': "N/A"
             },
             {
               'title': "<div style='text-align: right;'>Mean</div>",
               'type': "natural-minus-na",
               'width': "40px",
-              'data': "mean",
               'targets': 6,
+              'data': "mean",
+              'defaultContent': "N/A",
               'orderSequence': [ "desc", "asc"]
             },
             {
@@ -279,6 +282,7 @@
               'data': "additive",
               'width': "65px",
               'targets': 9,
+              'defaultContent': "N/A",
               'orderSequence': [ "desc", "asc"]
             }{% elif dataset.type == 'Publish' %},
             {
@@ -294,6 +298,7 @@
             {
               'title': "Description",
               'type': "natural",
+              'width': "500px",
               'data': null,
               'targets': 3,
               'render': function(data) {
@@ -302,9 +307,9 @@
                   description = data.description.slice(0, 200) + '...'
                 }
                 try {
-                  return decodeURIComponent(escape(description))
+                  return decodeURIComponent(description)
                 } catch(err){
-                  return escape(description)
+                  return description
                 }
               }
             },
@@ -312,8 +317,9 @@
               'title': "<div style='text-align: right;'>Mean</div>",
               'type': "natural-minus-na",
               'width': "60px",
-              'data': "mean",
               'targets': 4,
+              'data': "mean",
+              'defaultContent': "N/A",
               'orderSequence': [ "desc", "asc"]
             },
             {

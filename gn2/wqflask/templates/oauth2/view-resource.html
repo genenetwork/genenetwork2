@@ -2,6 +2,10 @@
 {%from "oauth2/profile_nav.html" import profile_nav%}
 {%from "oauth2/display_error.html" import display_error%}
 {%block title%}View User{%endblock%}
+{%block css%}
+<link rel="stylesheet" href="/static/new/css/pills.css" />
+<link rel="stylesheet" href="/static/new/css/resource-roles.css" />
+{%endblock%}
 {%block content%}
 <div class="container" style="min-width: 1250px;">
   {{profile_nav("resources", user_privileges)}}
@@ -230,7 +234,27 @@
     </div>
 
     <div class="row">
-      <h3>User Roles</h3>
+      <h3>Available Resource Roles</h3>
+      <div class="resource_roles">
+        {%for role in resource_roles%}
+        <a class="pill"
+           href="{{url_for('oauth2.resource.view_resource_role',
+                 resource_id=resource.resource_id,
+                 role_id=role.role_id)}}"
+           title="Role page for role named '{{role.role_name}}'">
+          {{role.role_name}}
+        </a>
+        {%endfor%}
+      </div>
+      <hr />
+      <a title="create a new role for this resource"
+         href="{{url_for('oauth2.resource.create_resource_role',
+               resource_id=resource.resource_id)}}"
+         class="btn btn-info">New Role</a>
+    </div>
+
+    <div class="row">
+      <h3>Users: Assigned Roles</h3>
       {%if users_n_roles_error is defined%}
       {{display_error("Users and Roles", users_n_roles_error)}}
       {%else%}
@@ -254,14 +278,14 @@
 	    <th>Role</th>
 	    <th>Action</th>
 	  </tr>
-	  {%for grole in user_row.roles%}
+	  {%for role in user_row.roles%}
 	  <tr>
 	    <td>
 	      <a href="{{url_for(
 		       'oauth2.role.role',
-		       role_id=grole.role_id)}}"
-		 title="Details for '{{grole.role_name}}' role">
-		{{grole.role_name}}
+		       role_id=role.role_id)}}"
+		 title="Details for '{{role.role_name}}' role">
+		{{role.role_name}}
 	      </a>
 	    </td>
 	    <td>
@@ -270,8 +294,8 @@
 		    method="POST">
 		<input type="hidden" name="user_id"
 		       value="{{user_row.user.user_id}}" />
-		<input type="hidden" name="group_role_id"
-		       value="{{grole.group_role_id}}">
+		<input type="hidden" name="role_id"
+		       value="{{role.role_id}}">
 		<input type="submit"
 		       value="Unassign"
 		       class="btn btn-danger"
@@ -301,8 +325,8 @@
 
     <div class="row">
       <h3>Assign</h3>
-      {%if group_roles_error is defined%}
-      {{display_error("Group Roles", group_roles_error)}}
+      {%if resource_roles_error is defined%}
+      {{display_error("Resource Roles", resource_roles_error)}}
       {%elif users_error is defined%}
       {{display_error("Users", users_error)}}
       {%else%}
@@ -312,13 +336,13 @@
 	    method="POST" autocomplete="off">
 	<input type="hidden" name="resource_id" value="{{resource_id}}" />
 	<div class="form-group">
-	  <label for="group_role_id" class="form-label">Role</label>
-	  <select class="form-control" name="group_role_id"
-		  id="group_role_id" required="required">
-	    <option value="">Select role</option>
-	    {%for grole in group_roles%}
-	    <option value="{{grole.group_role_id}}">
-	      {{grole.role.role_name}}
+	  <label for="role_id" class="form-label">Role</label>
+	  <select class="form-control" name="role_id"
+		  id="role_id" required="required">
+	    <option value="">Select role</option>>
+	    {%for rrole in resource_roles%}
+	    <option value="{{rrole.role_id}}">
+	      {{rrole.role_name}}
 	    </option>
 	    {%endfor%}
 	  </select>

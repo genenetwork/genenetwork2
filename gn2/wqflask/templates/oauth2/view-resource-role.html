@@ -1,0 +1,149 @@
+{%extends "base.html"%}
+{%from "oauth2/profile_nav.html" import profile_nav%}
+{%from "oauth2/display_error.html" import display_error%}
+{%block title%}View User{%endblock%}
+{%block content%}
+
+{%macro unassign_button(resource_id, role_id, privilege_id)%}
+<form method="GET"
+      action="{{url_for('oauth2.resource.unassign_privilege_from_resource_role',
+              resource_id=resource_id,
+              role_id=role_id)}}"
+      id="frm_unlink_privilege_{{privilege_id}}">
+  <input type="hidden" name="resource_id" value="{{resource_id}}" />
+  <input type="hidden" name="role_id" value="{{role_id}}" />
+  <input type="hidden" name="privilege_id" value="{{privilege_id}}" />
+  <input type="submit" value="Unassign" class="btn btn-danger" />
+</form>
+{%endmacro%}
+
+<div class="container">
+  <div class="row">
+    {{profile_nav(uipages, user_privileges)}}
+    {{flash_me()}}
+    {%if resource_error is defined%}
+    {{display_error("Resource", resource_error)}}
+    {%else%}
+    <h3>Role for Resource '{{resource.resource_name}}'</h3>
+    {%if role_error is defined%}
+    {{display_error("Role", role_error)}}
+    {%else%}
+    <table class="table">
+      <caption>Role '{{role.role_name}}' for resource '{{resource.resource_name}}'</caption>
+      <thead>
+        <tr>
+          <th>Role Name</th>
+          <th>Privilege</th>
+          <th>Action</th>
+        </tr>
+      </thead>
+
+      <tbody>
+        {%for priv in role.privileges%}
+        {%if loop.index0 == 0%}
+        <tr>
+          <td rowspan="{{role.privileges | length}}"
+              style="text-align: center;vertical-align: middle;">
+            {{role.role_name}}</td>
+          <td>{{priv.privilege_description}}</td>
+          <td>{{unassign_button(resource.resource_id, role.role_id, priv.privilege_id)}}</td>
+        </tr>
+        {%else%}
+        <tr>
+          <td>{{priv.privilege_description}}</td>
+          <td>{{unassign_button(resource.resource_id, role.role_id, priv.privilege_id)}}</td>
+        </tr>
+        {%endif%}
+        {%else%}
+        <tr>
+          <td colspan="3">
+            <p class="text-info">
+              <span class="glyphicon glyphicon-info-sign text-info"></span>
+              &nbsp;
+              This role has no privileges.
+            </p>
+          </td>
+        </tr>
+        {%endfor%}
+      </tbody>
+    </table>
+  </div>
+
+  <div class="row">
+    <form id="frm_assign_privileges" method="POST" action="#">
+      <input type="hidden" name="resource_id" value="{{resource_id}}" />
+      <input type="hidden" name="role_id" value="{{role_id}}" />
+      {%if unassigned_privileges | length == 0%}
+      <p class="text-info">
+        <strong>{{title}}</strong>:
+        <span class="glyphicon glyphicon-info-sign text-info"></span>
+        &nbsp;
+        There are no more privileges left to assign.
+      </p>
+      {%else%}
+      <fieldset>
+        <legend>Select privileges to assign to this role</legend>
+        {%for priv in unassigned_privileges%}
+        <div class="checkbox">
+          <label for="rdo_{{priv.privilege_id}}">
+            <input type="checkbox" value="{{priv.privilege_id}}" />
+            {{priv.privilege_description}}
+          </label>
+        </div>
+        {%endfor%}
+      </fieldset>
+
+      <input type="submit" class="btn btn-primary" value="Assign" />
+      {%endif%}
+    </form>
+  </div>
+
+  {%if user_error is defined%}
+  {{display_error("Users", user_error)}}
+  {%endif%}
+
+  {%if users is defined and users | length > 0%}
+  <div class="row">
+    <h3>Users</h3>
+
+    <table class="table">
+      <caption>
+        Users assigned role '{{role.role_name}}' on resource
+        '{{resource.resource_name}}'
+      </caption>
+
+      <thead>
+        <tr>
+          <th>Email</th>
+          <th>Name</th>
+        </tr>
+      </thead>
+
+      <tbody>
+        {%for user in users%}
+        <tr>
+          <td>{{user.email}}</td>
+          <td>{{user.name}}</td>
+        </tr>
+        {%endfor%}
+        </tbody>
+    </table>
+  </div>
+  {%endif%}
+
+  {%if users is defined and users | length == 0%}
+  <div class="row">
+    <h3>Delete this role</h3>
+    <p class="text-danger">
+      <strong>Delete Role</strong>:
+      <span class="glyphicon glyphicon-exclamation-sign text-danger"></span>
+      &nbsp;
+      This will delete this role, and you will no longer have access to it.
+    </p>
+  </div>
+  {%endif%}
+  {%endif%}
+  {%endif%}
+</div>
+
+{%endblock%}

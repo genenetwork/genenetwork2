@@ -69,8 +69,10 @@ def __search_phenotypes__(query, template, **kwargs):
             template, traits=[], per_page=per_page, query=query,
             selected_traits=selected_traits, search_results=search_results,
             search_endpoint=urljoin(
-                authserver_uri(), "auth/data/search"),
-            gn_server_url = authserver_uri(),
+                request.host_url, "oauth2/data/phenotype/search"),
+            auth_server_url=authserver_uri(),
+            pheno_results_template=urljoin(
+                authserver_uri(), "auth/data/search/phenotype/<jobid>"),
             results_endpoint=urljoin(
                 authserver_uri(),
                 f"auth/data/search/phenotype/{job_id}"),
@@ -122,6 +124,7 @@ def json_search_mrna() -> Response:
 @data.route("/phenotype/search", methods=["POST"])
 def json_search_phenotypes() -> Response:
     """Search for phenotypes."""
+    from gn2.utility.tools import GN_SERVER_URL
     form = request.json
     def __handle_error__(err):
         error = process_error(err)
@@ -136,6 +139,7 @@ def json_search_phenotypes() -> Response:
             "per_page": int(form.get("per_page", 50)),
             "page": int(form.get("page", 1)),
             "auth_server_uri": authserver_uri(),
+            "gn3_server_uri": GN_SERVER_URL,
             "selected_traits": form.get("selected_traits", [])
         }).either(__handle_error__, jsonify)
 

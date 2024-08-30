@@ -5,7 +5,7 @@
         needed.
     </p>
     <div id="blockMenuSpan" class="input-append block-div">
-        <label for="remove_samples_field">Block samples by index:</label>
+        <label for="remove_samples_field">Filter samples by index:</label>
         <input type="text" id="remove_samples_field" placeholder="Example: 3, 5-10, 12">
         <select id="block_group" size="1">
           <option value="primary">
@@ -23,7 +23,7 @@
     </div>
     {% if categorical_attr_exists == "true" %}
     <div class="input-append block-div-2">
-        <label for="exclude_column">Block samples by group:</label>
+        <label for="exclude_column">Filter samples by group:</label>
         <select id="exclude_column" size=1>
           {% for attribute in sample_groups[0].attributes %}
           {% if sample_groups[0].attributes[attribute].distinct_values|length <= 500 and sample_groups[0].attributes[attribute].distinct_values|length > 1 %}

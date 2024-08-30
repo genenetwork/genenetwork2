@@ -309,7 +309,7 @@ $(function() {
       return submit_special("/loading")
   });
 
-  $("#send_to_webgestalt, #send_to_bnw, #send_to_geneweaver").on("click", function() {
+  $("#send_to_webgestalt, #send_to_bnw, #send_to_geneweaver, #send_to_genecup").on("click", function() {
       traits = getTraitsFromTable()
       $("#trait_list").val(traits)
       url = $(this).data("url")
@@ -324,53 +324,6 @@ $(function() {
   $("#submit_bnw").click(submitBnw);
   $("#export_traits").click(exportTraits);
   $("#export_collection").click(exportCollection);
-
-  let naturalAsc = $.fn.dataTableExt.oSort["natural-ci-asc"]
-  let naturalDesc = $.fn.dataTableExt.oSort["natural-ci-desc"]
-
-  let na_equivalent_vals = ["N/A", "--", ""]; //ZS: Since there are multiple values that should be treated the same as N/A
-
-  function extractInnerText(the_string){
-    var span = document.createElement('span');
-    span.innerHTML = the_string;
-    return span.textContent || span.innerText;
-  }
-
-  function sortNAs(a, b, sort_function){
-    if ( na_equivalent_vals.includes(a) && na_equivalent_vals.includes(b)) {
-      return 0;
-    }
-    if (na_equivalent_vals.includes(a)){
-      return 1
-    }
-    if (na_equivalent_vals.includes(b)) {
-      return -1;
-    }
-    return sort_function(a, b)
-  }
-
-  $.extend( $.fn.dataTableExt.oSort, {
-    "natural-minus-na-asc": function (a, b) {
-      return sortNAs(extractInnerText(a), extractInnerText(b), naturalAsc)
-    },
-    "natural-minus-na-desc": function (a, b) {
-      return sortNAs(extractInnerText(a), extractInnerText(b), naturalDesc)
-    }
-  });
-
-  $.fn.dataTable.ext.order['dom-checkbox'] = function  ( settings, col )
-  {
-      return this.api().column( col, {order:'index'} ).nodes().map( function ( td, i ) {
-          return $('input', td).prop('checked') ? '1' : '0';
-      } );
-  };
-
-  $.fn.dataTable.ext.order['dom-inner-text'] = function  ( settings, col )
-  {
-      return this.api().column( col, {order:'index'} ).nodes().map( function ( td, i ) {
-          return $(td).text();
-      } );
-  }
 
   applyDefault = function() {
     let default_collection_id = $.cookie('default_collection');

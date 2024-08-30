@@ -22,6 +22,8 @@ class SessionInfo(TypedDict):
     user_agent: str
     ip_addr: str
     masquerade: Optional[UserDetails]
+    refreshing_token: bool
+    auth_server_jwks: Optional[dict[str, Any]]
 
 __SESSION_KEY__ = "GN::2::session_info" # Do not use this outside this module!!
 
@@ -61,16 +63,10 @@ def session_info() -> SessionInfo:
             "user_agent": request.headers.get("User-Agent"),
             "ip_addr": request.environ.get("HTTP_X_FORWARDED_FOR",
                                            request.remote_addr),
-            "masquerading": None
+            "masquerading": None,
+            "token_refreshing": False
         }))
 
-def expired():
-    the_session = session_info()
-    def __expired__(token):
-        return datetime.now() > datetime.fromtimestamp(token["expires_at"])
-    return the_session["user"]["token"].either(
-        lambda left: False,
-        __expired__)
 
 def set_user_token(token: str) -> SessionInfo:
     """Set the user's token."""
@@ -109,3 +105,16 @@ def unset_masquerading():
         "user": the_session["masquerading"],
         "masquerading": None
     })
+
+
+def toggle_token_refreshing():
+    """Toggle the state of the token_refreshing variable."""
+    _session = session_info()
+    return save_session_info({
+        **_session,
+        "token_refreshing": not _session.get("token_refreshing", False)})
+
+
+def is_token_refreshing():
+    """Returns whether the token is being refreshed or not."""
+    return session_info().get("token_refreshing", False)

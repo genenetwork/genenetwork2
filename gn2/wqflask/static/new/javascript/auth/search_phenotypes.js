@@ -96,8 +96,8 @@ function display_search_results(data, textStatus, jqXHR) {
  * @param {UUID}: The job id to fetch data for
  */
 function fetch_search_results(job_id, success, error=default_error_fn) {
-    host = $("#frm-search-traits").attr("data-gn-server-url");
-    endpoint = host + "auth/data/search/phenotype/" + job_id
+    endpoint = $("#frm-search-traits").attr(
+        "data-pheno-results-template").replace("<jobid>", job_id);
     $("#txt-search").prop("disabled", true);
     $.ajax(
 	endpoint,
@@ -119,7 +119,7 @@ function search_phenotypes() {
     per_page = document.getElementById("txt-per-page").value
     search_table = new TableDataSource(
 	"#tbl-phenotypes", "data-traits", search_checkbox);
-    endpoint = "/auth/data/phenotype/search"
+    endpoint = endpoint = $("#frm-search-traits").attr("data-search-endpoint");
     $.ajax(
 	endpoint,
 	{

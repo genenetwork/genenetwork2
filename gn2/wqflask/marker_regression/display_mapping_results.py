@@ -773,8 +773,9 @@ class DisplayMappingResults:
             pass
 
         # draw position, no need to use a separate function
-        self.drawProbeSetPosition(
-            canvas, plotXScale, offset=newoffset, zoom=zoom)
+        if self.traitList[0].mb: # Only draw if position actually exists
+            self.drawProbeSetPosition(
+                canvas, plotXScale, offset=newoffset, zoom=zoom)
 
         return gifmap
 
@@ -1130,7 +1131,7 @@ class DisplayMappingResults:
             )
             TEXT_Y_DISPLACEMENT = -8
             im_drawer.text(
-                text="Sequence Site",
+                text="Gene Location",
                 xy=(leftOffset + 20, startPosY + TEXT_Y_DISPLACEMENT), font=smallLabelFont,
                 fill=self.TOP_RIGHT_INFO_COLOR)
 
@@ -1170,20 +1171,20 @@ class DisplayMappingResults:
 
         if self.haplotypeAnalystChecked:
             im_drawer.line(
-                xy=((startPosX - 34, startPosY), (startPosX - 17, startPosY)),
-                fill=self.HAPLOTYPE_POSITIVE, width=4)
+                xy=((startPosX - 60, startPosY), (startPosX - 45, startPosY)),
+                fill=self.HAPLOTYPE_NEGATIVE, width=8)
             im_drawer.line(
-                xy=((startPosX - 17, startPosY), (startPosX, startPosY)),
-                fill=self.HAPLOTYPE_NEGATIVE, width=4)
+                xy=((startPosX - 45, startPosY), (startPosX - 30, startPosY)),
+                fill=self.HAPLOTYPE_POSITIVE, width=8)
             im_drawer.line(
-                xy=((startPosX, startPosY), (startPosX + 17, startPosY)),
-                fill=self.HAPLOTYPE_HETEROZYGOUS, width=4)
+                xy=((startPosX - 30, startPosY), (startPosX - 15, startPosY)),
+                fill=self.HAPLOTYPE_HETEROZYGOUS, width=8)
             im_drawer.line(
-                xy=((startPosX + 17, startPosY), (startPosX + 34, startPosY)),
-                fill=self.HAPLOTYPE_RECOMBINATION, width=4)
+                xy=((startPosX - 15, startPosY), (startPosX, startPosY)),
+                fill=self.HAPLOTYPE_RECOMBINATION, width=8)
             im_drawer.text(
-                text='Haplotypes (Pat, Mat, Het, Unk)',
-                xy=(startPosX + 41, startPosY + TEXT_Y_DISPLACEMENT), font=labelFont, fill=BLACK)
+                text='Haplotypes (Mat, Pat, Het, Unknown)',
+                xy=(startPosX + 10, startPosY + TEXT_Y_DISPLACEMENT), font=labelFont, fill=BLACK)
             startPosY += stepPosY
 
         if self.permChecked and self.nperm > 0:
