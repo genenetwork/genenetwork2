@@ -241,10 +241,16 @@ def search_page_table():
 @app.route("/gsearch", methods=('GET',))
 def gsearchact():
     result = GSearch(request.args).__dict__
-    type = request.args['type']
-    if type == "gene":
-        return render_template("gsearch_gene.html", **result)
-    elif type == "phenotype":
+    search_type = request.args['type']
+    ai_result = {
+           "search_term": "which animal has the same number of chromosomes as human",
+           "search_result": "The Bama miniature pig has the same number of chromosomes as humans",
+           # we need to modify the search to use url params so that we can easily link
+           "search_url": "https://qa.genenetwork.org/gnqna"
+           }
+    if search_type == "gene":
+        return render_template("gsearch_gene.html", **result, ai_result=ai_result)
+    elif search_type == "phenotype":
         return render_template("gsearch_pheno.html", **result)
 
 
