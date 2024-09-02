@@ -340,9 +340,13 @@ def get_gnqa_history():
                             }
                             ).either(
                    _error_, lambda x: x.json())
-    response = monad_requests.get(urljoin(GN3_LOCAL_URL,
-                 (f"/api/llm/history?search_term={request.args.get('search_term')}"
-                  if request.args.get("search_term") else "/api/llm/history")),
+
+    search_term = request.args.get('search_term')
+    if search_term:
+        response_url = f"/api/llm/history?search_term={request.args.get('search_term')}"
+    else:
+        response_url = "/api/llm/history"
+    response = monad_requests.get(urljoin(GN3_LOCAL_URL, response_url),
                                   headers={
         "Authorization": f"Bearer {token}"
     }
