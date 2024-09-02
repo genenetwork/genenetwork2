@@ -158,7 +158,7 @@
     <script>
   function updateRatingHandler(target, responseObj, args){
     let {status, response} = responseObj.xhr
-    if (status==200 && args == "upvote"){
+    if (status == 200 && args == "upvote"){
 	  htmx.toggleClass(htmx.find('#upvote'), 'btn-success');
 	  htmx.removeClass(htmx.find("#downvote"), "btn-danger");
       }
@@ -174,9 +174,9 @@ var answer = {{ answer|tojson }}
 var {task_id} = {{ task_id|tojson }}
 htmx.on("#upvote", "click", function(evt){
       vote_count = htmx.find(".btn-success") ? 0 : 1
-    htmx.ajax("POST", `/gnqna/rating/${task_id}/${vote_count}`, {target: "#rate", handler: (target,obj)=> updateRatingHandler(target,obj,"upvote"), swap:"innerHTML",values: {'query': query, 'answer': answer}})});
+    htmx.ajax("POST", `/gnqna/rating/${task_id}/${vote_count}`, {target: "#rate", handler: (target,obj)=> updateRatingHandler(target, obj, "upvote"), swap:"innerHTML",values: {'query': query, 'answer': answer}})});
   htmx.on("#downvote", "click", function(evt){
       vote_count = htmx.find(".btn-danger") ? 0 : -1
-      htmx.ajax("POST", `/gnqna/rating/${task_id}/${vote_count}`, {target: "#rate",handler: (target,obj)=> updateRatingHandler(target,obj,"downvote") , swap:"innerHTML",values: {'query': query, 'answer': answer}})});
+      htmx.ajax("POST", `/gnqna/rating/${task_id}/${vote_count}`, {target: "#rate",handler: (target,obj)=> updateRatingHandler(target,obj, "downvote") , swap:"innerHTML",values: {'query': query, 'answer': answer}})});
     </script>
 {% endblock %}
