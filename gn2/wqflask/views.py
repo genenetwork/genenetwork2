@@ -286,7 +286,7 @@ def gnqna():
             ).either(
                 error_page, __success__)
         except Exception as error:
-            return flask.jsonify({"error": str(error)})
+            return flask.jsonify({"error": str(error)}), 500
     return render_template("gnqa.html")
 
 
