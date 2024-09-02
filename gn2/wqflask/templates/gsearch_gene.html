@@ -20,10 +20,18 @@
       <div class="row">
         <div class="col-sm-6">
           <div class="panel panel-info">
-            <div class="panel-heading">AI Search: {{ ai_result["search_term"] }}</div>
-            <div class="panel-body">
-              <p>{{ ai_result["search_result"] }}</p>
-              <p><a class="btn btn-default" href="{{ ai_result["search_url"] }}" role="button">See References</a></p>
+            <div class="panel-heading" role="tab" id="ai_heading">
+              <h4 class="panel-title">
+                <a class="collapsed" role="button" data-toggle="collapse" data-parent="#accordion" href="#ai_results" aria-expanded="false" aria-controls="ai_results">
+                  AI Search: {{ ai_result["search_term"] }} (Click for more details)
+                </a>
+              </h4>
+            </div>
+            <div id="ai_results" class="panel-collapse collapse" role="tabpanel" aria-labelledby="ai_heading">
+                <div class="panel-body">
+                  <p>{{ ai_result["search_result"] }}</p>
+                  <p><a class="btn btn-default" href="{{ ai_result["search_url"] }}" role="button">See References</a></p>
+                </div>
             </div>
           </div>
         </div>
