@@ -245,7 +245,7 @@ def gsearchact():
     ai_result = None
     if current_app.config.get("AI_SEARCH_ENABLED"):
         ai_result = {
-               "search_term": "which animal has the same number of chromosomes as human",
+               "search_term": "glioma human gtex_v8",
                "search_result": "The Bama miniature pig has the same number of chromosomes as humans",
                # we need to modify the search to use url params so that we can easily link
                "search_url": "https://qa.genenetwork.org/gnqna"

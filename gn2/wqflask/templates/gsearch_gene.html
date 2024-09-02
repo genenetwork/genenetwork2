@@ -10,26 +10,27 @@
 
     <div class="container">
 
-        <div class="row">
-          <div class="col-sm-7">
-            <h3>GN searched for the term(s) <b>"{{ terms }}"</b> in 754 datasets and 39,765,944 traits across 10 species<br/>
-                and found <b>{{ trait_count }}</b> results that match your query.<br/>
-                You can filter these results by adding key words in the fields below<br/>
-                and you can also sort results on most columns.</h3>
-            <p>To study a record, click on its Record ID below.<br />Check records below and click Add button to add to selection.</p>
-          </div>
-          {% if ai_result %}
-          <div class="col-sm-5">
-            <div class="panel panel-info">
-              <div class="panel-heading">AI Search: {{ ai_result["search_term"] }}</div>
-              <div class="panel-body">
-                <p>{{ ai_result["search_result"] }}</p>
-                <p><a class="btn btn-default" href="{{ ai_result["search_url"] }}" role="button">See References</a></p>
-              </div>
+      <div class="row">
+        <h3>GN searched for the term(s) <b>"{{ terms }}"</b> in 754 datasets and 39,765,944 traits across 10 species<br/>
+            and found <b>{{ trait_count }}</b> results that match your query.<br/>
+        </h3>
+      </div>
+
+      {% if ai_result %}
+      <div class="row">
+        <div class="col-sm-6">
+          <div class="panel panel-info">
+            <div class="panel-heading">AI Search: {{ ai_result["search_term"] }}</div>
+            <div class="panel-body">
+              <p>{{ ai_result["search_result"] }}</p>
+              <p><a class="btn btn-default" href="{{ ai_result["search_url"] }}" role="button">See References</a></p>
             </div>
-            {% endif %}
           </div>
         </div>
+      </div>
+      {% endif %}
+
+        <p>To study a record, click on its Record ID below.<br />Check records below and click Add button to add to selection.</p>
         <div>
             <br />
             <button class="btn btn-default" id="select_all"><span class="glyphicon glyphicon-ok"></span> Select All</button>
