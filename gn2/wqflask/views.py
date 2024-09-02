@@ -330,6 +330,14 @@ def get_gnqa_history():
         return render_template("gnqa_errors.html",
                                **{"status_code": resp.status_code,
                                   **resp.json()})
+
+    def _success_(resp):
+        response = resp.json()
+        if request.args.get("search_term"):
+            return render_template("gnqa_answer.html", **response)
+        else:
+            return render_template("gnqa_search_history.html",
+                                   prev_queries=response)
     token = session_info()["user"]["token"].either(
         lambda err: err, lambda tok: tok["access_token"])
     if request.method == "DELETE":
@@ -341,22 +349,18 @@ def get_gnqa_history():
                             ).either(
                    _error_, lambda x: x.json())
 
-    search_term = request.args.get('search_term')
-    if search_term:
-        response_url = f"/api/llm/history?search_term={request.args.get('search_term')}"
-    else:
-        response_url = "/api/llm/history"
-    response = monad_requests.get(urljoin(GN3_LOCAL_URL, response_url),
-                                  headers={
-        "Authorization": f"Bearer {token}"
-    }
-    ).then(lambda resp: resp).either(
-        _error_, lambda x: x.json())
-    if request.args.get("search_term"):
-        return render_template("gnqa_answer.html", **response)
-    return render_template("gnqa_search_history.html",
-                           prev_queries=response)
-
+    if request.method == "GET":
+        search_term = request.args.get('search_term')
+        if search_term:
+            response_url = f"/api/llm/history?search_term={request.args.get('search_term')}"
+        else:
+            response_url = "/api/llm/history"
+        return (monad_requests.get(urljoin(GN3_LOCAL_URL, response_url),
+                                      headers={
+            "Authorization": f"Bearer {token}"
+        }
+        ).then(lambda resp: resp).either(
+            _error_, _success_))
 
 @app.route("/gnqna/rating/<task_id>/<int(signed=True):weight>",
            methods=["POST"])
