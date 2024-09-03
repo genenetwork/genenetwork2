@@ -19,6 +19,7 @@
                         {% if entry.get("web_url") %}
                             <sup> <small> <a href = "{{ entry.web_url }}" target = "_blank"> <span class = "glyphicon glyphicon-globe" aria-hidden = "true"></span>web</a></small></sup>
                         {% endif %}
+                        <sup><small>[<a href="/genewiki/{{ entry.id }}/history" target="_blank">history</a>]</small></sup>
                     </li>
                 {% endfor %}
             </ol>
