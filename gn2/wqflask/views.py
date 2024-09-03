@@ -1277,6 +1277,29 @@ def display_genewiki_page(symbol: str):
     )
 
 
+@app.route("/genewiki/<int:comment_id>/history")
+def display_wiki_history(comment_id: str):
+    most_recent = {}
+    previous_versions = []
+    try:
+        entries = requests.get(
+            urljoin(
+                GN3_LOCAL_URL,
+                f"/api/metadata/wiki/{comment_id}/history"
+            )
+        )
+        entries.raise_for_status()
+        if entries := entries.json():
+            most_recent, previous_versions = entries[0], entries[1:]
+    except requests.RequestException as excp:
+        flash(excp, "alert-warning")
+    return render_template(
+        "wiki/history.html",
+        most_recent=most_recent,
+        previous_versions=previous_versions
+    )
+
+
 @app.route("/datasets/<name>", methods=('GET',))
 def get_dataset(name):
     from gn2.wqflask.oauth2.client import oauth2_get
