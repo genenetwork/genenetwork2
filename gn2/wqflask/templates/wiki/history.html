@@ -1,10 +1,6 @@
 {% extends "base.html" %}
 {% block css %}
     <style type="text/css">
-        h3 {
-            color: #336699;
-        }
-
         table tbody th {
             width: 18em;
         }
@@ -24,8 +20,8 @@
 {% block content %}
     {{ flash_me() }}
     <div class = "container container-fluid">
-        <h2>GeneWiki Entry History</h2>
-        <h3>
+        <h2 class="text-info">GeneWiki Entry History</h2>
+        <h3 class="text-info">
             <strong>Most Recent Version:</strong>
         </h3>
         <table class="table table-responsive table-bordered">
@@ -78,7 +74,7 @@
                 {% endif %}
             </tbody>
         </table>
-        <h3>
+        <h3 class="text-info">
             <strong>Previous Version:</strong>
         </h3>
         {% for version in previous_versions %}
