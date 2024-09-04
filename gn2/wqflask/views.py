@@ -1279,8 +1279,7 @@ def display_genewiki_page(symbol: str):
 
 @app.route("/genewiki/<int:comment_id>/history")
 def display_wiki_history(comment_id: str):
-    most_recent = {}
-    previous_versions = []
+    entries = []
     try:
         entries = requests.get(
             urljoin(
@@ -1289,14 +1288,12 @@ def display_wiki_history(comment_id: str):
             )
         )
         entries.raise_for_status()
-        if entries := entries.json():
-            most_recent, previous_versions = entries[0], entries[1:]
+        entries = entries.json()
     except requests.RequestException as excp:
         flash(excp, "alert-warning")
     return render_template(
         "wiki/history.html",
-        most_recent=most_recent,
-        previous_versions=previous_versions
+        entries=entries
     )
 
 
