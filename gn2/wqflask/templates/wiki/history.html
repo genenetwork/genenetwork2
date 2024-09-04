@@ -5,88 +5,50 @@
         <div class="row">
             <div class="col-sm-9">
                 <h2 class="text-info">GeneWiki Entry History</h2>
-                <h3 class="text-info">
-                    <strong>Most Recent Version:</strong>
-                </h3>
-                <table class="table table-responsive table-bordered">
-                    <tbody>
-                        <tr>
-                            <th>Gene Symbol:</th>
-                            <td>{{ most_recent.symbol }}</td>
-                        </tr>
-                        <tr>
-                            <th>PubMed IDs:</th>
-                            <td>
-                                {% for id in most_recent.pubmed_ids %}
-                                    <a href="http://www.ncbi.nlm.nih.gov/entrez/query.fcgi?cmd=Retrieve&db=PubMed&list_uids={{ id }}&dopt=Abstract">{{ id }}</a>&nbsp;
-                                {% endfor %}
-                                {% if not most_recent.pubmed_ids %}Not Available{% endif %}
-                            </td>
-                        </tr>
-                        <tr>
-                            <th>Web URL:</th>
-                            <td>{{ most_recent.web_url or "Not Available" }}</td>
-                        </tr>
-                        <tr>
-                            <th>Entry:</th>
-                            <td>{{ most_recent.comment }}</td>
-                        </tr>
-                        <tr>
-                            <th>Category:</th>
-                            <td>{{ '; '.join(most_recent.categories) or "Not Available" }}</td>
-                        </tr>
-                        <tr>
-                            <th>Add Time:</th>
-                            <td>{{ most_recent.created }}</td>
-                        </tr>
-                        <tr>
-                            <th>Reason for Modification:</th>
-                            <td>{{ most_recent.reason or "Not Available" }}</td>
-                        </tr>
-                    </tbody>
-                </table>
-                <h3 class="text-info">
-                    <strong>Previous Version:</strong>
-                </h3>
-                {% for version in previous_versions %}
+                {% for entry in entries %}
+                    <h3 class="text-info">
+                        {% if loop.index0 == 0 %}
+                            <strong>Most Recent Version:</strong>
+                        {% elif loop.index0 == 1 %}
+                            <strong>Previous Version:</strong>
+                        {% endif %}
+                    </h3>
                     <table class="table table-responsive table-bordered">
-                        <tr>
-                            <th>Gene Symbol:</th>
-                            <td>{{ version.symbol }}</td>
-                        </tr>
-                        <tr>
-                            <th>Species:</th>
-                            <td>{{ version.species or "Not Available" }}</td>
-                        </tr>
-                        <tr>
-                            <th>PubMed IDs:</th>
-                            <td>
-                                {% for id in version.pubmed_ids %}
-                                    <a href="http://www.ncbi.nlm.nih.gov/entrez/query.fcgi?cmd=Retrieve&db=PubMed&list_uids={{ id }}&dopt=Abstract">{{ id }}</a>&nbsp;
-                                {% endfor %}
-                                {% if not most_recent.pubmed_ids %}Not Available{% endif %}
-                            </td>
-                        </tr>
-                        <tr>
-                            <th>Web URL:</th>
-                            <td>{{ version.web_url or "Not Available " }}</td>
-                        </tr>
-                        <tr>
-                            <th>Entry:</th>
-                            <td>{{ version.comment }}</td>
-                        </tr>
-                        <tr>
-                            <th>Category:</th>
-                            <td>{{ '; '.join(version.categories) or "Not Available" }}</td>
-                        </tr>
-                        <tr>
-                            <th>Add Time:</th>
-                            <td>{{ version.created }}</td>
-                        </tr>
-                        <tr>
-                            <th>Reason for Modification:</th>
-                            <td>{{ version.reason or "Not Available" }}</td>
-                        </tr>
+                        <tbody>
+                            <tr>
+                                <th>Gene Symbol:</th>
+                                <td>{{ entry.symbol }}</td>
+                            </tr>
+                            <tr>
+                                <th>PubMed IDs:</th>
+                                <td>
+                                    {% for id in entry.pubmed_ids %}
+                                        <a href="http://www.ncbi.nlm.nih.gov/entrez/query.fcgi?cmd=Retrieve&db=PubMed&list_uids={{ id }}&dopt=Abstract">{{ id }}</a>&nbsp;
+                                    {% endfor %}
+                                    {% if not entry.pubmed_ids %}Not Available{% endif %}
+                                </td>
+                            </tr>
+                            <tr>
+                                <th>Web URL:</th>
+                                <td>{{ entry.web_url or "Not Available" }}</td>
+                            </tr>
+                            <tr>
+                                <th>Entry:</th>
+                                <td>{{ entry.comment }}</td>
+                            </tr>
+                            <tr>
+                                <th>Category:</th>
+                                <td>{{ '; '.join(entry.categories) or "Not Available" }}</td>
+                            </tr>
+                            <tr>
+                                <th>Add Time:</th>
+                                <td>{{ entry.created }}</td>
+                            </tr>
+                            <tr>
+                                <th>Reason for Modification:</th>
+                                <td>{{ entry.reason or "Not Available" }}</td>
+                            </tr>
+                        </tbody>
                     </table>
                 {% endfor %}
             </div>
