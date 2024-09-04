@@ -12,14 +12,23 @@
             <strong>GeneNetwork:</strong>
         </h5>
         {% if wiki %}
-            <ol>
+            <ol class="list-group">
                 {% for entry in wiki %}
-                    <li>
-                        {{ entry.get("comment") }}
-                        {% if entry.get("web_url") %}
-                            <sup> <small> <a href = "{{ entry.web_url }}" target = "_blank"> <span class = "glyphicon glyphicon-globe" aria-hidden = "true"></span>web</a></small></sup>
-                        {% endif %}
-                        <sup><small>[<a href="/genewiki/{{ entry.id }}/history" target="_blank">history</a>]</small></sup>
+                    <li class="list-group-item">
+                        <div class="row">
+                            <div class="col-sm-1">{{ loop.index }}.</div>
+                            <div class="col-sm-6">
+                                {{ entry.get("comment") }}
+                                {% if entry.get("web_url") %}
+                                    <sup> <small> <a href = "{{ entry.web_url }}" target = "_blank"> <span class = "glyphicon glyphicon-globe" aria-hidden = "true"></span>web</a></small></sup>
+                                {% endif %}
+                            </div>
+                            <div class="col-sm-2">
+                                <a href="{{ url_for('edit_wiki', comment_id=entry['id']) }}">
+                                    <span class="glyphicon glyphicon-edit" aria-hidden="true"></span>
+                                </a>
+                            </div>
+                            <sup><small>[<a href="/genewiki/{{ entry.id }}/history" target="_blank">history</a>]</small></sup>
                     </li>
                 {% endfor %}
             </ol>
