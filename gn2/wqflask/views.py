@@ -1590,10 +1590,10 @@ def approve_reject_diff() -> Response:
                                 diff_id=form["diff_id"]))
 
 
-@app.route("/metadata/wiki/<int:comment_id>/edit", methods=["GET", "POST"])
+@app.route("/genewiki/<int:comment_id>/edit", methods=["GET", "POST"])
+@require_oauth2
 def edit_wiki(comment_id: int):
     """fetch generif metadata from gn3 and display it"""
-    # FIXME: better error handling
     if request.method == "GET":
         last_wiki_resp = requests.get(
             urljoin(GN3_LOCAL_URL, f"/api/metadata/wiki/{comment_id}")
@@ -1616,11 +1616,13 @@ def edit_wiki(comment_id: int):
             categories[i : i + 3] for i in range(0, len(categories), 3)
         ]
 
+        session_email = session_info()["user"]["email"]
         return render_template(
             "wiki/edit_wiki.html",
             content=last_wiki_content,
             species_dict=species_dict,
             grouped_categories=grouped_categories,
+            session_email=session_email,
         )
     if request.method == "POST":
         post_data = request.form
@@ -1635,8 +1637,17 @@ def edit_wiki(comment_id: int):
             "categories": post_data.getlist("genecategory"),
             "reason": post_data["reason"],
         }
+        def _invalid_token(err):
+            raise ValueError(f"Error finding user token, got: {err}")
+
+        token = session_info()["user"]["token"].either(
+            lambda err: _invalid_token(err), lambda tok: tok["access_token"]
+        )
+
         post_response = requests.post(
-            urljoin(GN3_LOCAL_URL, f"api/metadata/wiki/{comment_id}/edit"), json=payload
+            urljoin(GN3_LOCAL_URL, f"api/metadata/wiki/{comment_id}/edit"),
+            json=payload,
+            headers={"Authorization": f"Bearer {token}"},
         )
         post_response.raise_for_status()
         post_res = post_response.json()
