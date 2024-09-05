@@ -54,7 +54,13 @@
 </section>
 <script>
   htmx.on("#delete-btn", "click", function(evt){
-      htmx.ajax("DELETE","/gnqna/records", {target: "#search-hist","swap" :"outerHTML",
+      htmx.ajax("DELETE","/gnqna/records", {target: "#search-hist", swap :"none",
+					    handler: (target,obj) =>{
+						htmx.ajax("GET", "gnqna/records", {
+						    target: "#search-hist",
+						    swap: "innerHTML"
+						})
+					    },
 				      values: Array.from(htmx.findAll("input[type=checkbox]:checked"), e => e.value)}) 
   })
 </script>
