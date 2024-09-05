@@ -30,13 +30,13 @@
                                            style="height: 20px;
                                                   width: 20px">
                                     <div class="col-sm-10">
-                                        <button hx-get="/gnqna/hist?query={{ item['query'] }}&search_term={{ item['task_id'] }}"
+                                        <button hx-get="/gnqna/record?query={{ item['query'] }}&search_task_id={{ item['task_id'] }}"
                                                 hx-target="#swap"
                                                 hx-swap="innerHTML"
                                                 hx-trigger="click"
                                                 data-bs-toggle="tooltip"
                                                 data-bs-placement="left"
-                                                title="/gnqna/hist?query={{ item['query'] }}&search_term={{ item['task_id'] }}"
+                                                title="/gnqna/record?query={{ item['query'] }}&search_task_id={{ item['task_id'] }}"
                                                 style="background:transparent;
                                                        border:none;
                                                        cursor:pointer">
@@ -54,7 +54,7 @@
 </section>
 <script>
   htmx.on("#delete-btn", "click", function(evt){
-      htmx.ajax("DELETE","/gnqna/hist", {target: "#search-hist","swap" :"outerHTML",
+      htmx.ajax("DELETE","/gnqna/records", {target: "#search-hist","swap" :"outerHTML",
 				      values: Array.from(htmx.findAll("input[type=checkbox]:checked"), e => e.value)}) 
   })
 </script>
