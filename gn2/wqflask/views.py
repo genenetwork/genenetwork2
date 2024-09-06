@@ -278,8 +278,7 @@ def gnqna():
             lambda err: err, lambda tok: tok["access_token"])
         return monad_requests.put(
             urljoin(GN3_LOCAL_URL,
-                    "/api/llm/search"),
-            json=dict(request.form),
+                    f"/api/llm/search?query={request.form.get('querygnqa')}"),
             headers={
                 "Authorization": f"Bearer {token}"
             }
