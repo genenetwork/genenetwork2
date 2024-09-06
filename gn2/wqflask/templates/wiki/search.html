@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+{% block content %}
+    <div class="container">
+        <div class="row">
+            <div class="col-md-9 col-md-offset-3">
+                <h1>
+                    <strong>GeneWiki Entries</strong>
+                </h1>
+                <p>
+                    GeneWiki enables you to enrich the annotation of genes and transcripts. Please submit or edit a GeneWiki note (500 characters max) related to a gene, its transcripts, or proteins. When possible include PubMed identifiers or web resource links (URL addresses). Please ensure that the additions will have widespread use. For additional information, check the GeneWiki <a href="https://gn1.genenetwork.org/GeneWikihelp.html" target="_blank">help document</a>.
+                </p>
+                <span id="helpBlock" class="help-block">Please enter a gene symbol in the box below and then click submit.</span>
+            </div>
+        </div>
+        <div class="row">
+            <form method="POST"
+                  class="form-inline col-md-9 col-md-offset-3"
+                  action="{{ url_for("search_wiki") }}">
+                <div class="form-group col-md-offset-2">
+                    <label for="search" class="sr-only">Search Symbol</label>
+                    <input name="search"
+                           type="text"
+                           class="form-control"
+                           id="search"
+                           placeholder="Search Symbol"
+                           aria-describeBy="helpBlock" />
+                </div>
+                <button type="submit" class="btn btn-primary">submit</button>
+            </form>
+        </div>
+    </div>
+{% endblock %}
