@@ -1,112 +1,191 @@
-
 <section class="container-fluid answers gnqa-copy">
     <div class="row container gnqa-answer" style="margin-bottom: 1em">
-	<p class="row lead">
-	    <mark style="font-family: 'Linux Libertine','Georgia','Times','Source Serif Pro',serif;"><b><i>{{ query }}</i></b></mark><br/>
-	    {{ answer }}
-	</p>
-	<div class="rating row" data-doc-id="{{query}}">
-	    <button class="btn" id="upvote" data-toggle="tooltip" data-placement="top" title="Vote Up"><i class="fa fa-thumbs-up fa-sm fa-1x" aria-hidden="true"></i></button>
-            <button class="btn" id="downvote" data-toggle="tooltip" data-placement="top" title="Vote Down"><i class="fa fa-thumbs-down fa-sm fa-1x" aria-hidden="true"></i></button>
-	    <sub id="rate" class="text-info">	    
-	     </sub>
-	</div>
+        <p class="row lead">
+            <mark style="font-family: 'Linux Libertine','Georgia','Times','Source Serif Pro',serif"><b><i>{{ query }}</i></b></mark>
+            <br />
+            {{ answer|safe }}
+        </p>
+        <div class="rating row" data-doc-id="{{ query }}">
+            <button class="btn"
+                    id="upvote"
+                    data-toggle="tooltip"
+                    data-placement="top"
+                    title="Vote Up">
+                <i class="fa fa-thumbs-up fa-sm fa-1x" aria-hidden="true"></i>
+            </button>
+            <button class="btn"
+                    id="downvote"
+                    data-toggle="tooltip"
+                    data-placement="top"
+                    title="Vote Down">
+                <i class="fa fa-thumbs-down fa-sm fa-1x" aria-hidden="true"></i>
+            </button>
+            <sub id="rate" class="text-info">
+            </sub>
+        </div>
     </div>
     <div class="row container">
-	<details open>
-	    <summary><h3 style="font-family: 'Linux Libertine','Georgia','Times','Source Serif Pro',serif;">References</h3></summary>
-	    {% if references %}
-	    <ul class="list-unstyled">
-		{% for reference in references %}
-		<li>
-                    <div class="panel-group" role="tablist" aria-multiselectable="true" style="margin-bottom:0;">
-			<div class="panel panel-default">
-			    {% if loop.first %}
-			    <div class="panel-heading active" role="tab" id="heading{{ reference.doc_id }}">
-				<h4 class="panel-title" style="font-family: 'Linux Libertine','Georgia','Times','Source Serif Pro',serif;">
-
-				    <a class="collapsed" role="button" data-toggle="collapse" data-parent="#accordion" href="#collapse{{ reference.doc_id }}" aria-expanded="true" aria-controls="collapse{{reference.doc_id}}">
-					{{ reference.bibInfo }}
-				    </a>
-				</h4>
-			    </div>
-			    <div id="collapse{{reference.doc_id}}" class="panel-collapse collapse in" role="tabpanel" aria-labelledby="heading{{reference.doc_id}}">
-				<div class="panel-body">
-				    <p class="node-references">{{ reference.comboTxt }}</p>
-				    <div>
-					{% if reference.pubmed %}
-					<details open>
-					  <summary>See PubMed Info</summary>
-					  <div style="font-family: 'Linux Libertine','Georgia','Times','Source Serif Pro',serif;margin-top:1.4em">
-					    <h3><b>{{ reference.pubmed[0].get('title') }}:</b></h3>			
-					    <p><b>Authors:</b><span class="text-muted">{{ reference.pubmed[0].get('authors') }}</span></p>
-					    <p><b>PMID: <span class="text-info">{{ reference.pubmed[0].get('pub_id') }}</span></b></p>
-					    <p><b>Abstract: </b></p>
-					    <p>{{ reference.pubmed[0].get('abstract')|safe }}</p>
-					    <p><a href="{{reference.pubmed[0].get('source')}}" target="_blank">See full Article on Pubmed</a></p>
-					  </div>
-					</details>
-					{% endif %}
-				    </div>
-				</div>
-				{% else %}
-				<div class="panel-heading" role="tab" id="heading{{reference.doc_id}}">
-				    <h4 class="panel-title" style="font-family: 'Linux Libertine','Georgia','Times','Source Serif Pro',serif;">
-
-					<a class="collapsed" role="button" data-toggle="collapse" data-parent="#accordion" href="#collapse{{reference.doc_id}}" aria-expanded="false" aria-controls="collapse{{reference.doc_id}}">
-					    {{ reference.bibInfo }}
-					</a>
-				    </h4>
-				</div>
-				<div id="collapse{{reference.doc_id}}" class="panel-collapse collapse" role="tabpanel" aria-labelledby="heading{{reference.doc_id}}">
-				    <div class="panel-body">
-					<p class="node-references">{{reference.comboTxt}}</p>
-				    <div>
-					{% if reference.pubmed %}
-					<details >
-					  <summary>See PubMed Info</summary>
-					  <div style="font-family: 'Linux Libertine','Georgia','Times','Source Serif Pro',serif;margin-top:1.4em">
-					    <h3><b>{{ reference.pubmed[0].get('title') }}:</b></h3>			
-					    <p><b>Authors:</b><span class="text-muted">{{ reference.pubmed[0].get('authors') }}</span></p>
-					    <p><b>PMID: <span class="text-info">{{ reference.pubmed[0].get('pub_id') }}</span></b></p>
-					    <p><b>Abstract: </b></p>
-					    <p>{{ reference.pubmed[0].get('abstract')|safe }}</p>
-					    <p><a href="{{reference.pubmed[0].get('source')}}" target="_blank" style="float:left;">See full Article on Pubmed</a></p>
-					  </div>
-					</details>
-					{% endif %}
-				    </div>					
-				    </div>
-				</div>
-				{% endif %}
-			    </div>
-			</div>
-		</li>
-		{% endfor %}
-	    </ul>
-	    {% else %}
-	    <p><i>No references available.</i></p>
-	    {% endif %}
-	</details>
-		    </div>
+        <details open>
+            <summary>
+                <h3 style="font-family: 'Linux Libertine','Georgia','Times','Source Serif Pro',serif">References</h3>
+            </summary>
+            {% if references %}
+                <ul class="list-unstyled">
+                    {% for reference in references %}
+                        <li>
+                            <div class="panel-group"
+                                 role="tablist"
+                                 aria-multiselectable="true"
+                                 style="margin-bottom:0">
+                                <div class="panel panel-default">
+                                    {% if loop.first %}
+                                        <div class="panel-heading active"
+                                             role="tab"
+                                             id="heading{{ reference.doc_id }}">
+                                            <h4 class="panel-title"
+                                                style="font-family: 'Linux Libertine','Georgia','Times','Source Serif Pro',serif">
+                                                <a class="collapsed"
+                                                   role="button"
+                                                   data-toggle="collapse"
+                                                   data-parent="#accordion"
+                                                   href="#collapse{{ reference.doc_id }}"
+                                                   aria-expanded="true"
+                                                   aria-controls="collapse{{ reference.doc_id }}">
+                                                    {{ reference.bibInfo }}
+                                                </a>
+                                            </h4>
+                                        </div>
+                                        <div id="collapse{{ reference.doc_id }}"
+                                             class="panel-collapse collapse in"
+                                             role="tabpanel"
+                                             aria-labelledby="heading{{ reference.doc_id }}">
+                                            <div class="panel-body">
+                                                <p class="node-references">{{ reference.comboTxt|safe }}</p>
+                                                <div>
+                                                    {% if reference.pubmed %}
+                                                        <details open>
+                                                            <summary>See PubMed Info</summary>
+                                                            <div style="font-family: 'Linux Libertine','Georgia','Times','Source Serif Pro',serif;
+                                                                        margin-top:1.4em">
+                                                                <h3>
+                                                                    <b>{{ reference.pubmed[0].get("title") }}:</b>
+                                                                </h3>
+                                                                <p>
+                                                                    <b>Authors:</b><span class="text-muted">{{ reference.pubmed[0].get("authors") }}</span>
+                                                                </p>
+                                                                <p>
+                                                                    <b>PMID: <span class="text-info">{{ reference.pubmed[0].get("pub_id") }}</span></b>
+                                                                </p>
+                                                                <p>
+                                                                    <b>Abstract: </b>
+                                                                </p>
+                                                                <p>{{ reference.pubmed[0].get("abstract") |safe }}</p>
+                                                                <p>
+                                                                    <a href="{{ reference.pubmed[0].get("source") }}" target="_blank">See full Article on Pubmed</a>
+                                                                </p>
+                                                            </div>
+                                                        </details>
+                                                    {% endif %}
+                                                </div>
+                                            </div>
+                                        {% else %}
+                                            <div class="panel-heading" role="tab" id="heading{{ reference.doc_id }}">
+                                                <h4 class="panel-title"
+                                                    style="font-family: 'Linux Libertine','Georgia','Times','Source Serif Pro',serif">
+                                                    <a class="collapsed"
+                                                       role="button"
+                                                       data-toggle="collapse"
+                                                       data-parent="#accordion"
+                                                       href="#collapse{{ reference.doc_id }}"
+                                                       aria-expanded="false"
+                                                       aria-controls="collapse{{ reference.doc_id }}">
+                                                        {{ reference.bibInfo }}
+                                                    </a>
+                                                </h4>
+                                            </div>
+                                            <div id="collapse{{ reference.doc_id }}"
+                                                 class="panel-collapse collapse"
+                                                 role="tabpanel"
+                                                 aria-labelledby="heading{{ reference.doc_id }}">
+                                                <div class="panel-body">
+                                                    <p class="node-references">{{ reference.comboTxt|safe }}</p>
+                                                    <div>
+                                                        {% if reference.pubmed %}
+                                                            <details>
+                                                                <summary>See PubMed Info</summary>
+                                                                <div style="font-family: 'Linux Libertine','Georgia','Times','Source Serif Pro',serif;
+                                                                            margin-top:1.4em">
+                                                                    <h3>
+                                                                        <b>{{ reference.pubmed[0].get("title") }}:</b>
+                                                                    </h3>
+                                                                    <p>
+                                                                        <b>Authors:</b><span class="text-muted">{{ reference.pubmed[0].get("authors") }}</span>
+                                                                    </p>
+                                                                    <p>
+                                                                        <b>PMID: <span class="text-info">{{ reference.pubmed[0].get("pub_id") }}</span></b>
+                                                                    </p>
+                                                                    <p>
+                                                                        <b>Abstract: </b>
+                                                                    </p>
+                                                                    <p>{{ reference.pubmed[0].get("abstract") |safe }}</p>
+                                                                    <p>
+                                                                        <a href="{{ reference.pubmed[0].get("source") }}"
+                                                                           target="_blank"
+                                                                           style="float:left">See full Article on Pubmed</a>
+                                                                    </p>
+                                                                </div>
+                                                            </details>
+                                                        {% endif %}
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </li>
+                        {% endfor %}
+                    </ul>
+                {% else %}
+                    <p>
+                        <i>No references available.</i>
+                    </p>
+                {% endif %}
+            </details>
+        </div>
+    </div>
 </section>
 {% block js %}
-
-<script>
+    <script>
+  function updateRatingHandler(target, responseObj, args){
+    let {status, response} = responseObj.xhr
+    if (status == 200 && args == "upvote"){
+	  htmx.toggleClass(htmx.find('#upvote'), 'btn-success');
+	  htmx.removeClass(htmx.find("#downvote"), "btn-danger");
+      }
+      else if(status == 200 && args == "downvote") {
+          htmx.toggleClass(htmx.find('#downvote'), 'btn-danger');
+	  htmx.removeClass(htmx.find("#upvote"), "btn-success");
+      }
+      else {
+        alert(`Error occurred with status ${status} and Error ${response}` )
+}}
 var query = {{ query|tojson }};
 var answer = {{ answer|tojson }}
 var {task_id} = {{ task_id|tojson }}
-  htmx.on("#upvote", "click", function(evt){
+htmx.on("#upvote", "click", function(evt){
       vote_count = htmx.find(".btn-success") ? 0 : 1
-      htmx.ajax("POST", `/gnqna/rating/${task_id}/${vote_count}`, {target: "#rate", swap:"innerHTML",values: {'query': query, 'answer': answer}}).then(()=>{
-	  htmx.toggleClass(htmx.find('#upvote'), 'btn-success');
-	  htmx.removeClass(htmx.find("#downvote"), "btn-danger");
-})});
+    htmx.ajax("POST",
+	      `/gnqna/rating/${task_id}/${vote_count}`,
+	      {target: "#rate",
+	       handler: (target,obj)=> updateRatingHandler(target, obj, "upvote"),
+	       swap:"innerHTML",
+	       values: {'query': query, 'answer': answer}})});
   htmx.on("#downvote", "click", function(evt){
       vote_count = htmx.find(".btn-danger") ? 0 : -1
-      htmx.ajax("POST", `/gnqna/rating/${task_id}/${vote_count}`, {target: "#rate", swap:"innerHTML",values: {'query': query, 'answer': answer}}).then(()=>{
-      htmx.toggleClass(htmx.find('#downvote'), 'btn-danger');
-      htmx.removeClass(htmx.find("#upvote"), "btn-success")
-      })});
-</script>
+      htmx.ajax("POST", `/gnqna/rating/${task_id}/${vote_count}`,
+		{target: "#rate",
+		 handler: (target, obj)=> updateRatingHandler(target,obj, "downvote"),
+		 swap:"innerHTML",
+		 values: {'query': query, 'answer': answer}})});
+    </script>
 {% endblock %}
