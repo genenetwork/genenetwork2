@@ -264,29 +264,29 @@ def gsearchtable():
 @app.route("/gnqna", methods=["POST", "GET"])
 @require_oauth2
 def gnqna():
-    if request.method == "POST":
-        try:
-            def error_page(resp):
-                return render_template("gnqa_errors.html",
-                                       **{"status_code": resp.status_code, **resp.json()})
+    """ Main endpoint to call gn3 gnqna Api endpoint"""
+    def _error_(resp):
+        return render_template("gnqa_errors.html",
+                               **{"status_code": resp.status_code,
+                                  **resp.json()})
 
-            def __success__(resp):
-                return render_template("gnqa_answer.html", **{"gn_server_url": GN3_LOCAL_URL, **(resp.json())})
-            token = session_info()["user"]["token"].either(
-                lambda err: err, lambda tok: tok["access_token"])
-            return monad_requests.put(
-                urljoin(GN3_LOCAL_URL,
-                        "/api/llm/search"),
-                json=dict(request.form),
-                headers={
-                    "Authorization": f"Bearer {token}"
-                }
-            ).then(
-                lambda resp: resp
-            ).either(
-                error_page, __success__)
-        except Exception as error:
-            return flask.jsonify({"error": str(error)}), 500
+    def _success_(resp):
+        return render_template("gnqa_answer.html",
+                               **resp.json())
+    if request.method == "POST":
+        token = session_info()["user"]["token"].either(
+            lambda err: err, lambda tok: tok["access_token"])
+        return monad_requests.put(
+            urljoin(GN3_LOCAL_URL,
+                    "/api/llm/search"),
+            json=dict(request.form),
+            headers={
+                "Authorization": f"Bearer {token}"
+            }
+        ).then(
+            lambda resp: resp
+        ).either(
+            _error_, _success_)
     return render_template("gnqa.html")
 
 
