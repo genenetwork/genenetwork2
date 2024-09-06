@@ -24,9 +24,15 @@ def authserver_authorise_uri():
 
 
 def user_details():
-    return oauth2_get("auth/user/").either(
-        lambda err: {},
-        lambda usr_dets: usr_dets)
+    def __handle_error__(err):
+        error = process_error(err)
+        msg = (
+            f"Error from AUTH Server:\n\nError:\t{error['error']}\n\n"
+            f"{error['error-trace']}\nStatus Code:\t{error['status_code']}\n\n")
+        app.logger.error(msg)
+        raise Exception(msg)
+    return oauth2_get("auth/user/").either(__handle_error__,
+                                           lambda usr_dets: usr_dets)
 
 def process_error(error: Response,
                   message: str=("Requested endpoint was not found on the API "
