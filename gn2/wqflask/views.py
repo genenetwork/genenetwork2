@@ -1649,3 +1649,15 @@ def edit_wiki(comment_id: int):
 
         flash(f"Success: {post_res}", "alert-success")
         return redirect(url_for("edit_wiki", comment_id=comment_id))
+
+
+@app.route("/genewiki", methods=["POST", "GET"])
+def search_wiki():
+    """Search genewiki for a given symbol"""
+    if request.method == "GET":
+        return render_template(
+            "wiki/search.html",
+        )
+    return redirect(url_for(
+        "display_genewiki_page",
+        symbol=request.form.get("search")))
