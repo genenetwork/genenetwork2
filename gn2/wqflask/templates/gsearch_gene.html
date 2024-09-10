@@ -16,27 +16,8 @@
         </h3>
       </div>
 
-      {% if ai_result %}
-      <div class="row">
-        <div class="col-sm-6">
-          <div class="panel panel-info">
-            <div class="panel-heading" role="tab" id="ai_heading">
-              <h4 class="panel-title">
-                <a class="collapsed" role="button" data-toggle="collapse" data-parent="#accordion" href="#ai_results" aria-expanded="false" aria-controls="ai_results">
-                  AI Search: {{ ai_result["search_term"] }} (Click for more details)
-                </a>
-              </h4>
-            </div>
-            <div id="ai_results" class="panel-collapse collapse" role="tabpanel" aria-labelledby="ai_heading">
-                <div class="panel-body">
-                  <p>{{ ai_result["search_result"] }}</p>
-                  <p><a class="btn btn-default" href="{{ ai_result["search_url"] }}" role="button">See References</a></p>
-                </div>
-            </div>
-          </div>
-        </div>
+      <div class="row" id="ai_result">
       </div>
-      {% endif %}
 
         <p>To study a record, click on its Record ID below.<br />Check records below and click Add button to add to selection.</p>
         <div>
@@ -290,5 +271,34 @@
 
         });
         
+    </script>
+    <script type='text/javascript'>
+      function ai_content_div(search_term, search_result) {
+        return `
+          <div class="col-sm-6">
+            <div class="panel panel-info">
+              <div class="panel-heading" role="tab" id="ai_heading">
+                <h4 class="panel-title">
+                  <a class="collapsed" role="button" data-toggle="collapse" data-parent="#accordion" href="#ai_results" aria-expanded="false" aria-controls="ai_results">
+                    AI Search: ${search_term} (Click for more details)
+                  </a>
+                </h4>
+              </div>
+              <div id="ai_results" class="panel-collapse collapse" role="tabpanel" aria-labelledby="ai_heading">
+                  <div class="panel-body">
+                    <p>${ search_result }</p>
+                    <p><a class="btn btn-default" href="${search_term}" role="button">See References</a></p>
+                  </div>
+              </div>
+            </div>
+          </div>
+          `
+      }
+
+      $(document).ready( function () {
+        let ai_div = ai_content_div("this is a test", "test contains some text");
+        $("#ai_result").append(ai_div);
+      })
+
     </script>
 {% endblock %}
