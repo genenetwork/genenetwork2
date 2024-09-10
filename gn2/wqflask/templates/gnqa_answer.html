@@ -1,16 +1,9 @@
-{% block css %}
-    <style>
-#gnqa-answer-box {
-      white-space: pre-line;
-  }
-    </style>
-{% endblock %}
 <section class="container-fluid answers gnqa-copy">
     <div class="row container gnqa-answer" style="margin-bottom: 1em">
         <p class="row lead">
             <mark style="font-family: 'Linux Libertine','Georgia','Times','Source Serif Pro',serif"><b><i>{{ query }}</i></b></mark>
             <br />
-            <span id="gnqa-answer-box">{{ answer|safe }}</span>
+            <span  style="white-space: pre-line">{{ answer|safe }}</span>
         </p>
         <div class="rating row" data-doc-id="{{ query }}">
             <button class="btn"
