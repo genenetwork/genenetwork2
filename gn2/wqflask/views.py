@@ -1301,21 +1301,15 @@ def display_genewiki_page(symbol: str):
     """Fetch GeneRIF metadata from GN3 and display it"""
     wiki = {}
     try:
-        wiki = requests.get(
-            urljoin(
-                GN3_LOCAL_URL,
-                f"/api/metadata/wiki/{symbol}"
-            )
-        )
+        wiki = requests.get(urljoin(GN3_LOCAL_URL, f"/api/metadata/wiki/{symbol}"))
         wiki.raise_for_status()
         wiki = wiki.json()
     except requests.RequestException as excp:
         flash(excp, "alert-warning")
-    return render_template(
-        "wiki/genewiki.html",
-        symbol=symbol,
-        wiki=wiki
-    )
+    sess_info = session_info()
+    is_logged_in = sess_info.get("user", {}).get("logged_in", False)
+
+    return render_template("wiki/genewiki.html", symbol=symbol, wiki=wiki, is_logged_in=is_logged_in)
 
 
 @app.route("/genewiki/<int:comment_id>/history")
