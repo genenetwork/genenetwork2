@@ -16,6 +16,7 @@ import random
 import requests
 import sys
 import traceback
+import math
 import uuid
 import xlsxwriter
 
@@ -331,10 +332,20 @@ def get_gnqa_records():
                                **{"status_code": resp.status_code,
                                   **resp.json()})
 
+    def get_chunk(items, page, size):
+        start_idx = ((page-1) * size)
+        end_idx = (page*size)
+        return iter(items[start_idx:end_idx])
+
     def _success_(resp):
         response = resp.json()
+        page = int(request.args.get("page", 1))
+        pagination_size = int(request.args.get("max_size", 10))
+        prev_n_queries = get_chunk(response, page, pagination_size)
         return render_template("gnqa_search_history.html",
-                               prev_queries=response)
+                               prev_queries=prev_n_queries,
+                               num_pages=math.ceil(len(response)/pagination_size),
+                               current=page)
     token = session_info()["user"]["token"].either(
         lambda err: err, lambda tok: tok["access_token"])
     response_url = "/api/llm/search/records"

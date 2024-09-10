@@ -47,6 +47,30 @@
                             {% endfor %}
                         </ul>
                     </div>
+                    <div class="row">
+                        <nav aria-label="Page navigation example"
+                             class="col-sm-8 col-sm-offset-2 col-md-6 col-md-offset-3">
+                            <ul class="pagination">
+                                {% for idx in range(1, num_pages) %}
+                                    {% if current == idx %}
+                                        <li class="page-item active">
+                                            <a class="page-link"
+                                               hx-swap="innerHTML"
+                                               hx-target="#swap"
+                                               hx-get="/gnqna/records?page={{ idx }}">{{ idx }}</a>
+                                        </li>
+                                    {% else %}
+                                        <li class="page-item">
+                                            <a class="page-link"
+                                               hx-swap="innerHTML"
+                                               hx-target="#swap"
+                                               hx-get="/gnqna/records?page={{ idx }}">{{ idx }}</a>
+                                        </li>
+                                    {% endif %}
+                                {% endfor %}
+                            </ul>
+                        </nav>
+                    </div>
                 </div>
             </div>
         </div>
