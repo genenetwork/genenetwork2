@@ -3,6 +3,7 @@ import math
 import string
 import random
 import json
+import logging
 
 from gn2.base import webqtlConfig
 from gn2.base.trait import create_trait
@@ -73,6 +74,7 @@ def run_gemma(this_trait, this_dataset, samples, vals, covariates, use_loco,
                                   f"{pheno_filepath} -a "
                                   f"{snps_filepath} -gk > "
                                   f"{k_json_output_filepath}")
+            logging.debug("generate_k_command: %s", generate_k_command)
             os.system(generate_k_command)
 
             gemma_command = (f"{GEMMA_WRAPPER_COMMAND} --json --loco "
@@ -102,7 +104,7 @@ def run_gemma(this_trait, this_dataset, samples, vals, covariates, use_loco,
                                   f"{flat_files('genotype/bimbam')}/"
                                   f"{genofile_name}_snps.txt -gk > "
                                   f"{TEMPDIR}/gn2/{k_output_filename}.json")
-
+            logging.debug("generate_k_command: %s", generate_k_command)
             os.system(generate_k_command)
 
             gemma_command = (f"{GEMMA_WRAPPER_COMMAND} --json --input "
@@ -121,6 +123,7 @@ def run_gemma(this_trait, this_dataset, samples, vals, covariates, use_loco,
             else:
                 gemma_command += f" > {TEMPDIR}/gn2/{gwa_output_filename}.json"
 
+        logging.debug("gemma_command: %s", gemma_command)
         os.system(gemma_command)
     else:
         gwa_output_filename = output_files
