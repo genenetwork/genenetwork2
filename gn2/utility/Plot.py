@@ -22,8 +22,9 @@
 #
 # Created by GeneNetwork Core Team 2010/08/10
 #
-# Last updated by GeneNetwork Core Team 2010/10/20
+# Last updated by GeneNetwork Core Team 2024/09/11
 import os
+from pathlib import Path
 
 from PIL import ImageColor
 from PIL import ImageDraw
@@ -44,9 +45,11 @@ BLACK = ImageColor.getrgb("black")
 # ---- END: Define common colours ---- #
 
 # ---- FONT FILES ---- #
-VERDANA_FILE = "./gn2/wqflask/static/fonts/verdana.ttf"
-COUR_FILE = "./gn2/wqflask/static/fonts/courbd.ttf"
-TAHOMA_FILE = "./gn2/wqflask/static/fonts/tahoma.ttf"
+REPO_ROOT = Path(__file__).parent.parent
+FONTS_DIR = REPO_ROOT.joinpath("wqflask/static/fonts")
+VERDANA_FILE = f"{FONTS_DIR.joinpath('verdana.ttf')}"
+COUR_FILE = f"{FONTS_DIR.joinpath('courbd.ttf')}"
+TAHOMA_FILE = f"{FONTS_DIR.joinpath('tahoma.ttf')}"
 # ---- END: FONT FILES ---- #
 
 
