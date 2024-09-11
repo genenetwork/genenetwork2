@@ -23,6 +23,7 @@
 # Created by GeneNetwork Core Team 2010/08/10
 #
 # Last updated by GeneNetwork Core Team 2010/10/20
+import os
 
 from PIL import ImageColor
 from PIL import ImageDraw
@@ -183,7 +184,7 @@ def plotBar(canvas, data, barColor=BLUE, axesColor=BLACK, labelColor=BLACK, XLab
     )
 
     # draw scale
-    app.logger.debug("Font file path: %s", COUR_FILE)
+    app.logger.debug("Font file path: %s", os.path.abspath(COUR_FILE))
     scaleFont = ImageFont.truetype(font=COUR_FILE, size=11)
     x = xLow
     for i in range(int(stepX) + 1):
