@@ -30,6 +30,8 @@ from PIL import ImageFont
 
 from math import *
 
+from flask import current_app as app
+
 import gn2.utility.corestats as corestats
 from gn2.base import webqtlConfig
 from gn2.utility.pillow_utils import draw_rotated_text
@@ -181,6 +183,7 @@ def plotBar(canvas, data, barColor=BLUE, axesColor=BLACK, labelColor=BLACK, XLab
     )
 
     # draw scale
+    app.logger.debug("Font file path: %s", COUR_FILE)
     scaleFont = ImageFont.truetype(font=COUR_FILE, size=11)
     x = xLow
     for i in range(int(stepX) + 1):
