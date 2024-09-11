@@ -272,8 +272,9 @@
         });
         
     </script>
+    {% if do_ai_search %}
     <script type='text/javascript'>
-      function ai_content_div(search_term, search_result) {
+      function ai_content_div(search_term, search_result, search_uri) {
         return `
           <div class="col-sm-6">
             <div class="panel panel-info">
@@ -287,7 +288,7 @@
               <div id="ai_results" class="panel-collapse collapse" role="tabpanel" aria-labelledby="ai_heading">
                   <div class="panel-body">
                     <p>${ search_result }</p>
-                    <p><a class="btn btn-default" href="${search_term}" role="button">See References</a></p>
+                    <p><a class="btn btn-default" href="${ search_uri }" role="button">See References</a></p>
                   </div>
               </div>
             </div>
@@ -296,9 +297,19 @@
       }
 
       $(document).ready( function () {
-        let ai_div = ai_content_div("this is a test", "test contains some text");
-        $("#ai_result").append(ai_div);
+        $.ajax({url: "gnqna",
+          contentType: "application/json",
+          data: {
+            query: "{{ terms }}",
+            type: "xapian",
+          },
+          success: function(result) {
+            let ai_div = ai_content_div(result.search_term, result.search_result, result.search_url)
+            $("#ai_result").append(ai_div);
+          }
+        })
       })
 
     </script>
+    {% endif %}
 {% endblock %}

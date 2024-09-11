@@ -17,6 +17,7 @@ import requests
 import sys
 import traceback
 import uuid
+import urllib.parse
 import xlsxwriter
 
 from functools import reduce
@@ -32,6 +33,7 @@ from gn2.wqflask import app
 
 from gn3.computations.gemma import generate_hash_of_string
 from flask import current_app
+from flask import jsonify
 from flask import g
 from flask import Response
 from flask import request
@@ -238,20 +240,17 @@ def search_page_table():
     return flask.jsonify(current_page)
 
 
-@app.route("/gsearch", methods=('GET',))
+@app.route("/gsearch", methods=("GET",))
 def gsearchact():
     result = GSearch(request.args).__dict__
-    search_type = request.args['type']
-    ai_result = None
-    if current_app.config.get("AI_SEARCH_ENABLED"):
-        ai_result = {
-               "search_term": "glioma human gtex_v8",
-               "search_result": "The Bama miniature pig has the same number of chromosomes as humans",
-               # we need to modify the search to use url params so that we can easily link
-               "search_url": "https://qa.genenetwork.org/gnqna"
-               }
+    search_type = request.args["type"]
+    is_user_logged_in = session_info().get("user", {}).get("logged_in", False)
+
+    do_ai_search = False
+    if current_app.config.get("AI_SEARCH_ENABLED") and is_user_logged_in:
+        do_ai_search = True
     if search_type == "gene":
-        return render_template("gsearch_gene.html", **result, ai_result=ai_result)
+        return render_template("gsearch_gene.html", **result, do_ai_search=do_ai_search, result=result)
     elif search_type == "phenotype":
         return render_template("gsearch_pheno.html", **result)
 
@@ -268,32 +267,57 @@ def gsearchtable():
 
     return flask.jsonify(current_page)
 
+def clean_xapian_query(query: str) -> str:
+    """ Remove filler words in xapian query
+    TODO: FIXME
+    """
+    return query
+
 
 @app.route("/gnqna", methods=["POST", "GET"])
 @require_oauth2
 def gnqna():
-    """ Main endpoint to call gn3 gnqna Api endpoint"""
+    """Main endpoint to call gn3 gnqna Api endpoint"""
+
     def _error_(resp):
-        return render_template("gnqa_errors.html",
-                               **{"status_code": resp.status_code,
-                                  **resp.json()})
+        return render_template(
+            "gnqa_errors.html", **{"status_code": resp.status_code, **resp.json()}
+        )
 
     def _success_(resp):
-        return render_template("gnqa_answer.html",
-                               **resp.json())
-    if request.method == "POST":
-        token = session_info()["user"]["token"].either(
-            lambda err: err, lambda tok: tok["access_token"])
-        return monad_requests.put(
-            urljoin(GN3_LOCAL_URL,
-                    f"/api/llm/search?query={request.form.get('querygnqa')}"),
-            headers={
-                "Authorization": f"Bearer {token}"
+        return render_template("gnqa_answer.html", **resp.json())
+
+    content_type = request.headers.get("Content-Type")
+    token = session_info()["user"]["token"].either(
+        lambda err: err, lambda tok: tok["access_token"]
+    )
+    if request.method == "GET":
+        query = request.args.get("query")
+        query_type = request.args.get("type")
+        if query_type == "xapian":
+            query = clean_xapian_query(query)
+        safe_query = urllib.parse.urlencode({"query": query})
+        search_result = requests.put(
+            urljoin(GN3_LOCAL_URL, f"/api/llm/search?{safe_query}"),
+            headers={"Authorization": f"Bearer {token}"},
+        )
+        search_result.raise_for_status()
+        search_result = search_result.json()
+        if content_type == "application/json":
+            ai_result = {
+                "search_term": query,
+                "search_result": search_result["answer"],
+                "search_url": f"/gnqna?{safe_query}",
             }
-        ).then(
-            lambda resp: resp
-        ).either(
-            _error_, _success_)
+            return jsonify(ai_result)
+        return render_template("gnqa_answer.html", **search_result)
+
+    if request.method == "POST":
+        safe_query = urlib.parse.urlencode({"query": request.form.get("querygnqa")})
+        return monad_requests.put(
+            urljoin(GN3_LOCAL_URL, f"/api/llm/search?{safe_query}"),
+            headers={"Authorization": f"Bearer {token}"},
+        ).either(_error_, _success_)
     return render_template("gnqa.html")
 
 
@@ -1291,19 +1315,13 @@ def display_wiki_history(comment_id: str):
     entries = []
     try:
         entries = requests.get(
-            urljoin(
-                GN3_LOCAL_URL,
-                f"/api/metadata/wiki/{comment_id}/history"
-            )
+            urljoin(GN3_LOCAL_URL, f"/api/metadata/wiki/{comment_id}/history")
         )
         entries.raise_for_status()
         entries = entries.json()
     except requests.RequestException as excp:
         flash(excp, "alert-warning")
-    return render_template(
-        "wiki/history.html",
-        entries=entries
-    )
+    return render_template("wiki/history.html", entries=entries)
 
 
 @app.route("/datasets/<name>", methods=('GET',))
@@ -1569,18 +1587,26 @@ def edit_wiki(comment_id: int):
     """fetch generif metadata from gn3 and display it"""
     # FIXME: better error handling
     if request.method == "GET":
-        last_wiki_resp = requests.get(urljoin(GN3_LOCAL_URL, f"/api/metadata/wiki/{comment_id}"))
+        last_wiki_resp = requests.get(
+            urljoin(GN3_LOCAL_URL, f"/api/metadata/wiki/{comment_id}")
+        )
         last_wiki_resp.raise_for_status()
         last_wiki_content = last_wiki_resp.json()
 
-        species_dict_resp = requests.get(urljoin(GN3_LOCAL_URL, "/api/metadata/wiki/species"))
+        species_dict_resp = requests.get(
+            urljoin(GN3_LOCAL_URL, "/api/metadata/wiki/species")
+        )
         species_dict_resp.raise_for_status()
         species_dict = species_dict_resp.json()
 
-        categories_resp = requests.get(urljoin(GN3_LOCAL_URL, "/api/metadata/wiki/categories"))
+        categories_resp = requests.get(
+            urljoin(GN3_LOCAL_URL, "/api/metadata/wiki/categories")
+        )
         categories_resp.raise_for_status()
         categories = list(categories_resp.json().keys())
-        grouped_categories = [categories[i : i + 3] for i in range(0, len(categories), 3)]
+        grouped_categories = [
+            categories[i : i + 3] for i in range(0, len(categories), 3)
+        ]
 
         return render_template(
             "wiki/edit_wiki.html",
@@ -1600,8 +1626,10 @@ def edit_wiki(comment_id: int):
             "initial": post_data["initial"],
             "categories": post_data.getlist("genecategory"),
             "reason": post_data["reason"],
-            }
-        post_response = requests.post(urljoin(GN3_LOCAL_URL, f"api/metadata/wiki/{comment_id}/edit"), json=payload)
+        }
+        post_response = requests.post(
+            urljoin(GN3_LOCAL_URL, f"api/metadata/wiki/{comment_id}/edit"), json=payload
+        )
         post_response.raise_for_status()
         post_res = post_response.json()
 
