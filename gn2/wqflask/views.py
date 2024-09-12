@@ -293,33 +293,34 @@ def gnqna():
         lambda err: err, lambda tok: tok["access_token"]
     )
     if request.method == "GET":
-        query = request.args.get("query")
-        query_type = request.args.get("type")
-        if query_type == "xapian":
-            query = clean_xapian_query(query)
-        safe_query = urllib.parse.urlencode({"query": query})
-        search_result = requests.put(
-            urljoin(GN3_LOCAL_URL, f"/api/llm/search?{safe_query}"),
-            headers={"Authorization": f"Bearer {token}"},
-        )
-        search_result.raise_for_status()
-        search_result = search_result.json()
-        if content_type == "application/json":
-            ai_result = {
-                "search_term": query,
-                "search_result": search_result["answer"],
-                "search_url": f"/gnqna?{safe_query}",
-            }
-            return jsonify(ai_result)
-        return render_template("gnqa_answer.html", **search_result)
-
+        if request.args.get("query"):
+            query = request.args.get("query")
+            query_type = request.args.get("type")
+            if query_type == "xapian":
+                query = clean_xapian_query(query)
+            safe_query = urllib.parse.urlencode({"query": query})
+            search_result = requests.put(
+                urljoin(GN3_LOCAL_URL, f"/api/llm/search?{safe_query}"),
+                headers={"Authorization": f"Bearer {token}"},
+            )
+            search_result.raise_for_status()
+            search_result = search_result.json()
+            if content_type == "application/json":
+                ai_result = {
+                    "search_term": query,
+                    "search_result": search_result["answer"],
+                    "search_url": f"/gnqna?{safe_query}",
+                }
+                return jsonify(ai_result)
+            return render_template("gnqa_answer.html", **search_result)
+        else:
+            return render_template("gnqa.html")
     if request.method == "POST":
         safe_query = urllib.parse.urlencode({"query": request.form.get("querygnqa")})
         return monad_requests.put(
             urljoin(GN3_LOCAL_URL, f"/api/llm/search?{safe_query}"),
             headers={"Authorization": f"Bearer {token}"},
         ).either(_error_, _success_)
-    return render_template("gnqa.html")
 
 
 @app.route("/editor/edit", methods=["GET"])
