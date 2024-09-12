@@ -7,6 +7,7 @@ import requests
 import markdown
 import os
 import sys
+from pathlib import Path
 
 from bs4 import BeautifulSoup  # type: ignore
 
@@ -117,9 +118,10 @@ def get_blogs(user: str = "genenetwork",
 def glossary():
     file_data = fetch_raw_markdown(file_path="general/glossary/glossary.md")
     return render_template(
-        "glossary.html",
+        "generic_gn_docs.html",
         rendered_markdown=render_markdown_as_html(file_data["content"]),
-        file_path=file_data["file_path"]
+        file_path=file_data["file_path"],
+        file_title=Path(file_data["file_path"]).stem
     )
 
 
@@ -129,9 +131,10 @@ def references():
     file_data = fetch_raw_markdown(
         file_path="general/references/references.md")
     return render_template(
-        "references.html",
+        "generic_gn_docs.html",
         rendered_markdown=render_markdown_as_html(file_data["content"]),
-        file_path=file_data["file_path"]
+        file_path=file_data["file_path"],
+        file_title=Path(file_data["file_path"]).stem
     )
 
 
@@ -139,9 +142,10 @@ def references():
 def news():
     file_data = fetch_raw_markdown(file_path="general/news/news.md")
     return render_template(
-        "news.html",
+        "generic_gn_docs.html",
         render_markdown=render_markdown_as_html(file_data["content"]),
-        file_path=file_data["file_path"]
+        file_path=file_data["file_path"],
+        file_title=Path(file_data["file_path"]).stem
     )
 
 
@@ -149,9 +153,10 @@ def news():
 def xapian():
     file_data = fetch_raw_markdown(file_path="general/search/xapian_syntax.md")
     return render_template(
-        "search-syntax.html",
+        "generic_gn_docs.html",
         rendered_markdown=render_markdown_as_html(file_data["content"]),
-        file_path=file_data["file_path"]
+        file_path=file_data["file_path"],
+        file_title=Path(file_data["file_path"]).stem
     )
 
 
@@ -197,9 +202,10 @@ def svg_graph():
 def links():
     file_data = fetch_raw_markdown(file_path="general/links/links.md")
     return render_template(
-        "links.html",
+        "generic_gn_docs.html",
         rendered_markdown=render_markdown_as_html(file_data["content"]),
-        file_path=file_data["file_path"]
+        file_path=file_data["file_path"],
+        file_title=Path(file_data["file_path"]).stem
     )
 
 
@@ -207,19 +213,21 @@ def links():
 def policies():
     file_data = fetch_raw_markdown(file_path="general/policies/policies.md")
     return render_template(
-        "policies.html",
+        "generic_gn_docs.html",
         rendered_markdown=render_markdown_as_html(file_data["content"]),
-        file_path=file_data["file_path"]
+        file_path=file_data["file_path"],
+        file_title=Path(file_data["file_path"]).stem
     )
 
 
 @facilities_blueprint.route("/")
 def facilities():
     file_data = fetch_raw_markdown(file_path="general/help/facilities.md")
-    return render_template("facilities.html",
+    return render_template("generic_gn_docs.html",
                            rendered_markdown=render_markdown_as_html(
                                file_data["content"]),
-                           file_path=file_data["file_path"]
+                           file_path=file_data["file_path"],
+                           file_title=Path(file_data["file_path"]).stem
                            )
 
 
