@@ -29,12 +29,19 @@ xapian_syntax_blueprint = Blueprint("xapian_syntax_blueprint", __name__)
 blogs_blueprint = Blueprint("blogs_blueprint", __name__)
 
 
-def render_markdown_from_editor(file_path):
-    results = requests.get("http://localhost:8091/edit?file_path={file_path}")
-    results.raise_for_status()
-    text = results.json()["content"]
-    return markdown.markdown(text,
-                             extensions=['tables'])
+def fetch_raw_markdown(file_path):
+    """
+    This method fetches files from genenetwork:gn docs repo
+    """
+    # todo remove hardcoded file path
+    response = requests.get(f"http://localhost:8091/edit?file_path={file_path}")
+    response.raise_for_status()
+    return response.json()
+
+
+def render_markdown_as_html(content):
+    """This method converts markdown to html for render"""
+    return markdown.markdown(content, extensions=["tables"])
 
 
 def render_markdown(file_name, is_remote_file=True):
