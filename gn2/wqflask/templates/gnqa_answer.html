@@ -1,7 +1,19 @@
+{% extends "base.html" %}
+
+{% block css %}
+<style>
+.linux-libertine-font{
+    font-family: 'Linux Libertine','Georgia','Times','Source Serif Pro', 'serif'
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<br/>
 <section class="container-fluid answers gnqa-copy">
     <div class="row container gnqa-answer" style="margin-bottom: 1em">
         <p class="row lead">
-            <mark style="font-family: 'Linux Libertine','Georgia','Times','Source Serif Pro',serif"><b><i>{{ query }}</i></b></mark>
+            <mark class="linux-libertine-font"><b><i>{{ query }}</i></b></mark>
             <br />
             <span  style="white-space: pre-line">{{ answer|safe }}</span>
         </p>
@@ -20,32 +32,24 @@
                     title="Vote Down">
                 <i class="fa fa-thumbs-down fa-sm fa-1x" aria-hidden="true"></i>
             </button>
-            <sub id="rate" class="text-info">
-            </sub>
+            <sub id="rate" class="text-info"></sub>
         </div>
     </div>
     <div class="row container">
         <details open>
             <summary>
-                <h3 style="font-family: 'Linux Libertine','Georgia','Times','Source Serif Pro',serif">References</h3>
+                <h3 class="linux-libertine-font">References</h3>
             </summary>
             {% if references %}
                 <ul class="list-unstyled">
                     {% for reference in references %}
                         <li>
-                            <div class="panel-group"
-                                 role="tablist"
-                                 aria-multiselectable="true"
-                                 style="margin-bottom:0">
+                            <div class="panel-group" role="tablist" aria-multiselectable="true" style="margin-bottom:0">
                                 <div class="panel panel-default">
                                     {% if loop.first %}
-                                        <div class="panel-heading active"
-                                             role="tab"
-                                             id="heading{{ reference.doc_id }}">
-                                            <h4 class="panel-title"
-                                                style="font-family: 'Linux Libertine','Georgia','Times','Source Serif Pro',serif">
-                                                <a class="collapsed"
-                                                   role="button"
+                                        <div class="panel-heading active" role="tab" id="heading{{ reference.doc_id }}">
+                                            <h4 class="panel-title linux-libertine-font">
+                                                <a class="collapsed" role="button"
                                                    data-toggle="collapse"
                                                    data-parent="#accordion"
                                                    href="#collapse{{ reference.doc_id }}"
@@ -65,8 +69,7 @@
                                                     {% if reference.pubmed %}
                                                         <details open>
                                                             <summary>See PubMed Info</summary>
-                                                            <div style="font-family: 'Linux Libertine','Georgia','Times','Source Serif Pro',serif;
-                                                                        margin-top:1.4em">
+                                                            <div class="linux-libertine-font" style="margin-top:1.4em">
                                                                 <h3>
                                                                     <b>{{ reference.pubmed[0].get("title") }}:</b>
                                                                 </h3>
@@ -90,8 +93,7 @@
                                             </div>
                                         {% else %}
                                             <div class="panel-heading" role="tab" id="heading{{ reference.doc_id }}">
-                                                <h4 class="panel-title"
-                                                    style="font-family: 'Linux Libertine','Georgia','Times','Source Serif Pro',serif">
+                                                <h4 class="panel-title linux-libertine-font">
                                                     <a class="collapsed"
                                                        role="button"
                                                        data-toggle="collapse"
@@ -113,8 +115,7 @@
                                                         {% if reference.pubmed %}
                                                             <details>
                                                                 <summary>See PubMed Info</summary>
-                                                                <div style="font-family: 'Linux Libertine','Georgia','Times','Source Serif Pro',serif;
-                                                                            margin-top:1.4em">
+                                                                <div class="linux-libertine-font" style="margin-top:1.4em">
                                                                     <h3>
                                                                         <b>{{ reference.pubmed[0].get("title") }}:</b>
                                                                     </h3>
@@ -154,6 +155,7 @@
         </div>
     </div>
 </section>
+{% endblock %}
 {% block js %}
     <script>
   function updateRatingHandler(target, responseObj, args){
