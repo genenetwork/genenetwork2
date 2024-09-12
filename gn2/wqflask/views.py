@@ -299,7 +299,7 @@ def gnqna():
             if query_type == "xapian":
                 query = clean_xapian_query(query)
             safe_query = urllib.parse.urlencode({"query": query})
-            search_result = requests.put(
+            search_result = requests.get(
                 urljoin(GN3_LOCAL_URL, f"/api/llm/search?{safe_query}"),
                 headers={"Authorization": f"Bearer {token}"},
             )
