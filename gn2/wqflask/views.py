@@ -268,11 +268,47 @@ def gsearchtable():
 
     return flask.jsonify(current_page)
 
+
 def clean_xapian_query(query: str) -> str:
-    """ Remove filler words in xapian query
-    TODO: FIXME
     """
-    return query
+    Clean and optimize a Xapian query string by removing filler words,
+    and ensuring the query is tailored for optimal results from Fahamu.
+
+    Args:
+        query (str): The original Xapian query string.
+
+    Returns:
+        str: The cleaned and optimized query string.
+    """
+    xapian_prefixes = {
+        "author",
+        "species",
+        "group",
+        "tissue",
+        "dataset",
+        "symbol",
+        "description",
+        "rif",
+        "wiki",
+    }
+    xapian_operators = {"AND", "NOT", "OR", "XOR", "NEAR", "ADJ"}
+    range_prefixes = {"mean", "peak", "position", "peakmb", "additive", "year"}
+    query_context = ["genes"]
+    cleaned_query_parts = []
+    for token in query.split():
+        if token in xapian_operators or any(
+            prefix in token for prefix in range_prefixes if ".." in token
+        ):
+            continue
+        prefix, _, suffix = token.partition(":")
+        if prefix in xapian_prefixes:
+            query_context.insert(0, prefix)
+            cleaned_query_parts.append(f"{prefix} {suffix}")
+        else:
+            cleaned_query_parts.append(prefix)
+    cleaned_query = " ".join(cleaned_query_parts)
+    context = ",".join(query_context)
+    return f"Provide answer on {cleaned_query} context {context}"
 
 
 @app.route("/gnqna", methods=["POST", "GET"])
@@ -298,6 +334,7 @@ def gnqna():
             query_type = request.args.get("type")
             if query_type == "xapian":
                 query = clean_xapian_query(query)
+                # todo; check if is empty
             safe_query = urllib.parse.urlencode({"query": query})
             search_result = requests.put(
                 urljoin(GN3_LOCAL_URL, f"/api/llm/search?{safe_query}"),
