@@ -29,6 +29,14 @@ xapian_syntax_blueprint = Blueprint("xapian_syntax_blueprint", __name__)
 blogs_blueprint = Blueprint("blogs_blueprint", __name__)
 
 
+def render_markdown_from_editor(file_path):
+    results = requests.get("http://localhost:8091/edit?file_path={file_path}")
+    results.raise_for_status()
+    text = results.json()["content"]
+    return markdown.markdown(text,
+                             extensions=['tables'])
+
+
 def render_markdown(file_name, is_remote_file=True):
     """Try to fetch the file name from Github and if that fails, try to
 look for it inside the file system """
