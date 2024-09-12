@@ -317,7 +317,7 @@ def gnqna():
             return render_template("gnqa.html")
     if request.method == "POST":
         safe_query = urllib.parse.urlencode({"query": request.form.get("querygnqa")})
-        return monad_requests.put(
+        return monad_requests.get(
             urljoin(GN3_LOCAL_URL, f"/api/llm/search?{safe_query}"),
             headers={"Authorization": f"Bearer {token}"},
         ).either(_error_, _success_)
