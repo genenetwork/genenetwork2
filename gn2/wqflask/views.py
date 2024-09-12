@@ -270,9 +270,21 @@ def gsearchtable():
 
 def clean_xapian_query(query: str) -> str:
     """ Remove filler words in xapian query
+    This is a temporary solution that works for some query. A better solution is being worked on.
     TODO: FIXME
     """
-    return query
+    xapian_prefixes = set(["author", "species", "group", "tissue", "dataset", "symbol", "description", "rif", "wiki"])
+    range_prefixes = set(["mean", "peak", "position", "peakmb", "additive", "year"])
+    final_query = []
+    for word in query.split():
+        split_word = word.split(":")
+        if len(split_word) > 0 and split_word[0].lower() in xapian_prefixes:
+            final_query.append(split_word[1])
+            continue
+        if split_word[0].lower() in range_prefixes:
+            # no need to search for ranges
+            continue
+    return " ".join(final_query)
 
 
 @app.route("/gnqna", methods=["POST", "GET"])
