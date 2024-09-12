@@ -114,30 +114,42 @@ def get_blogs(user: str = "genenetwork",
 
 @glossary_blueprint.route('/')
 def glossary():
+    file_data = fetch_raw_markdown(file_path="general/glossary/glossary.md")
     return render_template(
         "glossary.html",
-        rendered_markdown=render_markdown("general/glossary/glossary.md")), 200
-
+        rendered_markdown=render_markdown_as_html(file_data["content"]),
+        file_path=file_data["file_path"]
+    )
 
 @references_blueprint.route('/')
 def references():
+
+    file_data = fetch_raw_markdown(file_path="general/references/references.md")
     return render_template(
         "references.html",
-        rendered_markdown=render_markdown("general/references/references.md")), 200
+        rendered_markdown=render_markdown_as_html(file_data["content"]),
+        file_path=file_data["file_path"]
+    )
 
 
 @news_blueprint.route('/')
 def news():
+    file_data = fetch_raw_markdown(file_path="general/news/news.md")
     return render_template(
         "news.html",
-        rendered_markdown=render_markdown("general/news/news.md")), 200
+        render_markdown=render_markdown_as_html(file_data["content"]),
+        file_path=file_data["file_path"]
+    )
 
 
 @xapian_syntax_blueprint.route('/')
 def xapian():
+    file_data = fetch_raw_markdown(file_path="general/search/xapian_syntax.md")
     return render_template(
         "search-syntax.html",
-        rendered_markdown=render_markdown("general/search/xapian_syntax.md")), 200
+        rendered_markdown=render_markdown_as_html(file_data["content"]),
+        file_path=file_data["file_path"]
+    )
 
 
 @environments_blueprint.route("/")
@@ -163,12 +175,11 @@ def environments():
             200
         )
     # Fallback: Fetch file from server
+    file_data = fetch_raw_markdown(file_path="general/environment/environment.md")
     return (render_template(
         "environment.html",
         svg_data=None,
-        rendered_markdown=render_markdown(
-            "general/environments/environments.md")),
-            200)
+        rendered_markdown=render_markdown_as_html(file_data["content"])))
 
 
 @environments_blueprint.route('/svg-dependency-graph')
@@ -180,21 +191,31 @@ def svg_graph():
 
 @links_blueprint.route("/")
 def links():
+    file_data = fetch_raw_markdown(file_path="general/links/links.md")
     return render_template(
         "links.html",
-        rendered_markdown=render_markdown("general/links/links.md")), 200
+        rendered_markdown=render_markdown_as_html(file_data["content"]),
+        file_path=file_data["file_path"]
+    )
 
 
 @policies_blueprint.route("/")
 def policies():
+    file_data = fetch_raw_markdown(file_path="general/policies/policies.md")
     return render_template(
         "policies.html",
-        rendered_markdown=render_markdown("general/policies/policies.md")), 200
+        rendered_markdown=render_markdown_as_html(file_data["content"]),
+        file_path=file_data["file_path"]
+    )
 
 
 @facilities_blueprint.route("/")
 def facilities():
-    return render_template("facilities.html", rendered_markdown=render_markdown("general/help/facilities.md")), 200
+    file_data = fetch_raw_markdown(file_path="general/help/facilities.md")
+    return render_template("facilities.html",
+                           rendered_markdown=render_markdown_as_html(file_data["content"]),
+                           file_path=file_data["file_path"]
+                           )
 
 
 @blogs_blueprint.route("/<path:blog_path>")
