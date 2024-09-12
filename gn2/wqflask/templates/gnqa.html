@@ -80,10 +80,15 @@
      background-color: #ccf;
  }
 
+.linux-libertine-font{
+    font-family: 'Linux Libertine','Georgia','Times','Source Serif Pro', 'serif'
+}
+
     </style>
 {% endblock %}
 {% block search %}{% endblock %}
 {% block content %}
+
     <!-- Start of body -->
     <section class="container-fluid">
         <header class="row">
@@ -119,39 +124,44 @@
                        autocomplete="on"
                        required
                        placeholder="Ask More Questions or Topics (E.g Genes)"
+                       {% if query %}
+                       value='{{ query }}'
+                       {% else %}
                        value=''
+                       {% endif %}
                        name="querygnqa" />
             </div>
         </form>
         <article id="swap" class="row">
-            <div class="row gnqa-copy">
-                <div class="col-sm-10 col-sm-offset-1 col-md-offset-3 col-md-6">
-                    <p>
-                        Welcome to the GeneNetwork Question and Answer (GNQA)system. We utilize a large language model and 3000 scientific publications to make GNQA a subject matter expert in three areas: <b><a href="/">GeneNetwork.org</a></b>, <b>genomics/genetics with regards to diabetes</b> and <b>genomics/genetics with regards to agin.</b>.
-                    </p>
-                    <p>
-                        At the moment when you ask GNQA something it will attempt to return a sensible answer with <q>real</q> references. To this end we aim to reduce hallucinations and provide a knowledge launchpad for a researcher to enhance their knowledge on the relevant subject matter.
-                    </p>
-                    <p>GNQA is not a finished product as we are working diligently to improve it daily.</p>
-                    <p>
-                        <b>Thanks for using GNQA!</b>
-                    </p>
-                    <div></div>
-                </article>
-            </section>
-        {% endblock %}
-        {% block js %}
-            <script src="{{ url_for('js', filename='jquery/jquery.min.js') }}"
-                    type="text/javascript"></script>
-            <script language="javascript"
-                    type="text/javascript"
-                    src="{{ url_for('js', filename='jquery-ui/jquery-ui.min.js') }}"></script>
-            <script language="javascript"
-                    type="text/javascript"
-                    src="{{ url_for('js', filename='htmx.min.js') }}"></script>
-            <script type="text/javascript">
- document.addEventListener('DOMContentLoaded', function() {
-     $('footer').hide()
- });
-            </script>
-        {% endblock %}
+            {% if answer %}
+                {% include 'gnqa_answer.html' %}
+            {% else %}
+
+                <div class="row gnqa-copy">
+                    <div class="col-sm-10 col-sm-offset-1 col-md-offset-3 col-md-6">
+                        <p>
+                            Welcome to the GeneNetwork Question and Answer (GNQA)system. We utilize a large language model and 3000 scientific publications to make GNQA a subject matter expert in three areas: <b><a href="/">GeneNetwork.org</a></b>, <b>genomics/genetics with regards to diabetes</b> and <b>genomics/genetics with regards to agin.</b>.
+                        </p>
+                        <p>
+                            At the moment when you ask GNQA something it will attempt to return a sensible answer with <q>real</q> references. To this end we aim to reduce hallucinations and provide a knowledge launchpad for a researcher to enhance their knowledge on the relevant subject matter.
+                        </p>
+                        <p>GNQA is not a finished product as we are working diligently to improve it daily.</p>
+                        <p>
+                            <b>Thanks for using GNQA!</b>
+                        </p>
+                    </div>
+                </div>
+            {% endif %}
+        </article>
+    </section>
+    {% endblock %}
+    {% block js %}
+        <script src="{{ url_for('js', filename='jquery/jquery.min.js') }}" type="text/javascript"></script>
+        <script src="{{ url_for('js', filename='jquery-ui/jquery-ui.min.js') }}" type="text/javascript"></script>
+        <script src="{{ url_for('js', filename='htmx.min.js') }}" type="text/javascript" ></script>
+        <script type="text/javascript">
+document.addEventListener('DOMContentLoaded', function() {
+ $('footer').hide()
+});
+        </script>
+    {% endblock %}
