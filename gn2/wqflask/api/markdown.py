@@ -34,7 +34,8 @@ def fetch_raw_markdown(file_path):
     This method fetches files from genenetwork:gn docs repo
     """
     # todo remove hardcoded file path
-    response = requests.get(f"http://localhost:8091/edit?file_path={file_path}")
+    response = requests.get(
+        f"http://localhost:8091/edit?file_path={file_path}")
     response.raise_for_status()
     return response.json()
 
@@ -121,10 +122,12 @@ def glossary():
         file_path=file_data["file_path"]
     )
 
+
 @references_blueprint.route('/')
 def references():
 
-    file_data = fetch_raw_markdown(file_path="general/references/references.md")
+    file_data = fetch_raw_markdown(
+        file_path="general/references/references.md")
     return render_template(
         "references.html",
         rendered_markdown=render_markdown_as_html(file_data["content"]),
@@ -175,7 +178,8 @@ def environments():
             200
         )
     # Fallback: Fetch file from server
-    file_data = fetch_raw_markdown(file_path="general/environment/environment.md")
+    file_data = fetch_raw_markdown(
+        file_path="general/environment/environment.md")
     return (render_template(
         "environment.html",
         svg_data=None,
@@ -213,7 +217,8 @@ def policies():
 def facilities():
     file_data = fetch_raw_markdown(file_path="general/help/facilities.md")
     return render_template("facilities.html",
-                           rendered_markdown=render_markdown_as_html(file_data["content"]),
+                           rendered_markdown=render_markdown_as_html(
+                               file_data["content"]),
                            file_path=file_data["file_path"]
                            )
 
