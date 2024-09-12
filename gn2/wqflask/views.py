@@ -324,7 +324,7 @@ def gnqna():
                     "search_url": f"/gnqna?{safe_query}",
                 }
                 return jsonify(ai_result)
-            return render_template("gnqa_answer.html", **search_result)
+            return render_template("gnqa.html", **search_result)
         else:
             return render_template("gnqa.html")
     if request.method == "POST":

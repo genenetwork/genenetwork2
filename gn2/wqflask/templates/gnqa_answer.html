@@ -1,15 +1,3 @@
-{% extends "base.html" %}
-
-{% block css %}
-<style>
-.linux-libertine-font{
-    font-family: 'Linux Libertine','Georgia','Times','Source Serif Pro', 'serif'
-}
-</style>
-{% endblock %}
-
-{% block content %}
-<br/>
 <section class="container-fluid answers gnqa-copy">
     <div class="row container gnqa-answer" style="margin-bottom: 1em">
         <p class="row lead">
@@ -155,9 +143,9 @@
         </div>
     </div>
 </section>
-{% endblock %}
-{% block js %}
-    <script>
+
+<script>
+$(document).ready(function() {
   function updateRatingHandler(target, responseObj, args){
     let {status, response} = responseObj.xhr
     if (status == 200 && args == "upvote"){
@@ -189,5 +177,5 @@ htmx.on("#upvote", "click", function(evt){
 		 handler: (target, obj)=> updateRatingHandler(target,obj, "downvote"),
 		 swap:"innerHTML",
 		 values: {'query': query, 'answer': answer}})});
-    </script>
-{% endblock %}
+})
+</script>
