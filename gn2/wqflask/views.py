@@ -326,8 +326,8 @@ def gnqna():
 @app.route("/editor/edit", methods=["GET"])
 @require_oauth2
 def edit_gn_doc_file():
-    file_path = request.args.get("file-path", "")
-    response = requests.get(f"http://localhost:8091/edit?file_path={file_path}")
+    file_path = urllib.parse.urlencode({"file_path": request.args.get("file-path", "")})
+    response = requests.get(f"http://localhost:8091/edit?{file_path}")
     response.raise_for_status()
     return render_template("gn_editor.html", **response.json())
 
