@@ -296,11 +296,11 @@ def clean_xapian_query(query: str) -> str:
     query_context = ["genes"]
     cleaned_query_parts = []
     for token in query.split():
-        if token in xapian_operators or any(
-            prefix in token for prefix in range_prefixes if ".." in token
-        ):
+        if token in xapian_operators:
             continue
         prefix, _, suffix = token.partition(":")
+        if ".." in suffix and prefix in range_prefixes:
+            continue
         if prefix in xapian_prefixes:
             query_context.insert(0, prefix)
             cleaned_query_parts.append(f"{prefix} {suffix}")
