@@ -89,6 +89,7 @@ from gn2.utility.tools import GN3_LOCAL_URL
 from gn2.utility.tools import JS_TWITTER_POST_FETCHER_PATH
 from gn2.utility.tools import JS_GUIX_PATH
 from gn2.utility.helper_functions import get_species_groups
+from gn2.utility.helper_functions import clean_xapian_query
 from gn2.utility.redis_tools import get_redis_conn
 
 import gn2.utility.hmac as hmac
@@ -268,49 +269,6 @@ def gsearchtable():
 
     return flask.jsonify(current_page)
 
-
-def clean_xapian_query(query: str) -> str:
-    """
-    Clean and optimize a Xapian query string by removing filler words,
-    and ensuring the query is tailored for optimal results from Fahamu.
-
-    Args:
-        query (str): The original Xapian query string.
-
-    Returns:
-        str: The cleaned and optimized query string.
-    """
-    xapian_prefixes = {
-        "author",
-        "species",
-        "group",
-        "tissue",
-        "dataset",
-        "symbol",
-        "description",
-        "rif",
-        "wiki",
-    }
-    xapian_operators = {"AND", "NOT", "OR", "XOR", "NEAR", "ADJ"}
-    range_prefixes = {"mean", "peak", "position", "peakmb", "additive", "year"}
-    query_context = ["genes"]
-    cleaned_query_parts = []
-    for token in query.split():
-        if token in xapian_operators:
-            continue
-        prefix, _, suffix = token.partition(":")
-        if ".." in suffix and prefix in range_prefixes:
-            continue
-        if prefix in xapian_prefixes:
-            query_context.insert(0, prefix)
-            cleaned_query_parts.append(f"{prefix} {suffix}")
-        else:
-            cleaned_query_parts.append(prefix)
-    cleaned_query = " ".join(cleaned_query_parts)
-    context = ",".join(query_context)
-    return f"Provide answer on {cleaned_query} context {context}"
-
-
 @app.route("/gnqna", methods=["POST", "GET"])
 @require_oauth2
 def gnqna():
@@ -336,7 +294,7 @@ def gnqna():
                 query = clean_xapian_query(query)
                 # todo; check if is empty
             safe_query = urllib.parse.urlencode({"query": query})
-            search_result = requests.put(
+            search_result = requests.get(
                 urljoin(GN3_LOCAL_URL, f"/api/llm/search?{safe_query}"),
                 headers={"Authorization": f"Bearer {token}"},
             )
