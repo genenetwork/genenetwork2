@@ -16,8 +16,14 @@
         </h3>
       </div>
 
+
+      {% if do_ai_search %}
       <div class="row" id="ai_result">
+        <div class="text-center" id="spinner">
+           <i class="fa fa-spinner fa-spin fa-3x"></i>
+        </div>
       </div>
+      {% endif %}
 
         <p>To study a record, click on its Record ID below.<br />Check records below and click Add button to add to selection.</p>
         <div>
@@ -306,6 +312,9 @@
           success: function(result) {
             let ai_div = ai_content_div(result.search_term, result.search_result, result.search_url)
             $("#ai_result").append(ai_div);
+          },
+          complete: function() {
+            $("#spinner").hide();
           }
         })
       })
