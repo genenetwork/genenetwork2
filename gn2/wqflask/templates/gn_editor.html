@@ -157,11 +157,13 @@
       let fileExt =   (filePath.substring(filePath.lastIndexOf('.')+1, filePath.length) || "md").toLowerCase();
       let data = {{ content|tojson }}
 
-      localStorage.setItem("gn_editor_sha" ,hash)
+	localStorage.setItem("gn_editor_sha" ,hash)
+	htmx.on("#output", "updateDataEvent", function(event){
+	  data = editor.getValue()
+	})
       htmx.on("#output", "commitEvent", function(event){
           htmx.ajax("POST", "/editor/commit", {target: "#output", swap:"innerHTML",values: {'msg':event.detail.payload, 'content': editor.getValue(), "hash": localStorage.getItem("gn_editor_sha"), "file_path": filePath}})
-      })
-
+	})
       htmx.on("#output", "diffEvent", function(event){
           var fileName = "{{ file_path }}"
           var diffContent = Diff.createTwoFilesPatch(fileName,fileName, data, editor.getValue())
@@ -186,7 +188,6 @@
 
       htmx.on("#diffBtn","click",function(event){
           //dispatch your event here
-	  console.log("Clicked diff btn here")
 	  htmx.find("#output").dispatchEvent(
           new CustomEvent("diffEvent", {
               bubbles: true,

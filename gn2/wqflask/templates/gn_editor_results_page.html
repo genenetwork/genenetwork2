@@ -37,10 +37,19 @@
 </section>
 {% block js %}
     <script>
-  var commitSha = "{{ commit_sha }}";
-  if (commitSha !="" && commitSha!= undefined){
-      localStorage.setItem("gn_editor_sha", commitSha)
-  }
+      var commitSha = "{{ commit_sha }}";
+      if (commitSha !="" && commitSha!= undefined){
+	  prev_commit = localStorage.getItem("gn_editor_sha")
+          localStorage.setItem("gn_editor_sha", commitSha)
+	  if (prev_commit !=  commitSha) {
+	      //update the contennt
+      htmx.find("#output").dispatchEvent(
+          new CustomEvent("updateDataEvent", {
+              bubbles: true,
+              detail: {},
+          }),
+      );
+   }}
 
     </script>
 {% endblock %}
