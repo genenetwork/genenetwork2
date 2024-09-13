@@ -29,6 +29,7 @@ news_blueprint = Blueprint("news_blueprint", __name__)
 xapian_syntax_blueprint = Blueprint("xapian_syntax_blueprint", __name__)
 
 blogs_blueprint = Blueprint("blogs_blueprint", __name__)
+gn_docs_blueprint = Blueprint("gn_docs_blueprint", __name__)
 
 
 def fetch_raw_markdown(file_path):
@@ -243,3 +244,12 @@ def blogs_list():
     blogs = get_blogs()
 
     return render_template("blogs_list.html", blogs=blogs)
+
+
+@gn_docs_blueprint.errorhandler(requests.exceptions.HTTPError)
+def page_not_found(error):
+    """ Return error 404 """
+    return {"Reason": error.response.reason,
+            "error_status_code": error.response.status_code,
+            "error_msg": error.response.text
+            }
