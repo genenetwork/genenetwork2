@@ -8,6 +8,51 @@ from gn2.utility.tools import get_setting
 from gn2.wqflask.database import database_connection
 
 
+
+def clean_xapian_query(query: str) -> str:
+    """
+    Clean and optimize a Xapian query string by removing filler words,
+    and ensuring the query is tailored for optimal results from Fahamu.
+
+    Args:
+        query (str): The original Xapian query string.
+
+    Returns:
+        str: The cleaned and optimized query string.
+    """
+    xapian_prefixes = {
+        "author",
+        "species",
+        "group",
+        "tissue",
+        "dataset",
+        "symbol",
+        "description",
+        "rif",
+        "wiki",
+    }
+    xapian_operators = {"AND", "NOT", "OR", "XOR", "NEAR", "ADJ"}
+    range_prefixes = {"mean", "peak", "position", "peakmb", "additive", "year"}
+    query_context = ["genes"]
+    cleaned_query_parts = []
+    for token in query.split():
+        if token in xapian_operators:
+            continue
+        prefix, _, suffix = token.partition(":")
+        if ".." in suffix and prefix in range_prefixes:
+            continue
+        if prefix in xapian_prefixes:
+            query_context.insert(0, prefix)
+            cleaned_query_parts.append(f"{prefix} {suffix}")
+        else:
+            cleaned_query_parts.append(prefix)
+    cleaned_query = " ".join(cleaned_query_parts)
+    context = ",".join(query_context)
+    return f"Provide answer on {cleaned_query} context {context}"
+
+
+
+
 def get_species_dataset_trait(self, start_vars):
     if "temp_trait" in list(start_vars.keys()):
         if start_vars['temp_trait'] == "True":

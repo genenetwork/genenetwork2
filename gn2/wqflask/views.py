@@ -89,6 +89,7 @@ from gn2.utility.tools import GN3_LOCAL_URL
 from gn2.utility.tools import JS_TWITTER_POST_FETCHER_PATH
 from gn2.utility.tools import JS_GUIX_PATH
 from gn2.utility.helper_functions import get_species_groups
+from gn2.utility.helper_functions import clean_xapian_query
 from gn2.utility.redis_tools import get_redis_conn
 
 import gn2.utility.hmac as hmac
@@ -268,24 +269,6 @@ def gsearchtable():
 
     return flask.jsonify(current_page)
 
-def clean_xapian_query(query: str) -> str:
-    """ Remove filler words in xapian query
-    This is a temporary solution that works for some query. A better solution is being worked on.
-    TODO: FIXME
-    """
-    xapian_prefixes = set(["author", "species", "group", "tissue", "dataset", "symbol", "description", "rif", "wiki"])
-    range_prefixes = set(["mean", "peak", "position", "peakmb", "additive", "year"])
-    final_query = []
-    for word in query.split():
-        split_word = word.split(":")
-        if len(split_word) > 0 and split_word[0].lower() in xapian_prefixes:
-            final_query.append(split_word[1])
-            continue
-        if split_word[0].lower() in range_prefixes:
-            # no need to search for ranges
-            continue
-    return " ".join(final_query)
-
 
 @app.route("/gnqna", methods=["POST", "GET"])
 @require_oauth2
@@ -310,6 +293,7 @@ def gnqna():
             query_type = request.args.get("type")
             if query_type == "xapian":
                 query = clean_xapian_query(query)
+                # todo; check if is empty
             safe_query = urllib.parse.urlencode({"query": query})
             search_result = requests.get(
                 urljoin(GN3_LOCAL_URL, f"/api/llm/search?{safe_query}"),
