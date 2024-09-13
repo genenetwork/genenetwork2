@@ -7,6 +7,7 @@ import requests
 import markdown
 import os
 import sys
+import urllib.parse
 from pathlib import Path
 
 from bs4 import BeautifulSoup  # type: ignore
@@ -35,8 +36,9 @@ def fetch_raw_markdown(file_path):
     This method fetches files from genenetwork:gn docs repo
     """
     # todo remove hardcoded file path
+    safe_query = urllib.parse.urlencode({"file_path": file_path})
     response = requests.get(
-        f"http://localhost:8091/edit?file_path={file_path}")
+        f"http://localhost:8091/edit?{safe_query}")
     response.raise_for_status()
     return response.json()
 
@@ -184,7 +186,7 @@ def environments():
         )
     # Fallback: Fetch file from server
     file_data = fetch_raw_markdown(
-        file_path="general/environment/environment.md")
+        file_path="general/environments/environments.md")
     return (render_template(
         "environment.html",
         svg_data=None,
