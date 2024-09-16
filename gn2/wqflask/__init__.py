@@ -34,6 +34,7 @@ from gn2.wqflask.api.markdown import facilities_blueprint
 from gn2.wqflask.api.markdown import blogs_blueprint
 from gn2.wqflask.api.markdown import news_blueprint
 from gn2.wqflask.api.markdown import xapian_syntax_blueprint
+from gn2.wqflask.api.markdown import gn_docs_blueprint
 from gn2.wqflask.api.jobs import jobs as jobs_bp
 from gn2.wqflask.oauth2.routes import oauth2
 from gn2.wqflask.oauth2.client import user_logged_in
@@ -109,6 +110,7 @@ app.jinja_env.globals.update(
 
 
 # Registering blueprints
+app.register_blueprint(gn_docs_blueprint, url_prefix="/gn_docs")
 app.register_blueprint(glossary_blueprint, url_prefix="/glossary")
 app.register_blueprint(references_blueprint, url_prefix="/references")
 app.register_blueprint(links_blueprint, url_prefix="/links")

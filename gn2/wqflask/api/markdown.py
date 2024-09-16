@@ -7,6 +7,8 @@ import requests
 import markdown
 import os
 import sys
+import urllib.parse
+from pathlib import Path
 
 from bs4 import BeautifulSoup  # type: ignore
 
@@ -27,6 +29,25 @@ news_blueprint = Blueprint("news_blueprint", __name__)
 xapian_syntax_blueprint = Blueprint("xapian_syntax_blueprint", __name__)
 
 blogs_blueprint = Blueprint("blogs_blueprint", __name__)
+gn_docs_blueprint = Blueprint("gn_docs_blueprint", __name__)
+
+
+def fetch_raw_markdown(file_path):
+    """
+    This method fetches files from genenetwork:gn docs repo
+    """
+    # todo remove hardcoded file path
+    safe_query = urllib.parse.urlencode({"file_path": file_path})
+    response = requests.get(
+        f"http://localhost:8091/edit?{safe_query}")
+    response.raise_for_status()
+    return response.json()
+
+
+def render_markdown_as_html(content):
+    """This method converts markdown to html for render"""
+    return markdown.markdown(content, extensions=["tables"])
+
 
 
 def render_markdown(file_name, is_remote_file=True):
@@ -97,35 +118,53 @@ def get_blogs(user: str = "genenetwork",
     return dict(sorted(blogs.items(), key=lambda x: x[0], reverse=True))
 
 
-@glossary_blueprint.route('/')
+@gn_docs_blueprint.route('/glossary')
 def glossary():
+    file_data = fetch_raw_markdown(file_path="general/glossary/glossary.md")
     return render_template(
-        "glossary.html",
-        rendered_markdown=render_markdown("general/glossary/glossary.md")), 200
+        "generic_gn_docs.html",
+        rendered_markdown=render_markdown_as_html(file_data["content"]),
+        file_path=file_data["file_path"],
+        file_title=Path(file_data["file_path"]).stem
+    )
 
 
-@references_blueprint.route('/')
+@gn_docs_blueprint.route('/references')
 def references():
+
+    file_data = fetch_raw_markdown(
+        file_path="general/references/references.md")    
     return render_template(
-        "references.html",
-        rendered_markdown=render_markdown("general/references/references.md")), 200
+        "generic_gn_docs.html",
+        rendered_markdown=render_markdown_as_html(file_data["content"]),
+        file_path=file_data["file_path"],
+        file_title=Path(file_data["file_path"]).stem
+    )
 
 
-@news_blueprint.route('/')
+@gn_docs_blueprint.route('/news')
 def news():
+    file_data = fetch_raw_markdown(file_path="general/news/news.md")
     return render_template(
-        "news.html",
-        rendered_markdown=render_markdown("general/news/news.md")), 200
+        "generic_gn_docs.html",
+        rendered_markdown=render_markdown_as_html(file_data["content"]),
+        file_path=file_data["file_path"],
+        file_title=Path(file_data["file_path"]).stem
+    )
 
 
-@xapian_syntax_blueprint.route('/')
+@gn_docs_blueprint.route('/xapian')
 def xapian():
+    file_data = fetch_raw_markdown(file_path="general/search/xapian_syntax.md")
     return render_template(
-        "search-syntax.html",
-        rendered_markdown=render_markdown("general/search/xapian_syntax.md")), 200
+        "generic_gn_docs.html",
+        rendered_markdown=render_markdown_as_html(file_data["content"]),
+        file_path=file_data["file_path"],
+        file_title=Path(file_data["file_path"]).stem
+    )
 
 
-@environments_blueprint.route("/")
+@gn_docs_blueprint.route("/environments")
 def environments():
 
     md_file = get_file_from_python_search_path("wqflask/DEPENDENCIES.md")
@@ -148,47 +187,70 @@ def environments():
             200
         )
     # Fallback: Fetch file from server
+    file_data = fetch_raw_markdown(
+        file_path="general/environments/environments.md")
     return (render_template(
         "environment.html",
         svg_data=None,
-        rendered_markdown=render_markdown(
-            "general/environments/environments.md")),
-            200)
+        rendered_markdown=render_markdown_as_html(file_data["content"])))
 
 
-@environments_blueprint.route('/svg-dependency-graph')
+@gn_docs_blueprint.route('/svg-dependency-graph')
 def svg_graph():
     directory, file_name, _ = get_file_from_python_search_path(
         "wqflask/dependency-graph.svg").partition("dependency-graph.svg")
     return send_from_directory(directory, file_name)
 
 
-@links_blueprint.route("/")
+@gn_docs_blueprint.route("/links")
 def links():
+    file_data = fetch_raw_markdown(file_path="general/links/links.md")
     return render_template(
-        "links.html",
-        rendered_markdown=render_markdown("general/links/links.md")), 200
+        "generic_gn_docs.html",
+        rendered_markdown=render_markdown_as_html(file_data["content"]),
+        file_path=file_data["file_path"],
+        file_title=Path(file_data["file_path"]).stem
+    )
 
 
-@policies_blueprint.route("/")
+@gn_docs_blueprint.route("/policies")
 def policies():
+    file_data = fetch_raw_markdown(file_path="general/policies/policies.md")
     return render_template(
-        "policies.html",
-        rendered_markdown=render_markdown("general/policies/policies.md")), 200
+        "generic_gn_docs.html",
+        rendered_markdown=render_markdown_as_html(file_data["content"]),
+        file_path=file_data["file_path"],
+        file_title=Path(file_data["file_path"]).stem
+    )
 
 
-@facilities_blueprint.route("/")
+@gn_docs_blueprint.route("/facilities")
 def facilities():
-    return render_template("facilities.html", rendered_markdown=render_markdown("general/help/facilities.md")), 200
+    file_data = fetch_raw_markdown(file_path="general/help/facilities.md")
+    return render_template("generic_gn_docs.html",
+                           rendered_markdown=render_markdown_as_html(
+                               file_data["content"]),
+                           file_path=file_data["file_path"],
+                           file_title=Path(file_data["file_path"]).stem
+                           )
 
 
-@blogs_blueprint.route("/<path:blog_path>")
+@gn_docs_blueprint.route("/blogs/<path:blog_path>")
 def display_blog(blog_path):
     return render_template("blogs.html", rendered_markdown=render_markdown(blog_path))
 
 
-@blogs_blueprint.route("/")
+@gn_docs_blueprint.route("/blogs")
 def blogs_list():
     blogs = get_blogs()
 
     return render_template("blogs_list.html", blogs=blogs)
+
+
+@gn_docs_blueprint.errorhandler(requests.exceptions.HTTPError)
+def page_not_found(error):
+    """ Return error 404 """
+    return {"Reason": error.response.reason,
+            "error_status_code": error.response.status_code,
+            "error_msg": error.response.text
+            }
