@@ -1620,6 +1620,9 @@ def edit_wiki(comment_id: int):
         )
     if request.method == "POST":
         post_data = request.form
+        web_url = post_data["web_url"]
+        if web_url == "http://": # default prefilled value in form
+            web_url = ""
         payload = {
             "symbol": post_data["symbol"],
             "pubmed_ids": [x.strip() for x in post_data["pubmed_ids"].split()],
