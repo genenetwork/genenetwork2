@@ -23,6 +23,12 @@
            <i class="fa fa-spinner fa-spin fa-3x"></i>
         </div>
       </div>
+      {% else %}
+      <div class="row" id="ai_result_info">
+        <div class="col-sm-6">
+          <div class="alert alert-warning">Please login to view LLM summary context</div>
+        </div>
+      </div>
       {% endif %}
 
         <p>To study a record, click on its Record ID below.<br />Check records below and click Add button to add to selection.</p>
