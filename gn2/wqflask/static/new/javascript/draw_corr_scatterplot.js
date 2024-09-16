@@ -24,8 +24,6 @@ if (y_val_range >= 2 && y_val_range < 8){
   y_tick_digits = 'f'
 }
 
-console.log("y_digits:", y_tick_digits)
-
 var layout = {
     height: 700,
     width: 800,
@@ -140,12 +138,8 @@ var modebar_options = {
 
 cofactor1_dict = {}
 ranked_cofactor1_dict = {}
-//cofactor1_values = []
-//ranked_cofactor1_values = []
 cofactor2_dict = {}
 ranked_cofactor2_dict = {}
-//cofactor2_values = []
-//ranked_cofactor2_values = []
 cofactor3_dict = {}
 ranked_cofactor3_dict = {}
 
@@ -174,6 +168,15 @@ function drawg() {
       line: {
         color: 'rgb(250, 60, 73)'
       }
+    }
+
+    // Change some plot settings if the plot is an Effect Size plot
+    if (js_data.effect_plot) {
+      layout['width'] = 500
+      layout['xaxis']['nticks'] = 3
+      layout['xaxis']['tickformat'] = '.0f'
+      layout['yaxis']['nticks'] = 3
+      layout['yaxis']['tickformat'] = '.0f'
     }
 
     Plotly.newPlot('scatterplot2', [trace2, trace1], layout, modebar_options)
@@ -760,7 +763,9 @@ function chartupdatedata() {
 }
 
 drawg();
-srdrawg();
+if (!js_data.effect_plot) {
+  srdrawg();
+}
 
 $(".chartupdatewh").change(function () {
     chartupdatewh();

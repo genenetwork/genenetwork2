@@ -45,6 +45,8 @@ class CorrScatterPlot:
         if self.dataset_1.group.f1list != None:
             primary_samples += self.dataset_1.group.f1list
 
+        self.effect_plot = True if 'effect' in params else False
+
         if 'dataid' in params:
             trait_data_dict = json.loads(Redis.get(params['dataid']))
             trait_data = {key:webqtlCaseData.webqtlCaseData(key, float(trait_data_dict[key])) for (key, value) in trait_data_dict.items() if trait_data_dict[key] != "x"}
@@ -116,6 +118,7 @@ class CorrScatterPlot:
 
         self.js_data = dict(
             data=self.data,
+            effect_plot=self.effect_plot,
             rdata=self.rdata,
             indIDs=self.indIDs,
             trait_1=self.trait_1.dataset.name + ": " + str(self.trait_1.name),
