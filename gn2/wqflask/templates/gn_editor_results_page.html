@@ -1,13 +1,5 @@
 <section classs="row commit-content"  style="padding-top:25px">
     <div class="col-sm-10 col-sm-offset-1">
-        <div>
-            <div>
-                <h2>
-                    <i>Results status - {{ status }}</i>
-                </h2>
-            </div>
-        </div>
-        <br>
         {% if error %}
             <h1>
                 Error-type: <mark style="font-family: 'Linux Libertine','Georgia','Times','Source Serif Pro',serif"><b><i>{{ error }}</i></b></mark>
@@ -18,18 +10,27 @@
             </h3>
         {% else %}
             <div>
+                <div class="lead">
+                    <h3>
+                        Save results message:
+                        <mark style="font-family: 'Linux Libertine','Georgia','Times','Source Serif Pro',serif"><b>
+                            {% if status == '200' %}
+                                <i>Everything is up to date; No changes to Save</i>
+                            {% elif status == '201' %}
+                                <i> Saved your changes Successfully </i>
+                            {% else %}
+                                {{ message }}
+                            {% endif %}
+                        </b></mark>
+                    </h3>
+                </div>
+                <br />
                 <h3>
-                    New Commit Sha: <span class="lead">
+                    New Edit Sha: <span class="lead">
                     <mark style="font-family: 'Linux Libertine','Georgia','Times','Source Serif Pro',serif"><b><i>{{ commit_sha }}</i></b></mark>
                 </span>
             </h3>
             <br />
-            <div class="lead">
-                <h3>
-                    Commit Message:
-                    <mark style="font-family: 'Linux Libertine','Georgia','Times','Source Serif Pro',serif"><b><i>{{ message }}</i></b></mark>
-                </h3>
-            </div>
         </div>
     {% endif %}
     <br>
