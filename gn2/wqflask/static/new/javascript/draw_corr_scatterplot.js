@@ -175,8 +175,6 @@ function drawg() {
       layout['width'] = 500
       layout['xaxis']['nticks'] = 3
       layout['xaxis']['tickformat'] = '.0f'
-      layout['yaxis']['nticks'] = 3
-      layout['yaxis']['tickformat'] = '.0f'
     }
 
     Plotly.newPlot('scatterplot2', [trace2, trace1], layout, modebar_options)
