@@ -110,7 +110,7 @@ app.jinja_env.globals.update(
 
 
 # Registering blueprints
-app.register_blueprint(gn_docs_blueprint, url_prefix="/gn_docs")
+app.register_blueprint(gn_docs_blueprint, url_prefix="/gn-docs")
 app.register_blueprint(glossary_blueprint, url_prefix="/glossary")
 app.register_blueprint(references_blueprint, url_prefix="/references")
 app.register_blueprint(links_blueprint, url_prefix="/links")

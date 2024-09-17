@@ -68,7 +68,7 @@ statTableRows.push(
   }, {
     vn: "interquartile",
     pretty: "<font color='black'>Interquartile Range</font>",
-    url: "http://www.genenetwork.org/glossary.html#Interquartile",
+    url: "{{ url_for('gn_docs_blueprint.glossary') }}#Interquartile",
     digits: 3
   }, {
     vn: "skewness",
