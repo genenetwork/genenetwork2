@@ -12,6 +12,7 @@ from .client import (
     authserver_uri,
     oauth2_clientid,
     oauth2_clientsecret)
+from .request_utils import authserver_authorise_uri
 
 
 def require_oauth2(func):
@@ -22,8 +23,8 @@ def require_oauth2(func):
 
         def __clear_session__(_no_token):
             session.clear_session_info()
-            flash("You need to be logged in.", "alert-warning")
-            return redirect("/")
+            # redirect to the login page
+            return redirect(authserver_authorise_uri())
 
         def __with_token__(token):
             resp = oauth2_client().get(
