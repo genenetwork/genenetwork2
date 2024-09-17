@@ -116,7 +116,7 @@
                     <label class="radio-inline">
                       <input type="radio" name="LRSCheck" value="{% if LRS_LOD == "-logP" %}-logP{% else %}LOD{% endif %}" {% if LRS_LOD == "LOD" or LRS_LOD == "-logP" %}checked{% endif %}>{% if LRS_LOD == "-logP" %}-logP{% else %}LOD{% endif %}
                     </label>
-                    <a href="https://genenetwork.org/glossary.html#LOD" target="_blank">
+                    <a href="{{ url_for('gn_docs_blueprint.glossary') }}#LOD" target="_blank">
                       <sup style="color:#f00"> ?</sup>
                     </a>
                   </td>
@@ -158,27 +158,27 @@
             <div class="col-xs-4" style="padding: 0px;">
                   {% if (mapping_method == "reaper" or mapping_method == "rqtl_geno") and nperm > 0 %}
                   <input type="checkbox" name="permCheck" class="checkbox" style="display: inline; margin-top: 0px;" {% if permChecked|upper == "ON" %}value="ON" checked{% endif %}> <span style="font-size: 12px;">Permutation Test 
-                    <a href="http://genenetwork.org/glossary.html#Permutation" target="_blank">
+                    <a href="{{ url_for('gn_docs_blueprint.glossary') }}#Permutation" target="_blank">
                       <sup style="color:#f00"> ?</sup>
                     </a>
                   <br>
                   {% endif %}
                   {% if mapping_method == "reaper" and nboot > 0 %}
                   <input type="checkbox" name="bootCheck" class="checkbox" style="display: inline; margin-top: 0px;" {% if bootChecked|upper == "ON" %}value="ON" checked{% endif %}> <span style="font-size: 12px;">Bootstrap Test 
-                    <a href="http://genenetwork.org/glossary.html#bootstrap" target="_blank">
+                    <a href="{{ url_for('gn_docs_blueprint.glossary') }}#bootstrap" target="_blank">
                       <sup style="color:#f00"> ?</sup>
                     </a>
                   <br>
                   {% endif %}
                   {% if mapping_method == "reaper" %}
                   <input type="checkbox" name="additiveCheck" class="checkbox" style="display: inline; margin-top: 0px;" {% if additiveChecked|upper == "ON" %}value="ON" checked{% endif %}> <span style="font-size: 12px;">Allele Effects
-                    <a href="http://genenetwork.org/glossary.html#additive" target="_blank">
+                    <a href="{{ url_for('gn_docs_blueprint.glossary') }}#additive" target="_blank">
                       <sup style="color:#f00"> ?</sup>
                     </a>
                   <br>
                   {% endif %}
                   <input type="checkbox" name="showSNP" class="checkbox" style="display: inline; margin-top: 0px;" {% if SNPChecked|upper == "ON" %}value="ON" checked{% endif %}> <span style="font-size: 12px;">SNP Track </span>
-                    <a href="http://genenetwork.org/glossary.html#snpSeismograph" target="_blank">
+                    <a href="{{ url_for('gn_docs_blueprint.glossary') }}#snpSeismograph" target="_blank">
                       <sup style="color:#f00"> ?</sup>
                     </a>
                     <span style="color:red;">*</span>
