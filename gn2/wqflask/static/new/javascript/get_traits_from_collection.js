@@ -389,7 +389,11 @@ process_traits = function(trait_data, textStatus, jqXHR) {
       the_html += "<td class='trait' data-display_name='" + trait.name + "'>" + trait.name + "</td>";
     }
     the_html += "<td class='dataset' data-dataset='" + trait.dataset + "'>" + trait.dataset_name + "</td>";
-    the_html += "<td class='description'>" + trait.description + "</td>";
+    if (trait.dataset.includes('Geno')) {
+      the_html += "<td class='description'>" + trait.location + "</td>";
+    } else {
+      the_html += "<td class='description'>" + trait.description + "</td>";
+    }
   }
   the_html += "</tbody>";
   the_html += "</table>";
