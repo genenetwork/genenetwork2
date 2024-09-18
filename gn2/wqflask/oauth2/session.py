@@ -24,6 +24,7 @@ class SessionInfo(TypedDict):
     masquerade: Optional[UserDetails]
     refreshing_token: bool
     auth_server_jwks: Optional[dict[str, Any]]
+    redirect_url: Optional[str]
 
 __SESSION_KEY__ = "GN::2::session_info" # Do not use this outside this module!!
 
@@ -118,3 +119,10 @@ def toggle_token_refreshing():
 def is_token_refreshing():
     """Returns whether the token is being refreshed or not."""
     return session_info().get("token_refreshing", False)
+
+def set_redirect_url(url):
+    """Save the current endpoint object"""
+    return save_session_info({
+        **session_info(),
+        "redirect_url": url
+    })
