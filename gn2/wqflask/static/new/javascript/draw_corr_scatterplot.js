@@ -635,8 +635,10 @@ function chartupdatewh() {
     Plotly.newPlot('scatterplot2', getdata(), layout, modebar_options)
     Plotly.relayout('scatterplot2', width_height_update)
 
-    Plotly.newPlot('srscatterplot2', srgetdata(), sr_layout, modebar_options)
-    Plotly.relayout('srscatterplot2', width_height_update)
+    if (!js_data.effect_plot) {
+      Plotly.newPlot('srscatterplot2', srgetdata(), sr_layout, modebar_options)
+      Plotly.relayout('srscatterplot2', width_height_update)
+    }
 }
 
 function colorer(d) {
@@ -712,8 +714,10 @@ function chartupdatedata() {
 
     Plotly.newPlot('scatterplot2', getdata(), layout, modebar_options)
     Plotly.relayout('scatterplot2', pearson_title_update)
-    Plotly.newPlot('srscatterplot2', srgetdata(), sr_layout, modebar_options)
-    Plotly.relayout('srscatterplot2', spearman_title_update)
+    if (!js_data.effect_plot) {
+      Plotly.newPlot('srscatterplot2', srgetdata(), sr_layout, modebar_options)
+      Plotly.relayout('srscatterplot2', spearman_title_update)
+    }
 
     if ($('#cofactor1_type option:selected').val() == "color"){
       $('#cofactor_color_selector').css("display", "inline")
@@ -723,11 +727,13 @@ function chartupdatedata() {
               'stroke': colorer,
               'fill':   colorer
         });
-        d3.select('#srscatterplot2 svg').selectAll('.point')
-          .style({
-              'stroke': ranked_colorer,
-              'fill':   ranked_colorer
-        });
+        if (!js_data.effect_plot) {
+          d3.select('#srscatterplot2 svg').selectAll('.point')
+            .style({
+                'stroke': ranked_colorer,
+                'fill':   ranked_colorer
+          });
+        }
       }
     } else if ($('#cofactor2_type option:selected').val() == "color"){
       $('#cofactor_color_selector').css("display", "inline")
@@ -737,11 +743,13 @@ function chartupdatedata() {
               'stroke': colorer,
               'fill':   colorer
         });
-        d3.select('#srscatterplot2 svg').selectAll('.point')
-          .style({
-              'stroke': ranked_colorer,
-              'fill':   ranked_colorer
-        });
+        if (!js_data.effect_plot) {
+          d3.select('#srscatterplot2 svg').selectAll('.point')
+            .style({
+                'stroke': ranked_colorer,
+                'fill':   ranked_colorer
+          });
+        }
       }
     } else {
       $('#cofactor_color_selector').css("display", "inline")
@@ -751,11 +759,13 @@ function chartupdatedata() {
               'stroke': colorer,
               'fill':   colorer
         });
-        d3.select('#srscatterplot2 svg').selectAll('.point')
-          .style({
-              'stroke': ranked_colorer,
-              'fill':   ranked_colorer
-        });
+        if (!js_data.effect_plot) {
+          d3.select('#srscatterplot2 svg').selectAll('.point')
+            .style({
+                'stroke': ranked_colorer,
+                'fill':   ranked_colorer
+          });
+        }
       }
     }
 }
