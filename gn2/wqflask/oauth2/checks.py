@@ -34,7 +34,7 @@ def require_oauth2(func):
                 redirect_url = url_for(request.endpoint, **request.args)
             else:
                 redirect_url = "/"
-            session.set_redirect_url(redirect_url, **request.args)
+            session.set_redirect_url(redirect_url)
             return redirect(authserver_authorise_uri())
 
         def __with_token__(token):
