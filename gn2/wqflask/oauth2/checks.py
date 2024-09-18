@@ -21,11 +21,6 @@ def require_oauth2(func):
     @wraps(func)
     def __token_valid__(*args, **kwargs):
         """Check that the user is logged in and their token is valid."""
-        def __clear_session__(_no_token):
-            session.clear_session_info()
-            flash("You need to be logged in.", "alert-warning")
-            return redirect("/")
-
         def __redirect_to_login__(_token):
             """
             Save the current user request to session then
