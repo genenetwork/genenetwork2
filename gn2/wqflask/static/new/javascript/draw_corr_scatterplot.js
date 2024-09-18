@@ -40,7 +40,7 @@ var layout = {
         visible: true,
         linecolor: 'black',
         linewidth: 1,
-        ticklen: 4,
+        ticklen: 6,
         tickformat: x_tick_digits
     },
     yaxis: {
@@ -50,7 +50,7 @@ var layout = {
         visible: true,
         linecolor: 'black',
         linewidth: 1,
-        ticklen: 4,
+        ticklen: 6,
         tickformat: y_tick_digits,
         automargin: true
     },
