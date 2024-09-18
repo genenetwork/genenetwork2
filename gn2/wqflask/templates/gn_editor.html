@@ -228,6 +228,9 @@
           editor.container.style.resize = "horizontal";
           editor.getSession().on("change", function(e){
               updatePreview()
+         })
+         editor.on("click", function(e){
+                updatePreview()
           })
           editor.setValue(data, -1);
       }
