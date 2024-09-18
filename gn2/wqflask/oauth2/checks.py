@@ -4,6 +4,7 @@ from urllib.parse import urljoin
 
 from flask import flash, request, redirect, url_for
 from authlib.integrations.requests_client import OAuth2Session
+from werkzeug.routing import BuildError
 
 from . import session
 from .client import (
@@ -30,9 +31,9 @@ def require_oauth2(func):
             Save the current user request to session then
             redirect to the login page.
             """
-            if request.method == "GET":
-                redirect_url = url_for(request.endpoint, **request.args)
-            else:
+            try:
+                redirect_url = url_for(request.endpoint, _method="GET", **request.args)
+            except BuildError:
                 redirect_url = "/"
             session.set_redirect_url(redirect_url)
             return redirect(authserver_authorise_uri())
