@@ -81,7 +81,8 @@ def authorisation_code():
                 "token": session.user_token(),
                 "logged_in": True
             })
-            return redirect("/")
+            redirect_url = session.session_info().get("redirect_url", "/")
+            return redirect(redirect_url)
 
         return no_token_post("auth/token", json=request_data).either(
             lambda err: __error__(process_error(err)), __success__)
