@@ -249,11 +249,6 @@ def blogs_list():
 @gn_docs_blueprint.errorhandler(requests.exceptions.HTTPError)
 def request_exception_handler(error):
     """Handler for gn-docs blueprint http errors"""
-    data = {
-        "error_reason": error.response.reason,
-        "error_status_code": error.response.status_code,
-        "error_msg": error.response.text,
-    }
     return render_template(
         "gn_docs_errors.html",
         error_reason=error.response.reason,
