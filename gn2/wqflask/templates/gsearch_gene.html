@@ -290,11 +290,13 @@
         let header_length = 40;
         let max_header_length = 180;
         while (header_length <= search_result.length) {
-          let next_dot = search_result.indexOf(".", header_length+1);
-
+            let next_dot = search_result.indexOf(".", header_length+1);
+	    if (next_dot == -1) {
+		next_dot = search_result.length+1
+	    }
           if (next_dot > max_header_length) {
             let next_comma = search_result.indexOf(",", header_length+1);
-            if (next_comma > max_header_length) {
+            if (next_comma > max_header_length || next_comma == -1) {
               break;
             }
             header_length = next_comma;
