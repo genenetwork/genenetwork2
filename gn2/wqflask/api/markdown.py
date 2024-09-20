@@ -243,14 +243,20 @@ def display_blog(blog_path):
 @gn_docs_blueprint.route("/blogs")
 def blogs_list():
     blogs = get_blogs()
-
     return render_template("blogs_list.html", blogs=blogs)
 
 
 @gn_docs_blueprint.errorhandler(requests.exceptions.HTTPError)
-def page_not_found(error):
-    """ Return error 404 """
-    return {"Reason": error.response.reason,
-            "error_status_code": error.response.status_code,
-            "error_msg": error.response.text
-            }
+def request_exception_handler(error):
+    """Handler for gn-docs blueprint http errors"""
+    data = {
+        "error_reason": error.response.reason,
+        "error_status_code": error.response.status_code,
+        "error_msg": error.response.text,
+    }
+    return render_template(
+        "gn_docs_errors.html",
+        error_reason=error.response.reason,
+        error_msg=error.response.text,
+        error_status_code=error.response.status_code,
+    )
