@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+{% block title %}Gn docs Error Page{% endblock %}
+{% block css %}<link rel="stylesheet" type="text/css" href="/static/new/css/markdown.css" />{% endblock %}
+{% block content %}
+    <div id="markdown" class="container">
+        <h1>Error occurred:</h1>
+        <div>
+            <pre>
+	<span> <b>Error/Reason:  </b><i><mark>  {{ error_reason}} </mark></i></span>
+	<span> <b>Error/Message:  </b><mark> {{ error_msg }} </mark></span>
+	<span> <b>Error/Status: </b><mark> {{error_status_code}} </mark></span>
+    </pre>
+        </div>
+    </div>
+{% endblock %}
