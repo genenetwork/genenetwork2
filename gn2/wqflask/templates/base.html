@@ -42,10 +42,10 @@
                 <!-- Collect the nav links, forms, and other content for toggling -->
                 <div>
                     <ul class="nav navbar-nav">
-                        <li class="" style="margin-right: 20px;">
+                        <li  style="margin-right: 20px;">
                             <a href="/" style="font-weight: bold;">GeneNetwork</a>
                         </li>
-                        <li class="">
+                        <li >
                             <a href="/help" class="dropdow-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Intro <span class="caret"> </span></a>
                                 <ul class="dropdown-menu">
                                     <li><a href="/intro">Intro</a></li>
@@ -53,7 +53,7 @@
                                     <li><a href="http://genenetwork.org/webqtl/main.py?FormID=batSubmit">Batch Submission</a></li>
                                 </ul>
                         </li>
-                        <li class="">
+                        <li >
                             <a href="/help" class="dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Help <span class="caret"> </span></a>
                                 <ul class="dropdown-menu">
                                     <li><a href="{{ url_for('gn_docs_blueprint.references') }}">References</a></li>
@@ -68,7 +68,7 @@
                                     <li><a href="{{ url_for('gn_docs_blueprint.news') }}">GN1 News</a></li>
                                 </ul>
                         </li>
-                        <li class="">
+                        <li >
                             <a href="/help" class="dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Tools <span class="caret"> </span> </a>
                                 <ul class="dropdown-menu">
                                     <li><a href="/snp_browser">Variant Browser</a></li>
@@ -81,12 +81,12 @@
                                 </ul>
                         </li>
                         {% if g.user_session %}
-                        <li class="">
+                        <li >
                             <a href="/collections/list">Collections
                                 <span class="badge badge-info">{{num_collections()}}</span>
                             </a>
                         </li>
-                        <li class="">
+                        <li >
                             <a href="/repositories" class="dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Source Code <span class="caret"> </span></a>
                                 <ul class="dropdown-menu">
                                     <li><a href="https://github.com/genenetwork/genenetwork2">GN2 Source Code</a></li>
