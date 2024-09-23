@@ -82,6 +82,7 @@ def authorisation_code():
                 "logged_in": True
             })
             redirect_url = session.session_info().get("redirect_url", "/")
+            session.clear_redirect_url()
             return redirect(redirect_url)
 
         return no_token_post("auth/token", json=request_data).either(

@@ -98,6 +98,7 @@ def set_masquerading(masq_info):
         "masquerading": orig_user
     })
 
+
 def unset_masquerading():
     """Restore the original session."""
     the_session = session_info()
@@ -120,9 +121,15 @@ def is_token_refreshing():
     """Returns whether the token is being refreshed or not."""
     return session_info().get("token_refreshing", False)
 
+
 def set_redirect_url(url):
     """Save the current endpoint object"""
     return save_session_info({
         **session_info(),
         "redirect_url": url
     })
+
+
+def clear_redirect_url():
+    """Clear the redirect url from Session"""
+    session_info().pop("redirect_url", None)
