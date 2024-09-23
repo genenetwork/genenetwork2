@@ -59,10 +59,40 @@
     color:#000;
  
   }
+
+         .global_search_input{
+             padding:9px 8px;
+             text-decoration: none;
+             border: none;
+
+             border-radius: 5px;
+         }
+         .global_search_input:focus{
+             outline: none;
+         }
+         .btn-stc {
+             padding:9px 8px;
+	     border-left:none;
+	     border-radius:0 40px 40px 0;
+	     cursor: pointer;
+	     height: 40px;
+             width: 64px;
+             margin:0;
+             border:1px solid #d3d3d3;
+             background-color: white;
+             position: absolute;
+             top:0;
+             left: 100%;
+             right: 0;
+             border-left: none;
+         }
+
+	 
 </style>
 {% endblock %}
 
-{% block search %}
+
+	{% block search %}
         <div class="container-fluid" style="width: 100%; min-width: 650px; position: relative;background-color: #d5d5d5; height: 100px;">
             <form method="get" action="/gsearch" id="globalsearchform">
 		<div class="form-group">
@@ -92,6 +122,8 @@
 		    </form>
 	</div>
 	{% endblock %}
+
+	
 {% block content %}
 <!-- Start of body -->
     <div class="container-fluid" style="min-width: 1210px;">
