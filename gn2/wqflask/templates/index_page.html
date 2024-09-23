@@ -418,11 +418,51 @@
 {%endblock%}
 
 {% block js %}
+    
+<script src="/static/new/javascript/search_autocomplete.js"></script>
+<script src="/static/new/javascript/dataset_select_menu_orig.js"></script>
 
-    <script src="/static/new/javascript/dataset_select_menu_orig.js"></script>
+                <script type="text/javascript">
+                 $(document).ready(function() {
 
+                     const urlParams = new  URLSearchParams(window.location.search)
+                     let term = urlParams.get("terms")
 
-    <script type="text/javascript">
+                     //should web scrap
+                     var global_search_hint = [
+                         "cytochrome",
+                         "cytochrome AND P450",
+                         "cytochrome NEAR P450",
+                         "cytochrome -P450",
+                         "cytochrome NOT P450",
+                         "species:human",
+                         "group:BXD",
+                         "Hs:chr4:9930021 species:mouse",
+                         "Hs:chr4:9130000..9980000 species:mouse",
+                         "mean:5..7",
+                         "mean:7..",
+                         "Hs:chr4:9930021",
+                         "Hs:chr4:9930021 species:mouse",
+                         "Hs:chr4:9130000..9980000 species:mouse",
+                         "bx*",
+                         "*"
+                     ]
+                     autocomplete(document.getElementById("term"), global_search_hint);
+                     $("#term").keyup(function(event) {
+                         if (event.keyCode === 13) {
+                             event.preventDefault();
+                             $('#globalsearchform').attr('action', "/gsearch").submit();
+                             if ($("#term").val().trim() != "") {
+                                 saveBeforeSubmit($("#term").val().trim())
+                                 $("#globalsearchform")[0].submit();
+                             }
+
+                         }
+                     })
+
+                 });
+</script>
+  <script type="text/javascript">
     
 $(document).on('submit', '#searchform', function(event){
 
