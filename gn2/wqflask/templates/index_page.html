@@ -61,6 +61,37 @@
   }
 </style>
 {% endblock %}
+
+{% block search %}
+        <div class="container-fluid" style="width: 100%; min-width: 650px; position: relative;background-color: #d5d5d5; height: 100px;">
+            <form method="get" action="/gsearch" id="globalsearchform">
+		<div class="form-group">
+                    <div class="controls">
+			<select name="type">
+                            <option value="gene">Genes / Molecules</option>
+                            <option value="phenotype" {% if type=="phenotype" %}selected{% endif %}>Phenotypes</option>
+			</select>
+			<div class="col-8  autocomplete" style="margin-left: 30px;margin-right: 10px;">
+                            <input autocomplete="off" class="global_search_input" id="term" style="width:45vw" type="text" required placeholder="Enter you search term here (ex: cytochrome AND P450)" name="terms">
+
+			    <button   type="submit" class="btn-stc" style="position: absolute;  background-color: #336699"><i class="fa fa-search" title="Search " style="color:white;"></i></button>
+			</div>
+			<!-- todo fix text overlap for this;;responsiveness-->
+
+			<span style="padding: 5px;margin-left: 65px;" id="gnqna_home">
+                            <a href="/gnqna">GNQA Search</a>
+			</span>
+
+			<span  style="padding: 5px;margin-left: 65px;" >
+                            <a style="text-decoration: none" target="_blank" href="/search-syntax">
+                                <i  style="text-align: center;color:#336699;;" class="fa fa-question-circle fa-2x" title="see more search hints" aria-hidden="true"></i>
+                            </a>
+			</span>
+		    </div>
+		</div>
+		    </form>
+	</div>
+	{% endblock %}
 {% block content %}
 <!-- Start of body -->
     <div class="container-fluid" style="min-width: 1210px;">
