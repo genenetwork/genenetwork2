@@ -96,7 +96,7 @@
                                 </ul>
                         </li>
                         {% if g.user_session.logged_in %}
-                        <li class="">
+                        <li >
                             <a href="/edit_account_settings" class="dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">{% if g.user_session.user_email %}{{ g.user_session.user_email }}{% else %}User Account Settings{% endif %}<span class="caret"> </span></a>
                                 <ul class="dropdown-menu">
                                     <li><a id="manage_user" title="User Options" href="/user/manage">User Options</a></li>
@@ -104,7 +104,7 @@
                                 </ul>
                         </li>
                         {% endif %}
-                        <li class="">
+                        <li >
                             {%if logged_in()%}
                             {%if user_details is mapping%}
                             {%set user_dets = user_details%}
@@ -121,7 +121,7 @@
                         {% endif %}
 
                         {%if not logged_in()%}
-                        <li class="">
+                        <li >
                             <a id="user:register" title="Register a new user account."
                                href="{{url_for('oauth2.user.register_user')}}">
                                 Register
@@ -130,7 +130,7 @@
                         {%endif%}
 
                         {%if logged_in()%}
-                        <li class="">
+                        <li>
                             <a id="user:profile" title="User's profile page."
                                href="{{url_for('oauth2.user.user_profile')}}">
                                 Profile
