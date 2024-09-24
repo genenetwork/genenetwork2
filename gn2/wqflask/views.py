@@ -1627,7 +1627,7 @@ def edit_wiki(comment_id: int):
             "species": post_data["species"],
             "comment": post_data["comment"],
             "email": post_data["email"],
-            "web_url": post_data["web_url"],
+            "web_url": web_url,
             "initial": post_data["initial"],
             "categories": post_data.getlist("genecategory"),
             "reason": post_data["reason"],
@@ -1648,7 +1648,7 @@ def edit_wiki(comment_id: int):
         post_res = post_response.json()
 
         flash(f"Success: {post_res}", "alert-success")
-        return redirect(url_for("edit_wiki", comment_id=comment_id))
+        return redirect(url_for("display_genewiki_page", symbol=post_data["symbol"]))
 
 
 @app.route("/genewiki", methods=["POST", "GET"])
