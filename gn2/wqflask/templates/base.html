@@ -177,7 +177,7 @@
                                     </li>
                                 </ul>
                             </li>
-                            {% if g.user_session.logged_in %}
+                            {% if logged_in() %}
                                 <li>
                                     <a href="/edit_account_settings"
                                        class="dropdown-toggle"
