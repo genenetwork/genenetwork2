@@ -54,40 +54,36 @@
   }
 
   .toot {
-    padding-top:8px;
-    background:#f9f9f9;
-    color:#000;
+      padding-top:8px;     
+      background:#f9f9f9;
+      color:#000;
  
   }
-
-         .global_search_input{
-             padding:9px 8px;
-             text-decoration: none;
-             border: none;
-
-             border-radius: 5px;
+  .global_search_input{
+      padding:9px 8px;
+      text-decoration: none;
+      border: none;
+      border-radius: 5px;
+  }
+  .global_search_input:focus{
+      outline: none;
+  }
+  .btn-stc {
+      padding:9px 8px;
+      border-left:none;
+      border-radius:0 40px 40px 0;
+      cursor: pointer;
+      height: 40px;
+      width: 64px;
+      margin:0;
+      border:1px solid #d3d3d3;
+      background-color: white;
+      position: absolute;
+      top:0;
+      left: 100%;
+      right: 0;
+      border-left: none;
          }
-         .global_search_input:focus{
-             outline: none;
-         }
-         .btn-stc {
-             padding:9px 8px;
-	     border-left:none;
-	     border-radius:0 40px 40px 0;
-	     cursor: pointer;
-	     height: 40px;
-             width: 64px;
-             margin:0;
-             border:1px solid #d3d3d3;
-             background-color: white;
-             position: absolute;
-             top:0;
-             left: 100%;
-             right: 0;
-             border-left: none;
-         }
-
-	 
     </style>
 {% endblock %}
 {% block search %}
@@ -127,7 +123,9 @@
                         <a href="/gnqna">GNQA Search</a>
                     </span>
                     <span style="padding: 5px;margin-left: 65px;">
-                        <a style="text-decoration: none" target="_blank" href="https://issues.genenetwork.org/topics/xapian/xapian-search-queries">
+                        <a style="text-decoration: none"
+                           target="_blank"
+                           href="https://issues.genenetwork.org/topics/xapian/xapian-search-queries">
                             <i style="text-align: center;
                                       color:#336699"
                                class="fa fa-question-circle fa-2x"
