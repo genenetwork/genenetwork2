@@ -484,7 +484,7 @@ def docedit():
             return render_template("docedit.html", **doc.__dict__)
         else:
             return "You shouldn't be here!"
-    except:
+    except Exception:
         return "You shouldn't be here!"
 
 
