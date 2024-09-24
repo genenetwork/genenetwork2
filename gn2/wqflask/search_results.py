@@ -28,6 +28,7 @@ from gn2.utility.type_checking import is_str
 
 MAX_SEARCH_RESULTS = 50000 # Max number of search results, passed to Xapian search (this needs to match the value in GN3!)
 
+
 class SearchResultPage:
     #maxReturn = 3000
 
@@ -137,7 +138,7 @@ class SearchResultPage:
 
                 if self.dataset.type == "ProbeSet":
                     trait["hmac"] = (Maybe.apply(hmac)
-                                    .to_arguments(trait['name'], trait['dataset'], Just(hmac_creation(f"{trait['name']}:{trait['dataset']}"))))
+                                    .to_arguments(trait['name'], trait['dataset'], Just(hmac_creation(f"{trait.data['name']}:{trait.data['dataset']}"))))
                 elif self.dataset.type == "Publish":
                     inbredsetcode = trait.pop("inbredsetcode")
                     if inbredsetcode.map(len) == Just(3):
@@ -146,7 +147,7 @@ class SearchResultPage:
                                                 .to_arguments(inbredsetcode, trait["name"]))
 
                     trait["hmac"] = (Maybe.apply(hmac)
-                                    .to_arguments(trait['name'], trait['dataset'], Just(hmac_creation(f"{trait['name']}:{trait['dataset']}"))))
+                                    .to_arguments(trait['name'], trait['dataset'], Just(hmac_creation(f"{trait.data['name']}:{trait.data['dataset']}"))))
                     trait["authors"] = trait["authors_display"] = (trait.pop("authors").map(
                         lambda authors:
                         ", ".join(authors[:2] + ["et al."] if len(authors) >=2 else authors)))
