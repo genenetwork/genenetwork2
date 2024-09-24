@@ -1,15 +1,14 @@
-{% extends "base.html" %}
+{% extends "index_page.html" %}
 {% block title %}Search Results{% endblock %}
 {% block css %}
     <link rel="stylesheet" type="text/css" href="{{ url_for('css', filename='DataTables/css/jquery.dataTables.css') }}" />
     <link rel="stylesheet" type="text/css" href="{{ url_for('css', filename='jquery-ui/jquery-ui.theme.css') }}"/>
     <link rel="stylesheet" type="text/css" href="/static/new/css/show_trait.css" />
 {% endblock %}
+
 {% block content %}
 <!-- Start of body -->
-
     <div class="container">
-
       <div>
         <h3>GN searched for the term(s) <b>"{{ terms }}"</b> in 754 datasets and 39,765,944 traits across 10 species<br/>
             and found <b>{{ trait_count }}</b> results that match your query.<br/>
