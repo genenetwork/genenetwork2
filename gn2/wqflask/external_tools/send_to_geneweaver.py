@@ -75,7 +75,7 @@ def test_chip(trait_list):
                 (dataset.name,)
             )
 
-            if result := cursor.fetchone:
+            if result := cursor.fetchone():
                 chip_name = result[0]
                 if chip_name:
                     if chip_name != final_chip_name:
