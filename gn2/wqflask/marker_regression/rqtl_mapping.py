@@ -12,6 +12,8 @@ from urllib.parse import urljoin
 
 import numpy as np
 
+from gn3.debug import __pk__
+
 from gn2.base.webqtlConfig import TMPDIR
 from gn2.base.trait import create_trait
 from gn2.utility.redis_tools import get_redis_conn
@@ -55,8 +57,10 @@ def run_rqtl(trait_name, vals, samples, dataset, pair_scan, mapping_scale, model
     if perm_strata_list:
         post_data["pstrata"] = True
 
-    rqtl_output = requests.post(urljoin(GN3_LOCAL_URL, "api/rqtl/compute"),
-                                data=post_data).json()
+    rqtl_output = __pk__(
+        "R/qtl or Pair-Scan results",
+        requests.post(urljoin(GN3_LOCAL_URL, "api/rqtl/compute"),
+                      data=post_data).json())
     if num_perm > 0:
         return rqtl_output['perm_results'], rqtl_output['suggestive'], rqtl_output['significant'], rqtl_output['results']
     else:
