@@ -1,122 +1,120 @@
-<!-- generic tamplate for global search  -->
 <link rel="stylesheet" href="/static/new/css/autocomplete.css" />
 <style TYPE="text/css">
   .global_search_input{
-      padding:9px 8px;
-      text-decoration: none;
-      border: none;
-      border-radius: 5px;
+  padding:9px 8px;
+  text-decoration: none;
+  border: none;
+  border-radius: 5px;
   }
   .global_search_input:focus{
-      outline: none;
+  outline: none;
   }
   .btn-stc {
-      padding:9px 8px;
-      border-left:none;
-      border-radius:0 40px 40px 0;
-      cursor: pointer;
-      height: 40px;
-      width: 64px;
-      margin:0;
-      border:1px solid #d3d3d3;
-      background-color: white;
-      position: absolute;
-      top:0;
-      left: 100%;
-      right: 0;
-      border-left: none;
-         }
+  padding:9px 8px;
+  border-left:none;
+  border-radius:0 40px 40px 0;
+  cursor: pointer;
+  height: 40px;
+  width: 64px;
+  margin:0;
+  border:1px solid #d3d3d3;
+  background-color: white;
+  position: absolute;
+  top:0;
+  left: 100%;
+  right: 0;
+  border-left: none;
+  }
 </style>
 <div class="container-fluid"
      style="width: 100%;
-            min-width: 650px;
-            position: relative;
-            background-color: #d5d5d5;
-            height: 100px">
-    <form method="get" action="/gsearch" id="globalsearchform">
-        <div class="form-group">
-            <div class="controls">
-                <select name="type">
-                    <option value="gene">Genes / Molecules</option>
-                    <option value="phenotype" {% if type=="phenotype" %}selected{% endif %}>Phenotypes</option>
-                </select>
-                <div class="col-8  autocomplete"
-                     style="margin-left: 30px;
-                            margin-right: 10px">
-                    <input autocomplete="off"
-                           class="global_search_input"
-                           id="term"
-                           style="width:45vw"
-                           type="text"
-                           required
-                           placeholder="Enter you search term here (ex: cytochrome AND P450)"
-                           name="terms">
-                    <button type="submit"
-                            class="btn-stc"
-                            style="position: absolute;
-                                   background-color: #336699">
-                        <i class="fa fa-search" title="Search " style="color:white;"></i>
-                    </button>
-                </div>
-                <!-- todo fix text overlap for this;;responsiveness-->
-                <span style="padding: 5px;margin-left: 65px;" id="gnqna_home">
-                    <a href="/gnqna">GNQA Search</a>
-                </span>
-                <span style="padding: 5px;margin-left: 65px;">
-                    <a style="text-decoration: none"
-                       target="_blank"
-                       href="https://issues.genenetwork.org/topics/xapian/xapian-search-queries">
-                        <i style="text-align: center;
-                                  color:#336699"
-                           class="fa fa-question-circle fa-2x"
-                           title="see more search hints"
-                           aria-hidden="true"></i>
-                    </a>
-                </span>
-            </div>
-        </div>
-    </form>
+     min-width: 650px;
+     position: relative;
+     background-color: #d5d5d5;
+     height: 100px">
+     <form method="get" action="/gsearch" id="globalsearchform">
+       <div class="form-group">
+         <div class="controls">
+           <select name="type">
+             <option value="gene">Genes / Molecules</option>
+             <option value="phenotype" {% if type=="phenotype" %}selected{% endif %}>Phenotypes</option>
+           </select>
+           <div class="col-8  autocomplete"
+                style="margin-left: 30px;
+                margin-right: 10px">
+                <input autocomplete="off"
+                       class="global_search_input"
+                       id="term"
+                       style="width:45vw"
+                       type="text"
+                       required
+                       placeholder="Enter you search term here (ex: cytochrome AND P450)"
+                       name="terms">
+                       <button type="submit"
+                               class="btn-stc"
+                               style="position: absolute;
+                               background-color: #336699">
+                               <i class="fa fa-search" title="Search " style="color:white;"></i>
+                       </button>
+           </div>
+           <!-- todo fix text overlap for this;;responsiveness-->
+           <span style="padding: 5px;margin-left: 65px;" id="gnqna_home">
+             <a href="/gnqna">GNQA Search</a>
+           </span>
+           <span style="padding: 5px;margin-left: 65px;">
+             <a style="text-decoration: none"
+                target="_blank"
+                href="https://issues.genenetwork.org/topics/xapian/xapian-search-queries">
+                <i style="text-align: center;
+                          color:#336699"
+                          class="fa fa-question-circle fa-2x"
+                          title="see more search hints"
+                          aria-hidden="true"></i>
+             </a>
+           </span>
+         </div>
+       </div>
+     </form>
 </div>
 <script src="{{ url_for('js', filename='jquery/jquery.min.js') }}"
         type="text/javascript"></script>
-<script src="{{ url_for('js', filename='bootstrap/js/bootstrap.min.js') }}"
-        type="text/javascript"></script>
-<script src="/static/new/javascript/search_autocomplete.js"></script>
-<script type="text/javascript">
-                 $(document).ready(function() {
-                     const urlParams = new  URLSearchParams(window.location.search)
-                     let term = urlParams.get("terms")
-                     //should web scrap
-                     var global_search_hint = [
-                         "cytochrome",
-                         "cytochrome AND P450",
-                         "cytochrome NEAR P450",
-                         "cytochrome -P450",
-                         "cytochrome NOT P450",
-                         "species:human",
-                         "group:BXD",
-                         "Hs:chr4:9930021 species:mouse",
-                         "Hs:chr4:9130000..9980000 species:mouse",
-                         "mean:5..7",
-                         "mean:7..",
-                         "Hs:chr4:9930021",
-                         "Hs:chr4:9930021 species:mouse",
-                         "Hs:chr4:9130000..9980000 species:mouse",
-                         "bx*",
-                         "*"
-                     ]
-                     autocomplete(document.getElementById("term"), global_search_hint);
-                     $("#term").keyup(function(event) {
-                         if (event.keyCode === 13) {
-                             event.preventDefault();
-                             $('#globalsearchform').attr('action', "/gsearch").submit();
-                             if ($("#term").val().trim() != "") {
-                                 saveBeforeSubmit($("#term").val().trim())
-                                 $("#globalsearchform")[0].submit();
-                             }
 
-                         }
-                     })
+	<script src="/static/new/javascript/search_autocomplete.js"></script>
+	<script type="text/javascript">
+          $(document).ready(function() {
+          const urlParams = new  URLSearchParams(window.location.search)
+          let term = urlParams.get("terms")
+          //should web scrap
+          var global_search_hint = [
+          "cytochrome",
+          "cytochrome AND P450",
+          "cytochrome NEAR P450",
+          "cytochrome -P450",
+          "cytochrome NOT P450",
+          "species:human",
+          "group:BXD",
+          "Hs:chr4:9930021 species:mouse",
+          "Hs:chr4:9130000..9980000 species:mouse",
+          "mean:5..7",
+          "mean:7..",
+          "Hs:chr4:9930021",
+          "Hs:chr4:9930021 species:mouse",
+          "Hs:chr4:9130000..9980000 species:mouse",
+          "bx*",
+          "*"
+          ]
+          autocomplete(document.getElementById("term"), global_search_hint);
+          $("#term").keyup(function(event) {
+          if (event.keyCode === 13) {
+          event.preventDefault();
+          $('#globalsearchform').attr('action', "/gsearch").submit();
+          if ($("#term").val().trim() != "") {
+          saveBeforeSubmit($("#term").val().trim())
+          $("#globalsearchform")[0].submit();
+          }
 
-                 });
-</script>
+          }
+          })
+
+          });
+	</script>
