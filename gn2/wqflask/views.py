@@ -477,7 +477,7 @@ def docedit():
             return render_template("docedit.html", **doc.__dict__)
         else:
             return "You shouldn't be here!"
-    except:
+    except Exception:
         return "You shouldn't be here!"
 
 
@@ -1327,9 +1327,6 @@ def display_wiki_history(comment_id: str):
 @app.route("/datasets/<name>", methods=('GET',))
 def get_dataset(name):
     from gn2.wqflask.oauth2.client import oauth2_get
-    from gn2.wqflask.oauth2.client import user_logged_in
-    from gn2.wqflask.oauth2.request_utils import user_details
-    from gn2.wqflask.oauth2.request_utils import process_error
 
     # We need to use the "id" as the identifier
     metadata = requests.get(
@@ -1627,7 +1624,7 @@ def edit_wiki(comment_id: int):
             "species": post_data["species"],
             "comment": post_data["comment"],
             "email": post_data["email"],
-            "web_url": post_data["web_url"],
+            "web_url": web_url,
             "initial": post_data["initial"],
             "categories": post_data.getlist("genecategory"),
             "reason": post_data["reason"],
@@ -1648,7 +1645,7 @@ def edit_wiki(comment_id: int):
         post_res = post_response.json()
 
         flash(f"Success: {post_res}", "alert-success")
-        return redirect(url_for("edit_wiki", comment_id=comment_id))
+        return redirect(url_for("display_genewiki_page", symbol=post_data["symbol"]))
 
 
 @app.route("/genewiki", methods=["POST", "GET"])
