@@ -22,16 +22,22 @@
               href="{{ url_for('css', filename='bootstrap/css/bootstrap.css') }}" />
         <link REL="stylesheet"
               TYPE="text/css"
-              href="/static/new/css/bootstrap-custom.css" />
+              href="{{ url_for('static', filename='/new/css/bootstrap-custom.css') }}" />
         <link REL="stylesheet"
               TYPE="text/css"
-              href="/static/new/css/non-responsive.css" />
-        <link REL="stylesheet" TYPE="text/css" href="/static/new/css/docs.css" />
-        <link rel="stylesheet" type="text/css" href="/static/new/css/colorbox.css" />
-        <link rel="stylesheet" type="text/css" href="/static/new/css/parsley.css" />
-        <link rel="stylesheet"
-              type="text/css"
-              href="/static/new/css/broken_links.css" />
+              href="{{ url_for('static', filename='/new/css/non-responsive.css') }}" />
+        <link REL="stylesheet"
+              TYPE="text/css"
+              href="{{ url_for('static', filename='/new/css/docs.css') }}" />
+        <link REL="stylesheet"
+              TYPE="text/css"
+              href="{{ url_for('static', filename='/new/css/colorbox.css') }}" />
+        <link REL="stylesheet"
+              TYPE="text/css"
+              href="{{ url_for('static', filename='/new/css/parsley.css') }}" />
+        <link REL="stylesheet"
+              TYPE="text/css"
+              href="{{ url_for('static', filename='/new/css/broken_links.css') }}" />
         <link rel="stylesheet"
               type="text/css"
               href="{{ url_for('css', filename='fontawesome/css/font-awesome.min.css') }}" />
