@@ -17,8 +17,7 @@ from authlib.integrations.requests_client import OAuth2Session
 from gn2.wqflask.oauth2 import session
 from gn2.wqflask.external_errors import ExternalRequestError
 
-SCOPE = ("profile group role resource register-client user masquerade "
-         "introspect migrate-data")
+SCOPE = ("profile group role resource user masquerade introspect")
 
 def authserver_uri():
     """Return URI to authorisation server."""
