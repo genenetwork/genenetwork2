@@ -152,7 +152,7 @@ def oauth2_client():
         client = OAuth2Session(
             oauth2_clientid(),
             oauth2_clientsecret(),
-            scope=SCOPE,
+            scope=token["scope"],
             token_endpoint=urljoin(authserver_uri(), "auth/token"),
             token_endpoint_auth_method="client_secret_post",
             token=token,
