@@ -11,26 +11,22 @@
         <h5>
             <strong>GeneNetwork:</strong>
         </h5>
-
         {% if wiki %}
-
             <ol class="list-group">
                 {% for entry in wiki %}
                     <li class="list-group-item">
                         <div class="row">
-                            <div class="col-sm-1">{{ loop.index }}.</div>
                             <div class="col-sm-6">
-                                {{ entry.get("comment") }}
+                                {{ loop.index }}. {{ entry.get("comment") }}
                                 {% if entry.get("web_url") %}
                                     <sup> <small> <a href = "{{ entry.web_url }}" target = "_blank"> <span class = "glyphicon glyphicon-globe" aria-hidden = "true"></span>web</a></small></sup>
                                 {% endif %}
                             </div>
-
                             <div class="col-sm-2">
                                 {% if is_logged_in %}
-                                <a href="{{ url_for('edit_wiki', comment_id=entry['id']) }}">
-                                    <span class="glyphicon glyphicon-edit" aria-hidden="true"></span>
-                                </a>
+                                    <a href="{{ url_for('edit_wiki', comment_id=entry['id']) }}">
+                                        <span class="glyphicon glyphicon-edit" aria-hidden="true"></span>
+                                    </a>
                                 {% endif %}
                                 <sup><small>[<a href="/genewiki/{{ entry.id }}/history" target="_blank">history</a>]</small></sup>
                             </div>
@@ -43,5 +39,30 @@
                 <u> There are no GeneNetwork entries for <b> {{ symbol }}.</b></u>
             </p>
         {% endif %}
+        <h5>
+            <strong>GeneRIF from NCBI:</strong>
+        </h5>
+        {% if rif %}
+            <ol class="list-group">
+                {% for entry in rif %}
+                    <li class="list-group-item">
+                        <div class="row">
+                            <div class="col-sm-12">
+                                {{ loop.index }}. {{ entry.get("comment") }}
+                                (<a href="http://www.ncbi.nlm.nih.gov/gene?cmd=Retrieve&dopt=Graphics&list_uids={{ entry.gene_id }}"
+   target="_blank">{{ entry.species }}</a>)
+                                (<a href="http://www.ncbi.nlm.nih.gov/entrez/query.fcgi?cmd=Retrieve&db=PubMed&list_uids={{ entry.pubmed_id }}&dopt=Abstract"
+   target="_blank">PubMed</a>)
+                            </div>
+                        </div>
+                    </li>
+                {% endfor %}
+            </ol>
+        {% else %}
+            <p class = "well">
+                <u> There are no NCBI RIF entries for this for<b> {{ symbol }}.</b></u>
+            </p>
+        {% endif %}
     </div>
+    <div class="container"></div>
 {% endblock %}
