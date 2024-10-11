@@ -248,7 +248,8 @@ def gsearchact():
     search_type = request.args["type"]
     is_user_logged_in = session_info().get("user", {}).get("logged_in", False)
 
-    do_ai_search = current_app.config.get("AI_SEARCH_ENABLED") and is_user_logged_in
+    do_ai_search = current_app.config.get(
+        "AI_SEARCH_ENABLED") and is_user_logged_in
     if search_type == "gene":
         return render_template("gsearch_gene.html", **result, do_ai_search=do_ai_search, result=result)
     elif search_type == "phenotype":
@@ -310,7 +311,8 @@ def gnqna():
         else:
             return render_template("gnqa.html")
     if request.method == "POST":
-        safe_query = urllib.parse.urlencode({"query": request.form.get("querygnqa")})
+        safe_query = urllib.parse.urlencode(
+            {"query": request.form.get("querygnqa")})
         return monad_requests.get(
             urljoin(GN3_LOCAL_URL, f"/api/llm/search?{safe_query}"),
             headers={"Authorization": f"Bearer {token}"},
@@ -320,7 +322,8 @@ def gnqna():
 @app.route("/editor/edit", methods=["GET"])
 @require_oauth2
 def edit_gn_doc_file():
-    file_path = urllib.parse.urlencode({"file_path": request.args.get("file-path", "")})
+    file_path = urllib.parse.urlencode(
+        {"file_path": request.args.get("file-path", "")})
     response = requests.get(f"http://localhost:8091/edit?{file_path}")
     response.raise_for_status()
     return render_template("gn_editor.html", **response.json())
@@ -339,12 +342,12 @@ def commit_gn_doc():
     if request.method == "GET":
         return render_template("gn_editor_commit.html")
     results = requests.post("http://localhost:8091/commit", json={
-                          "content":  request.form.get("content"),
-                          "filename": request.form.get("file_path"),
-                          "username": session_info()["user"]["name"],
-                          "email": session_info()["user"]["email"],
-                          "commit_message": request.form.get("msg"),
-                          "prev_commit": request.form.get("hash")})
+        "content":  request.form.get("content"),
+        "filename": request.form.get("file_path"),
+        "username": session_info()["user"]["name"],
+        "email": session_info()["user"]["email"],
+        "commit_message": request.form.get("msg"),
+        "prev_commit": request.form.get("hash")})
     data = results.json()
     data["filename"] = request.form.get("file_path")
     return render_template("gn_editor_results_page.html", **data)
@@ -371,7 +374,8 @@ def get_gnqa_records():
         prev_n_queries = get_chunk(response, page, pagination_size)
         return render_template("gnqa_search_history.html",
                                prev_queries=prev_n_queries,
-                               num_pages=math.ceil(len(response)/pagination_size),
+                               num_pages=math.ceil(
+                                   len(response)/pagination_size),
                                current=page)
     token = session_info()["user"]["token"].either(
         lambda err: err, lambda tok: tok["access_token"])
@@ -379,9 +383,9 @@ def get_gnqa_records():
     return (monad_requests.get(urljoin(GN3_LOCAL_URL, response_url),
                                headers={
             "Authorization": f"Bearer {token}"
-        }
-        ).then(lambda resp: resp).either(
-            _error_, _success_))
+            }
+    ).then(lambda resp: resp).either(
+        _error_, _success_))
 
 
 @app.route("/gnqna/record", methods=["GET"])
@@ -402,7 +406,7 @@ def get_gnqa_record_by_task_id():
     return (monad_requests.get(urljoin(GN3_LOCAL_URL, response_url),
                                headers={
             "Authorization": f"Bearer {token}"
-        }).then(lambda resp: resp).either(
+            }).then(lambda resp: resp).either(
             _error_, _success_))
 
 
@@ -1296,18 +1300,22 @@ def display_diffs_users():
 
 @app.route("/genewiki/<string:symbol>")
 def display_genewiki_page(symbol: str):
-    """Fetch GeneRIF metadata from GN3 and display it"""
-    wiki = {}
+    """Display RIF metadata from NCBI"""
+    wiki, rif = [], []
     try:
-        wiki = requests.get(urljoin(GN3_LOCAL_URL, f"/api/metadata/wiki/{symbol}"))
+        wiki = requests.get(
+            urljoin(GN3_LOCAL_URL, f"/api/metadata/wiki/{symbol}"))
+        rif = requests.get(
+            urljoin(GN3_LOCAL_URL, f"/api/metadata/rif/{symbol}"))
         wiki.raise_for_status()
-        wiki = wiki.json()
+        rif.raise_for_status()
+        wiki, rif = wiki.json(), rif.json()
     except requests.RequestException as excp:
         flash(excp, "alert-warning")
     sess_info = session_info()
     is_logged_in = sess_info.get("user", {}).get("logged_in", False)
-
-    return render_template("wiki/genewiki.html", symbol=symbol, wiki=wiki, is_logged_in=is_logged_in)
+    return render_template("wiki/genewiki.html",
+                           symbol=symbol, wiki=wiki, rif=rif, is_logged_in=is_logged_in)
 
 
 @app.route("/genewiki/<int:comment_id>/history")
@@ -1605,7 +1613,7 @@ def edit_wiki(comment_id: int):
         categories_resp.raise_for_status()
         categories = list(categories_resp.json().keys())
         grouped_categories = [
-            categories[i : i + 3] for i in range(0, len(categories), 3)
+            categories[i: i + 3] for i in range(0, len(categories), 3)
         ]
 
         session_email = session_info()["user"]["email"]
@@ -1619,7 +1627,7 @@ def edit_wiki(comment_id: int):
     if request.method == "POST":
         post_data = request.form
         web_url = post_data["web_url"]
-        if web_url == "http://": # default prefilled value in form
+        if web_url == "http://":  # default prefilled value in form
             web_url = ""
         payload = {
             "symbol": post_data["symbol"],
@@ -1632,6 +1640,7 @@ def edit_wiki(comment_id: int):
             "categories": post_data.getlist("genecategory"),
             "reason": post_data["reason"],
         }
+
         def _invalid_token(err):
             raise ValueError(f"Error finding user token, got: {err}")
 
