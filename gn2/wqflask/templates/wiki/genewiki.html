@@ -24,10 +24,21 @@
                             </div>
                             <div class="col-sm-2">
                                 {% if is_logged_in %}
-                                    <a href="{{ url_for('edit_wiki', comment_id=entry['id']) }}">
-                                        <span class="glyphicon glyphicon-edit" aria-hidden="true"></span>
-                                    </a>
+                                <a href="{{ url_for('edit_wiki', comment_id=entry['id']) }}">
+                                    <span class="glyphicon glyphicon-edit" aria-hidden="true"></span>
+                                </a>
+                                {% else %}
+                                <a data-toggle="collapse" data-target="#collapseLogin{{ loop.index }}" aria-expanded="false" aria-controls="collapseLogin{{ loop.index }}">
+                                    <span class="glyphicon glyphicon-edit" aria-hidden="true"></span>
+                                </a>
+
+                                <div class="collapse" id="collapseLogin{{ loop.index }}">
+                                  <div class="well">
+                                      Please login to be able to edit this
+                                  </div>
+                                </div>
                                 {% endif %}
+
                                 <sup><small>[<a href="/genewiki/{{ entry.id }}/history" target="_blank">history</a>]</small></sup>
                             </div>
                         </div>
