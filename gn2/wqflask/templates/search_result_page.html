@@ -185,7 +185,7 @@
             {% if results|count > 0  and not too_many_results %}
             var tableId = "trait_table";
 
-            var widthChange = 0; //ZS: For storing the change in width so overall table width can be adjusted by that amount
+            var widthChange = 0; // For storing the change in width so overall table width can be adjusted by that amount
 
             columnDefs = [
             {
@@ -232,6 +232,9 @@
               'targets': 4,
               'render': function(data) {
                 description = data.description
+                {% if 'BinID' in trait_list[0].description %}
+                description = data.description.split(";")[0]
+                {% endif %}
                 if (data.description.length > 200) {
                   description = data.description.slice(0, 200) + '...'
                 }
@@ -242,6 +245,22 @@
                 }
               }
             },
+            {% if 'BinID' in trait_list[0].description %}
+            {
+              'title': "<div style='text-align: right;'>Bin</div>",
+              'type': "natural-minus-na",
+              'data': null,
+              'width': "130px",
+              'targets': 5,
+              'defaultContent': "N/A",
+              'render': function(data) {
+                bin_string = data.description.split(";")[1].split(":")[1];
+                chr_string = "C" + bin_string.split("_")[0].substring(1,4)
+                pos_string = (parseFloat(bin_string.split("_")[1])/1000000).toString()
+                return [chr_string, pos_string].join(": ")
+              }
+            },
+            {% endif %}
             {
               'title': "<div style='text-align: right;'>Location</div>",
               'type': "natural-minus-na",
@@ -407,12 +426,15 @@
                   $('td', row).eq(4).text($('td', row).eq(4).text().substring(0, 500));
                   $('td', row).eq(4).text($('td', row).eq(4).text() + '...')
                 }
-                $('td', row).slice(5,10).attr("align", "right");
+                $('td', row).slice(5,11).attr("align", "right");
                 $('td', row).eq(5).attr('data-export', $('td', row).eq(5).text());
                 $('td', row).eq(6).attr('data-export', $('td', row).eq(6).text());
                 $('td', row).eq(7).attr('data-export', $('td', row).eq(7).text());
                 $('td', row).eq(8).attr('data-export', $('td', row).eq(8).text());
                 $('td', row).eq(9).attr('data-export', $('td', row).eq(9).text());
+                {% if 'BinID' in trait_list[0].description %}
+                $('td', row).eq(10).attr('data-export', $('td', row).eq(10).text());
+                {% endif %}
                 {% elif dataset.type == 'Publish' %}
                 $('td', row).eq(3).attr('title', $('td', row).eq(3).text());
                 $('td', row).eq(3).attr('data-export', $('td', row).eq(3).text());
@@ -428,7 +450,7 @@
                 $('td', row).eq(6).attr('data-export', $('td', row).eq(6).text());
                 $('td', row).eq(7).attr('data-export', $('td', row).eq(7).text());
                 $('td', row).eq(8).attr('data-export', $('td', row).eq(8).text());
-                $('td', row).eq(9).attr('data-export', $('td', row).eq(8).text());
+                $('td', row).eq(9).attr('data-export', $('td', row).eq(9).text());
                 {% elif dataset.type == 'Geno' %}
                 $('td', row).eq(3).attr('data-export', $('td', row).eq(3).text());
                 {% endif %}
