@@ -222,7 +222,7 @@
         <button type="button" class="btn btn-default" title="Check probe locations at UCSC" onclick="window.open('{{ UCSC_BLAT_URL }}', '_blank')">Verify</button>
         {% endif %}
         {% if this_trait.symbol != None %}
-	<button type="button" class="btn btn-default" title="Write or review comments about this gene" onclick="window.open('http://localhost:5012/genewiki/{{ this_trait.symbol }}', '_blank')">(GN2) GeneWiki</button>
+        <button type="button" class="btn btn-default" title="Write or review comments about this gene" onclick="window.open('{{ url_for('display_genewiki_page', symbol=this_trait.symbol) }}', '_blank')">(GN2) GeneWiki</button>
 	<button type="button" class="btn btn-default" title="Write or review comments about this gene" onclick="window.open('http://gn1.genenetwork.org/webqtl/main.py?FormID=geneWiki&symbol={{ this_trait.symbol }}', '_blank')">(GN1) GeneWiki</button>
         {% if dataset.group.species == "mouse" or dataset.group.species == "rat" %}
         <button type="button" class="btn btn-default" title="View SNPs and Indels" onclick="window.open('/snp_browser?first_run=true&species={{ dataset.group.species }}&gene_name={{ this_trait.symbol }}&limit_strains=on', '_blank')">SNPs</button>
