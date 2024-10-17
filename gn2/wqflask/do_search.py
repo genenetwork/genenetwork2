@@ -359,6 +359,7 @@ class GenotypeSearch(DoSearch):
 
         if "'" not in self.search_term[0]:
             self.search_term = "%" + self.search_term[0] + "%"
+        self.search_term = self.search_term.replace("*", "%")
 
         for field in self.search_fields:
             where_clause.append('''%s LIKE "%s"''' % ("%s.%s" % self.mescape(self.dataset.type,
