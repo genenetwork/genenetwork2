@@ -14,9 +14,14 @@ range = function(size, startAt=0) {
 indicate_error = function (jqXHR, textStatus, errorThrown) {
   errorElement = document.createElement("span");
   errorElement.setAttribute("class", "alert-danger");
+  fallbackLink = document.createElement('a');
+  fallbackLink.href = "https://fallback.genenetwork.org";
+  fallbackLink.title = "GN2 Fallback";
+  fallbackLink.appendChild(document.createTextNode("GN2 Fallback Server."));
   errorText = document.createTextNode(
-	  "There was an error retrieving and setting the menu. Try again later.");
+	  "There was an error retrieving and setting the menu. Try visiting the ");
   errorElement.appendChild(errorText);
+  errorElement.appendChild(fallbackLink);
   if (document.getElementById("search")){
     form = document.getElementById("search").getElementsByTagName("form")[0];
     form.prepend(errorElement);
@@ -41,7 +46,6 @@ if (typeof gn_server_url === 'undefined'){
 $.ajax(gn_server_url +'/menu/generate/json', {
   dataType: 'json',
   success: process_json,
-  error: indicate_error,
   statusCode: {
 	  ...defaultStatusCodeFunctions,
   }
