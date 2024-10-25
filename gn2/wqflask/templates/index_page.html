@@ -61,8 +61,8 @@
 {% include "gsearch.html" %}
 {% endblock %}
 {% block content %}
+{{ flash_me() }}
 <div class="container-fluid" style="min-width: 1210px;">
-    {{ flash_me() }}
     {% if anon_collections | length > 0 %}
     <div class="panel panel-warning">
         <div class="panel-heading">
