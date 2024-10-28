@@ -25,7 +25,7 @@ Redis = Redis()
 
 from flask import Flask, g
 
-from gn2.base.trait import GeneralTrait
+from gn2.base.trait import GeneralTrait, create_trait
 from gn2.base import data_set
 from gn2.base import species
 from gn2.base import webqtlConfig
@@ -49,7 +49,7 @@ class RunMapping:
         # needed to pass temp_uuid to gn1 mapping code (marker_regression_gn1.py)
         self.temp_uuid = temp_uuid
 
-        # ZS: Needed to zoom in or remap temp traits like PCA traits
+        # Needed to zoom in or remap temp traits like PCA traits
         if "temp_trait" in start_vars and start_vars['temp_trait'] != "False":
             self.temp_trait = "True"
             self.group = self.dataset.group.name
@@ -60,7 +60,7 @@ class RunMapping:
         self.json_data = {}
         self.json_data['lodnames'] = ['lod.hk']
 
-        # ZS: Sometimes a group may have a genofile that only includes a subset of samples
+        # Sometimes a group may have a genofile that only includes a subset of samples
         genofile_samplelist = []
         if 'genofile' in start_vars:
             if start_vars['genofile'] != "":
@@ -94,10 +94,6 @@ class RunMapping:
             self.n_samples = start_vars['n_samples']
         else:
             self.n_samples = len([val for val in self.vals if val != "x"])
-
-        # ZS: Check if genotypes exist in the DB in order to create links for markers
-
-        self.geno_db_exists = geno_db_exists(self.dataset)
 
         self.mapping_method = start_vars['method']
         if "results_path" in start_vars:
@@ -138,6 +134,7 @@ class RunMapping:
         self.bootstrap_results = []
         self.covariates = start_vars['covariates'] if "covariates" in start_vars else ""
         self.categorical_vars = []
+        self.geno_db_exists = False
 
         # ZS: This is passed to GN1 code for single chr mapping
         self.selected_chr = -1
@@ -310,6 +307,9 @@ class RunMapping:
         if len(results) == 0:
             self.no_results = True
         else:
+            # Check if genotypes exist in the DB in order to create links for markers
+            self.geno_db_exists = geno_db_exists(self.dataset, results[0]['name'])
+
             if self.pair_scan == True:
                 self.figure_data = results[0]
                 self.table_data = results[1]
@@ -656,11 +656,21 @@ def write_input_for_browser(this_dataset, gwas_results, annotations):
     return [gwas_filename, annot_filename]
 
 
-def geno_db_exists(this_dataset):
+def geno_db_exists(this_dataset, first_marker):
+    """
+    Check if genotypes are databased
+
+    This checks two things:
+    - A genotypes dataset exists for this group
+    - The first marker in the genotype file is in the genotypes dataset, 
+    since there might be a mismatch between the file and databased markers
+    """
     geno_db_name = this_dataset.group.name + "Geno"
     try:
         geno_db = data_set.create_dataset(
             dataset_name=geno_db_name, get_samplelist=False)
+        geno_trait = create_trait(name=first_marker, dataset_name=geno_db_name)
+        
         return "True"
     except:
         return "False"
