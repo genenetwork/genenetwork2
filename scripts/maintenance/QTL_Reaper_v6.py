@@ -3,6 +3,7 @@
 #!/usr/bin/python
 import reaper
 import MySQLdb
+import contextlib
 from argparse import ArgumentParser
 
 
@@ -100,7 +101,31 @@ def run_qtl_reaper(cursor, genotypeDir, ProbeSetFreezeIds):
 
         print(ProbeSetFreezeIds)
 
-    cursor.close()
+
+@contextlib.contextmanager
+def dbconnection(db, user, passwd, host, port):
+    """Connect to the database in a contextmanager."""
+    conn = MySQLdb.Connect(db=db, user=user, passwd=passwd, host=host, port=port)
+    try:
+        yield conn
+    except MySQLdb.Error as _err:
+        conn.rollback()
+    finally:
+        conn.commit()
+        conn.close()
+
+
+def read_db_config(path):
+    with open(path, "r") as infile:
+        lines = tuple(line.strip() for line in infile.readlines())
+        return {
+            "user": lines[0],
+            "passwd": lines[1],
+            "host": lines[2],
+            "port": int(lines[3] or "3306"),
+            "db": lines[4]
+        }
+
 
 def main():
     parser = ArgumentParser(prog="QTLReaper", description="Python-2 QTLReaper.")
@@ -116,6 +141,8 @@ def main():
                         nargs="*",
                         help="The ProbeSetFreezeIds to act on.")
     args = parser.parse_args()
+    with dbconnection(**read_db_config(args.db_config_file)) as conn:
+        run_qtl_reaper(conn.cursor(), args.genotype_dir, args.ProbeSetFreezeIds)
 
 if __name__ == "__main__":
     main()
