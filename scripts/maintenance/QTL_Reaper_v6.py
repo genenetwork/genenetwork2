@@ -1,14 +1,12 @@
 ####### To run this program do: python QTL_Reaper_v2.py 235
 #Where 163 is the ProbeSetFreeze Id of the database that we want to calculate #the LRS
 #!/usr/bin/python
-import sys
-import os
 import reaper
 import MySQLdb
-import time
+from argparse import ArgumentParser
 
 
-def run_qtl_reaper(cursor, genotypeDir):
+def run_qtl_reaper(cursor, genotypeDir, ProbeSetFreezeIds):
     genotype_1 = reaper.Dataset()
     #####get all of the genotypes
     cursor.execute('select Id, Name from InbredSet')
@@ -17,7 +15,6 @@ def run_qtl_reaper(cursor, genotypeDir):
     for item in results:
             InbredSets[item[0]] = genotypeDir+str(item[1])+'.geno'
 
-    ProbeSetFreezeIds=sys.argv[1:]
     if ProbeSetFreezeIds:
         #####convert the Ids to integer
         ProbeSetFreezeIds=list(map(int, ProbeSetFreezeIds))
@@ -106,9 +103,19 @@ def run_qtl_reaper(cursor, genotypeDir):
     cursor.close()
 
 def main():
-    con = MySQLdb.Connect(db='db_webqtl', user='username', passwd='', host="localhost")
-    run_qtl_reaper(con.cursor(), "/gnshare/gn/web/genotypes/")
-    con.close()
+    parser = ArgumentParser(prog="QTLReaper", description="Python-2 QTLReaper.")
+    parser.add_argument("db_config_file",
+                        type=str,
+                        default="dbconfig",
+                        help="File with database connection configuration")
+    parser.add_argument("genotype_dir",
+                        type=str,
+                        default="/gnshare/gn/web/genotypes/",
+                        help="Directory with the genotype CSV files.")
+    parser.add_argument("ProbeSetFreezeIds",
+                        nargs="*",
+                        help="The ProbeSetFreezeIds to act on.")
+    args = parser.parse_args()
 
 if __name__ == "__main__":
     main()
