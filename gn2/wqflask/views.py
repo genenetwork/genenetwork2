@@ -4,22 +4,18 @@ import array
 import base64
 import csv
 import datetime
-import flask
 import hashlib
 import io  # Todo: Use cStringIO?
 
 import json
-import numpy as np
 import os
 import pickle as pickle
 import random
-import requests
 import sys
 import traceback
 import math
 import uuid
 import urllib.parse
-import xlsxwriter
 
 from functools import reduce
 
@@ -30,8 +26,10 @@ from uuid import UUID
 
 from urllib.parse import urljoin
 
-from gn2.wqflask import app
-
+import xlsxwriter
+import requests
+import numpy as np
+import flask
 from gn3.computations.gemma import generate_hash_of_string
 from flask import current_app
 from flask import jsonify
@@ -46,6 +44,7 @@ from flask import send_file
 from flask import url_for
 from flask import flash
 
+from gn2.wqflask import app
 from gn2.wqflask import search_results
 from gn2.wqflask import server_side
 
@@ -479,7 +478,8 @@ def gsearch_updating():
 @app.route("/docedit")
 def docedit():
     try:
-        if g.user_session.record['user_email_address'] == "zachary.a.sloan@gmail.com" or g.user_session.record['user_email_address'] == "labwilliams@gmail.com":
+        if (g.user_session.record['user_email_address'] == "zachary.a.sloan@gmail.com"
+                or g.user_session.record['user_email_address'] == "labwilliams@gmail.com"):
             doc = Docs(request.args['entry'], request.args)
             return render_template("docedit.html", **doc.__dict__)
         else:
@@ -1338,9 +1338,6 @@ def display_wiki_history(comment_id: str):
 @app.route("/datasets/<name>", methods=('GET',))
 def get_dataset(name):
     from gn2.wqflask.oauth2.client import oauth2_get
-    from gn2.wqflask.oauth2.client import user_logged_in
-    from gn2.wqflask.oauth2.request_utils import user_details
-    from gn2.wqflask.oauth2.request_utils import process_error
 
     # We need to use the "id" as the identifier
     metadata = requests.get(
