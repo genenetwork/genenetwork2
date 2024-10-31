@@ -15,19 +15,20 @@
         </h3>
       </div>
 
-
-      {% if do_ai_search %}
-      <div class="row" id="ai_result_info">
-        <div class="text-center" id="spinner">
-           <i class="fa fa-spinner fa-spin fa-3x"></i>
+      {% if ai_search_enabled %}
+        {% if do_ai_search %}
+        <div class="row" id="ai_result_info">
+          <div class="text-center" id="spinner">
+             <i class="fa fa-spinner fa-spin fa-3x"></i>
+          </div>
         </div>
-      </div>
-      {% else %}
-      <div class="row" id="ai_result_info">
-        <div class="col-sm-6">
-          <div class="alert alert-warning">Please login to view LLM summary context</div>
+        {% else %}
+        <div class="row" id="ai_result_info">
+          <div class="col-sm-6">
+            <div class="alert alert-warning">Please login to view AI generated summary</div>
+          </div>
         </div>
-      </div>
+        {% endif %}
       {% endif %}
 
         <p>To study a record, click on its Record ID below.<br />Check records below and click Add button to add to selection.</p>
@@ -283,7 +284,7 @@
         });
         
     </script>
-    {% if do_ai_search %}
+    {% if ai_search_enabled and do_ai_search %}
     <script type='text/javascript'>
       function ai_content_div(search_term, search_result, search_uri) {
         let header_length = 40;
