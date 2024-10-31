@@ -224,6 +224,7 @@ def policies():
     )
 
 
+@facilities_blueprint.route("/")
 @gn_docs_blueprint.route("/facilities")
 def facilities():
     file_data = fetch_raw_markdown(file_path="general/help/facilities.md")
