@@ -248,10 +248,13 @@ def gsearchact():
     search_type = request.args["type"]
     is_user_logged_in = session_info().get("user", {}).get("logged_in", False)
 
-    do_ai_search = current_app.config.get(
-        "AI_SEARCH_ENABLED") and is_user_logged_in
+    ai_search_enabled = current_app.config.get("AI_SEARCH_ENABLED")
+    do_ai_search = ai_search_enabled and is_user_logged_in
     if search_type == "gene":
-        return render_template("gsearch_gene.html", **result, do_ai_search=do_ai_search, result=result)
+        return render_template("gsearch_gene.html", **result,
+                               ai_search_enabled=ai_search_enabled,
+                               do_ai_search=do_ai_search,
+                               result=result)
     elif search_type == "phenotype":
         return render_template("gsearch_pheno.html", **result)
 
