@@ -8,6 +8,8 @@ from flask import Flask
 from authlib.jose import JsonWebKey
 from pymonad.either import Left, Right, Either
 
+from gn2.debug import __pk__
+
 def jwks_directory(app: Flask, configname: str) -> Path:
     """Compute the directory where the JWKs are stored."""
     appsecretsdir = Path(app.config[configname]).parent
@@ -44,10 +46,11 @@ def pem_to_jwk(filepath: Path) -> JsonWebKey:
 
 def __sorted_jwks_paths__(storagedir: Path) -> tuple[tuple[float, Path], ...]:
     """A sorted list of the JWK file paths with their creation timestamps."""
-    return tuple(sorted(((os.stat(keypath).st_ctime, keypath)
-                         for keypath in (Path(storagedir, keyfile)
-                                         for keyfile in os.listdir(storagedir)
-                                         if keyfile.endswith(".pem"))),
+    all_files = tuple(__pk__("STORAGE DIRECTORY ===========>", storagedir).iterdir())
+    return tuple(sorted(((os.stat(keypath).st_ctime, __pk__("FOUND KEY ==========>", keypath))
+                         for keypath in (keyfile
+                                         for keyfile in __pk__("DIRECTORY CONTENT", all_files)
+                                         if __pk__("KEYFILE SUFFIX ========>", keyfile.suffix) == ".pem")),
                         key=lambda tpl: tpl[0]))
 
 
