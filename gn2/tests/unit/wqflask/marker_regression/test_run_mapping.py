@@ -2,6 +2,7 @@ import unittest
 import datetime
 from unittest import mock
 
+import gn2.wqflask.marker_regression.run_mapping as run_mapping
 from gn2.wqflask.marker_regression.run_mapping import get_genofile_samplelist
 from gn2.wqflask.marker_regression.run_mapping import geno_db_exists
 from gn2.wqflask.marker_regression.run_mapping import write_input_for_browser
@@ -65,8 +66,9 @@ class TestRunMapping(unittest.TestCase):
     def test_if_geno_db_exists(self, mock_data_set):
         mock_data_set.create_dataset.side_effect = [
             AttributeSetter({}), Exception()]
-        results_no_error = geno_db_exists(self.dataset)
-        results_with_error = geno_db_exists(self.dataset)
+        run_mapping.create_trait = mock.Mock()
+        results_no_error = geno_db_exists(self.dataset, "dataset_1")
+        results_with_error = geno_db_exists(self.dataset, "dataset_1")
 
         self.assertEqual(mock_data_set.create_dataset.call_count, 2)
         self.assertEqual(results_with_error, "False")

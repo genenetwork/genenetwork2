@@ -27,15 +27,10 @@ def create_trait(**kw):
 
     if bool(kw.get('dataset')):
         dataset = kw.get('dataset')
-
-
     else:
         if kw.get('dataset_name') != "Temp":
-
-
             dataset = create_dataset(kw.get('dataset_name'))
         else:
-
             dataset = create_dataset(
                     dataset_name="Temp",
                     dataset_type="Temp",
@@ -49,9 +44,8 @@ def create_trait(**kw):
         permissions = check_resource_availability(
             dataset, g.user_session.user_id)
 
-
     if permissions['data'] != "no-access":
-        
+
         the_trait = GeneralTrait(**dict(kw,dataset=dataset))
         if the_trait.dataset.type != "Temp":
             the_trait = retrieve_trait_info(
