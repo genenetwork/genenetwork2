@@ -127,7 +127,7 @@ submit_click = function() {
   attrIds = Object.keys(js_data.attributes).sort((a, b) => (parseInt(js_data.attributes[a].id) > parseInt(js_data.attributes[b].id)) ? 1 : -1)
   maxAttrId = attrIds[attrIds.length - 1]
 
-  i = 0;
+  i = 1;
   for (const [key, _value] of Object.entries(selected_traits)) {
     let distinctVals = [...new Set(Object.keys(selected_traits[key]).map((key2) => selected_traits[key][key2]))];
 
