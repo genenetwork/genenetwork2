@@ -116,7 +116,7 @@ submit_click = function() {
     for (var j = 0; j < js_data['sample_lists'][i].length; j++){
         for (const [key, value] of Object.entries(selected_traits)) {
             if (js_data['sample_lists'][i][j].name in selected_traits[key]){
-                new_data[i][j][key] = selected_traits[key][js_data['sample_lists'][i][j].name]
+                new_data[i][j][key] = Math.round(selected_traits[key][js_data['sample_lists'][i][j].name] * 1000) / 1000
             } else {
                 new_data[i][j][key] = "x"
             }
