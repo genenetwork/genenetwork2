@@ -21,8 +21,7 @@
     <div id="remove_samples_invalid" class="alert alert-error" style="display:none;">
           Please check that your input is formatted correctly, e.g. <strong>3, 5-10, 12</strong>
     </div>
-    {% if categorical_attr_exists == "true" %}
-    <div class="input-append block-div-2">
+    <div id="attr-filter" class="input-append block-div-2">
         <label for="exclude_column">Filter samples by group:</label>
         <select id="exclude_column" size=1>
           {% for attribute in sample_groups[0].attributes %}
@@ -46,7 +45,6 @@
         <input type="button" id="exclude_by_attr" class="btn btn-danger" title="Block all values that meet the criteria" value="Block">
         <input type="button" id="select_by_attr" class="btn btn-danger" title="Block all values that *don't* meet the criteria" value="Select">
     </div>
-    {% endif %}
     {% if study_samplelists|length > 0 %}
     <div id="filterMenuSpan" class="input-append block-div-2">
       <label for="filter_study_select">Filter samples by study: </label>

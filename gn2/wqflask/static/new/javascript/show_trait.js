@@ -646,9 +646,19 @@ populateSampleAttributesValuesDropdown = function() {
     return 0
   });
 
+  // filter_attr_exists mainly tracks whether any filterable attributes exist after custom trait columns are added
+  filter_attr_exists = false;
   for (i=0; i < attributesAsList.length; i++) {
     attribute_info = js_data.attributes[attributesAsList[i][1]]
     sample_attributes.push(attribute_info.distinct_values);
+    if (attribute_info.distinct_values.length > 1 && attribute_info.distinct_values.length <= 500){
+      filter_attr_exists = true;
+      $('#attr-filter').show();
+    }
+  }
+
+  if (!filter_attr_exists){
+    $('#attr-filter').hide();
   }
 
   selected_attribute = $('#exclude_column').val()
@@ -665,6 +675,8 @@ populateSampleAttributesValuesDropdown = function() {
 
 if (js_data.categorical_attr_exists == "true"){
   populateSampleAttributesValuesDropdown();
+} else {
+  $('#attr-filter').hide();
 }
 
 $('#exclude_column').change(populateSampleAttributesValuesDropdown);
