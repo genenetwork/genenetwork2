@@ -226,7 +226,6 @@ initialize_show_trait_tables = function(new_data = []) {
     }
 
     if (new_data.length > 0){
-     // empty_tables();
       create_table(tableId, new_data[i], columnDefs, tableSettings);
     } else {
       create_table(tableId, js_data['sample_lists'][i], columnDefs, tableSettings);
@@ -252,17 +251,6 @@ initialize_show_trait_tables = function(new_data = []) {
     } );
   }
 
-}
-
-empty_tables = function() {
- $('#primary_container').empty();
- $('#primary_container').append(
-  "<table class='table-hover table-striped cell-border' id='samples_primary'>\
-  <tbody>\
-    <td colspan='100%' align='center'><br><b><font size='15'>Loading...</font></b><br></td>\
-  </tbody>\
-  </table>"
- );
 }
 
 initialize_show_trait_tables();
