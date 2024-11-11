@@ -99,11 +99,17 @@ submit_click = function() {
     });
   });
 
+  // Determine how much table width needs to be increased for added trait columns
+  added_width = 0
+  for (const [key, value] of Object.entries(selected_traits)) {
+    added_width += key.length * 9
+  }
+
   tableIds = ["samples_primary"]
-  $('#primary_container').width($('#primary_container').width() + 40*Object.keys(selected_traits).length)
+  $('#primary_container').width($('#primary_container').width() + added_width)
   if (js_data.sample_lists.length > 1) {
     tableIds.push("samples_other")
-    $('#other_container').width($('#primary_container').width() + 40*selected_traits.length)
+    $('#other_container').width($('#primary_container').width() + added_width)
   }
 
   for (var i = 0; i < tableIds.length; i++) {
