@@ -102,7 +102,7 @@ submit_click = function() {
   // Determine how much table width needs to be increased for added trait columns
   added_width = 0
   for (const [key, value] of Object.entries(selected_traits)) {
-    added_width += key.length * 9
+    added_width += key.length * 11
   }
 
   tableIds = ["samples_primary"]
