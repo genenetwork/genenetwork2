@@ -248,7 +248,7 @@ class ShowTrait:
         # values to show the "Block samples by group" option
         self.categorical_attr_exists = "false"
         for attribute in self.sample_groups[0].attributes:
-            if len(self.sample_groups[0].attributes[attribute].distinct_values) <= 10:
+            if len(self.sample_groups[0].attributes[attribute].distinct_values) <= 500:
                 self.categorical_attr_exists = "true"
                 break
 
