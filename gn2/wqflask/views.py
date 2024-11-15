@@ -1244,6 +1244,9 @@ def security_tutorial_page():
     # ZS: Currently just links to GN1
     return render_template("admin/security_help.html")
 
+@app.route("/global_search_syntax")
+def global_search_syntax():
+    return render_template("global_search_syntax.html")
 
 @app.route("/submit_bnw", methods=('POST',))
 def submit_bnw():

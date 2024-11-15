@@ -1,0 +1,68 @@
+
+{% extends "base.html" %}
+
+{% block title %}Global Search Syntax{% endblock %}
+{% block content %}
+<div class="container">
+<div class="section-title"><h2>Global Search Queries</h2></div><div class="section">
+<p>This page documents search queries as understood by our xapian search engine (aka "the global search").</p><p>General xapian search query syntax is documented on the xapian website.</p><ul class="itemize"><li>
+<a name="item336"></a><a href="https://getting-started-with-xapian.readthedocs.io/en/latest/concepts/search/queryparser.html" class="https">https://getting-started-with-xapian.readthedocs.io/en/latest/concepts/search/queryparser.html</a></li>
+</ul><p>The specifics of GeneNetwork's use of xapian differs slightly in the choice of prefixes and special syntax such as the synteny search. The examples below may help to illustrate it.</p><!-- Free text search -->
+<a name="subsection347"></a><div class="subsection-title"><h3>Free text search</h3></div><div class="subsection">
+<p>Search for the term "cytochrome" in the free text.</p><pre>cytochrome
+</pre>
+<p>Search for the term "cytochrome" and the term "P450" in the free text. Only results that have both are shown.</p><pre>cytochrome AND P450
+</pre>
+<p>Search for occurrences of the term "cytochrome" near the term "P450" in the free text.</p><pre>cytochrome NEAR P450 
+</pre>
+<p>Search for the term "cytochrome" in the free text but exclude results that have the term "P450".</p><pre>cytochrome -P450
+cytochrome NOT P450
+</pre>
+</div>
+<!-- Boolean filtering -->
+<a name="subsection356"></a><div class="subsection-title"><h3>Boolean filtering</h3></div><div class="subsection">
+<p>Search for results pertaining to the human species.</p><pre>species:human
+</pre>
+<p>Search for results pertaining to the BXD group.</p><pre>group:BXD
+</pre>
+<p>Search for results pertaining to chromosome 11.</p><pre>chr:11
+</pre>
+<p>Search for results pertaining to the BXD group and chromosome 11.</p><pre>group:BXD AND chr:11
+</pre>
+</div>
+<!-- Boolean filtering using numerical ranges -->
+<a name="subsection363"></a><div class="subsection-title"><h3>Boolean filtering using numerical ranges</h3></div><div class="subsection">
+<p>Search for results with mean between 5 and 7.</p><pre>mean:5..7
+</pre>
+<p>Search for results with mean less than 5.</p><pre>mean:..5
+</pre>
+<p>Search for results with mean greater than 7.</p><pre>mean:7..
+</pre>
+</div>
+<!-- Synteny search -->
+<a name="subsection372"></a><div class="subsection-title"><h3>Synteny search</h3></div><div class="subsection">
+<p>Search for results near (+/- 50 kbases) base 9930021 of chromosome 4 of the human species and syntenic locations in other species.</p><pre>Hs:chr4:9930021
+</pre>
+<p>Search for results near (+/- 50 kbases) base 9930021 of chromosome 4 of the human species and syntenic locations in mouse alone.</p><pre>Hs:chr4:9930021 species:mouse
+</pre>
+<p>Search for results between base 9130000 and 9980000 of chromosome 4 of the human species and syntenic locations in mouse alone.</p><pre>Hs:chr4:9130000..9980000 species:mouse
+</pre>
+<p>Alternatively, this same query may be expressed using kilo or mega suffixes.</p><pre>Hs:chr4:9130k..9980k species:mouse
+Hs:chr4:9.13M..9.98M species:mouse
+</pre>
+</div>
+<!-- Gotchas -->
+<a name="subsection384"></a><div class="subsection-title"><h3>Gotchas</h3></div><div class="subsection">
+<!-- Pure `NOT` queries are not supported -->
+<a name="subsubsection383"></a><div class="subsubsection-title"><h4>Pure `NOT` queries are not supported</h4></div><div class="subsubsection">
+<p>Due to</p><ul class="itemize"><li>
+<a name="item375"></a><a href="https://xapian.org/docs/apidoc/html/classXapian_1_1QueryParser.html#ae96a58a8de9d219ca3214a5a66e0407eacafc7c8cf7c90adac0fc07d02125aed0" class="https">performance reasons,</a></li>
+</ul><p>pure `NOT` queries are not supported.</p><p>A search such as:</p><pre>NOT author:hager
+</pre>
+<p>will fail.</p><p>You will need to add something to the query to prevent the error, e.g.</p><pre>species:mouse NOT author:hager
+</pre>
+</div>
+</div>
+</div>
+</div>
+{% endblock %}
