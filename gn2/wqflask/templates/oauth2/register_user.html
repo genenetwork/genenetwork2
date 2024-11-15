@@ -2,8 +2,6 @@
 {%block title%}Register New User{%endblock%}
 {%block content%}
 <div class="container" style="min-width: 1250px;">
-  <h3>Register User</h3>
-
   <form class="form-horizontal"
 	action="{{url_for('oauth2.user.register_user')}}"
 	method="POST" id="oauth2-register-user-form">
