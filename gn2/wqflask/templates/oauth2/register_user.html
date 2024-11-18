@@ -5,7 +5,6 @@
   <form class="form-horizontal"
 	action="{{url_for('oauth2.user.register_user')}}"
 	method="POST" id="oauth2-register-user-form">
-    <fieldset>
       <legend>Register User</legend>
       {{flash_me()}}
       <div class="form-group">
@@ -54,7 +53,6 @@
 		 value="Register" />
 	</div>
       </div>
-    </fieldset>
   </form>
 </div>
 {%endblock%}
