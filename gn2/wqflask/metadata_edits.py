@@ -173,7 +173,7 @@ def update_phenotype(dataset_id: str, name: str):
     author = session.session_info()["user"]["user_id"]
     phenotype_id = str(data_.get("phenotype-id"))
     if not (file_ := request.files.get("file")) and data_.get('edited') == "false":
-        flash("No sample-data has been uploaded", "warning")
+        pass
     else:
         create_dirs_if_not_exists(
             [
@@ -395,7 +395,7 @@ def update_probeset(name: str):
     dataset_name = str(data_.get("dataset_name"))
 
     if not (file_ := request.files.get("file")) and data_.get('edited') == "false":
-        flash("No sample-data has been uploaded", "warning")
+        pass
     else:
         create_dirs_if_not_exists(
             [
