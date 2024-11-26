@@ -1673,3 +1673,26 @@ def search_wiki():
     return redirect(url_for(
         "display_genewiki_page",
         symbol=request.form.get("search")))
+
+
+@app.route("/rqtl2/compute", methods=["POST", "GET"])
+def rqtl2():
+    """Search genewiki for a given symbol"""
+    run_id = request.args.get("id","")
+    results = requests.get(urljoin(GN3_LOCAL_URL, f"/api/rqtl2/compute?id={run_id}"))
+    return results.json()
+
+
+
+@app.route("/streaming/", methods=["POST", "GET"])
+def streaming():
+    """Search genewiki for a given symbol"""
+    if request.method == "GET":
+        return render_template(
+            "streaming.html",
+        )
+    run_id = request.json.get("run_id", "output")
+    results = requests.get(urljoin(GN3_LOCAL_URL,
+                                   f"/api/rqtl2/stream/{run_id}?peak={request.args.get('peak')}"))
+    
+    return results.json()
