@@ -491,19 +491,20 @@ class ShowTrait:
         if not self.temp_trait:
             other_sample_names = []
 
-            for sample in list(self.this_trait.data.keys()):
-                if (self.this_trait.data[sample].name2 != self.this_trait.data[sample].name):
-                    if ((self.this_trait.data[sample].name2 in primary_sample_names)
-                            and (self.this_trait.data[sample].name not in primary_sample_names)):
-                        primary_sample_names.append(
-                            self.this_trait.data[sample].name)
-                        primary_sample_names.remove(
-                            self.this_trait.data[sample].name2)
+            if self.dataset.group.name in webqtlConfig.GROUPS_WITH_EXTRA_SAMPLES:
+                for sample in list(self.this_trait.data.keys()):
+                    if (self.this_trait.data[sample].name2 != self.this_trait.data[sample].name):
+                        if ((self.this_trait.data[sample].name2 in primary_sample_names)
+                                and (self.this_trait.data[sample].name not in primary_sample_names)):
+                            primary_sample_names.append(
+                                self.this_trait.data[sample].name)
+                            primary_sample_names.remove(
+                                self.this_trait.data[sample].name2)
 
-                all_samples_set = set(all_samples_ordered)
-                if sample not in all_samples_set:
-                    all_samples_ordered.append(sample)
-                    other_sample_names.append(sample)
+                    all_samples_set = set(all_samples_ordered)
+                    if sample not in all_samples_set:
+                        all_samples_ordered.append(sample)
+                        other_sample_names.append(sample)
 
             # CFW is here because the .geno file doesn't properly
             # contain its full list of samples. This should probably
