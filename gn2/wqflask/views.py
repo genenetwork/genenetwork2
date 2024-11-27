@@ -938,6 +938,8 @@ def loading_page():
 @app.route("/run_mapping", methods=('POST',))
 @app.route("/run_mapping/<path:hash_of_inputs>")
 def mapping_results_page(hash_of_inputs=None):
+
+    RUN_ID = request.args.get("id") # require to stream output
     if hash_of_inputs:
         initial_start_vars = json.loads(Redis.get(hash_of_inputs))
         initial_start_vars['hash_of_inputs'] = hash_of_inputs
@@ -1036,7 +1038,8 @@ def mapping_results_page(hash_of_inputs=None):
     if result:
         result = pickle.loads(result)
     else:
-        template_vars = run_mapping.RunMapping(start_vars, temp_uuid)
+        template_vars = run_mapping.RunMapping(start_vars,
+                                               temp_uuid, run_id=RUN_ID)
         if template_vars.no_results:
             raise NoMappingResultsError(
                 start_vars["trait_id"], start_vars["dataset"], start_vars["method"])
