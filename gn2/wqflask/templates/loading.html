@@ -137,7 +137,21 @@
                                        detail: {
                                      action: "STREAMING"
                                        }
-                }))
+     }))
+
+     computeBtn.addEventListener("streamEvent", async function(event){
+	 let action = event.detail["action"]
+	 if (action == "STREAMING"){
+	     RUNNING =  true
+	     await fetchUpdate(term, action=event.detail["action"])
+	 }
+    else if (action == "STOP"){
+	     if (RUNNING) {
+		 term.writeln("END OF SCRIPT RUN !!!")
+	     }
+	RUNNING = false
+    }
+     })
  })
  
 
