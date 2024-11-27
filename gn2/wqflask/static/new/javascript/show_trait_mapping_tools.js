@@ -1,3 +1,29 @@
+
+// begin code for streaming
+/* this code and streaming stdout for certain mappings ;;; this is an
+   optional functionality which is disabled by default
+   to enable this functionality click the show log button on the loading page
+   
+*/
+
+  function randomstring(L) {
+       // function to generate random string as identifier for a running process
+	var s = '';
+	var randomchar = function() {
+	var n = Math.floor(Math.random() * 62);
+	if (n < 10) return n; //1-10
+       if (n < 36) return String.fromCharCode(n + 55); //A-Z
+       return String.fromCharCode(n + 61); //a-z
+	 }
+      while (s.length < L) s += randomchar();
+      return s
+}
+
+
+
+
+// end code for streaming
+
 var block_outliers, composite_mapping_fields, do_ajax_post, get_progress, mapping_method_fields, open_mapping_results, outlier_text, showalert, submit_special, toggle_enable_disable, update_time_remaining;
 
 update_time_remaining = function(percent_complete) {
@@ -154,8 +180,16 @@ var mapping_input_list = ['temp_uuid', 'trait_id', 'dataset', 'tool_used', 'form
 $(".rqtl-geno-tab, #rqtl_geno_compute").on("click", (function(_this) {
   return function() {
     if ($(this).hasClass('active') || $(this).attr('id') == "rqtl_geno_compute"){
-      var form_data, url;
-      url = "/loading";
+	var form_data, url;
+	// set the variables here
+	// compute should have a  varaible for the filename
+	// compute ?id=rsfmrflkremfdfsdf  ?? will initialize the file 
+	//  loading?id=rsfmrflkremfdfsdf?enabled=True ?? remember the async functions
+
+	// generate an id for this running process
+     const runID  = randomstring(12);
+	url = `/loading?id=${runID}`;
+	
       $('input[name=method]').val("rqtl_geno");
       $('input[name=pair_scan]').val("false");
       $('input[name=selected_chr]').val($('#chr_rqtl_geno').val());
@@ -169,7 +203,7 @@ $(".rqtl-geno-tab, #rqtl_geno_compute").on("click", (function(_this) {
       $('input[name=control_marker]').val($('input[name=control_rqtl_geno]').val());
       $('input[name=do_control]').val($('input[name=do_control_rqtl]:checked').val());
       $('input[name=tool_used]').val("Mapping");
-      $('input[name=form_url]').val("/run_mapping");
+	$('input[name=form_url]').val("/run_mapping?id=${runID}");
       $('input[name=wanted_inputs]').val(mapping_input_list.join(","));
       return submit_special(url);
     } else {
