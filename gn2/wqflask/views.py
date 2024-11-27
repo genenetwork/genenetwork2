@@ -876,6 +876,11 @@ def mapping_results_container_page():
 def loading_page():
     initial_start_vars = request.form
     start_vars_container = {}
+
+    run_id = request.args.get("id")  # get the id for this
+    streaming_enabled = False
+    if (run_id):
+        streaming_enabled = True
     n_samples = 0  # ZS: So it can be displayed on loading page
     if 'wanted_inputs' in initial_start_vars:
         wanted = initial_start_vars['wanted_inputs'].split(",")
@@ -923,6 +928,7 @@ def loading_page():
         start_vars_container['start_vars'] = start_vars
     else:
         start_vars_container['start_vars'] = initial_start_vars
+    start_vars_container["streaming_enabled"] = streaming_enabled
 
     rendered_template = render_template("loading.html", **start_vars_container)
 
