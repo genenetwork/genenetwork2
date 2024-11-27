@@ -132,7 +132,12 @@
 	 macOptionIsMeta: true,
 	 cursorBlink: true
      })
-     term.open(document.getElementById('terminal')); 
+     term.open(document.getElementById('terminal'));
+     document.dispatchEvent(new CustomEvent('streamEvent', { 
+                                       detail: {
+                                     action: "STREAMING"
+                                       }
+                }))
  })
  
 
