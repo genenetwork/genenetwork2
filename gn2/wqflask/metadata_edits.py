@@ -141,9 +141,9 @@ def display_phenotype_metadata(dataset_id: str, name: str):
 def display_probeset_metadata(name: str):
     from gn2.utility.tools import get_setting
     with database_connection(get_setting("SQL_URI")) as conn:
-        _d = {"probeset": fetch_probeset_metadata_by_name(conn, name)}
-
         dataset_name=request.args["dataset_name"]
+        _d = {"probeset": fetch_probeset_metadata_by_name(conn, name, dataset_name)}
+
         group_name = retrieve_mrna_group_name(conn, _d["probeset"]["id_"], dataset_name)
         sample_list = retrieve_sample_list(group_name)
         sample_data = get_mrna_sample_data(conn, _d["probeset"]["id_"], dataset_name)
