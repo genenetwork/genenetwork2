@@ -21,7 +21,7 @@ from gn2.utility.tools import locate, get_setting, GN3_LOCAL_URL
 from gn2.wqflask.database import database_connection
 
 
-def run_rqtl(trait_name, vals, samples, dataset, pair_scan, mapping_scale, model, method, num_perm, perm_strata_list, do_control, control_marker, manhattan_plot, cofactors):
+def run_rqtl(trait_name, vals, samples, dataset, pair_scan, mapping_scale, model, method, num_perm, perm_strata_list, do_control, control_marker, manhattan_plot, cofactors, run_id=""):
     """Run R/qtl by making a request to the GN3 endpoint and reading in the output file(s)"""
 
     pheno_file = write_phenotype_file(trait_name, samples, vals, dataset, cofactors, perm_strata_list)
@@ -59,7 +59,7 @@ def run_rqtl(trait_name, vals, samples, dataset, pair_scan, mapping_scale, model
 
     rqtl_output = __pk__(
         "R/qtl or Pair-Scan results",
-        requests.post(urljoin(GN3_LOCAL_URL, "api/rqtl/compute"),
+        requests.post(urljoin(GN3_LOCAL_URL, f"api/rqtl/compute?id={run_id}"),
                       data=post_data).json())
     if num_perm > 0:
         return rqtl_output['perm_results'], rqtl_output['suggestive'], rqtl_output['significant'], rqtl_output['results']

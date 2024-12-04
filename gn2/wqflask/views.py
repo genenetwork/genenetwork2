@@ -876,6 +876,11 @@ def mapping_results_container_page():
 def loading_page():
     initial_start_vars = request.form
     start_vars_container = {}
+
+    run_id = request.args.get("id")  # get the id for this
+    streaming_enabled = False
+    if (run_id):
+        streaming_enabled = True
     n_samples = 0  # ZS: So it can be displayed on loading page
     if 'wanted_inputs' in initial_start_vars:
         wanted = initial_start_vars['wanted_inputs'].split(",")
@@ -923,6 +928,7 @@ def loading_page():
         start_vars_container['start_vars'] = start_vars
     else:
         start_vars_container['start_vars'] = initial_start_vars
+    start_vars_container["streaming_enabled"] = streaming_enabled
 
     rendered_template = render_template("loading.html", **start_vars_container)
 
@@ -932,6 +938,8 @@ def loading_page():
 @app.route("/run_mapping", methods=('POST',))
 @app.route("/run_mapping/<path:hash_of_inputs>")
 def mapping_results_page(hash_of_inputs=None):
+
+    RUN_ID = request.args.get("id") # require to stream output
     if hash_of_inputs:
         initial_start_vars = json.loads(Redis.get(hash_of_inputs))
         initial_start_vars['hash_of_inputs'] = hash_of_inputs
@@ -1030,7 +1038,8 @@ def mapping_results_page(hash_of_inputs=None):
     if result:
         result = pickle.loads(result)
     else:
-        template_vars = run_mapping.RunMapping(start_vars, temp_uuid)
+        template_vars = run_mapping.RunMapping(start_vars,
+                                               temp_uuid, run_id=RUN_ID)
         if template_vars.no_results:
             raise NoMappingResultsError(
                 start_vars["trait_id"], start_vars["dataset"], start_vars["method"])
@@ -1673,3 +1682,26 @@ def search_wiki():
     return redirect(url_for(
         "display_genewiki_page",
         symbol=request.form.get("search")))
+
+
+@app.route("/rqtl2/compute", methods=["POST", "GET"])
+def rqtl2():
+    """Search genewiki for a given symbol"""
+    run_id = request.args.get("id","")
+    results = requests.get(urljoin(GN3_LOCAL_URL, f"/api/rqtl2/compute?id={run_id}"))
+    return results.json()
+
+
+
+@app.route("/streaming/", methods=["POST", "GET"])
+def streaming():
+    """Search genewiki for a given symbol"""
+    if request.method == "GET":
+        return render_template(
+            "streaming.html",
+        )
+    run_id = request.json.get("run_id", "output")
+    results = requests.get(urljoin(GN3_LOCAL_URL,
+                                   f"/api/rqtl2/stream/{run_id}?peak={request.args.get('peak')}"))
+    
+    return results.json()

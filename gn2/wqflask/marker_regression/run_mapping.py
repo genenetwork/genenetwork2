@@ -43,7 +43,7 @@ Redis = get_redis_conn()
 
 class RunMapping:
 
-    def __init__(self, start_vars, temp_uuid):
+    def __init__(self, start_vars, temp_uuid, run_id=None):
         helper_functions.get_species_dataset_trait(self, start_vars)
 
         # needed to pass temp_uuid to gn1 mapping code (marker_regression_gn1.py)
@@ -59,6 +59,7 @@ class RunMapping:
 
         self.json_data = {}
         self.json_data['lodnames'] = ['lod.hk']
+        self.run_id = run_id
 
         # Sometimes a group may have a genofile that only includes a subset of samples
         genofile_samplelist = []
@@ -245,7 +246,7 @@ class RunMapping:
                     self.this_trait.name, self.vals, self.samples, self.dataset, self.pair_scan, self.mapping_scale, self.model, self.method, self.num_perm, self.perm_strata, self.do_control, self.control_marker, self.manhattan_plot, self.covariates)
             else:
                 results = rqtl_mapping.run_rqtl(self.this_trait.name, self.vals, self.samples, self.dataset, self.pair_scan, self.mapping_scale, self.model, self.method,
-                                                     self.num_perm, self.perm_strata, self.do_control, self.control_marker, self.manhattan_plot, self.covariates)
+                                                     self.num_perm, self.perm_strata, self.do_control, self.control_marker, self.manhattan_plot, self.covariates, run_id=self.run_id)
         elif self.mapping_method == "reaper":
             if "startMb" in start_vars:  # ZS: Check if first time page loaded, so it can default to ON
                 if "additiveCheck" in start_vars:

@@ -1,0 +1,128 @@
+<!-- file contains demo implementation for streaming stdout from running processes -->
+{% extends "index_page.html" %}
+{% block title %}WCGNA analysis{% endblock %}
+{% block content %}
+<style type="text/css">
+ 
+</style>
+
+<link rel="stylesheet" type="text/css" href="{{ url_for('css', filename='xterm/xterm.min.css') }}" />
+<div class="container-fluid" style="height:100vh">
+    <div class="row">
+	<div class="col-sm-5">
+	    <!-- assume form data here  -->
+	    <h1> Streaming  </h1>
+	    <button class="btn-primary" id="compute-btn"> Compute</button> 
+	</div>
+	<div class="col-sm-7">
+	    <div class="row" style="margin-top:25px">
+		<div class="col-sm-10 col-sm-offset-1">
+		    <div id="terminal"> </div>
+		</div>
+	    </div>
+	</div>
+    </div>
+
+<!-- open terminal with htmx later  -->
+        
+    
+    <script src="{{ url_for('js', filename='xterm/xterm.min.js') }}" type="text/javascript"></script>
+	<script>
+	  let RUNNING = true;
+	  let RUN_ID  = "output";
+	  function randomstring(L) {
+	       // function to generate random string as identifier
+                var s = '';
+                var randomchar = function() {
+                var n = Math.floor(Math.random() * 62);
+                if (n < 10) return n; //1-10
+               if (n < 36) return String.fromCharCode(n + 55); //A-Z
+               return String.fromCharCode(n + 61); //a-z
+                 }
+              while (s.length < L) s += randomchar();
+              return s}
+	  async function compute(computeBtn,term){
+	    //term.clear()  //clear the xterm working area
+	    RUN_ID = randomstring(12)
+	    const request =  new Request(`/rqtl2/compute?id=${RUN_ID}`, {
+		 method: "GET"
+	     })
+	  const response = await fetch(request);
+	  const data  = await response.json()
+	  // check  for  !200 status code and write to emulator
+	  if (data["run_id"] == RUN_ID){
+	  computeBtn.dispatchEvent(new CustomEvent('streamEvent', { 
+                                       detail: {
+                                     action: "STOP"
+                                       }
+          }))	   
+	  computeBtn.disabled = false
+	  }	   	
+	  }
+
+	  async function fetchUpdate(term, action="STREAM"){
+	    // rethink about fetching the run_id
+	      let last_pointer = 0
+	      while (RUNNING){
+	       const request = new Request(`/streaming?peak=${last_pointer}`, {
+                 headers: {
+	          "Content-Type": "application/json",
+	        },
+                method: "POST",
+                body: JSON.stringify({ "peak": last_pointer, "run_id": RUN_ID}),
+                });              		  
+         	  const response = await fetch(request);
+		  const data  = await response.json();		  
+		  if (data["error"] && data["trace"]){
+		      term.writeln(`Error occurred:`)
+		      lines  = data["trace"].split("\n")
+		      lines.forEach((line) =>{
+			  term.writeln(line.trim())
+		      })
+		  }
+	    else{
+		  pointer = data["pointer"]		      
+		   if (last_pointer != pointer) {
+			 lines = data["data"]
+                         lines.forEach((line) =>{
+			     term.writeln(line)
+			 })
+			  last_pointer  = pointer
+		      }}		  		 
+	      }}
+	  document.addEventListener('DOMContentLoaded', async function() {
+	     RUNNING = true
+	     const computeBtn = document.querySelector("#compute-btn")	    
+	     let term = new Terminal({
+		 cursorBlink: true,
+		 lineHeight: 1.1,
+		 scrollback: 9999999,
+		 macOptionIsMeta: true,
+		 cursorBlink: true
+	     })
+             term.open(document.getElementById('terminal'));
+	     computeBtn.addEventListener("streamEvent", async function(event){
+                 let action = event.detail["action"]
+		 if (action == "STREAMING"){
+		     RUNNING =  true
+		     await fetchUpdate(term, action=event.detail["action"])
+		 }
+	    else if (action == "STOP"){	             		     
+		     if (RUNNING) {
+			 term.writeln("END OF SCRIPT RUN !!!")
+		     }
+		     RUNNING = false
+		 }		 
+	     })	     
+	     computeBtn.addEventListener("click", async (event)=>{
+		compute(computeBtn,term=term)
+	        computeBtn.dispatchEvent(new CustomEvent('streamEvent', { 
+                                       detail: {
+                                     action: "STREAMING"
+                                       }
+                 }));
+	        computeBtn.disabled = true;
+	     })	     
+	 })	 	 
+	</script>  
+{% endblock %}
