@@ -189,7 +189,7 @@ $(".rqtl-geno-tab, #rqtl_geno_compute").on("click", (function(_this) {
 	// generate an id for this running process
      const runID  = randomstring(12);
 	url = `/loading?id=${runID}`;
-	
+	var mapping_url = `/run_mapping?id=${runID}`
       $('input[name=method]').val("rqtl_geno");
       $('input[name=pair_scan]').val("false");
       $('input[name=selected_chr]').val($('#chr_rqtl_geno').val());
@@ -203,7 +203,7 @@ $(".rqtl-geno-tab, #rqtl_geno_compute").on("click", (function(_this) {
       $('input[name=control_marker]').val($('input[name=control_rqtl_geno]').val());
       $('input[name=do_control]').val($('input[name=do_control_rqtl]:checked').val());
       $('input[name=tool_used]').val("Mapping");
-	$('input[name=form_url]').val("/run_mapping?id=${runID}");
+	$('input[name=form_url]').val(mapping_url);
       $('input[name=wanted_inputs]').val(mapping_input_list.join(","));
       return submit_special(url);
     } else {
