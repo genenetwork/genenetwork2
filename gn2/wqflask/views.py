@@ -929,7 +929,7 @@ def loading_page():
     else:
         start_vars_container['start_vars'] = initial_start_vars
     start_vars_container["streaming_enabled"] = streaming_enabled
-
+    start_vars_container["run_id"] = run_id
     rendered_template = render_template("loading.html", **start_vars_container)
 
     return rendered_template
