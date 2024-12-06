@@ -23,6 +23,7 @@ import json
 sys.path.insert(0, './')
 
 # NEW: import app to avoid a circular dependency on utility.tools
+from gn_libs.mysqldb import database_connection
 from gn2.wqflask import app
 
 from gn2.utility import hmac
@@ -31,8 +32,6 @@ from gn2.utility.redis_tools import get_redis_conn, get_user_id, add_resource, g
 Redis = get_redis_conn()
 
 import urllib.parse
-
-from gn2.wqflask.database import database_connection
 
 
 def insert_probeset_resources(cursor, default_owner_id):

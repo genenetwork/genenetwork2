@@ -7,7 +7,7 @@ from gn2.base.trait import create_trait, retrieve_sample_data
 from gn2.utility import corr_result_helpers
 from gn2.utility.tools import get_setting
 from gn2.wqflask.correlation import correlation_functions
-from gn2.wqflask.database import database_connection
+from gn_libs.mysqldb import database_connection
 
 def do_correlation(start_vars):
     if 'db' not in start_vars:

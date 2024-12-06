@@ -21,10 +21,10 @@ from flask import redirect
 from flask import render_template
 from flask import request
 from flask import url_for
+from gn_libs.mysqldb import database_connection
 
 from gn2.utility.json import CustomJSONEncoder
 
-from gn2.wqflask.database import database_connection
 from gn2.wqflask.decorators import login_required
 from gn2.wqflask.decorators import required_trait_access
 

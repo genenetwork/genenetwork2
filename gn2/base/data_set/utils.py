@@ -6,10 +6,10 @@ import json
 import hashlib
 from typing import List
 
+from gn_libs.mysqldb import parse_db_url, database_connection
 
 from gn2.utility.tools import get_setting, SQL_URI
 from gn2.base.webqtlConfig import TMPDIR
-from gn2.wqflask.database import parse_db_url, database_connection
 
 def geno_mrna_confidentiality(ob):
     with database_connection(get_setting("SQL_URI")) as conn, conn.cursor() as cursor:
@@ -31,7 +31,7 @@ def query_table_timestamp(dataset_type: str):
         cursor.execute(
             "SELECT UPDATE_TIME FROM "
             "information_schema.tables "
-            f"WHERE TABLE_SCHEMA = '{fetch_db_name[3]}' "
+            f"WHERE TABLE_SCHEMA = '{fetch_db_name['database']}' "
             f"AND TABLE_NAME = '{dataset_type}Data'")
         date_time_obj = cursor.fetchone()[0]
         if not date_time_obj:

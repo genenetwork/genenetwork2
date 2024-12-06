@@ -9,6 +9,7 @@ import json
 
 from pymonad.maybe import Just, Maybe
 from pymonad.tools import curry
+from gn_libs.mysqldb import database_connection
 
 from flask import g
 
@@ -18,8 +19,6 @@ from gn2.base.data_set import create_dataset
 from gn2.base.webqtlConfig import PUBMEDLINK_URL
 from gn2.wqflask import parser
 from gn2.wqflask import do_search
-
-from gn2.wqflask.database import database_connection
 
 from gn2.utility.authentication_tools import check_resource_availability
 from gn2.utility.hmac import hmac_creation

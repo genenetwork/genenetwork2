@@ -5,7 +5,7 @@ from gn2.base.species import TheSpecies
 from gn2.utility import hmac
 from gn2.utility.tools import get_setting
 
-from gn2.wqflask.database import database_connection
+from gn_libs.mysqldb import database_connection
 
 
 

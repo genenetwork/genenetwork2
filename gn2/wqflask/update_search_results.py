@@ -1,9 +1,10 @@
 import json
 
+from gn_libs.mysqldb import database_connection
+
 from gn2.base.data_set import create_dataset
 from gn2.base.trait import GeneralTrait
 from gn2.db import webqtlDatabaseFunction
-from gn2.wqflask.database import database_connection
 from gn2.utility.tools import get_setting
 
 

@@ -11,7 +11,7 @@ from gn2.utility.tools import get_setting
 from gn3.monads import MonadicDict, query_sql
 from pymonad.maybe import Maybe, Nothing
 from .datasetgroup import DatasetGroup
-from gn2.wqflask.database import database_connection
+from gn_libs.mysqldb import database_connection
 from gn2.utility.db_tools import escape, mescape, create_in_clause
 from .utils import fetch_cached_results, cache_dataset_results
 

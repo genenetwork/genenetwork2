@@ -1,7 +1,8 @@
 import re
 import itertools
 
-from gn2.wqflask.database import database_connection
+from gn_libs.mysqldb import database_connection
+
 from gn2.base import webqtlCaseData, webqtlConfig
 from pprint import pformat as pf
 

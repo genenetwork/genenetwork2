@@ -44,7 +44,7 @@ from gn2.utility.tools import get_setting
 from gn2.wqflask.interval_analyst import GeneUtil
 from gn2.base.webqtlConfig import GENERATED_IMAGE_DIR
 from gn2.utility.pillow_utils import draw_rotated_text, draw_open_polygon
-from gn2.wqflask.database import database_connection
+from gn_libs.mysqldb import database_connection
 
 try:  # Only import this for Python3
     from functools import reduce

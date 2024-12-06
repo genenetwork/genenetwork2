@@ -45,10 +45,10 @@ print(dump_sample_data("HLCPublish", "10001"))
     setup="""
 # Required Evils!
 from flask import g
+from gn_libs.mysqldb import database_connection
 from wqflask import app
 
 from utility.tools import get_setting
-from wqflask.database import database_connection
 from wqflask.show_trait import show_trait
 """,
     number=int(sys.argv[1])

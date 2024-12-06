@@ -6,9 +6,9 @@ import numpy as np
 import pandas as pd
 
 from flask import Flask, g, request
+from gn_libs.mysqldb import database_connection
 
 from gn2.wqflask import app
-from gn2.wqflask.database import database_connection
 from gn2.utility.tools import get_setting
 
 

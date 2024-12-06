@@ -18,7 +18,7 @@ from gn2.base.webqtlConfig import TMPDIR
 from gn2.base.trait import create_trait
 from gn2.utility.redis_tools import get_redis_conn
 from gn2.utility.tools import locate, get_setting, GN3_LOCAL_URL
-from gn2.wqflask.database import database_connection
+from gn_libs.mysqldb import database_connection
 
 
 def run_rqtl(trait_name, vals, samples, dataset, pair_scan, mapping_scale, model, method, num_perm, perm_strata_list, do_control, control_marker, manhattan_plot, cofactors, run_id=""):

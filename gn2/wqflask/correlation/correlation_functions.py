@@ -21,11 +21,10 @@
 # This module is used by GeneNetwork project (www.genenetwork.org)
 #
 # Created by GeneNetwork Core Team 2010/08/10
-
+from gn_libs.mysqldb import database_connection
 
 from gn2.base.mrna_assay_tissue_data import MrnaAssayTissueData
 from gn3.computations.correlations import compute_corr_coeff_p_value
-from gn2.wqflask.database import database_connection
 from gn2.utility.tools import get_setting
 
 #####################################################################################

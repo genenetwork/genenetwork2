@@ -5,6 +5,7 @@ from functools import reduce
 from typing import Union, Tuple
 from urllib.parse import urljoin
 
+from gn_libs.mysqldb import database_connection
 from flask import (
     flash,
     request,
@@ -15,7 +16,6 @@ from flask import (
 
 from gn2.wqflask import app
 from gn2.utility.tools import get_setting, GN_SERVER_URL
-from gn2.wqflask.database import database_connection
 from gn3.db.partial_correlations import traits_info
 
 def publish_target_databases(conn, groups, threshold):

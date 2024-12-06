@@ -2,6 +2,8 @@
 import json
 from functools import reduce
 
+from gn_libs.mysqldb import database_connection
+
 from gn2.utility.tools import SQL_URI
 from gn2.utility.db_tools import mescape
 from gn2.utility.db_tools import create_in_clause
@@ -19,7 +21,6 @@ from gn3.computations.correlations import compute_all_lit_correlation
 from gn3.computations.rust_correlation import run_correlation
 from gn3.computations.rust_correlation import get_sample_corr_data
 from gn3.computations.rust_correlation import parse_tissue_corr_data
-from gn3.db_utils import database_connection
 
 from gn2.wqflask.correlation.exceptions import WrongCorrelationType
 

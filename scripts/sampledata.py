@@ -11,10 +11,10 @@ from re import sub
 # Required Evils!
 from flask import g
 from wqflask import app
+from gn_libs.mysqldb import database_connection
 
 from wqflask.api.gen_menu import gen_dropdown_json
 from wqflask.show_trait import show_trait
-from wqflask.database import database_connection
 from wqflask.search_results import SearchResultPage
 
 from utility.tools import get_setting

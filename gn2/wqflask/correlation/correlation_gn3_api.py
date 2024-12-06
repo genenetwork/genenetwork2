@@ -3,6 +3,8 @@ import json
 import time
 from functools import wraps
 
+from gn_libs.mysqldb import database_connection
+
 from gn2.utility.tools import SQL_URI
 
 from gn2.wqflask.correlation import correlation_functions
@@ -11,7 +13,6 @@ from gn2.base import data_set
 from gn2.base.trait import create_trait
 from gn2.base.trait import retrieve_sample_data
 
-from gn3.db_utils import database_connection
 from gn3.commands import run_sample_corr_cmd
 from gn3.computations.correlations import map_shared_keys_to_values
 from gn3.computations.correlations import compute_all_lit_correlation

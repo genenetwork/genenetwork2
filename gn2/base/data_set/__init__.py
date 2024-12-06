@@ -18,7 +18,7 @@ from .utils import query_table_timestamp
 from .genotypedataset import GenotypeDataSet
 from .phenotypedataset import PhenotypeDataSet
 from .mrnaassaydataset import MrnaAssayDataSet
-from gn2.wqflask.database import database_connection
+from gn_libs.mysqldb import database_connection
 
 # Used by create_database to instantiate objects
 # Each subclass will add to this

@@ -35,6 +35,8 @@ import sys
 # NEW: Note we prepend the current path - otherwise a guix instance of GN2 may be used instead
 sys.path.insert(0, './')
 # NEW: import app to avoid a circular dependency on utility.tools
+from gn_libs.mysqldb import database_connection
+
 from gn2.wqflask import app
 
 from gn2.utility.tools import get_setting
@@ -44,8 +46,6 @@ import urllib.parse
 
 
 from pprint import pformat as pf
-
-from gn2.wqflask.database import database_connection
 
 
 def get_species(cursor):

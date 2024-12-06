@@ -5,7 +5,7 @@ from gn2.utility import webqtlUtil
 from gn2.utility.tools import get_setting
 from gn2.db import webqtlDatabaseFunction
 from .utils import geno_mrna_confidentiality
-from gn2.wqflask.database import database_connection
+from gn_libs.mysqldb import database_connection
 
 class GenotypeDataSet(DataSet):
 

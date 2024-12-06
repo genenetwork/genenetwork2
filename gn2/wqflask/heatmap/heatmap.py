@@ -9,7 +9,7 @@ from gn2.utility.tools import flat_files, REAPER_COMMAND, TEMPDIR
 from redis import Redis
 from flask import Flask, g
 
-from gn2.wqflask.database import database_connection
+from gn_libs.mysqldb import database_connection
 from gn2.utility.tools import get_setting
 
 Redis = Redis()

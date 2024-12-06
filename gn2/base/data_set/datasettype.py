@@ -9,7 +9,7 @@ from redis import Redis
 
 
 from gn2.utility.tools import GN2_BASE_URL
-from gn2.wqflask.database import database_connection
+from gn_libs.mysqldb import database_connection
 
 
 class DatasetType:

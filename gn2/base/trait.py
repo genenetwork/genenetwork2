@@ -12,7 +12,7 @@ from gn2.utility.redis_tools import get_redis_conn, get_resource_id
 
 from flask import g, request, url_for
 
-from gn2.wqflask.database import database_connection
+from gn_libs.mysqldb import database_connection
 
 
 Redis = get_redis_conn()

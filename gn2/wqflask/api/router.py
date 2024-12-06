@@ -12,7 +12,7 @@ from zipfile import ZipFile, ZIP_DEFLATED
 
 import flask
 from flask import current_app
-from gn2.wqflask.database import database_connection
+from gn_libs.mysqldb import database_connection
 from flask import request
 from flask import make_response
 from flask import send_file
@@ -23,7 +23,7 @@ from gn2.wqflask.api import correlation, mapping, gen_menu
 
 from gn2.utility.tools import flat_files, get_setting
 
-from gn2.wqflask.database import database_connection
+from gn_libs.mysqldb import database_connection
 
 
 version = "pre1"

@@ -3,7 +3,7 @@
 from .dataset import DataSet
 from gn2.base import webqtlConfig
 from gn2.utility.tools import get_setting
-from gn2.wqflask.database import database_connection
+from gn_libs.mysqldb import database_connection
 
 class PhenotypeDataSet(DataSet):
 

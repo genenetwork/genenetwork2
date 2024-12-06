@@ -30,6 +30,7 @@ import xlsxwriter
 import requests
 import numpy as np
 import flask
+from gn_libs.mysqldb import database_connection
 from gn3.computations.gemma import generate_hash_of_string
 from flask import current_app
 from flask import jsonify
@@ -95,8 +96,6 @@ import gn2.utility.hmac as hmac
 
 from gn2.base.webqtlConfig import TMPDIR, GENERATED_IMAGE_DIR
 from gn2.base.webqtlConfig import GENE_CUP_URL
-
-from gn2.wqflask.database import database_connection
 
 import gn2.jobs.jobs as jobs
 

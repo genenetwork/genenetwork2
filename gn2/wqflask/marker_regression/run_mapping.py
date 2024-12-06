@@ -24,6 +24,7 @@ from redis import Redis
 Redis = Redis()
 
 from flask import Flask, g
+from gn_libs.mysqldb import database_connection
 
 from gn2.base.trait import GeneralTrait, create_trait
 from gn2.base import data_set
@@ -31,7 +32,6 @@ from gn2.base import species
 from gn2.base import webqtlConfig
 from gn2.utility import webqtlUtil, helper_functions, hmac, Plot, Bunch, temp_data
 from gn2.utility.redis_tools import get_redis_conn
-from gn2.wqflask.database import database_connection
 from gn2.wqflask.marker_regression import gemma_mapping, rqtl_mapping, qtlreaper_mapping, plink_mapping
 from gn2.wqflask.show_trait.SampleList import SampleList
 

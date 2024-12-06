@@ -10,8 +10,8 @@ from collections import OrderedDict
 
 import numpy as np
 import scipy.stats as ss
+from gn_libs.mysqldb import database_connection
 
-from gn2.wqflask.database import database_connection
 
 from gn2.base import webqtlConfig
 from gn2.wqflask.show_trait.SampleList import SampleList

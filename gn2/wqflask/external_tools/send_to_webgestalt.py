@@ -18,7 +18,7 @@
 #
 # This module is used by GeneNetwork project (www.genenetwork.org)
 
-from gn2.wqflask.database import database_connection
+from gn_libs.mysqldb import database_connection
 
 from gn2.base.trait import retrieve_trait_info
 from gn2.utility import helper_functions

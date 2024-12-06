@@ -3,7 +3,7 @@ import re
 import requests
 import string
 
-from gn2.wqflask.database import database_connection
+from gn_libs.mysqldb import database_connection
 
 import sys
 
@@ -957,8 +957,6 @@ if __name__ == "__main__":
     from gn2.base.data_set import create_dataset
     from gn2.utility import webqtlUtil
     from gn2.db import webqtlDatabaseFunction
-
-    from gn2.wqflask.database import database_connection
 
     with database_connection(get_setting("SQL_URI")) as db_conn:
         with db_conn.cursor() as cursor:

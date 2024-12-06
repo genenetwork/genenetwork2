@@ -10,7 +10,7 @@ from gn2.utility import webqtlUtil
 from gn2.utility import gen_geno_ob
 from gn2.db import webqtlDatabaseFunction
 from gn2.maintenance import get_group_samplelists
-from gn2.wqflask.database import database_connection
+from gn_libs.mysqldb import database_connection
 from gn2.utility.tools import (
     locate,
     USE_REDIS,

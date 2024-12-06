@@ -1,7 +1,7 @@
 import codecs
 
 from flask import g
-from gn2.wqflask.database import database_connection
+from gn_libs.mysqldb import database_connection
 from gn2.utility.tools import get_setting
 
 class Docs:

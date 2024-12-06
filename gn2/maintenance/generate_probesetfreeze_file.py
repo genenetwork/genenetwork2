@@ -8,12 +8,13 @@ import os
 import collections
 import csv
 
+from gn_libs.mysqldb import database_connection
+
 from gn2.base import webqtlConfig
 
 from pprint import pformat as pf
 
 from gn2.utility.tools import get_setting
-from gn2.wqflask.database import database_connection
 
 
 def show_progress(process, counter):
