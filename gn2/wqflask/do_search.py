@@ -425,10 +425,10 @@ class RifSearch(MrnaAssaySearch):
         return self.execute(query)
 
 
-class WikiSearch(MrnaAssaySearch):
+class MrnaWikiSearch(MrnaAssaySearch):
     """Searches GeneWiki for traits other people have annotated"""
 
-    DoSearch.search_types['ProbeSet_WIKI'] = "WikiSearch"
+    DoSearch.search_types['ProbeSet_WIKI'] = "MrnaWikiSearch"
 
     def get_from_clause(self):
         return ", GeneRIF "
@@ -439,6 +439,31 @@ class WikiSearch(MrnaAssaySearch):
             and (GeneRIF.comment LIKE '%s' or GeneRIF.initial = '%s')
                 """ % (self.dataset.type,
                        "%" + str(self.search_term[0]) + "%",
+                       str(self.search_term[0]))
+        return where_clause
+
+    def run(self):
+        from_clause = self.get_from_clause()
+        where_clause = self.get_where_clause()
+
+        query = self.compile_final_query(from_clause, where_clause)
+
+        return self.execute(query)
+
+
+class PhenotypeWikiSearch(PhenotypeSearch):
+    """Searches GeneWiki for traits other people have annotated"""
+
+    DoSearch.search_types['Publish_WIKI'] = "PhenotypeWikiSearch"
+
+    def get_from_clause(self):
+        return ", GeneRIF "
+
+    def get_where_clause(self):
+        where_clause = """Publication.PubMed_ID = GeneRIF.PubMed_ID
+            and GeneRIF.versionId=0 and GeneRIF.display>0
+            and (GeneRIF.comment LIKE '%s' or GeneRIF.initial = '%s')
+                """ % ("%" + str(self.search_term[0]) + "%",
                        str(self.search_term[0]))
         return where_clause
 
