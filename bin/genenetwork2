@@ -120,7 +120,9 @@ else
     export GI_TYPELIB_PATH="$GN2_PROFILE/lib/girepository-1.0"
     export XDG_DATA_DIRS="$GN2_PROFILE/share"
     export GIO_EXTRA_MODULES="$GN2_PROFILE/lib/gio/modules"
-    export LC_ALL=C # FIXME
+    if [ -z "$LC_ALL" ]; then
+	export LC_ALL=C # FIXME
+    fi
     export GUIX_GENENETWORK_FILES="$GN2_PROFILE/share/genenetwork2"
     export PLINK_COMMAND="$GN2_PROFILE/bin/plink2"
     export GEMMA_COMMAND="$GN2_PROFILE/bin/gemma"
