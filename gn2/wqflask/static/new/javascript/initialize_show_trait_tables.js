@@ -232,8 +232,6 @@ initialize_show_trait_tables = function(new_data = []) {
     }
   }
 
-  create_table(tableId, js_data['sample_lists'][i], columnDefs, tableSettings);
-
   // Enable mapping compute buttons and replace their text only after table has loaded
   // This is because submitting the form prior to the table loading causes an error
   $('button.submit_special').html('<span class="glyphicon glyphicon-play-circle"></span> Compute');
