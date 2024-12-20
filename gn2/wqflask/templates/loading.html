@@ -111,13 +111,28 @@
 	    </form> 
 	</div>
 	<div class="col-sm-8 row" style="min-height: 80vh;display:flex;align-items:center">
-            <div class="col-sm-8 col-sm-offset-2">
-		<div >
-		   <button id="streamingBtn" class="btn-primary" style="margin:15px">Show Logs</button>
-		</div>
-		<div  id="streamingContainer">
-		    <div id="terminal"> </div>
-		</div>
+          <div class="col-sm-8 col-sm-offset-2">
+
+	      <!--start according here -->
+	      <div class="panel-group" id="accordion" role="tablist" aria-multiselectable="false">
+
+  <div class="panel panel-default">
+      <div class="panel-heading">
+        <h4 class="panel-title">
+          <a data-toggle="collapse" data-parent="#accordion" href="#collapseTwo">
+            <span class="glyphicon glyphicon-menu-right text-info"></span> Display Script Log         
+          </a>
+        </h4>
+      </div>
+      <div id="collapseTwo" class="panel-collapse collapse">
+          <div class="panel-body" id="streamingContainer">
+	      <div id="terminal"> </div>
+	  </div>
+      </div>
+  </div>
+ 
+	     </div>
+             <!--end accordion here -->
 	    </div>
 	</div>
     </div>
@@ -218,14 +233,7 @@
 	 $('#diff_table_container').show();
      }
  })
- $('#streamingBtn').click(function() {
-     if ($('#streamingContainer').is(':visible')){
-	 $('#streamingContainer').hide();
-     } else {
-	 $('#streamingContainer').show();
-     }
- }) 
-
+  
  var start = new Date;
 
  setInterval(function() {
