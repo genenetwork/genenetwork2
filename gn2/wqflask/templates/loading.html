@@ -134,56 +134,78 @@
 <script type="text/javascript">
  // get the id from start_vars
  
- let RUN_ID = "{{ run_id }}"
+  let RUN_ID = "{{ run_id }}"
+  let RUNNING = false
  var STREAMING_ENABLED = "{{ streaming_enabled }}"
  STREAMING_ENABLED = STREAMING_ENABLED == "True" ? true : false
- 
- async function fetchUpdate(term, action="STREAM"){
-     // rethink about fetching the run_id
-     let last_pointer = 0
-     while (RUNNING){
-	 const request = new Request(`/streaming?peak=${last_pointer}`, {
-	     headers: {
-		 "Content-Type": "application/json",
-	     },
-	     method: "POST",
-	     body: JSON.stringify({ "peak": last_pointer, "run_id": RUN_ID}),
-	 }); 
-	 const response = await fetch(request);
-	 const data  = await response.json(); 
-	 if (data["error"] && data["trace"]){
-	     term.writeln(`Error occurred:`)
-	     lines  = data["trace"].split("\n")
-	     lines.forEach((line) =>{
-		 term.writeln(line.trim())
-	     })
-	 }
-	 else{
-	     pointer = data["pointer"] 
-	     if (last_pointer != pointer) {
-		 lines = data["data"]
-		 lines.forEach((line) =>{
-		     term.writeln(line.trim())
-		 })
-		 last_pointer  = pointer
-	 }} 
- }}
- document.addEventListener('DOMContentLoaded', async function() {
-     RUNNING = true 
-     if (!STREAMING_ENABLED){
-	 RUNNING = false
-     }
-     let term = new Terminal({
-	 cursorBlink: true,
-	 lineHeight: 1.1,
-	 scrollback: 9999999,
-	 macOptionIsMeta: true,
-	 cursorBlink: true
-     })
-     term.open(document.getElementById('terminal'));
-      // start here 
-      await fetchUpdate(term, action="STREAMING")
-     // end here
+
+  function writeError(term, message) {
+    // ANSI escape code for red text
+    const red = '\x1b[31m'; // Red text
+    const reset = '\x1b[0m'; // Reset to default color
+
+    term.writeln(`${red}${message}${reset}`);
+  }
+
+  
+  async function fetchUpdate(term, action="STREAM") {
+    let last_pointer = 0;
+    while (RUNNING) {
+        try {
+            const request = new Request(`/streaming?peak=${last_pointer}`, {
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                method: "POST",
+                body: JSON.stringify({ "peak": last_pointer, "run_id": RUN_ID }),
+            });
+
+            const response = await fetch(request);            
+            if (!response.ok) {
+                console.error(`Failed to fetch: ${response.statusText}`);
+                break;
+            }
+
+            const data = await response.json();
+            if (data["error"] && data["trace"]) {
+                term.writeln(`Error occurred:`);
+                const lines = data["trace"].split("\n");
+                lines.forEach(line => writeError(term, line.trim()));
+            } else {
+                const pointer = data["pointer"];
+                if (last_pointer !== pointer) {
+                    const lines = data["data"];
+                    lines.forEach(line => term.writeln(line.trim()));
+                    last_pointer = pointer;
+                }
+            }
+        } catch (error) {
+            console.error("Error during fetch operation:", error);
+	    writeError(term, "Network error, retrying ....")
+        }
+    }
+ }
+
+
+  document.addEventListener('DOMContentLoaded', async function() {
+      try {
+        RUNNING = STREAMING_ENABLED;
+
+        // Initialize the terminal
+        let term = new Terminal({
+            cursorBlink: true,
+            lineHeight: 1.1,
+            scrollback: 9999999,
+            macOptionIsMeta: true
+        });
+        term.open(document.getElementById('terminal'));
+
+        // Use await to wait for the fetchUpdate function
+        await fetchUpdate(term, "STREAM");
+
+    } catch (error) {
+        console.error("An error occurred during the fetch operation:", error);
+    }
  })
  
 
