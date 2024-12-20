@@ -5,16 +5,17 @@
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/xterm@5.3.0/css/xterm.min.css">
 
 <!-- why this a form  -->
+<!--
 <div class="container-fluid">
     <div class="row" style="margin-top:10px">
 	<div class="col-sm-4">
+-->
 	    <form method="post" action="" name="loading_form" id="loading_form" class="form-horizontal">
 		{% for key, value in start_vars.items() %}
 		<input type="hidden" name="{{ key }}" value="{{ value }}">
 		{% endfor %}
 		
 		<div class="container">    
-		    <div>
 			<div style="min-height: 80vh; display: flex; align-items: center; text-align: left;">
 			    <div style="margin-bottom: 5px; left: 50%; margin-right: -50%; top: 50%; transform: translate(-50%, -50%); position: absolute;">
 				{% if start_vars.tool_used == "Mapping" %}
@@ -106,9 +107,9 @@
 				{% endif %}
 			    </div>
 			</div>
-		    </div>
 		</div>
 	    </form> 
+<!--
 	</div>
 	<div class="col-sm-8 row" style="min-height: 80vh;display:flex;align-items:center">
             <div class="col-sm-8 col-sm-offset-2">
@@ -122,6 +123,7 @@
 	</div>
     </div>
 </div>
+-->
 
 
 
