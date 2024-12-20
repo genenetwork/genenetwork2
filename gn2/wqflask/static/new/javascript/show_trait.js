@@ -721,6 +721,28 @@ $('#select_by_attr').click(function() {
   blockByAttributeValue(block=false);
 });
 
+selectAllWithValues = function() {
+  tables = ['samples_primary', 'samples_other'];
+  for (_i = 0, _len = tables.length; _i < _len; _i++) {
+    table = tables[_i];
+    if ($('#' + table).length) {
+      tableApi = $('#' + table).DataTable();
+    }
+    var checkNodes = tableApi.column(0).nodes().to$();
+    var valueNodes = tableApi.column(3).nodes().to$();
+
+    for (_k = 0, _len1 = valueNodes.length; _k < _len1; _k++) {
+      if (!isNaN(valueNodes[_k].childNodes[0].value)){
+        checkNodes[_k].childNodes[0].checked = true
+      } else {
+        checkNodes[_k].childNodes[0].checked = false
+      }
+    }
+  }
+  editDataChange();
+};
+
+
 blockByIndex = function(block=true) {
   var end_index, error, index, index_list, index_set, index_string, start_index, _i, _j, _k, _len, _len1, _ref;
   index_string = $('#remove_samples_field').val();
@@ -1683,6 +1705,10 @@ $('.stats_panel').click(function() {
     editDataChange();
   }
 });
+
+$('#select_all_with_values').click(function(){
+  selectAllWithValues();
+})
 
 $('#block_by_index').click(function(){
   blockByIndex();
