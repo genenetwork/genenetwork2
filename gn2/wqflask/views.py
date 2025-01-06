@@ -1046,16 +1046,15 @@ def mapping_results_page(hash_of_inputs=None):
     result = template_vars.__dict__
 
     if result['pair_scan']:
-        rendered_template = render_template(
+        return render_template(
             "pair_scan_results.html", **result)
     else:
         gn1_template_vars = display_mapping_results.DisplayMappingResults(
             result).__dict__
 
-        rendered_template = render_template(
+        return render_template(
             "mapping_results.html", **gn1_template_vars)
 
-    return rendered_template
 
 
 @app.route("/cache_mapping_inputs", methods=('POST',))
