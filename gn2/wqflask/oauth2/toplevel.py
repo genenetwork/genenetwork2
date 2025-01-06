@@ -73,7 +73,7 @@ def authorisation_code():
 
         def __success__(token):
             session.set_user_token(token)
-            udets = user_details()
+            udets = user_details(True)
             session.set_user_details({
                 "user_id": uuid.UUID(udets["user_id"]),
                 "name": udets["name"],

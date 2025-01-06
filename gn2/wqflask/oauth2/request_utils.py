@@ -10,6 +10,7 @@ from flask import (
 
 from gn2.wqflask.external_errors import ExternalRequestError
 
+from . import session
 from .client import (
     SCOPE, oauth2_get, authserver_uri, oauth2_clientid, oauth2_clientsecret)
 
@@ -23,7 +24,7 @@ def authserver_authorise_uri():
         f"&redirect_uri={urljoin(host_uri, 'oauth2/code')}")
 
 
-def user_details():
+def user_details(fetch_remote: bool = False):
     def __handle_error__(err):
         error = process_error(err)
         msg = (
@@ -31,8 +32,12 @@ def user_details():
             f"{error['error-trace']}\nStatus Code:\t{error['status_code']}\n\n")
         app.logger.error(msg)
         raise Exception(msg)
-    return oauth2_get("auth/user/").either(__handle_error__,
-                                           lambda usr_dets: usr_dets)
+
+    if fetch_remote:
+        return oauth2_get("auth/user/").either(__handle_error__,
+                                               lambda usr_dets: usr_dets)
+    return session.session_info()["user"]
+
 
 def process_error(error: Response,
                   message: str=("Requested endpoint was not found on the API "
