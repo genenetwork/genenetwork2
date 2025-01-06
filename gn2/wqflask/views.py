@@ -1032,35 +1032,29 @@ def mapping_results_page(hash_of_inputs=None):
     version = "v3"
     key = "mapping_results:{}:".format(
         version) + json.dumps(start_vars, sort_keys=True)
-    result = None  # Just for testing
+    template_vars = run_mapping.RunMapping(start_vars,
+                                           temp_uuid, run_id=RUN_ID)
+    if template_vars.no_results:
+        raise NoMappingResultsError(
+            start_vars["trait_id"], start_vars["dataset"], start_vars["method"])
 
-    if result:
-        result = pickle.loads(result)
+    if not template_vars.pair_scan:
+        template_vars.js_data = json.dumps(template_vars.js_data,
+                                           default=json_default_handler,
+                                           indent="   ")
+
+    result = template_vars.__dict__
+
+    if result['pair_scan']:
+        return render_template(
+            "pair_scan_results.html", **result)
     else:
-        template_vars = run_mapping.RunMapping(start_vars,
-                                               temp_uuid, run_id=RUN_ID)
-        if template_vars.no_results:
-            raise NoMappingResultsError(
-                start_vars["trait_id"], start_vars["dataset"], start_vars["method"])
+        gn1_template_vars = display_mapping_results.DisplayMappingResults(
+            result).__dict__
 
-        if not template_vars.pair_scan:
-            template_vars.js_data = json.dumps(template_vars.js_data,
-                                               default=json_default_handler,
-                                               indent="   ")
+        return render_template(
+            "mapping_results.html", **gn1_template_vars)
 
-        result = template_vars.__dict__
-
-        if result['pair_scan']:
-            rendered_template = render_template(
-                "pair_scan_results.html", **result)
-        else:
-            gn1_template_vars = display_mapping_results.DisplayMappingResults(
-                result).__dict__
-
-            rendered_template = render_template(
-                "mapping_results.html", **gn1_template_vars)
-
-    return rendered_template
 
 
 @app.route("/cache_mapping_inputs", methods=('POST',))
@@ -1702,5 +1696,4 @@ def streaming():
     run_id = request.json.get("run_id", "output")
     results = requests.get(urljoin(GN3_LOCAL_URL,
                                    f"/api/rqtl2/stream/{run_id}?peak={request.args.get('peak')}"))
-    
     return results.json()
