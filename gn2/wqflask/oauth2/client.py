@@ -93,7 +93,7 @@ def __update_auth_server_jwks__():
     return __validate_token__(jwks)
 
 
-def is_token_expired(token):
+def is_token_expired(token) -> bool:
     """Check whether the token has expired."""
     __update_auth_server_jwks__()
     jwks = auth_server_jwks()
@@ -106,7 +106,7 @@ def is_token_expired(token):
             except BadSignatureError as _bse:
                 pass
 
-    return False
+    return True
 
 
 def oauth2_client():
