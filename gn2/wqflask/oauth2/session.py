@@ -6,6 +6,8 @@ from typing import Any, Optional, TypedDict
 from flask import request, session
 from pymonad.either import Left, Right, Either
 
+from gn2.debug import __pk__
+
 class UserDetails(TypedDict):
     """Session information relating specifically to the user."""
     user_id: UUID
@@ -81,7 +83,7 @@ def set_user_details(userdets: UserDetails) -> SessionInfo:
 
 def user_token() -> Either:
     """Retrieve the user token."""
-    return session_info()["user"]["token"]
+    return __pk__("THE TOKEN", session_info()["user"]["token"])
 
 def set_masquerading(masq_info):
     """Save the masquerading user information."""

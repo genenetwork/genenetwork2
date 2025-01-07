@@ -14,6 +14,7 @@ from authlib.jose.errors import BadSignatureError
 from authlib.jose import KeySet, JsonWebKey, JsonWebToken
 from authlib.integrations.requests_client import OAuth2Session
 
+from gn2.debug import __pk__
 from gn2.wqflask.oauth2 import session
 from gn2.wqflask.external_errors import ExternalRequestError
 
@@ -120,32 +121,36 @@ def oauth2_client():
 
     def __refresh_token__(token):
         """Synchronise token refresh."""
+        app.logger.debug("Refreshing token …")
         if is_token_expired(token):
+            app.logger.debug("Token is expired. Waiting…")
             __delay__()
             if session.is_token_refreshing():
+                app.logger.debug("Another thread is currently refreshing the token. Waiting…")
                 while session.is_token_refreshing():
                     __delay__()
 
-                _token = session.user_token().either(None, lambda _tok: _tok)
+                _token = __pk__("Token refreshed in a different thread — New token", session.user_token().either(None, lambda _tok: _tok))
                 return _token
 
+            app.logger.debug("This thread is refreshing the token!")
             session.toggle_token_refreshing()
             _client = __client__(token)
             _client.get(urljoin(authserver_uri(), "auth/user/"))
             session.toggle_token_refreshing()
-            return _client.token
+            return __pk__("New token", _client.token)
 
         return token
 
     def __json_auth__(client, method, uri, headers, body):
-        return (
+        return __pk__("AUTH ==> Sending …", (
             uri,
             {**headers, "Content-Type": "application/json"},
             json.dumps({
                 **dict(url_decode(body)),
                 "client_id": oauth2_clientid(),
                 "client_secret": oauth2_clientsecret()
-            }))
+            })))
 
     def __client__(token) -> OAuth2Session:
         client = OAuth2Session(
