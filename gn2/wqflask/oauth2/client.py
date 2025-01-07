@@ -98,6 +98,7 @@ def is_token_expired(token) -> bool:
     __update_auth_server_jwks__()
     jwks = auth_server_jwks()
     if bool(jwks):
+        app.logger.debug("Got the keys from the auth server.")
         for jwk in jwks["jwks"].keys:
             try:
                 jwt = JsonWebToken(["RS256"]).decode(
@@ -106,6 +107,7 @@ def is_token_expired(token) -> bool:
             except BadSignatureError as _bse:
                 pass
 
+    app.logger.debug("Did not get keys from the auth server.")
     return True
 
 
@@ -128,6 +130,7 @@ def oauth2_client():
             if session.is_token_refreshing():
                 app.logger.debug("Another thread is currently refreshing the token. Waiting…")
                 while session.is_token_refreshing():
+                    app.logger.debug("Waiting for refreshing to complete... %s", session.is_token_refreshing())
                     __delay__()
 
                 _token = __pk__("Token refreshed in a different thread — New token", session.user_token().either(None, lambda _tok: _tok))
