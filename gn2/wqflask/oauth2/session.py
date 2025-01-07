@@ -3,6 +3,7 @@ from uuid import UUID, uuid4
 from datetime import datetime
 from typing import Any, Optional, TypedDict
 
+from authlib.jose import KeySet
 from flask import request, session
 from pymonad.either import Left, Right, Either
 
@@ -135,3 +136,14 @@ def set_redirect_url(url):
 def clear_redirect_url():
     """Clear the redirect url from Session"""
     session_info().pop("redirect_url", None)
+
+
+def set_auth_server_jwks(jwks: KeySet):
+    """Set the auth server's JWKs."""
+    return save_session_info({
+        **session_info(),
+        "auth_server_jwks": {
+            "last-updated": datetime.now().timestamp(),
+            "jwks": jwks.as_dict()
+        }
+    })

@@ -90,6 +90,7 @@ def __update_auth_server_jwks__():
     jwks = KeySet([
         JsonWebKey.import_key(key)
         for key in requests.get(jwksuri).json()["jwks"]])
+    session.set_auth_server_jwks(jwks)
     return __validate_token__(jwks)
 
 
