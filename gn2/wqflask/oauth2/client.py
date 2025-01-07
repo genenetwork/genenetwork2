@@ -129,9 +129,14 @@ def oauth2_client():
             __delay__()
             if session.is_token_refreshing():
                 app.logger.debug("Another thread is currently refreshing the token. Waiting…")
+                timeout: int = 0
                 while session.is_token_refreshing():
                     app.logger.debug("Waiting for refreshing to complete... %s", session.is_token_refreshing())
+                    if timeout > 1000:
+                        session.toggle_token_refreshing()
+                        break
                     __delay__()
+                    timeout = timeout + 1
 
                 _token = __pk__("Token refreshed in a different thread — New token", session.user_token().either(None, lambda _tok: _tok))
                 return _token
