@@ -65,8 +65,7 @@ def auth_server_jwks() -> Optional[KeySet]:
             "last-updated": _jwks["last-updated"],
             "jwks": KeySet([
                 JsonWebKey.import_key(key) for key in _jwks.get(
-                    "auth_server_jwks", {}).get(
-                        "jwks", {"keys": []})["keys"]])}
+                    "jwks", {"keys": []})["keys"]])}
 
 
 def __validate_token__(keys):
