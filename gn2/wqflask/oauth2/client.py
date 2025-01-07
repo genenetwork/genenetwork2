@@ -187,20 +187,17 @@ def oauth2_get(
         headers: dict = {"Content-Type": "application/json"},
         **kwargs
 ) -> Either:
-    def __get__(token) -> Either:
-        resp = oauth2_client().get(
-            urljoin(authserver_uri(), uri_path),
-            data=data,
-            headers=headers,
-            **kwargs)
-        if resp.status_code == 200:
-            if jsonify_p:
-                return Right(resp)
-            return Right(resp.json())
+    resp = oauth2_client().get(
+        urljoin(authserver_uri(), uri_path),
+        data=data,
+        headers=headers,
+        **kwargs)
+    if resp.status_code == 200:
+        if jsonify_p:
+            return Right(resp)
+        return Right(resp.json())
 
-        return Left(resp)
-
-    return session.user_token().either(__no_token__, __get__)
+    return Left(resp)
 
 def oauth2_post(
         uri_path: str,
@@ -209,19 +206,16 @@ def oauth2_post(
         headers: dict = {"Content-Type": "application/json"},
         **kwargs
 ) -> Either:
-    def __post__(token) -> Either:
-        resp = oauth2_client().post(
-            urljoin(authserver_uri(), uri_path),
-            data=data,
-            json=json,
-            headers=headers,
-            **kwargs)
-        if resp.status_code == 200:
-            return Right(resp.json())
+    resp = oauth2_client().post(
+        urljoin(authserver_uri(), uri_path),
+        data=data,
+        json=json,
+        headers=headers,
+        **kwargs)
+    if resp.status_code == 200:
+        return Right(resp.json())
 
-        return Left(resp)
-
-    return session.user_token().either(__no_token__, __post__)
+    return Left(resp)
 
 def no_token_get(
         uri_path: str,
