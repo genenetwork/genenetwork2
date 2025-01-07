@@ -83,7 +83,7 @@ def __update_auth_server_jwks__():
     if bool(jwks):
         last_updated = jwks.get("last-updated")
         now = datetime.now().timestamp()
-        if bool(last_updated) and (now - last_updated) < timedelta(hours=2).seconds:
+        if len(jwks["jwks"].keys) > 0 and bool(last_updated) and (now - last_updated) < timedelta(hours=2).seconds:
             return __validate_token__(jwks["jwks"])
 
     jwksuri = urljoin(authserver_uri(), "auth/public-jwks")
