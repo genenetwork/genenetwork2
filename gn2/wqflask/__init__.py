@@ -54,6 +54,8 @@ def numcoll():
     try:
         return num_collections()
     except Exception as _exc:
+        current_app.logger.error(
+            "Error loading number of columns", exc_info=True)
         return "ERROR"
 
 
