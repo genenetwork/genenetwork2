@@ -121,16 +121,6 @@ def oauth2_client():
         """Do a tiny delay."""
         time.sleep(random.choice(tuple(i/1000.0 for i in range(0,100))))
 
-    def __refresh_token__(token):
-        """Synchronise token refresh."""
-        app.logger.debug("Refreshing token …")
-        _client = __client__(token)
-        _client.get(urljoin(authserver_uri(), "auth/user/"))
-        session.toggle_token_refreshing()
-        app.logger.debug("Token refreshing (02)? %s", session.is_token_refreshing())
-        return __pk__("New token", _client.token)
-
-
     def __json_auth__(client, method, uri, headers, body):
         return __pk__("AUTH ==> Sending …", (
             uri,
@@ -155,9 +145,8 @@ def oauth2_client():
         return client
 
     __update_auth_server_jwks__()
-    return session.user_token().then(__refresh_token__).either(
-        lambda _notok: __client__(None),
-        lambda token: __client__(token))
+    return session.user_token().either(lambda _notok: __client__(None),
+                                       lambda token: __client__(token))
 
 def __no_token__(_err) -> Left:
     """Handle situation where request is attempted with no token."""
