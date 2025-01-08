@@ -84,7 +84,7 @@ def set_user_details(userdets: UserDetails) -> SessionInfo:
 
 def user_token() -> Either:
     """Retrieve the user token."""
-    return __pk__("THE TOKEN", session_info()["user"]["token"])
+    return session_info()["user"]["token"]
 
 def set_masquerading(masq_info):
     """Save the masquerading user information."""
