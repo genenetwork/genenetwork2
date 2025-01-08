@@ -124,34 +124,12 @@ def oauth2_client():
     def __refresh_token__(token):
         """Synchronise token refresh."""
         app.logger.debug("Refreshing token …")
-        if is_token_expired(token):
-            app.logger.debug("Token is expired. Waiting…")
-            __delay__()
-            if session.is_token_refreshing():
-                app.logger.debug("Another thread is currently refreshing the token. Waiting…")
-                timeout: int = 0
-                while session.is_token_refreshing():
-                    app.logger.debug("Waiting for refreshing to complete... %s", session.is_token_refreshing())
-                    if timeout > 1000:
-                        session.toggle_token_refreshing()
-                        break
-                    __delay__()
-                    timeout = timeout + 1
+        _client = __client__(token)
+        _client.get(urljoin(authserver_uri(), "auth/user/"))
+        session.toggle_token_refreshing()
+        app.logger.debug("Token refreshing (02)? %s", session.is_token_refreshing())
+        return __pk__("New token", _client.token)
 
-                _token = __pk__("Token refreshed in a different thread — New token", session.user_token().either(None, lambda _tok: _tok))
-                return _token
-
-            app.logger.debug("This thread is refreshing the token!")
-            app.logger.debug("Token refreshing (00)? %s", session.is_token_refreshing())
-            session.toggle_token_refreshing()
-            app.logger.debug("Token refreshing (01)? %s", session.is_token_refreshing())
-            _client = __client__(token)
-            _client.get(urljoin(authserver_uri(), "auth/user/"))
-            session.toggle_token_refreshing()
-            app.logger.debug("Token refreshing (02)? %s", session.is_token_refreshing())
-            return __pk__("New token", _client.token)
-
-        return token
 
     def __json_auth__(client, method, uri, headers, body):
         return __pk__("AUTH ==> Sending …", (
