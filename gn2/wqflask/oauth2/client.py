@@ -142,10 +142,13 @@ def oauth2_client():
                 return _token
 
             app.logger.debug("This thread is refreshing the token!")
+            app.logger.debug("Token refreshing (00)? %s", session.is_token_refreshing())
             session.toggle_token_refreshing()
+            app.logger.debug("Token refreshing (01)? %s", session.is_token_refreshing())
             _client = __client__(token)
             _client.get(urljoin(authserver_uri(), "auth/user/"))
             session.toggle_token_refreshing()
+            app.logger.debug("Token refreshing (02)? %s", session.is_token_refreshing())
             return __pk__("New token", _client.token)
 
         return token
