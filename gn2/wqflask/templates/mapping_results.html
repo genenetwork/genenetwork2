@@ -11,7 +11,8 @@
 {% block content %}
     <div class="container">
         <form method="post" target="_blank" action="/run_mapping" name="marker_regression" id="marker_regression_form">
-        <input type="hidden" name="temp_uuid" value="{{ temp_uuid }}">
+          <input type="hidden" name="temp_uuid" value="{{ temp_uuid }}">
+	  <input type="hidden" name="run_id" value="">
         {% if temp_trait is defined %}
         <input type="hidden" name="temp_trait" value="{{ temp_trait }}">
         {% endif %}
@@ -528,7 +529,7 @@
 
         });
 
-        var mapping_input_list = ['temp_uuid', 'trait_id', 'dataset', 'tool_used', 'form_url', 'method', 'transform', 'trimmed_markers', 'selected_chr', 'chromosomes', 'mapping_scale', 'sample_vals',
+      var mapping_input_list = ['temp_uuid', "run_id",  'trait_id', 'dataset', 'tool_used', 'form_url', 'method', 'transform', 'trimmed_markers', 'selected_chr', 'chromosomes', 'mapping_scale', 'sample_vals',
                             'score_type', 'suggestive', 'significant', 'num_perm', 'permCheck', 'perm_output', 'perm_strata', 'categorical_vars', 'num_bootstrap', 'bootCheck', 'bootstrap_results',
                             'LRSCheck', 'covariates', 'maf', 'use_loco', 'manhattan_plot', 'color_scheme', 'manhattan_single_color', 'control_marker', 'do_control', 'genofile',
                             'pair_scan', 'startMb', 'endMb', 'graphWidth', 'lrsMax', 'additiveCheck', 'showSNP', 'showHomology', 'showGenes', 'viewLegend', 'haplotypeAnalystCheck',
@@ -554,10 +555,24 @@
             $('#marker_regression_form').submit();
         };
 
-        remap = function() { 
-            $('input[name=selected_chr]').val($('select[name=chromosomes]').val());
-            $('input[name=color_scheme]').val($('select#color_scheme').val());
-            $('#marker_regression_form').attr('action', '/loading');
+      remap = function() {
+             $('input[name=selected_chr]').val($('select[name=chromosomes]').val());
+          $('input[name=color_scheme]').val($('select#color_scheme').val());
+	  // added the line below to enable streaming for remaps
+	    function randomstring(L) {
+	       // function to generate random string as identifier
+                var s = '';
+                var randomchar = function() {
+                var n = Math.floor(Math.random() * 62);
+                if (n < 10) return n; //1-10
+               if (n < 36) return String.fromCharCode(n + 55); //A-Z
+               return String.fromCharCode(n + 61); //a-z
+                 }
+              while (s.length < L) s += randomchar();
+             return s}
+	    let run_id = randomstring(12)
+	    $('input[name=run_id]').val(run_id);
+          $('#marker_regression_form').attr('action', `/loading?id=${run_id}`);
             return $('#marker_regression_form').submit(); 
         };
 
