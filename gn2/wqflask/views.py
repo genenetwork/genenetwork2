@@ -875,7 +875,6 @@ def mapping_results_container_page():
 def loading_page():
     initial_start_vars = request.form
     start_vars_container = {}
-
     run_id = request.args.get("id")  # get the id for this
     streaming_enabled = False
     if (run_id):
@@ -938,7 +937,9 @@ def loading_page():
 @app.route("/run_mapping/<path:hash_of_inputs>")
 def mapping_results_page(hash_of_inputs=None):
 
-    RUN_ID = request.args.get("id") # require to stream output
+    RUN_ID = request.args.get("id")  # require to stream output
+    if not RUN_ID:
+        RUN_ID = request.form.get("run_id")
     if hash_of_inputs:
         initial_start_vars = json.loads(Redis.get(hash_of_inputs))
         initial_start_vars['hash_of_inputs'] = hash_of_inputs
@@ -953,7 +954,6 @@ def mapping_results_page(hash_of_inputs=None):
 
         # Just store for one hour on initial load; will be stored for longer if user clicks Share
         Redis.set(hash_of_inputs, inputs_json, ex=60*60*24*30)
-
     temp_uuid = initial_start_vars['temp_uuid']
     wanted = (
         'trait_id',
@@ -1051,7 +1051,6 @@ def mapping_results_page(hash_of_inputs=None):
     else:
         gn1_template_vars = display_mapping_results.DisplayMappingResults(
             result).__dict__
-
         return render_template(
             "mapping_results.html", **gn1_template_vars)
 
