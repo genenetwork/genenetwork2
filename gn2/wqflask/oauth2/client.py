@@ -103,7 +103,7 @@ def is_token_expired(token) -> bool:
             try:
                 jwt = JsonWebToken(["RS256"]).decode(
                     token["access_token"], key=jwk)
-                return datetime.now().timestamp() > jwt["exp"]
+                return bool(jwt.get("exp")) and datetime.now().timestamp() > jwt["exp"]
             except BadSignatureError as _bse:
                 pass
 
