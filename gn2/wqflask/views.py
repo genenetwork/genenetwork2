@@ -1694,5 +1694,5 @@ def streaming():
         )
     run_id = request.json.get("run_id", "output")
     results = requests.get(urljoin(GN3_LOCAL_URL,
-                                   f"/api/rqtl2/stream/{run_id}?peak={request.args.get('peak')}"))
+                                   f"/api/stream/{run_id}?peak={request.args.get('peak')}"))
     return results.json()
