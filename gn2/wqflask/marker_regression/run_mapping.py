@@ -309,8 +309,8 @@ class RunMapping:
             self.no_results = True
         else:
             # Check if genotypes exist in the DB in order to create links for markers
-            self.geno_db_exists = geno_db_exists(self.dataset, results[0]['name'])
-
+            # use the first marker as name refer to geno_db_exists docs
+            self.geno_db_exists = geno_db_exists(self.dataset, results[0]['name'][0])
             if self.pair_scan == True:
                 self.figure_data = results[0]
                 self.table_data = results[1]
