@@ -4,17 +4,17 @@
 <!-- <link rel="stylesheet" type="text/css" href="{{ url_for('css', filename='xterm/xterm.min.css') }}" /> -->
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/xterm@5.3.0/css/xterm.min.css">
 
-<!-- why this a form  -->
-
+{% if start_vars.method == 'rqtl_geno' %}
 <div class="container-fluid">
-    <div class="row" style="margin-top:10px">
+	<div class="row" style="margin-top:10px">
 	<div class="col-sm-4">
-	    <form method="post" action="" name="loading_form" id="loading_form" class="form-horizontal">
+{% endif %}
+		<form method="post" action="" name="loading_form" id="loading_form" class="form-horizontal">
 		{% for key, value in start_vars.items() %}
 		<input type="hidden" name="{{ key }}" value="{{ value }}">
 		{% endfor %}
 		
-		<div class="container">    
+		<div class="container">
 			<div style="min-height: 80vh; display: flex; align-items: center; text-align: left;">
 			    <div style="margin-bottom: 5px; left: 50%; margin-right: -50%; top: 50%; transform: translate(-50%, -50%); position: absolute;">
 				{% if start_vars.tool_used == "Mapping" %}
@@ -78,7 +78,7 @@
 				{% endif %}
 				<br><br>
 				<div style="text-align: center;">
-				    <img align="center" src="/static/gif/waitAnima2.gif">
+					<img align="center" src="/static/gif/waitAnima2.gif">
 				</div>
 
 				{% if start_vars.vals_diff|length != 0 and start_vars.transform == "" %}
@@ -88,9 +88,9 @@
 				<div id="diff_table_container" style="display: none; height:200px; overflow:auto;">
 				    <table class="table table-hover">
 					<thead>
-					    <th>Sample</th>
-					    <th>New Value</th>
-					    <th>Old Value</th>
+						<th>Sample</th>
+						<th>New Value</th>
+						<th>Old Value</th>
 					</thead>
 					<tbody>
 					    {% for sample in start_vars.vals_diff %}
@@ -101,43 +101,41 @@
 					    </tr>
 					    {% endfor %}
 					</tbody>
-				    </table>
+					</table>
 				</div>
 				{% endif %}
-			    </div>
+				</div>
 			</div>
 		</div>
-	    </form> 
+		</form>
 
 	</div>
+	{% if start_vars.method == 'rqtl_geno' %}
 	<div class="col-sm-8 row" style="min-height: 80vh;display:flex;align-items:center">
-          <div class="col-sm-8 col-sm-offset-2">
-
-	      <!--start according here -->
-	      <div class="panel-group" id="accordion" role="tablist" aria-multiselectable="false">
-
-  <div class="panel panel-default">
-      <div class="panel-heading">
-        <h4 class="panel-title">
-          <a data-toggle="collapse" data-parent="#accordion" href="#collapseTwo">
-            <span class="glyphicon glyphicon-menu-right text-info"></span> Click to display System  Log         
-          </a>
-        </h4>
-      </div>
-      <div id="collapseTwo" class="panel-collapse collapse">
-          <div class="panel-body" id="streamingContainer">
-	      <div id="terminal"> </div>
-	  </div>
-      </div>
-  </div>
- 
-	     </div>
-             <!--end accordion here -->
-	    </div>
+		<div class="col-sm-8 col-sm-offset-2">
+			<!--start according here -->
+			<div class="panel-group" id="accordion" role="tablist" aria-multiselectable="false">
+				<div class="panel panel-default">
+					<div class="panel-heading">
+						<h4 class="panel-title">
+						<a data-toggle="collapse" data-parent="#accordion" href="#collapseTwo">
+						<span class="glyphicon glyphicon-menu-right text-info"></span> Click to display System  Log
+						</a>
+						</h4>
+					</div>
+					<div id="collapseTwo" class="panel-collapse collapse">
+						<div class="panel-body" id="streamingContainer">
+							<div id="terminal"> </div>
+						</div>
+					</div>
+				</div>
+			</div>
+			<!--end accordion here -->
+		</div>
 	</div>
-    </div>
+	</div>
 </div>
--->
+{% endif %}
 
 
 
