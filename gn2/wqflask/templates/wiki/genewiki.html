@@ -7,7 +7,13 @@
         <p>
             GeneWiki enables you to enrich the annotation of genes and transcripts. Please submit or edit a GeneWiki note (500 characters max) related to a gene, its transcripts, or proteins. When possible include PubMed identifiers or web resource links (URL addresses). Please ensure that the additions will have widespread use. For additional information, check the GeneWiki <a href="https://gn1.genenetwork.org/GeneWikihelp.html" target="_blank">help document</a>.
         </p>
-        <h3>GeneWiki For {{ symbol }}:</h3>
+        <h3>GeneWiki For {{ symbol }}:
+	    {% if is_logged_in and wiki %}
+	    <a href="{{ url_for('edit_wiki', symbol=symbol) }}" class="btn btn-primary">
+		New GeneWiki Entry
+	    </a>
+	    {% endif %}
+	</h3>
         <h5>
             <strong>GeneNetwork:</strong>
         </h5>
@@ -47,7 +53,13 @@
             </ol>
         {% else %}
             <p class = "well">
-                <u> There are no GeneNetwork entries for <b> {{ symbol }}.</b></u>
+                <u> There are no GeneNetwork entries for <b> {{ symbol }}.</b></u><br/>
+		Consider adding new gene entries: <br/>
+		{% if is_logged_in %}
+		<a href="{{ url_for('edit_wiki', symbol=symbol) }}" class="btn btn-primary">
+		    New GeneWiki Entry
+		</a>
+		{% endif %}
             </p>
         {% endif %}
         <h5>
