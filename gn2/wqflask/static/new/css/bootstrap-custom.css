@@ -7558,3 +7558,8 @@ button.close {
         display: none !important;
     }
 }
+
+.col-centered{
+    float: none;
+    margin: 0 auto;
+}
