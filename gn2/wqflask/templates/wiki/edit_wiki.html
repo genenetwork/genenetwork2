@@ -9,17 +9,28 @@
  .container {
      align-content: center;
  }
+
+ .wiki-btns {
+     margin-top: 5em;
+ }
+
+ .wiki-btns button:first-child {
+     margin-right: 1em;
+ }
+
+ .wiki {
+     width: fit-content;
+ }
 </style>
 {% endblock %}
 
 {% block content %}
 
 {{ flash_me() }}
-<section class="container center-block">
-    <div class="row">
-	<div class="col-md-3"></div>
-	<div class="col-md-9">
-	    <h2>Edit Wiki</h2>
+<section class="container">
+    <div class="row wiki-form">
+	<div class="wiki col-centered">
+	    <h1>Edit Wiki</h1>
 	    <br>
 	    <form class="form-horizontal" method="POST">
 		<input type="hidden" name="symbol" value="{{ content["symbol"] }}">
@@ -83,11 +94,14 @@
 		    </div>
 		    {% endfor %}
 		</div>
-		<div class="form-group">
-		    <button type="submit" name="submit" class="btn btn-primary">Update GeneWiki Entry</button>
-		    <button type="reset" name="rest" class="btn btn-secondary" onClick="window.location.reload();">Reset</button>
-		</div>
 	    </form>
 	</div>
-    </div>
+	</div>
+
+	<div class="row wiki-btns">
+	    <div class="col-md-3 form-group col-centered">
+		<button type="submit" name="submit" class="btn btn-lg btn-primary">Update GeneWiki Entry</button>
+		<button type="reset" name="rest" class="btn btn-lg btn-secondary" onClick="window.location.reload();">Reset</button>
+	    </div>
+	</div>
 {% endblock %}
