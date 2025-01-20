@@ -92,6 +92,7 @@ app = Flask(__name__)
 app.config.from_object('gn2.default_settings')
 app.config.from_envvar('GN2_SETTINGS')
 app.config["SESSION_REDIS"] = redis.from_url(app.config["REDIS_URL"])
+app.config['TEMPLATES_AUTO_RELOAD'] = True
 # BEGIN: SECRETS -- Should be the last of the settings to load
 secrets_file = Path(app.config.get("GN2_SECRETS", "")).absolute()
 if secrets_file.exists() and secrets_file.is_file():
