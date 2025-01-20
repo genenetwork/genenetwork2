@@ -1312,13 +1312,21 @@ def display_genewiki_page(symbol: str):
     try:
         wiki = requests.get(
             urljoin(GN3_LOCAL_URL, f"/api/metadata/wiki/{symbol}"))
-        rif = requests.get(
-            urljoin(GN3_LOCAL_URL, f"/api/metadata/rif/{symbol}"))
         wiki.raise_for_status()
-        rif.raise_for_status()
-        wiki, rif = wiki.json(), rif.json()
+        wiki = wiki.json()
+    except requests.exceptions.HTTPError as excp:
+        wiki = {}
     except requests.RequestException as excp:
         flash(excp, "alert-warning")
+    try:
+        rif = requests.get(
+            urljoin(GN3_LOCAL_URL, f"/api/metadata/rif/{symbol}"))
+        rif.raise_for_status()
+        rif = rif.json()
+    except requests.RequestException as excp:
+        flash(excp, "alert-warning")
+    except requests.exceptions.HTTPError as excp:
+        rif = {}
     sess_info = session_info()
     is_logged_in = sess_info.get("user", {}).get("logged_in", False)
     return render_template("wiki/genewiki.html",
