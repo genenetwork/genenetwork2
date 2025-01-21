@@ -30,6 +30,7 @@ import xlsxwriter
 import requests
 import numpy as np
 import flask
+from typing import Optional
 from gn_libs.mysqldb import database_connection
 from gn3.computations.gemma import generate_hash_of_string
 from flask import current_app
@@ -1602,16 +1603,21 @@ def approve_reject_diff() -> Response:
                                 diff_id=form["diff_id"]))
 
 
+@app.route("/genewiki/edit", methods=["GET", "POST"], defaults={'comment_id': None})
 @app.route("/genewiki/<int:comment_id>/edit", methods=["GET", "POST"])
 @require_oauth2
-def edit_wiki(comment_id: int):
+def edit_wiki(comment_id: Optional[int]):
     """fetch generif metadata from gn3 and display it"""
     if request.method == "GET":
-        last_wiki_resp = requests.get(
-            urljoin(GN3_LOCAL_URL, f"/api/metadata/wiki/{comment_id}")
-        )
-        last_wiki_resp.raise_for_status()
-        last_wiki_content = last_wiki_resp.json()
+        last_wiki_content = {}
+        if comment_id:
+            last_wiki_resp = requests.get(
+                urljoin(GN3_LOCAL_URL, f"/api/metadata/wiki/{comment_id}")
+            )
+            last_wiki_resp.raise_for_status()
+            last_wiki_content = last_wiki_resp.json()
+        else:
+            last_wiki_content["symbol"] = request.args.get("symbol")
 
         species_dict_resp = requests.get(
             urljoin(GN3_LOCAL_URL, "/api/metadata/wiki/species")
@@ -1650,7 +1656,7 @@ def edit_wiki(comment_id: int):
             "web_url": web_url,
             "initial": post_data["initial"],
             "categories": post_data.getlist("genecategory"),
-            "reason": post_data["reason"],
+            "reason": post_data.get("reason", ""),
         }
 
         def _invalid_token(err):
@@ -1659,9 +1665,13 @@ def edit_wiki(comment_id: int):
         token = session_info()["user"]["token"].either(
             lambda err: _invalid_token(err), lambda tok: tok["access_token"]
         )
+        edit_wiki_url = "/api/metadata/wiki/edit"
+
+        if comment_id:
+            edit_wiki_url = f"/api/metadata/wiki/{comment_id}/edit"
 
         post_response = requests.post(
-            urljoin(GN3_LOCAL_URL, f"api/metadata/wiki/{comment_id}/edit"),
+            urljoin(GN3_LOCAL_URL, edit_wiki_url),
             json=payload,
             headers={"Authorization": f"Bearer {token}"},
         )
