@@ -30,14 +30,26 @@
 <section class="container">
     <div class="row wiki-form">
 	<div class="wiki col-centered">
-	    <h1>Edit Wiki</h1>
+	    <h1>
+		{% if last_wiki_content %}
+		Add GeneWiki Entry
+		{% else %}
+		Edit Wiki
+		{% endif %}
+
+		{% if content["symbol"] %}
+                for {{ content["symbol"] }}
+		{% endif %}
+	    </h1>
 	    <br>
 	    <form class="form-horizontal" method="POST">
 		<input type="hidden" name="symbol" value="{{ content["symbol"] }}">
+		{% if last_wiki_content %}
 		<div class="form-group">
 		    <label for="reason" class="col-sm-2">Reason for Modification: </label>
 		    <input type="text" name="reason" size=45 maxlength=100 required>
 		</div>
+		{% endif %}
 		<div class="form-group">
 		    <label for="species" class="col-sm-2">Species: </label>
 		    <select name="species" id="species">
@@ -93,15 +105,21 @@
 		    {% endfor %}
 		    </div>
 		    {% endfor %}
-		</div>
+		    </div>
+		    <div class="row wiki-btns">
+			<div class="col-md-3 form-group col-centered">
+			    <button type="submit" name="submit" class="btn btn-lg btn-primary">
+				{% if last_wiki_content %}
+				Update
+				{% else %}
+				Create
+				{% endif %}
+				GeneWiki Entry
+			    </button>
+			    <button type="reset" name="rest" class="btn btn-lg btn-secondary" onClick="window.location.reload();">Reset</button>
+			</div>
+		    </div>
 	    </form>
 	</div>
-	</div>
-
-	<div class="row wiki-btns">
-	    <div class="col-md-3 form-group col-centered">
-		<button type="submit" name="submit" class="btn btn-lg btn-primary">Update GeneWiki Entry</button>
-		<button type="reset" name="rest" class="btn btn-lg btn-secondary" onClick="window.location.reload();">Reset</button>
-	    </div>
 	</div>
 {% endblock %}
