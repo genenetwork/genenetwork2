@@ -111,6 +111,8 @@ app.jinja_env.globals.update(
     num_collections=numcoll,
     datetime=datetime)
 
+app.url_map.strict_slashes = False
+
 
 # Registering blueprints
 app.register_blueprint(gn_docs_blueprint, url_prefix="/gn-docs")
