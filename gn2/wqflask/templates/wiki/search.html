@@ -3,7 +3,7 @@
 {% block content %}
     <div class="container">
         <div class="row">
-            <div class="col-lg-8 col-centered">
+            <div class="col-lg-8">
                 <h1>
                     <strong>GeneWiki Entries</strong>
                 </h1>
@@ -15,9 +15,9 @@
         </div>
         <div class="row">
             <form method="POST"
-                  class="form-inline col-md-9 col-centered"
+                  class="form-inline col-md-9"
                   action="{{ url_for("search_wiki") }}">
-                <div class="form-group col-md-offset-2">
+                <div class="form-group">
                     <label for="search" class="sr-only">Search Symbol</label>
                     <input name="search"
                            type="text"
