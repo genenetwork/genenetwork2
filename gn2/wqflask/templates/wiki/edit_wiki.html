@@ -1,125 +1,127 @@
 {% extends "index_page.html" %}
-
 {% block css %}
-<style>
- .panel {
-     width: 90%;
-     margin: 2em;
- }
- .container {
-     align-content: center;
- }
+    <style>
+        .wiki-btns {
+            margin-top: 5em;
+        }
 
- .wiki-btns {
-     margin-top: 5em;
- }
-
- .wiki-btns button:first-child {
-     margin-right: 1em;
- }
-
- .wiki {
-     width: fit-content;
- }
-</style>
+        .wiki-btns button:first-child {
+            margin-right: 1em;
+            margin-left: 1em;
+        }
+    </style>
 {% endblock %}
-
 {% block content %}
-
-{{ flash_me() }}
-<section class="container">
-    <div class="row wiki-form">
-	<div class="wiki col-centered">
-	    <h1>
-		{% if last_wiki_content %}
-		Add GeneWiki Entry
-		{% else %}
-		Edit Wiki
-		{% endif %}
-
-		{% if content["symbol"] %}
-                for {{ content["symbol"] }}
-		{% endif %}
-	    </h1>
-	    <br>
-	    <form class="form-horizontal" method="POST">
-		<input type="hidden" name="symbol" value="{{ content["symbol"] }}">
-		{% if last_wiki_content %}
-		<div class="form-group">
-		    <label for="reason" class="col-sm-2">Reason for Modification: </label>
-		    <input type="text" name="reason" size=45 maxlength=100 required>
-		</div>
-		{% endif %}
-		<div class="form-group">
-		    <label for="species" class="col-sm-2">Species: </label>
-		    <select name="species" id="species">
-			{% for name, species_name in species_dict.items() %}
-			    {% if name == content["species"] %}
-			    <option selected="selected" value="{{ name }}">{{ species_name }}</option>
-			    {% else %}
-			    <option value="{{ name }}">{{ species_name }}</option>
-			    {% endif %}
-			{% endfor %}
-		    </select>
-		</div>
-		<div class="form-group">
-		    <label for="pubmed_ids" class="col-sm-2">PubMed IDS: </label>
-		    <input type="text" name="pubmed_ids" size=25 maxlength=25 value="{{ " ".join(content["pubmed_ids"]) }}">
-		    (optional, separate by blank space only)
-		</div>
-		<div class="form-group">
-		    <label for="web_url" class="col-sm-2">Web resource URL: </label>
-		    {% if content["weburl"] %}
-		    <input type="text" name="web_url" value="{{ content["weburl"] }}" size=50 maxlength=255>
-		    {% else %}
-		    <input type="text" name="web_url" value="http://" size=50 maxlength=255>
-		    {% endif %}
-		    (optional)
-		</div>
-		<div class="form-group">
-		    <label for="comment" class="col-sm-2">Text: </label>
-		    <textarea name="comment" rows=5 cols=60 required>{{ content["comment"] }}</textarea>
-		</div>
-		<div class="form-group">
-		    <label for="email" class="col-sm-2">Email: </label>
-		    <input type="text" name="email" value="{{ session_email }}" required>
-		</div>
-		<div class="form-group">
-		    <label for="usercode" class="col-sm-2">User Code: </label>
-		    <input type="text" name="initial" value="{{ content["initial"] }}"/>
-		    (optional user or project code or your initials)
-		</div>
-		<div class="form-group">
-		    <label class="col-sm-2">Category of Gene<br>(Please select one or <br>many categories): </label>
-		    <div class="col-sm-10">
-		    {% for group in grouped_categories %}
-		    <div class="row">
-		    {% for cat in group %}
-			<label class="checkbox-inline col-sm-3">
-			    {% if cat in content["categories"] %}
-			    <input checked type="checkbox" name="genecategory" value="{{ cat }}"> {{ cat }}
-			    {% else %}
-			    <input type="checkbox" name="genecategory" value="{{ cat }} "> {{ cat }}
-			    {% endif %}
-			</label>
-		    {% endfor %}
-		    </div>
-		    {% endfor %}
-		    </div>
-		    <div class="row wiki-btns">
-			<div class="col-md-3 form-group col-centered">
-			    <button type="submit" name="submit" class="btn btn-lg btn-primary">
-				{% if last_wiki_content %}
-				Update
-				{% else %}
-				Create
-				{% endif %}
-				GeneWiki Entry
-			    </button>
-			    <button type="reset" name="rest" class="btn btn-lg btn-secondary" onClick="window.location.reload();">Reset</button>
-			</div>
-		    </div>
-	    </form>
-	</div>
-	</div>
+    {{ flash_me() }}
+    <div class="container">
+        <div class="row">
+            <div class="col-md-12">
+                <h1>
+                    {% if last_wiki_content %}
+                        Add GeneWiki Entry
+                    {% else %}
+                        Edit Wiki
+                    {% endif %}
+                    {% if content["symbol"] %}for {{ content["symbol"] }}{% endif %}
+                </h1>
+                <br />
+                <form class="form-horizontal" method="POST">
+                    <input type="hidden" name="symbol" value="{{ content["symbol"] }}">
+                    {% if last_wiki_content %}
+                        <div class="form-group">
+                            <label for="reason" class="col-sm-2">Reason for Modification:</label>
+                            <input type="text" name="reason" size=45 maxlength=100 required>
+                        </div>
+                    {% endif %}
+                    <div class="form-group">
+                        <label for="species" class="col-sm-2">Species:</label>
+                        <select name="species" id="species">
+                            {% for name, species_name in species_dict.items() %}
+                                {% if name == content["species"] %}
+                                    <option selected="selected" value="{{ name }}">{{ species_name }}</option>
+                                {% else %}
+                                    <option value="{{ name }}">{{ species_name }}</option>
+                                {% endif %}
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="pubmed_ids" class="col-sm-2">PubMed IDS:</label>
+                        <input type="text"
+                               name="pubmed_ids"
+                               size="25"
+                               maxlength="25"
+                               value="{{ " ".join(content["pubmed_ids"]) }}">
+                        (optional, separate by blank space only)
+                    </div>
+                    <div class="form-group">
+                        <label for="web_url" class="col-sm-2">Web resource URL:</label>
+                        {% if content["weburl"] %}
+                            <input type="text"
+                                   name="web_url"
+                                   value="{{ content["weburl"] }}"
+                                   size="50"
+                                   maxlength="255">
+                        {% else %}
+                            <input type="text" name="web_url" value="http://" size=50 maxlength=255>
+                        {% endif %}
+                        (optional)
+                    </div>
+                    <div class="form-group">
+                        <label for="comment" class="col-sm-2">Text:</label>
+                        <textarea name="comment" rows=5 cols=60 required>{{ content["comment"] }}</textarea>
+                    </div>
+                    <div class="form-group">
+                        <label for="email" class="col-sm-2">Email:</label>
+                        <input type="text" name="email" value="{{ session_email }}" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="usercode" class="col-sm-2">User Code:</label>
+                        <input type="text" name="initial" value="{{ content["initial"] }}" />
+                        (optional user or project code or your initials)
+                    </div>
+                    <div class="form-group">
+                        <label class="col-sm-2">
+                            Category of Gene
+                            <br>
+                            (Please select one or
+                            <br>
+                            many categories):
+                        </label>
+                        <div class="col-sm-10">
+                            {% for group in grouped_categories %}
+                                <div class="row">
+                                    {% for cat in group %}
+                                        <label class="checkbox-inline col-sm-3">
+                                            {% if cat in content["categories"] %}
+                                                <input checked type="checkbox" name="genecategory" value="{{ cat }}">
+                                                {{ cat }}
+                                            {% else %}
+                                                <input type="checkbox" name="genecategory" value="{{ cat }} ">
+                                                {{ cat }}
+                                            {% endif %}
+                                        </label>
+                                    {% endfor %}
+                                </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    <div class="form-group wiki-btns">
+                        <button type="submit" name="submit" class="btn btn-lg btn-primary">
+                            {% if last_wiki_content %}
+                                Update
+                            {% else %}
+                                Create
+                            {% endif %}
+                            GeneWiki Entry
+                        </button>
+                        <button type="reset"
+                                name="rest"
+                                class="btn btn-lg btn-secondary"
+                                onClick="window.location.reload();">Reset</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
 {% endblock %}
