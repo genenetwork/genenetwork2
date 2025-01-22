@@ -23,7 +23,7 @@
     <a href="{{url_for('oauth2.resource.user_resources')}}">Resources</a>
   </li>
 
-  {%if "system:data:link-to-group" in user_sys_privileges %}
+  {%if "system:data:link-to-group" in user_sys_privileges|map(attribute="privilege_id") %}
   <li role="presentation"
       {%if calling_page == "data"%}
       class="active"
@@ -32,7 +32,7 @@
   </li>
   {%endif%}
 
-  {%if "system:user:masquerade" in user_sys_privileges %}
+  {%if "system:user:masquerade" in user_sys_privileges|map(attribute="privilege_id") %}
   <li role="presentation"
       {%if calling_page == "masquerade"%}
       class="active"
