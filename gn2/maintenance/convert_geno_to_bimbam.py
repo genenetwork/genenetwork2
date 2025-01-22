@@ -156,14 +156,18 @@ class ConvertGenoFile:
             yield row
 
     @classmethod
-    def process_all(cls, old_directory, new_directory):
+    def process_all(cls, old_directory, new_directory, group_name=None):
         os.chdir(old_directory)
         for input_file in glob.glob("*"):
             if not input_file.endswith(('geno', '.geno.gz')):
                 continue
-            group_name = ".".join(input_file.split('.')[:-1])
-            if group_name == "HSNIH-Palmer":
+
+            this_group_name = ".".join(input_file.split('.')[:-1])
+
+            # If group_name provided, only convert that file. Otherwise convert all .geno files in directory.
+            if group_name and this_group_name != group_name:
                 continue
+
             geno_output_file = os.path.join(
                 new_directory, group_name + "_geno.txt")
             pheno_output_file = os.path.join(
@@ -191,11 +195,7 @@ class ConvertGenoFile:
 
 
 if __name__ == "__main__":
-    Old_Geno_Directory = """/export/local/home/zas1024/gn2-zach/genotype_files/genotype"""
-    New_Geno_Directory = """/export/local/home/zas1024/gn2-zach/genotype_files/genotype/bimbam"""
-    #Input_File = """/home/zas1024/gene/genotype_files/genotypes/BXD.geno"""
-    #Output_File = """/home/zas1024/gene/wqflask/wqflask/pylmm/data/bxd.snps"""
-    #convertob = ConvertGenoFile("/home/zas1024/gene/genotype_files/genotypes/SRxSHRSPF2.geno", "/home/zas1024/gene/genotype_files/new_genotypes/SRxSHRSPF2.json")
-    # convertob.convert()
-    ConvertGenoFile.process_all(Old_Geno_Directory, New_Geno_Directory)
-    # ConvertGenoFiles(Geno_Directory)
+    group_name = sys.argv[1] # ex: BXD
+    old_geno_directory = sys.argv[2] # .geno file directory
+    new_geno_directory = sys.argv[3] # BIMBAM file directory
+    ConvertGenoFile.process_all(old_geno_directory, new_geno_directory, group_name)
