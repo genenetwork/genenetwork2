@@ -4,15 +4,16 @@
 #
 # Mostly to pick up the Guix GN2_PROFILE and python modules
 
+import sys
 import argparse
+import link_checker
 from link_checker import check_links
-from link_checker import check_packaged_js_files
+from user_tests import check_user_features
 from mapping_tests import check_mapping
 from navigation_tests import check_navigation
-from correlation_tests import check_correlations, check_correlations_correctness
+from link_checker import check_packaged_js_files
 from main_web_functionality import check_main_web_functionality
-import link_checker
-import sys
+from correlation_tests import check_correlations, check_correlations_correctness
 
 # Imports for integration tests
 from unittest import TestSuite, TextTestRunner, TestLoader
@@ -145,6 +146,16 @@ parser.add_argument(
     const=check_correlations_correctness,
     default=print_help,
     help="Check that the correlation results are correct"
+)
+
+parser.add_argument(
+    "-u",
+    "--user-features",
+    dest="accumulate",
+    action="store_const",
+    const=check_user_features,
+    default=print_help,
+    help="Check for regressions in user-related features"
 )
 
 
