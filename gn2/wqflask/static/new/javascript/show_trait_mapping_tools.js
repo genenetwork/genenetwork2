@@ -216,7 +216,9 @@ $(".rqtl-pair-tab, #rqtl_pair_compute").on("click", (function(_this) {
   return function() {
     if ($(this).hasClass('active') || $(this).attr('id') == "rqtl_pair_compute"){
       var form_data, url;
-      url = "/loading";
+      const runID  = randomstring(12);
+      url = `/loading?id=${runID}`;
+      var mapping_url = `/run_mapping?id=${runID}`
       $('input[name=method]').val("rqtl_geno");
       $('input[name=pair_scan]').val("true");
       $('input[name=genofile]').val($('#genofile_rqtl_pair').val());
@@ -227,7 +229,7 @@ $(".rqtl-pair-tab, #rqtl_pair_compute").on("click", (function(_this) {
       $('input[name=control_marker]').val($('input[name=control_rqtl_pair]').val());
       $('input[name=do_control]').val($('input[name=do_control_rqtl_pair]:checked').val());
       $('input[name=tool_used]').val("Mapping");
-      $('input[name=form_url]').val("/run_mapping");
+      $('input[name=form_url]').val(mapping_url);
       $('input[name=wanted_inputs]').val(mapping_input_list.join(","));
       return submit_special(url);
     } else {
