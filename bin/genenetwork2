@@ -98,6 +98,7 @@ fi
 # If $GN2_SETTINGS is set, use that, otherwise use default provided at invocation
 export GN2_SETTINGS=${GN2_SETTINGS:-$settings}
 echo GN2_SETTINGS="${settings}"
+echo REQUESTS_CA_BUNDLE="${REQUESTS_CA_BUNDLE}"
 
 if [ -z "${GN2_PROFILE}" ] ; then
     echo "WARNING: GN2_PROFILE has not been set - you need the environment, so I hope you know what you are doing!"
