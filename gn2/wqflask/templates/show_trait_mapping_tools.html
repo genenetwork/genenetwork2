@@ -13,6 +13,10 @@
                 <li class="rqtl-geno-tab mapping-tab {% if dataset.group.mapping_id == '3' %}active{% endif %}">
                     <a href="#rqtl_geno" data-toggle="tab">R/qtl</a>
                 </li>
+		<!-- rethink about the mapping id  -->
+		<li class="rqtl-geno-tab mapping-tab {% if dataset.group.mapping_id == '3' %}active{% endif %}">
+                    <a href="#rqtl_geno" data-toggle="tab">R/qtl2</a>
+                </li>
                 <li class="rqtl-pair-tab mapping-tab">
                     <a href="#rqtl_pair" data-toggle="tab">Pair Scan</a>
                 </li>
@@ -412,6 +416,11 @@
                 {% elif mapping_method == "R/qtl" %}
                 <dt class="map-method-text">R/qtl (version 1.44.9)</dt>
                 <dd><a href="https://www.ncbi.nlm.nih.gov/pubmed/12724300">R/qtl</a> maps using several models and uniquely support 4-way intercrosses such as the "Aging Mouse Lifespan Studies" (NIA UM-HET3). We will add support for R/qtl2 (<a href="https://www.ncbi.nlm.nih.gov/pubmed/30591514">PMID:&nbsp;30591514</a>) in the near future—a version that handles complex populations with admixture and many haplotypes.</dd>
+		<dt class="map-method-text"> R/qtl2  (version 0.36) </dt>
+		<dd>R/qtl2 (aka qtl2) is a reimplementation of the QTL analysis software R/qtl,
+		    to better handle high-dimensional data and complex cross designs..
+		    <a href="https://kbroman.org/qtl2/docs.html"> R/QTL2 documentation</a>
+		</dd>
                 <dt class="map-method-text">Pair Scan (R/qtl v 1.44.9)</dt>
                 <dd>The Pair Scan mapping tool performs a search for joint effects of two separate loci that may influence a trait. This search typically requires large sample sizes. Pair Scans can included covariates such as age and sex. For more on this function by K. Broman and colleagues see www.rdocumentation.org/packages/qtl/versions/1.60/topics/scantwo</dd>
                 {% elif mapping_method == "QTLReaper" %}
