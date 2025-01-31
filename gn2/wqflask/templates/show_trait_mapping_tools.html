@@ -325,7 +325,20 @@
                     </div>
 				</div>
 		<!-- start qtl2  -->
-		<div  class="tab-pane" id="rqtl2_geno"> </div>
+		<div  class="tab-pane" id="rqtl2_geno">
+		    <div class="form-horizontal section-form-div">
+	               <div class="mapping_method_fields form-group">
+                            <label for="chr_select" class="col-xs-3 control-label">Chromosome</label>
+                            <div class="col-xs-2 controls">
+                                    <select id="chr_rqtl_geno" class="form-control chr-select">
+                                    {% for item in chr_list %}
+					<option value="{{ item[1] }}">{{ item[0] }}</option>
+					{% endfor %}
+                                    </select>
+                            </div>
+						</div>
+		    </div>
+		</div>
 		<!-- end qtl2 -->
                 <div class="tab-pane" id="rqtl_pair">
                     <div class="form-horizontal section-form-div">
