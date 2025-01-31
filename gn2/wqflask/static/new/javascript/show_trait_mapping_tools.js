@@ -177,6 +177,8 @@ var mapping_input_list = ['temp_uuid', 'trait_id', 'dataset', 'tool_used', 'form
                           'mapmethod_rqtl', 'mapmodel_rqtl', 'temp_trait', 'group', 'species',
                           'reaper_version', 'primary_samples']
 
+
+
 $(".rqtl-geno-tab, #rqtl_geno_compute").on("click", (function(_this) {
   return function() {
     if ($(this).hasClass('active') || $(this).attr('id') == "rqtl_geno_compute"){
@@ -211,6 +213,43 @@ $(".rqtl-geno-tab, #rqtl_geno_compute").on("click", (function(_this) {
     }
   };
 })(this));
+
+$(".rqtl-geno-tab, #rqtl2_geno_compute").on("click", (function(_this) {
+  return function() {
+    if ($(this).hasClass('active') || $(this).attr('id') == "rqtl2_geno_compute"){
+	var form_data, url;
+	// set the variables here
+	// compute should have a  varaible for the filename
+	// compute ?id=rsfmrflkremfdfsdf  ?? will initialize the file 
+	//  loading?id=rsfmrflkremfdfsdf?enabled=True ?? remember the async functions
+
+	// generate an id for this running process
+     const runID  = randomstring(12);
+	url = `/loading?id=${runID}`;
+	var mapping_url = `/rqtl2/compute?id=${runID}`
+           
+      $('input[name=method]').val("rqtl2_geno");
+      $('input[name=pair_scan]').val("false");
+      $('input[name=selected_chr]').val($('#chr_rqtl_geno').val());
+      $('input[name=mapping_scale]').val($('#scale_rqtl_geno').val());
+      $('input[name=genofile]').val($('#genofile_rqtl_geno').val());
+      $('input[name=mapmodel_rqtl]').val($('#mapmodel_rqtl_geno').val());
+      $('input[name=mapmethod_rqtl]').val($('#mapmethod_rqtl_geno').val());
+      $('input[name=num_perm]').val($('input[name=num_perm_rqtl_geno]').val());
+      $('input[name=categorical_vars]').val(js_data.categorical_vars)
+      $('input[name=manhattan_plot]').val($('input[name=manhattan_plot_rqtl]:checked').val());
+      $('input[name=control_marker]').val($('input[name=control_rqtl_geno]').val());
+      $('input[name=do_control]').val($('input[name=do_control_rqtl]:checked').val());
+      $('input[name=tool_used]').val("Mapping");
+	$('input[name=form_url]').val(mapping_url);
+      $('input[name=wanted_inputs]').val(mapping_input_list.join(","));
+      return submit_special(url);
+    } else {
+      return true
+    }
+  };
+})(this));
+
 
 $(".rqtl-pair-tab, #rqtl_pair_compute").on("click", (function(_this) {
   return function() {
