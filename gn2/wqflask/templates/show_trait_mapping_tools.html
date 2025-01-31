@@ -394,6 +394,16 @@
         </div>
     </div>
     {% endif %}
+   <div class="mapping_method_fields form-group">
+                            <label for="mapmodel_rqtl_geno" class="col-xs-3 control-label">Model</label>
+                            <div class="col-xs-4 controls">
+                              <select id="mapmodel_rqtl_geno" name="mapmodel_rqtl_geno" class="form-control">
+                                <option value="normal">Normal</option>
+                                {% if binary == "true" %}<option value="binary">Binary</option>{% endif %}
+                                <!--<option value="2part">2-part</option>-->
+                              </select>
+                            </div>
+                            </div>
 
 		    </div>
 		</div>
