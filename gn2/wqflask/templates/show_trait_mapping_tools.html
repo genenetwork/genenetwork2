@@ -377,7 +377,23 @@
                             <div class="col-xs-4 controls">
                                 <input name="num_perm_rqtl_geno" value="0" type="text" class="form-control">
                             </div>
-					       </div>
+					               </div>
+
+    {% if sample_groups[0].attributes|length > 0 %}
+    <div class="mapping_method_fields form-group">
+        <label class="col-xs-3 control-label">Stratified</label>
+        <div class="col-xs-6 controls">
+            <label class="radio-inline">
+                <input type="radio" name="perm_strata" value="True" checked=""> 
+                Yes
+            </label>
+            <label class="radio-inline">
+                <input type="radio" name="perm_strata" value="False" >
+                No
+            </label>
+        </div>
+    </div>
+    {% endif %}
 
 		    </div>
 		</div>
