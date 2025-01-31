@@ -218,12 +218,6 @@ $(".rqtl-geno-tab, #rqtl2_geno_compute").on("click", (function(_this) {
   return function() {
     if ($(this).hasClass('active') || $(this).attr('id') == "rqtl2_geno_compute"){
 	var form_data, url;
-	// set the variables here
-	// compute should have a  varaible for the filename
-	// compute ?id=rsfmrflkremfdfsdf  ?? will initialize the file 
-	//  loading?id=rsfmrflkremfdfsdf?enabled=True ?? remember the async functions
-
-	// generate an id for this running process
      const runID  = randomstring(12);
 	url = `/loading?id=${runID}`;
 	var mapping_url = `/rqtl2/compute?id=${runID}`
