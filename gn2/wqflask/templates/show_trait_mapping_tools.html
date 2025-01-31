@@ -14,8 +14,8 @@
                     <a href="#rqtl_geno" data-toggle="tab">R/qtl</a>
                 </li>
 		<!-- rethink about the mapping id  -->
-		<li class="rqtl-geno-tab mapping-tab {% if dataset.group.mapping_id == '3' %}active{% endif %}">
-                    <a href="#rqtl_geno" data-toggle="tab">R/qtl2</a>
+		<li class="rqtl-geno-tab mapping-tab">
+                    <a href="#rqtl2_geno" data-toggle="tab">R/qtl2</a>
                 </li>
                 <li class="rqtl-pair-tab mapping-tab">
                     <a href="#rqtl_pair" data-toggle="tab">Pair Scan</a>
@@ -323,7 +323,10 @@
                             </div>
                         </div>
                     </div>
-                </div>
+				</div>
+		<!-- start qtl2  -->
+		<div  class="tab-pane" id="rqtl2_geno"> </div>
+		<!-- end qtl2 -->
                 <div class="tab-pane" id="rqtl_pair">
                     <div class="form-horizontal section-form-div">
                         {% if genofiles and genofiles|length > 0 %}
