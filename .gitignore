@@ -17,3 +17,4 @@ wqflask/output/*
 wqflask/wqflask/static/output/*
 wqflask/.coverage
 wqflask/coverage_html_report
+.aider*
