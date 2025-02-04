@@ -84,8 +84,8 @@ def handle_error(redirect_uri: Optional[str] = None, **kwargs):
               "alert-danger")
         if "response_handlers" in kwargs:
             for handler in kwargs["response_handlers"]:
-                handler(response)
-        if redirect:
+                handler(error)
+        if redirect_uri:
             return redirect(url_for(redirect_uri, **kwargs))
 
     return __handler__
