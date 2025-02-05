@@ -104,12 +104,26 @@ def run_rqtl(trait_name, vals, samples, dataset, pair_scan,
 
     if perm_strata_list:
         post_data["pstrata"] = True
-
-    rqtl_output = __pk__(
+    if use_rqtl2:
+        #  TODO: pass this data after processing the geno files.
+        # This is test data for BXD family dataset
+        rqtl2_metadata = {
+        "crosstype" : "risib",
+        "alleles" : ["B","D"],
+        "geno_codes": {
+             "B": 1,
+             "D": 2
+  }}
+        rqtl_output = run_rqtl2({**post_data, **rqtl2_metadata}, pheno_file, run_id)
+        return rqtl_output["qtl_results"]
+    else:
+        # use rqtl1
+        rqtl_output = __pk__(
         "R/qtl or Pair-Scan results",
         requests.post(urljoin(GN3_LOCAL_URL, f"api/rqtl/compute?id={run_id}"),
                       data=post_data).json())
     if num_perm > 0:
+        # get permutation results
         return rqtl_output['perm_results'], rqtl_output['suggestive'], rqtl_output['significant'], rqtl_output['results']
     else:
         return rqtl_output['results']
