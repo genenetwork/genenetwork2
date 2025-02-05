@@ -21,7 +21,55 @@ from gn2.utility.tools import locate, get_setting, GN3_LOCAL_URL
 from gn_libs.mysqldb import database_connection
 
 
-def run_rqtl(trait_name, vals, samples, dataset, pair_scan, mapping_scale, model, method, num_perm, perm_strata_list, do_control, control_marker, manhattan_plot, cofactors, run_id=""):
+
+def read_csv_to_dict(csv_file, delimiter=","):
+    # please you csv should have headers
+    with open(csv_file, "r",encoding="UTF-8") as file_handler:
+        return [{k: v for k, v in row.items()}
+             for row in csv.DictReader(filter(lambda line : not line.startswith("#"), file_handler),
+                                       skipinitialspace=True, delimiter = delimiter)]
+
+
+def run_rqtl2(metadata, pheno_file, run_id, group="bxd"):
+    try:
+        # Locate and load files
+        # assumes these files are already in this csv format for example genotypes_files/bxd/bxd_geno.csv
+        geno_data = read_csv_to_dict(locate(name=f"{group}_geno.csv",
+                                            subdir=group))
+        pheno_data = read_csv_to_dict(pheno_file, "\t")
+        genetic_map_data = read_csv_to_dict(locate(name=f"{group}_gmap.csv",
+                                                   subdir=group))
+        physical_map_data = read_csv_to_dict(locate(f"{group}_pmap.csv",
+                                                    subdir=group))
+        # to get these process the geno files
+        crosstype = metadata.get("crosstype", "risib")
+        alleles =  metadata.get("alleles")
+        geno_codes = metadata["geno_codes"]
+        # Build request payload
+        data = {
+            "crosstype": crosstype,
+            "geno_data": geno_data,
+            "geno_map_data": genetic_map_data,
+            "pheno_data": pheno_data,
+            "physical_map_data": physical_map_data,
+            "geno_transposed": True,
+            "alleles": alleles,
+            "geno_codes": geno_codes, 
+            "na.strings": ["-", "NA"],
+            "nperm": metadata.get("num_perm", 1)  # Default to 1 if missing
+        }
+        response = requests.post(urljoin(GN3_LOCAL_URL,
+                                         f"/api/rqtl2/compute?id={run_id}"), json=data)
+        response.raise_for_status()
+        return response.json()
+    except requests.RequestException as excp:
+        return {"error" :  str(excp)}
+    
+
+def run_rqtl(trait_name, vals, samples, dataset, pair_scan,
+            mapping_scale, model, method, num_perm, perm_strata_list,
+            do_control, control_marker, manhattan_plot, cofactors, run_id="",
+            use_rqtl2 = False):
     """Run R/qtl by making a request to the GN3 endpoint and reading in the output file(s)"""
 
     pheno_file = write_phenotype_file(trait_name, samples, vals, dataset, cofactors, perm_strata_list)
