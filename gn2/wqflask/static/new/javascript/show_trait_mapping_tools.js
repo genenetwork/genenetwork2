@@ -220,8 +220,7 @@ $(".rqtl-geno-tab, #rqtl2_geno_compute").on("click", (function(_this) {
 	var form_data, url;
      const runID  = randomstring(12);
 	url = `/loading?id=${runID}`;
-	var mapping_url = `/rqtl2/compute?id=${runID}`
-           
+        var mapping_url = `/run_mapping?id=${runID}`
       $('input[name=method]').val("rqtl2_geno");
       $('input[name=pair_scan]').val("false");
       $('input[name=selected_chr]').val($('#chr_rqtl_geno').val());
