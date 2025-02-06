@@ -218,7 +218,7 @@ class RunMapping:
             results = marker_obs
         elif self.mapping_method == "rqtl_plink":
             results = self.run_rqtl_plink()
-        elif self.mapping_method == "rqtl_geno" or self.method == "rqtl2_geno":
+        elif self.mapping_method == "rqtl_geno" or self.mapping_method == "rqtl2_geno":
             self.perm_strata = []
             if "perm_strata" in start_vars and "categorical_vars" in start_vars:
                 self.categorical_vars = start_vars["categorical_vars"].split(
