@@ -56,6 +56,8 @@ def run_rqtl2(metadata, pheno_file, run_id, group="bxd"):
             "alleles": alleles,
             "geno_codes": geno_codes, 
             "na.strings": ["-", "NA"],
+            "model" : metadata["model"],
+            "method" : metadata["method"],
             "nperm": metadata.get("num_perm", 1)  # Default to 1 if missing
         }
         response = requests.post(urljoin(GN3_LOCAL_URL,
