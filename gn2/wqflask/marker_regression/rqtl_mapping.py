@@ -115,6 +115,9 @@ def run_rqtl(trait_name, vals, samples, dataset, pair_scan,
              "D": 2
   }}
         rqtl_output = run_rqtl2({**post_data, **rqtl2_metadata}, pheno_file, run_id)
+        if num_perm > 0:
+            perm_results, suggestive, significant = process_rqtl2_permutations(rqtl_output)
+            return perm_results, suggestive, significant, rqtl_output["qtl_results"]
         return rqtl_output["qtl_results"]
     else:
         # use rqtl1
@@ -127,6 +130,14 @@ def run_rqtl(trait_name, vals, samples, dataset, pair_scan,
         return rqtl_output['perm_results'], rqtl_output['suggestive'], rqtl_output['significant'], rqtl_output['results']
     else:
         return rqtl_output['results']
+
+def process_rqtl2_permutations(results):
+    significance = results["permutation_results"]['significance']
+    suggestive =float (significance["0.33"][0])
+    significant = float(significance["0.05"][0])
+    # lod scores
+    lod_scores = [output["lod_score"] for output in results["qtl_results"]]
+    return lod_scores, suggestive, significant
 
 
 def get_hash_of_textio(the_file: TextIO) -> str:
