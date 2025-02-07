@@ -65,7 +65,7 @@ def run_rqtl2(metadata, pheno_file, run_id, group="bxd"):
         response.raise_for_status()
         return response.json()
     except requests.RequestException as excp:
-        return {"error" :  str(excp)}
+        raise excp
     
 
 def run_rqtl(trait_name, vals, samples, dataset, pair_scan,
