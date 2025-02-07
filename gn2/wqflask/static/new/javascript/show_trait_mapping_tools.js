@@ -223,14 +223,14 @@ $(".rqtl-geno-tab, #rqtl2_geno_compute").on("click", (function(_this) {
         var mapping_url = `/run_mapping?id=${runID}`
       $('input[name=method]').val("rqtl2_geno");
       $('input[name=pair_scan]').val("false");
-      $('input[name=selected_chr]').val($('#chr_rqtl_geno').val());
-      $('input[name=mapping_scale]').val($('#scale_rqtl_geno').val());
-      $('input[name=genofile]').val($('#genofile_rqtl_geno').val());
-      $('input[name=mapmodel_rqtl]').val($('#mapmodel_rqtl_geno').val());
-      $('input[name=mapmethod_rqtl]').val($('#mapmethod_rqtl_geno').val());
-      $('input[name=num_perm]').val($('input[name=num_perm_rqtl_geno]').val());
+      $('input[name=selected_chr]').val($('#chr_rqtl2_geno').val());
+      $('input[name=mapping_scale]').val($('#scale_rqtl2_geno').val());
+      $('input[name=genofile]').val($('#genofile_rqtl2_geno').val());
+      $('input[name=mapmodel_rqtl]').val($('#mapmodel_rqtl2_geno').val());
+      $('input[name=mapmethod_rqtl]').val($('#mapmethod_rqtl2_geno').val());
+      $('input[name=num_perm]').val($('input[name=num_perm_rqtl2_geno]').val());
       $('input[name=categorical_vars]').val(js_data.categorical_vars)
-      $('input[name=manhattan_plot]').val($('input[name=manhattan_plot_rqtl]:checked').val());
+      $('input[name=manhattan_plot]').val($('input[name=manhattan_plot_rqtl2]:checked').val());
       $('input[name=control_marker]').val($('input[name=control_rqtl_geno]').val());
       $('input[name=do_control]').val($('input[name=do_control_rqtl]:checked').val());
       $('input[name=tool_used]').val("Mapping");
