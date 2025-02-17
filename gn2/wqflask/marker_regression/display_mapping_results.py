@@ -274,7 +274,7 @@ class DisplayMappingResults:
         self.transform = start_vars['transform']
         self.mapping_method = start_vars['mapping_method']
         self.mapping_results_path = start_vars['mapping_results_path']
-        if self.mapping_method == "rqtl_geno":
+        if self.mapping_method == "rqtl_geno" or self.mapping_method == "rqtl2_geno":
             self.mapmethod_rqtl = start_vars['method']
             self.mapmodel_rqtl = start_vars['model']
             self.pair_scan = start_vars['pair_scan']
@@ -1240,7 +1240,7 @@ class DisplayMappingResults:
                 string6 = cofactor_names
             else:
                 string5 += 'no cofactors'
-        elif self.mapping_method == "rqtl_plink" or self.mapping_method == "rqtl_geno":
+        elif self.mapping_method == "rqtl_plink" or self.mapping_method == "rqtl_geno" or self.mapping_method == "rqtl2_geno":
             string5 = 'Using R/qtl mapping method with '
             if self.covariates != "":
                 string5 += 'the cofactors below:'
@@ -2516,7 +2516,6 @@ class DisplayMappingResults:
                 xy=(xLeftOffset - 4 - im_drawer.textsize(scaleStr, font=LRSScaleFont)[0] - 5,
                     yLRS + TEXT_Y_DISPLACEMENT),
                 font=LRSScaleFont, fill=self.LRS_COLOR)
-
         if self.permChecked and self.nperm > 0 and not self.multipleInterval:
             significantY = yZero - self.significant * LRSHeightThresh / LRS_LOD_Max
             suggestiveY = yZero - self.suggestive * LRSHeightThresh / LRS_LOD_Max
@@ -2570,7 +2569,6 @@ class DisplayMappingResults:
                 start_pos_x += (chr_length_dist + \
                                 self.GraphInterval) * plotXScale
                 return start_pos_x
-
             for i, _chr in enumerate(self.genotype):
                 if self.selectedChr != -1:
                     if _chr.name == self.ChrList[self.selectedChr][0]:
@@ -2582,7 +2580,6 @@ class DisplayMappingResults:
                 else:
                     startPosX = add_suggestive_significant_lines_and_legend(
                         startPosX, self.ChrLengthDistList[i])
-
         if self.multipleInterval:
             lrsEdgeWidth = 1
         else:
@@ -2600,8 +2597,9 @@ class DisplayMappingResults:
 
         symbolFont = ImageFont.truetype(
             font=FNT_BS_FILE, size=5)  # ZS: For Manhattan Plot
-
         previous_chr = 1
+        if self.mapping_method == "rqtl2_geno": # rqtl2 return chromosome as strings not ints
+            previous_chr = '1'
         previous_chr_as_int = 0
         lineWidth = 1
         oldStartPosX = 0
@@ -2776,7 +2774,6 @@ class DisplayMappingResults:
                 if self.selectedChr != -1 and qtlresult['Mb'] > endMb and endMb != -1:
                     break
                 m += 1
-
         if self.manhattan_plot != True and len(LRSCoordXY) > 1:
             draw_open_polygon(canvas, xy=LRSCoordXY, outline=thisLRSColor,
                               width=lrsEdgeWidth)
