@@ -58,7 +58,7 @@ def run_rqtl2(metadata, pheno_file, run_id, group="bxd"):
             "na.strings": ["-", "NA"],
             "model" : metadata["model"],
             "method" : metadata["method"],
-            "nperm": metadata.get("num_perm", 1)  # Default to 1 if missing
+            "nperm": metadata.get("nperm", 0)
         }
         response = requests.post(urljoin(GN3_LOCAL_URL,
                                          f"/api/rqtl2/compute?id={run_id}"), json=data)
