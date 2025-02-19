@@ -6,6 +6,7 @@
 <link rel="stylesheet" type="text/css" href="{{ url_for('css', filename='d3panels/d3panels.min.css') }} " />
 <link rel="stylesheet" type="text/css" href="/static/new/css/show_trait.css" />
 <link rel="stylesheet" type="text/css" href="/static/new/css/pair_scan.css" />
+
 {% endblock %}
 
 {% block content %} <!-- Start of body -->
@@ -14,18 +15,13 @@
     '{}: {}'.format(this_trait.name, this_trait.description_fmt)) }}
 
 <div id="main_div" class="container">
-    <div>
-        <h2>
-            Pair Scan
-        </h2>
+    <div class="row">
+    <div id="chart_container" class="col-md-10 col-md-offset-1 col-lg-4">
+	    	    <h2> Pair scan chart</h2>
+		    <div id="pairscan_chart" ></div>
     </div>
-    <div class="qtlcharts" id="chart_container">
-        <div id="pairscan_chart"></div>
-    </div>
-    <div class="pairscan-container">
-        <h2>
-            Results
-        </h2>
+    <div class="col-md-10 col-md-offset-1  col-lg-6">
+	<h2> Pair Scan Table </h2>
         <table cellpadding="0" cellspacing="0" border="0" id="pair_scan_results" class="table table-hover table-striped table-bordered">
             <thead>
                 <tr>
@@ -61,6 +57,8 @@
             </tbody>
         </table>
     </div>
+    </div>
+
 </div>
 
 {% endblock %}
@@ -83,7 +81,9 @@
 var data, mychart;
 
 mychart = d3panels.lod2dheatmap({
-    equalCells: true
+     equalCells: true,
+     width:800,
+     margin: {right: 100, left: 20, top:40, bottom: 60}
 });
 
 mychart(d3.select('div#pairscan_chart'), figure_data);
