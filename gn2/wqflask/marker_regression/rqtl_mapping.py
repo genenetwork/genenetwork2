@@ -135,11 +135,11 @@ def run_rqtl(trait_name, vals, samples, dataset, pair_scan,
 
 def process_rqtl2_permutations(results):
     significance = results["permutation_results"]['significance']
-    suggestive =float (significance["0.33"][0])
+    perm_results = results["permutation_results"]["perm_results"]
+    suggestive =float (significance["0.63"][0])
     significant = float(significance["0.05"][0])
-    # lod scores
-    lod_scores = [output["lod_score"] for output in results["qtl_results"]]
-    return lod_scores, suggestive, significant
+    perm_values = [perm_results[key] for key in sorted(perm_results, key=int)]
+    return perm_values, suggestive, significant
 
 
 def get_hash_of_textio(the_file: TextIO) -> str:
