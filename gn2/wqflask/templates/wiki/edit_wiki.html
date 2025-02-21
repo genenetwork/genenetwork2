@@ -13,11 +13,12 @@
 {% endblock %}
 {% block content %}
     {{ flash_me() }}
+    {% set has_previous_versions = content|length > 1 %}
     <div class="container">
         <div class="row">
             <div class="col-md-12">
                 <h1>
-                    {% if not content %}
+                    {% if not has_previous_versions %}
                         Add GeneWiki Entry
                     {% else %}
                         Edit Wiki
@@ -27,7 +28,7 @@
                 <br />
                 <form class="form-horizontal" method="POST">
                     <input type="hidden" name="symbol" value="{{ content["symbol"] }}">
-                    {% if content %}
+                    {% if has_previous_versions %}
                         <div class="form-group">
                             <label for="reason" class="col-sm-2">Reason for Modification:</label>
                             <input type="text" name="reason" size=45 maxlength=100 required>
@@ -108,7 +109,7 @@
                     </div>
                     <div class="form-group wiki-btns">
                         <button type="submit" name="submit" class="btn btn-lg btn-primary">
-                            {% if content %}
+                            {% if has_previous_versions %}
                                 Update
                             {% else %}
                                 Create
