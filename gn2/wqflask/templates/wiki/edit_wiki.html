@@ -17,7 +17,7 @@
         <div class="row">
             <div class="col-md-12">
                 <h1>
-                    {% if last_wiki_content %}
+                    {% if not content %}
                         Add GeneWiki Entry
                     {% else %}
                         Edit Wiki
@@ -27,7 +27,7 @@
                 <br />
                 <form class="form-horizontal" method="POST">
                     <input type="hidden" name="symbol" value="{{ content["symbol"] }}">
-                    {% if last_wiki_content %}
+                    {% if content %}
                         <div class="form-group">
                             <label for="reason" class="col-sm-2">Reason for Modification:</label>
                             <input type="text" name="reason" size=45 maxlength=100 required>
@@ -108,7 +108,7 @@
                     </div>
                     <div class="form-group wiki-btns">
                         <button type="submit" name="submit" class="btn btn-lg btn-primary">
-                            {% if last_wiki_content %}
+                            {% if content %}
                                 Update
                             {% else %}
                                 Create
