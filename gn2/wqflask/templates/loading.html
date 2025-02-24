@@ -3,7 +3,7 @@
 <link REL="stylesheet" TYPE="text/css" href="/static/new/css/bootstrap-custom.css" />
 <link rel="stylesheet" type="text/css" href="{{ url_for('css', filename='xterm/xterm.min.css') }}" />
 
-{% if start_vars.method == 'rqtl_geno' %}
+{% if start_vars.method == 'rqtl_geno'  or  start_vars.method == 'rqtl2_geno'  %}
 <div class="container-fluid" style="min-width: 1200px; margin-left: 20px;">
 	<div class="row" style="margin-top:10px;">
 	<div class="col-sm-4">
@@ -109,7 +109,7 @@
 		</form>
 
 	</div>
-	{% if start_vars.method == 'rqtl_geno' %}
+	{% if start_vars.method == 'rqtl_geno' or start_vars.method == 'rqtl2_geno' %}
 	<div class="col-sm-8 row" style="min-height: 80vh;display:flex;align-items:center">
 		<div class="col-sm-8 col-sm-offset-2">
 			<!--start according here -->

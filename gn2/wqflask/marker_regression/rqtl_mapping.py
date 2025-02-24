@@ -21,7 +21,57 @@ from gn2.utility.tools import locate, get_setting, GN3_LOCAL_URL
 from gn_libs.mysqldb import database_connection
 
 
-def run_rqtl(trait_name, vals, samples, dataset, pair_scan, mapping_scale, model, method, num_perm, perm_strata_list, do_control, control_marker, manhattan_plot, cofactors, run_id=""):
+
+def read_csv_to_dict(csv_file, delimiter=","):
+    # please you csv should have headers
+    with open(csv_file, "r",encoding="UTF-8") as file_handler:
+        return [{k: v for k, v in row.items()}
+             for row in csv.DictReader(filter(lambda line : not line.startswith("#"), file_handler),
+                                       skipinitialspace=True, delimiter = delimiter)]
+
+
+def run_rqtl2(metadata, pheno_file, run_id, group="bxd"):
+    try:
+        # Locate and load files
+        # assumes these files are already in this csv format for example genotypes_files/bxd/bxd_geno.csv
+        geno_data = read_csv_to_dict(locate(name=f"{group}_geno.csv",
+                                            subdir=group))
+        pheno_data = read_csv_to_dict(pheno_file, "\t")
+        genetic_map_data = read_csv_to_dict(locate(name=f"{group}_gmap.csv",
+                                                   subdir=group))
+        physical_map_data = read_csv_to_dict(locate(f"{group}_pmap.csv",
+                                                    subdir=group))
+        # to get these process the geno files
+        crosstype = metadata.get("crosstype", "risib")
+        alleles =  metadata.get("alleles")
+        geno_codes = metadata["geno_codes"]
+        # Build request payload
+        data = {
+            "crosstype": crosstype,
+            "geno_data": geno_data,
+            "geno_map_data": genetic_map_data,
+            "pheno_data": pheno_data,
+            "physical_map_data": physical_map_data,
+            "geno_transposed": True,
+            "alleles": alleles,
+            "geno_codes": geno_codes, 
+            "na.strings": ["-", "NA"],
+            "model" : metadata["model"],
+            "method" : metadata["method"],
+            "nperm": metadata.get("nperm", 0)
+        }
+        response = requests.post(urljoin(GN3_LOCAL_URL,
+                                         f"/api/rqtl2/compute?id={run_id}"), json=data)
+        response.raise_for_status()
+        return response.json()
+    except requests.RequestException as excp:
+        raise excp
+    
+
+def run_rqtl(trait_name, vals, samples, dataset, pair_scan,
+            mapping_scale, model, method, num_perm, perm_strata_list,
+            do_control, control_marker, manhattan_plot, cofactors, run_id="",
+            use_rqtl2 = False):
     """Run R/qtl by making a request to the GN3 endpoint and reading in the output file(s)"""
 
     pheno_file = write_phenotype_file(trait_name, samples, vals, dataset, cofactors, perm_strata_list)
@@ -56,15 +106,40 @@ def run_rqtl(trait_name, vals, samples, dataset, pair_scan, mapping_scale, model
 
     if perm_strata_list:
         post_data["pstrata"] = True
-
-    rqtl_output = __pk__(
+    if use_rqtl2:
+        #  TODO: pass this data after processing the geno files.
+        # This is test data for BXD family dataset
+        rqtl2_metadata = {
+        "crosstype" : "risib",
+        "alleles" : ["B","D"],
+        "geno_codes": {
+             "B": 1,
+             "D": 2
+  }}
+        rqtl_output = run_rqtl2({**post_data, **rqtl2_metadata}, pheno_file, run_id)
+        if num_perm > 0:
+            perm_results, suggestive, significant = process_rqtl2_permutations(rqtl_output)
+            return perm_results, suggestive, significant, rqtl_output["qtl_results"]
+        return rqtl_output["qtl_results"]
+    else:
+        # use rqtl1
+        rqtl_output = __pk__(
         "R/qtl or Pair-Scan results",
         requests.post(urljoin(GN3_LOCAL_URL, f"api/rqtl/compute?id={run_id}"),
                       data=post_data).json())
     if num_perm > 0:
+        # get permutation results
         return rqtl_output['perm_results'], rqtl_output['suggestive'], rqtl_output['significant'], rqtl_output['results']
     else:
         return rqtl_output['results']
+
+def process_rqtl2_permutations(results):
+    significance = results["permutation_results"]['significance']
+    perm_results = results["permutation_results"]["perm_results"]
+    suggestive =float (significance["0.63"][0])
+    significant = float(significance["0.05"][0])
+    perm_values = [perm_results[key] for key in sorted(perm_results, key=int)]
+    return perm_values, suggestive, significant
 
 
 def get_hash_of_textio(the_file: TextIO) -> str:

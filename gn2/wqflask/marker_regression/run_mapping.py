@@ -218,7 +218,7 @@ class RunMapping:
             results = marker_obs
         elif self.mapping_method == "rqtl_plink":
             results = self.run_rqtl_plink()
-        elif self.mapping_method == "rqtl_geno":
+        elif self.mapping_method == "rqtl_geno" or self.mapping_method == "rqtl2_geno":
             self.perm_strata = []
             if "perm_strata" in start_vars and "categorical_vars" in start_vars:
                 self.categorical_vars = start_vars["categorical_vars"].split(
@@ -241,12 +241,16 @@ class RunMapping:
             self.pair_scan = False
             if start_vars['pair_scan'] == "true":
                self.pair_scan = True
+            self.use_rqtl2 = False
+            if self.mapping_method  == "rqtl2_geno":
+                self.use_rqtl2 = True
             if self.permCheck and self.num_perm > 0:
                 self.perm_output, self.suggestive, self.significant, results = rqtl_mapping.run_rqtl(
-                    self.this_trait.name, self.vals, self.samples, self.dataset, self.pair_scan, self.mapping_scale, self.model, self.method, self.num_perm, self.perm_strata, self.do_control, self.control_marker, self.manhattan_plot, self.covariates, run_id=self.run_id)
+                    self.this_trait.name, self.vals, self.samples, self.dataset, self.pair_scan, self.mapping_scale, self.model, self.method, self.num_perm, self.perm_strata, self.do_control, self.control_marker, self.manhattan_plot, self.covariates, run_id=self.run_id, use_rqtl2 = self.use_rqtl2)
             else:
                 results = rqtl_mapping.run_rqtl(self.this_trait.name, self.vals, self.samples, self.dataset, self.pair_scan, self.mapping_scale, self.model, self.method,
-                                                     self.num_perm, self.perm_strata, self.do_control, self.control_marker, self.manhattan_plot, self.covariates, run_id=self.run_id)
+                                                     self.num_perm, self.perm_strata, self.do_control, self.control_marker, self.manhattan_plot,
+                                                self.covariates, run_id=self.run_id, use_rqtl2 =self.use_rqtl2)
         elif self.mapping_method == "reaper":
             if "startMb" in start_vars:  # ZS: Check if first time page loaded, so it can default to ON
                 if "additiveCheck" in start_vars:
