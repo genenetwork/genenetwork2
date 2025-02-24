@@ -46,10 +46,14 @@ def process_error(error: Response,
     if error.status_code in range(400, 500):
         try:
             err = error.json()
-            potential_keys = [key for key in err.keys() if key.startswith("error")]
-            msg = f"{error.reason}"
-            if potential_keys:
-                msg = " ; ".join([f"{k}: {err[k]}" for k in potential_keys])
+            # Handle the specific NotFoundError for group membership
+            if "error-trace" in err and "User is not a member of any group" in err["error-trace"]:
+                msg = "You are not currently a member of any group. Please contact an administrator."
+            else:
+                potential_keys = [key for key in err.keys() if key.startswith("error")]
+                msg = f"{error.reason}"
+                if potential_keys:
+                    msg = " ; ".join([f"{k}: {err[k]}" for k in potential_keys])
         except simplejson.errors.JSONDecodeError as _jde:
             msg = message
         return {
@@ -80,8 +84,8 @@ def handle_error(redirect_uri: Optional[str] = None, **kwargs):
               "alert-danger")
         if "response_handlers" in kwargs:
             for handler in kwargs["response_handlers"]:
-                handler(response)
-        if redirect:
+                handler(error)
+        if redirect_uri:
             return redirect(url_for(redirect_uri, **kwargs))
 
     return __handler__

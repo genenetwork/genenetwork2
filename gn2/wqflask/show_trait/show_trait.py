@@ -491,7 +491,7 @@ class ShowTrait:
         if not self.temp_trait:
             other_sample_names = []
 
-            if self.dataset.group.name in webqtlConfig.GROUPS_WITH_EXTRA_SAMPLES:
+            if self.dataset.group.name in webqtlConfig.GROUPS_WITH_EXTRA_SAMPLES or not len(primary_sample_names):
                 for sample in list(self.this_trait.data.keys()):
                     if (self.this_trait.data[sample].name2 != self.this_trait.data[sample].name):
                         if ((self.this_trait.data[sample].name2 in primary_sample_names)

@@ -22,11 +22,6 @@ class UserSessionSimulator():
     def user_id(self):
         return self._user_id
 
-error_types = {
-    "WrongCorrelationType": "Wrong Correlation Type",
-    "CalledProcessError": "Called Process Error"
-}
-
 def e_time():
     return datetime.datetime.utcnow().isoformat()
 
@@ -36,7 +31,7 @@ def compute(form):
         correlation_results = compute_correlation(form, compute_all=True)
     except Exception as exc:
         return {
-            "error-type": error_types[type(exc).__name__],
+            "error-type": type(exc).__name__,
             "error-message": exc.args[0]
         }
 
