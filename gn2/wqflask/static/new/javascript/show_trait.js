@@ -184,9 +184,6 @@ openCovariateSelection = function() {
   coll_count = parseInt($('.num_coll').text())
   var height = Math.min((110 + 40 * coll_count), 800).toString() + "px"
   var width = "1000px"
-  if (coll_count < 1 || isNaN(coll_count)){
-    width = "300px"
-  }
 
   return $('#collections_holder').load('/collections/list #collections_list', (function(_this) {
     return function() {

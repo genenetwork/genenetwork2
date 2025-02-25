@@ -395,3 +395,12 @@ $('#genofile_reaper').change(function() {
     $('#scale_reaper').append($("<option></option>").attr("value", the_scales[i][0]).text(the_scales[i][1]));
   }
 });
+
+coll_count = parseInt($('.num_coll').text())
+if (coll_count < 1 || isNaN(coll_count)){
+  $('.no-collections').show()
+  $('.covar-options').hide()
+} else {
+  $('.no-collections').hide()
+  $('.covar-options').show()
+}
