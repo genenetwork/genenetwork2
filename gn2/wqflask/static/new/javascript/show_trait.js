@@ -181,13 +181,20 @@ openTraitSelection = function() {
 };
 
 openCovariateSelection = function() {
+  coll_count = parseInt($('.num_coll').text())
+  var height = Math.min((110 + 40 * coll_count), 800).toString() + "px"
+  var width = "1000px"
+  if (coll_count < 1 || isNaN(coll_count)){
+    width = "300px"
+  }
+
   return $('#collections_holder').load('/collections/list #collections_list', (function(_this) {
     return function() {
       $.colorbox({
         inline: true,
         href: "#collections_holder",
-        width: "1000px",
-        height: "700px",
+        width: width,
+        height: height,
         onComplete: function(){
             $.getScript("/static/new/javascript/get_covariates_from_collection.js");
         }
@@ -196,6 +203,7 @@ openCovariateSelection = function() {
     };
   })(this));
 };
+
 hideTabs = function(start) {
   var x, _i, _results;
   _results = [];
@@ -204,12 +212,14 @@ hideTabs = function(start) {
   }
   return _results;
 };
+
 statsMdpChange = function() {
   var selected;
   selected = $(this).val();
   hideTabs(0);
   return $("#stats_tabs" + selected).show();
 };
+
 changeStatsValue = function(sample_sets, category, value_type, decimal_places, effects) {
   var current_value, id, in_box, the_value, title_value;
   id = "#" + processId(category, value_type);
@@ -233,6 +243,7 @@ changeStatsValue = function(sample_sets, category, value_type, decimal_places, e
     return $(id).attr('title', title_value);
   }
 };
+
 updateStatValues = function(sample_sets) {
   var category, row, show_effects, _i, _len, _ref, _results;
   show_effects = $(".tab-pane.active").attr("id") === "stats_tab";
