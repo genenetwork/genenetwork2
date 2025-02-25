@@ -215,7 +215,7 @@
 
 #cboxClose {
     position: absolute;
-    bottom: 0;
+    top: 0;
     right: 0;
     display: block;
     color: #444;
