@@ -23,6 +23,7 @@
 
 import os
 import sys
+import hashlib
 
 GN_VERSION = "3.12-rc1" # sync up with GN2
 
@@ -119,9 +120,18 @@ OAUTH2_CLIENT_SECRET="yadabadaboo"
 AUTH_SERVER_SSL_PUBLIC_KEY = "/absolute/path/to/ssl_public_key.pem"
 SSL_PRIVATE_KEY = "/absolute/path/to/ssl-private-key.pem"
 
-SESSION_TYPE = "redis"
 SESSION_PERMANENT = True
 SESSION_USE_SIGNER = True
+SESSION_TYPE = "cachelib"
+## --- Settings for CacheLib session type --- ##
+## --- These are on flask-session config variables --- ##
+## --- https://cachelib.readthedocs.io/en/stable/file/ --- ##
+SESSION_FILESYSTEM_CACHE_PATH = "./flask_session"
+SESSION_FILESYSTEM_CACHE_THRESHOLD = 500
+SESSION_FILESYSTEM_CACHE_TIMEOUT = 300
+SESSION_FILESYSTEM_CACHE_MODE = 0o600
+SESSION_FILESYSTEM_CACHE_HASH_METHOD = hashlib.md5
+## --- END: Settings for CacheLib session type --- ##
 
 
 # BEGIN: JSON WEB KEYS #####
