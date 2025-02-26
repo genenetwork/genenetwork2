@@ -43,7 +43,7 @@
     
     <!-- Terminal Panel -->
     <div class="col-lg-6 col-md-12">
-      <button class="btn btn-info" onclick="toggleTerminal()">Show Error Log</button>
+      <button class="btn btn-info" id="error-log-btn" onclick="toggleTerminal()">Show Error Log</button>
       <div id="terminalPanel" class="panel panel-default" style="display: none; margin-top: 15px;">
         <div class="panel-heading">
           <h3 class="panel-title">Process Log</h3>
@@ -67,8 +67,10 @@
   term.open(document.getElementById('terminal'));
   lines.split("\n").forEach(line => term.writeln(line))
   function toggleTerminal() {
-    var panel = document.getElementById('terminalPanel');
-    panel.style.display = (panel.style.display === 'none') ? 'block' : 'none';
+      var panel = document.getElementById('terminalPanel');
+      var errorBtn = document.getElementById("error-log-btn");
+      panel.style.display = (panel.style.display === 'none') ? 'block' : 'none';
+      errorBtn.textContent = (panel.style.display == "none") ? "Show Error Log" : "Hide Error Log";
   }
 </script>
 {% endblock %}
