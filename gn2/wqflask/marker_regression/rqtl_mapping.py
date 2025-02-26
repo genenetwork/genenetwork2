@@ -29,6 +29,13 @@ def read_csv_to_dict(csv_file, delimiter=","):
              for row in csv.DictReader(filter(lambda line : not line.startswith("#"), file_handler),
                                        skipinitialspace=True, delimiter = delimiter)]
 
+class RQTLError(Exception):
+    def __init__(self, message="rqtlerror", status_code=400, log =""):
+        self.message = message
+        self.status_code = status_code
+        self.log = log
+        super().__init__(self.message, self.status_code,self.log)
+
 
 def run_rqtl2(metadata, pheno_file, run_id, group="bxd"):
     try:
@@ -64,6 +71,9 @@ def run_rqtl2(metadata, pheno_file, run_id, group="bxd"):
                                          f"/api/rqtl2/compute?id={run_id}"), json=data)
         response.raise_for_status()
         return response.json()
+    except requests.HTTPError as error:
+        error_results = response.json()
+        raise RQTLError(f'{str(error)}---{error_results["msg"]}', response.status_code, error_results["log"]) from error
     except requests.RequestException as excp:
         raise excp
     
