@@ -3,8 +3,7 @@ import math
 import string
 import random
 import json
-
-from flask import current_app as app
+import logging
 
 from gn2.base import webqtlConfig
 from gn2.base.trait import create_trait
@@ -75,7 +74,7 @@ def run_gemma(this_trait, this_dataset, samples, vals, covariates, use_loco,
                                   f"{pheno_filepath} -a "
                                   f"{snps_filepath} -gk > "
                                   f"{k_json_output_filepath}")
-            app.logger.debug("generate_k_command: %s", generate_k_command)
+            logging.debug("generate_k_command: %s", generate_k_command)
             os.system(generate_k_command)
 
             gemma_command = (f"{GEMMA_WRAPPER_COMMAND} --json --loco "
@@ -105,7 +104,7 @@ def run_gemma(this_trait, this_dataset, samples, vals, covariates, use_loco,
                                   f"{flat_files('genotype/bimbam')}/"
                                   f"{genofile_name}_snps.txt -gk > "
                                   f"{TEMPDIR}/gn2/{k_output_filename}.json")
-            app.logger.debug("generate_k_command: %s", generate_k_command)
+            logging.debug("generate_k_command: %s", generate_k_command)
             os.system(generate_k_command)
 
             gemma_command = (f"{GEMMA_WRAPPER_COMMAND} --json --input "
@@ -124,12 +123,11 @@ def run_gemma(this_trait, this_dataset, samples, vals, covariates, use_loco,
             else:
                 gemma_command += f" > {TEMPDIR}/gn2/{gwa_output_filename}.json"
 
-        app.logger.debug("gemma_command: %s", gemma_command)
+        logging.debug("gemma_command: %s", gemma_command)
         os.system(gemma_command)
     else:
         gwa_output_filename = output_files
 
-    app.logger.error("(%s) Parsing GEMMA output from '%s'.", __name__, gwa_output_filename)
     if use_loco == "True":
         marker_obs = parse_loco_output(this_dataset, gwa_output_filename)
         return marker_obs, gwa_output_filename
