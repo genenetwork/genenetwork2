@@ -1701,19 +1701,6 @@ def search_wiki():
         symbol=request.form.get("search")))
 
 
-@app.route("/rqtl2/compute", methods=["POST", "GET"])
-def rqtl2():
-    """Search genewiki for a given symbol"""
-    run_id = request.args.get("id","")
-    with open("/home/kabui/python_scripts/rqtl_input.json", "r") as file_handler:
-        data = json.load(file_handler)
-    url = urljoin(GN3_LOCAL_URL, f"/api/rqtl2/compute?id={run_id}")
-    results = requests.post(url, json = data)
-    data = results.json()["qtl_results"][0: 501]
-    return render_template('rqtl2_results.html', data=data)
-
-
-
 @app.route("/streaming/", methods=["POST", "GET"])
 def streaming():
     """Search genewiki for a given symbol"""
