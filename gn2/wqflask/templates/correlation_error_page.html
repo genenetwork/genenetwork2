@@ -13,6 +13,7 @@
 <div class="container">
   <h3 style="color: red;">{{error["error-type"]}}</h3>
   <p>{{error["error-message"]}}</p>
+  <p><pre>{{error.get("traceback", "")}}</pre></p>
   <p style="background-color: black; color: green;">
     {%for line in error["stderr-output"]%}
     {{line}}<br />

@@ -5,6 +5,7 @@ import json
 import pickle
 import pathlib
 import datetime
+import traceback
 
 from flask import g
 
@@ -32,7 +33,8 @@ def compute(form):
     except Exception as exc:
         return {
             "error-type": type(exc).__name__,
-            "error-message": exc.args[0]
+            "error-message": exc.args[0],
+            "traceback": traceback.format_exc()
         }
 
     return set_template_vars(form, correlation_results)
