@@ -49,14 +49,22 @@ def do_request(url, data):
         pass
     return response
 
+def set_location_type(data):
+    return {
+        **data,
+        "location_type": (
+            "highest_lod" if data["corr_dataset"].endswith("Publish")
+            else "gene"
+        )
+    }
+
 def check_sample_correlations(baseurl, base_data):
-    data = {
+    data = set_location_type({
         **base_data,
         "corr_type": "sample",
         "corr_sample_method": "pearson",
-        "location_type": "gene",
         "corr_return_results": "200"
-    }
+    })
     top_n_message = "The top 200 correlations ranked by the Genetic Correlation"
     result = do_request(f"{baseurl}/corr_compute", data)
     assert result.status_code == 200
