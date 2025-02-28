@@ -3,6 +3,7 @@ import sys
 import html
 import json
 import requests
+import traceback
 from lxml import etree
 from pathlib import Path
 from lxml.html import parse
@@ -130,7 +131,7 @@ def check_correlations(args_obj, parser):
                 corr_type_fn(host, corr_base)
                 print(" ok")
             except AssertionError as asserterr:
-                print (f" fail: {asserterr.args[0]}")
+                print (f" fail: {traceback.format_exc()}")
                 failure = True
 
     if failure:
