@@ -1,4 +1,4 @@
-from typing import Dict
+from typing import Dict, List
 
 import string
 import datetime
@@ -823,7 +823,7 @@ def get_scales_from_genofile(file_location):
 
 
 
-def get_diff_of_vals(new_vals: Dict, trait_id: str) -> Dict:
+def get_diff_of_vals(new_vals: Dict, trait_id: str, samples: List) -> Dict:
     """ Get the diff between current sample values and the values in the DB
 
     Given a dict of the changed values and the trait/dataset ID, return a Dict
@@ -836,7 +836,7 @@ def get_diff_of_vals(new_vals: Dict, trait_id: str) -> Dict:
     dataset_name = trait_id.split(":")[1]
     trait_ob = create_trait(name=trait_name, dataset_name=dataset_name)
 
-    old_vals = {sample : trait_ob.data[sample].value for sample in trait_ob.data}
+    old_vals = {sample : trait_ob.data[sample].value for sample in samples if sample in trait_ob.data}
 
     shared_samples = set.union(set(new_vals.keys()), set(old_vals.keys()))
 

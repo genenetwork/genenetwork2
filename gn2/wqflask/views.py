@@ -888,19 +888,22 @@ def loading_page():
             if key in wanted:
                 start_vars[key] = value
 
+        if 'group' in start_vars:
+            dataset = create_dataset(
+                start_vars['dataset'], group_name=start_vars['group'])
+        else:
+            dataset = create_dataset(start_vars['dataset'])
+        start_vars['trait_name'] = start_vars['trait_id']
+        samples = dataset.group.samplelist
+
         sample_vals_dict = json.loads(start_vars['sample_vals'])
+        sample_vals_dict = {k: sample_vals_dict[k] for k in samples if k in sample_vals_dict}
+
         if 'n_samples' in start_vars:
             n_samples = int(start_vars['n_samples'])
         else:
-            if 'group' in start_vars:
-                dataset = create_dataset(
-                    start_vars['dataset'], group_name=start_vars['group'])
-            else:
-                dataset = create_dataset(start_vars['dataset'])
-            start_vars['trait_name'] = start_vars['trait_id']
             if dataset.type == "Publish":
                 start_vars['trait_name'] = f"{dataset.group.code}_{start_vars['trait_name']}"
-            samples = dataset.group.samplelist
             if 'genofile' in start_vars:
                 if start_vars['genofile'] != "":
                     genofile_string = start_vars['genofile']
@@ -920,7 +923,7 @@ def loading_page():
             str(sample_vals_dict))
         if start_vars['dataset'] != "Temp":  # Currently can't get diff for temp traits
             start_vars['vals_diff'] = get_diff_of_vals(sample_vals_dict, str(
-                start_vars['trait_id'] + ":" + str(start_vars['dataset'])))
+                start_vars['trait_id'] + ":" + str(start_vars['dataset'])), samples)
 
         start_vars['wanted_inputs'] = initial_start_vars['wanted_inputs']
 
