@@ -314,7 +314,7 @@ class RunMapping:
         else:
             # Check if genotypes exist in the DB in order to create links for markers
             # use the first marker as name refer to geno_db_exists docs
-            self.geno_db_exists = geno_db_exists(self.dataset, results[0]['name'][0])
+            self.geno_db_exists = geno_db_exists(self.dataset, results[0]['name'])
             if self.pair_scan == True:
                 self.figure_data = results[0]
                 self.table_data = results[1]
@@ -675,7 +675,6 @@ def geno_db_exists(this_dataset, first_marker):
         geno_db = data_set.create_dataset(
             dataset_name=geno_db_name, get_samplelist=False)
         geno_trait = create_trait(name=first_marker, dataset_name=geno_db_name)
-        
         return "True"
     except:
         return "False"
