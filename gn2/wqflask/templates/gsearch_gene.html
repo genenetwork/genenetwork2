@@ -18,8 +18,7 @@
       {% if ai_search_enabled %}
         {% if do_ai_search %}
         <div class="row" id="ai_result_info">
-          <div class="text-center" id="spinner">
-             <i class="fa fa-spinner fa-spin fa-3x"></i>
+          <div class="text-center">
           </div>
         </div>
         {% else %}
@@ -352,7 +351,6 @@
             $("#ai_result_info").append(ai_div);
           },
           complete: function() {
-            $("#spinner").hide();
           }
         })
       })
