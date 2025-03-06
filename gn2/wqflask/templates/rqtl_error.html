@@ -1,0 +1,76 @@
+{% extends "index_page.html" %}
+{% block titl %}Error{% endblock %}
+
+{% block content %}
+
+<!-- Start of body -->
+<link rel="stylesheet" type="text/css" href="{{ url_for('css', filename='xterm/xterm.min.css') }}" />
+{{ header("An error occurred during RQTL mapping") }}
+
+<div class="container" style="height:100vh">
+  <div class="row">
+    <!-- Error Panel -->
+    <div class="col-lg-6 col-md-12">
+      <div class="panel panel-danger">
+        <div class="panel-heading">
+          <h3 class="panel-title">Error Details</h3>
+        </div>
+        <div class="panel-body">
+          {% if error %}
+            <p>
+              The following error was raised:<br /><br />
+              <dl class="dl-horizontal">
+                <dt>Error Message</dt>
+                <dd>{{ error }}</dd>
+                <dt>Error Type</dt>
+                <dd>RQTL2 Error</dd>
+		<dt>Error Status Code</dt>
+                <dd> {{ status_code }}</dd>
+              </dl>
+            </p>
+          {% else %}
+            <p>
+              There is likely an issue with the genotype file associated with this group/RISet.
+              Please contact <strong>Zach Sloan</strong> (<a href="mailto:zachary.a.sloan@gmail.com">zachary.a.sloan@gmail.com</a>)
+              or <strong>Arthur Centeno</strong> (<a href="mailto:acenteno@gmail.com">acenteno@gmail.com</a>) about the dataset in question.
+            </p>
+            <hr>
+            <p>Try mapping using <strong>interval mapping</strong> instead; some genotype files with many columns of NAs have issues with GEMMA or R/qtl.</p>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+    
+    <!-- Terminal Panel -->
+    <div class="col-lg-6 col-md-12">
+      <button class="btn btn-info" id="error-log-btn" onclick="toggleTerminal()">Show Error Log</button>
+      <div id="terminalPanel" class="panel panel-default" style="display: none; margin-top: 15px;">
+        <div class="panel-heading">
+          <h3 class="panel-title">Process Log</h3>
+        </div>
+        <div class="panel-body">
+          <div id="terminal" style="overflow-y:auto;background-color: black; color: lime;"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<script src="{{ url_for('js', filename='xterm/xterm.min.js') }}" type="text/javascript"></script>
+<script>
+  var lines = {{ log|tojson }};
+  let term = new Terminal({
+            cursorBlink: true,
+            lineHeight: 1.1,
+            scrollback: 9999,
+            macOptionIsMeta: true
+        });
+  term.open(document.getElementById('terminal'));
+  lines.split("\n").forEach(line => term.writeln(line))
+  function toggleTerminal() {
+      var panel = document.getElementById('terminalPanel');
+      var errorBtn = document.getElementById("error-log-btn");
+      panel.style.display = (panel.style.display === 'none') ? 'block' : 'none';
+      errorBtn.textContent = (panel.style.display == "none") ? "Show Error Log" : "Hide Error Log";
+  }
+</script>
+{% endblock %}

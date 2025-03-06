@@ -61,6 +61,7 @@ from gn2.wqflask.external_tools import send_to_bnw, send_to_webgestalt
 from gn2.wqflask.external_tools import send_to_geneweaver
 from gn2.wqflask.comparison_bar_chart import comparison_bar_chart
 from gn2.wqflask.marker_regression import run_mapping
+from gn2.wqflask.marker_regression.rqtl_mapping import RQTLError
 from gn2.wqflask.marker_regression.exceptions import NoMappingResultsError
 from gn2.wqflask.marker_regression import display_mapping_results
 from gn2.wqflask.network_graph import network_graph
@@ -1036,8 +1037,14 @@ def mapping_results_page(hash_of_inputs=None):
     version = "v3"
     key = "mapping_results:{}:".format(
         version) + json.dumps(start_vars, sort_keys=True)
-    template_vars = run_mapping.RunMapping(start_vars,
+    try:
+        template_vars = run_mapping.RunMapping(start_vars,
                                            temp_uuid, run_id=RUN_ID)
+    except RQTLError as error:
+        return render_template("rqtl_error.html",
+                               error=error.message,
+                               status_code=error.status_code,
+                               log=error.log)
     if template_vars.no_results:
         raise NoMappingResultsError(
             start_vars["trait_id"], start_vars["dataset"], start_vars["method"])
@@ -1695,15 +1702,6 @@ def search_wiki():
     return redirect(url_for(
         "display_genewiki_page",
         symbol=request.form.get("search")))
-
-
-@app.route("/rqtl2/compute", methods=["POST", "GET"])
-def rqtl2():
-    """Search genewiki for a given symbol"""
-    run_id = request.args.get("id","")
-    results = requests.get(urljoin(GN3_LOCAL_URL, f"/api/rqtl2/compute?id={run_id}"))
-    return results.json()
-
 
 
 @app.route("/streaming/", methods=["POST", "GET"])
