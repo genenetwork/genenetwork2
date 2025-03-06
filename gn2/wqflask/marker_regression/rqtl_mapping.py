@@ -73,7 +73,8 @@ def run_rqtl2(metadata, pheno_file, run_id, group="bxd"):
         return response.json()
     except requests.HTTPError as error:
         error_results = response.json()
-        raise RQTLError(f'{str(error)}---{error_results["msg"]}', response.status_code, error_results["log"]) from error
+        raise RQTLError(f'{str(error)}---{error_results.get("msg","")}',
+                        response.status_code, error_results.get("log","")) from error
     except requests.RequestException as excp:
         raise excp
     
