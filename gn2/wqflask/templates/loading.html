@@ -3,6 +3,16 @@
 <link REL="stylesheet" TYPE="text/css" href="/static/new/css/bootstrap-custom.css" />
 <link rel="stylesheet" type="text/css" href="{{ url_for('css', filename='xterm/xterm.min.css') }}" />
 
+<style>
+/* Force text wrapping in terminal */
+#terminal {
+  width: 100%;
+  white-space: pre-wrap; /* Wrap long lines */
+  word-break: break-all; /* Break long words */
+  padding: 10px;
+}
+</style>
+
 <form method="post" action="" name="loading_form" id="loading_form" class="form-horizontal">
 {% for key, value in start_vars.items() %}
 <input type="hidden" name="{{ key }}" value="{{ value }}">
@@ -201,7 +211,8 @@
             cursorBlink: true,
             lineHeight: 1.1,
             scrollback: 9999999,
-            macOptionIsMeta: true
+            macOptionIsMeta: true,
+            cols: 40
         });
         term.open(document.getElementById('terminal'));
 
