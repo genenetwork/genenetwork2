@@ -32,7 +32,7 @@ def verify_link(link):
         return
     print("verifying "+link)
     try:
-        result = requests.get(link, timeout=20, verify=False)
+        result = requests.get(link, timeout=20)
         if result.status_code == 200:
             print(link+" ==> OK")
         elif result.status_code == 307:
@@ -52,7 +52,7 @@ def verify_link(link):
 def verify_static_file(link):
     print("verifying "+link)
     try:
-        result = requests.get(link, timeout=20, verify=False)
+        result = requests.get(link, timeout=20)
         if (result.status_code == 200 and
                 result.content.find(bytes("Error: 404 Not Found", "utf-8")) <= 0):
             print(link+" ==> OK")
