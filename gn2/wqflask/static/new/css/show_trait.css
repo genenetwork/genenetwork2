@@ -70,6 +70,36 @@ table.dataTable.cell-border tbody tr td:first-child {
   border-left: 1px solid #ccc;
 }
 
+/* The following handles the left side scrollbar for the trait page table */
+
+/* Move scrollbar to the left */
+.dataTables_scrollBody {
+  direction: rtl;
+  overflow: auto;
+}
+
+/* Reset direction for table content */
+.dataTables_scrollBody table.dataTable {
+  direction: ltr;
+}
+
+/* Align header with body columns */
+.dataTables_scrollHeadInner,
+.dataTables_scrollHead table {
+  direction: ltr;
+  width: 100% !important; /* Ensure width matches the body */
+}
+
+/* Adjust for scrollbar width */
+.dataTables_scrollBody {
+  padding-left: 12px; /* Prevent content hiding under scrollbar */
+}
+
+/* Shift checkbox to the right so it doesn't overlap with the scrollbar */
+.edit_sample_checkbox.scroll-left {
+  margin-left: 12px;
+}
+
 .checkbox {
   min-height: 20px;
 }

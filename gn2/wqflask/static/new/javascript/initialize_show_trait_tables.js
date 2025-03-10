@@ -249,6 +249,7 @@ initialize_show_trait_tables = function(new_data = []) {
     } );
   }
 
+  $('.edit_sample_checkbox').addClass('scroll-left');
 }
 
 initialize_show_trait_tables();
