@@ -1323,19 +1323,24 @@ def display_genewiki_page(symbol: str):
     try:
         wiki = requests.get(
             urljoin(GN3_LOCAL_URL, f"/api/metadata/wiki/{symbol}"))
-        wiki.raise_for_status()
+        if wiki.status_code != 404:
+            wiki.raise_for_status()
         wiki = wiki.json()
     except requests.exceptions.HTTPError as excp:
         wiki = {}
     except requests.RequestException as excp:
-        flash(excp, "alert-warning")
+        # Don't flash a warning message for an empty result
+        if wiki.status_code not in (404,):
+            flash(excp, "alert-warning")
     try:
         rif = requests.get(
             urljoin(GN3_LOCAL_URL, f"/api/metadata/rif/{symbol}"))
         rif.raise_for_status()
         rif = rif.json()
     except requests.RequestException as excp:
-        flash(excp, "alert-warning")
+        # Don't flash a warning message for an empty result
+        if rif.status_code not in (404,):
+            flash(excp, "alert-warning")
     except requests.exceptions.HTTPError as excp:
         rif = {}
     sess_info = session_info()
