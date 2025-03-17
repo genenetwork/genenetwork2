@@ -1505,11 +1505,14 @@ def edit_case_attributes(inbredset_id: int) -> Response:
             with_flash_error(edit_case_attributes_page),
             flash_success(edit_case_attributes_page))
 
+    def __remove_none_vals__(a_dict):
+        return dict([(k,v) if v else (k,"") for k,v in a_dict.items()])
+
     def __fetch_strains__(inbredset_group):
         return monad_requests.get(urljoin(
             current_app.config["GN_SERVER_URL"],
             f"case-attribute/{inbredset_id}/strains")).then(
-                lambda resp: {**inbredset_group, "strains": resp.json()})
+                lambda resp: {**inbredset_group, "strains": [__remove_none_vals__(d) for d in resp.json()]})
 
     def __fetch_names__(strains):
         return monad_requests.get(urljoin(
@@ -1522,7 +1525,7 @@ def edit_case_attributes(inbredset_id: int) -> Response:
             current_app.config["GN_SERVER_URL"],
             f"case-attribute/{inbredset_id}/values")).then(
                 lambda resp: {**canames, "case_attribute_values": {
-                    value["StrainName"]: value for value in resp.json()}})
+                    value["StrainName"]: __remove_none_vals__(value) for value in resp.json()}})
 
     def __view_error__(err):
         current_app.logger.error("%s", err)
