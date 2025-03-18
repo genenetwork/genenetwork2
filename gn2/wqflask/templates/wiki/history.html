@@ -19,6 +19,12 @@
                                 <th>Gene Symbol:</th>
                                 <td>{{ entry.symbol }}</td>
                             </tr>
+			    {% if entry.species %}
+			    <tr>
+				<th>Species</th>
+				<td> {{ entry.species }}</td>
+			    </tr>
+			    {% endif %}
                             <tr>
                                 <th>PubMed IDs:</th>
                                 <td>
