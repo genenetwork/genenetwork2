@@ -1684,7 +1684,6 @@ def edit_wiki(comment_id: Optional[int]):
             lambda err: _invalid_token(err), lambda tok: tok["access_token"]
         )
         edit_wiki_url = "/api/metadata/wiki/edit"
-
         if comment_id:
             edit_wiki_url = f"/api/metadata/wiki/{comment_id}/edit"
 
@@ -1694,9 +1693,9 @@ def edit_wiki(comment_id: Optional[int]):
             headers={"Authorization": f"Bearer {token}"},
         )
         post_response.raise_for_status()
-        post_res = post_response.json()
 
-        flash(f"Success: {post_res}", "alert-success")
+        flash(f"Wiki entry successfully {'updated' if comment_id else 'created'}",
+              "alert-success")
         return redirect(url_for("display_genewiki_page", symbol=post_data["symbol"]))
 
 
