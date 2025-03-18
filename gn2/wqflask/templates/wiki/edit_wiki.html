@@ -50,6 +50,7 @@
                         <label for="pubmed_ids" class="col-sm-2">PubMed IDS:</label>
                         <input type="text"
                                name="pubmed_ids"
+			       pattern="[0-9\s]+"
                                size="25"
                                maxlength="25"
                                value="{{ " ".join(content["pubmed_ids"]) }}">
