@@ -27,7 +27,11 @@ import hashlib
 
 GN_VERSION = "3.12-rc1" # sync up with GN2
 
+# Basic flask settings: https://flask.palletsprojects.com/en/stable/config/
 SECRET_KEY = ""
+MAX_CONTENT_LENGTH = None # No limit: control with Nginx
+MAX_FORM_MEMORY_SIZE = 10 * 1024 * 1024 # 1MB
+MAX_FORM_PARTS = 1000 # Max number of fields
 
 # Redis
 REDIS_URL = "redis://:@localhost:6379/0"
