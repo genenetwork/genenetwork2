@@ -40,6 +40,8 @@
                             {% for name, species_name in species_dict.items() %}
                                 {% if name == content["species"] %}
                                     <option selected="selected" value="{{ name }}">{{ species_name }}</option>
+			        {% elif name == "mouse" %}
+				    <option selected="selected" value="{{ name }}">{{ species_name }}</option>
                                 {% else %}
                                     <option value="{{ name }}">{{ species_name }}</option>
                                 {% endif %}
