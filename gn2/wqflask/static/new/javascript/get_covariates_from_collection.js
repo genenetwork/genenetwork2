@@ -7,7 +7,7 @@ this_trait_data = null;
 selected_traits = {};
 
 $('#collections_list').attr("style", "width: 95%;");
-$('#trait_table').dataTable( {
+$('#trait_table, #anon_trait_table').dataTable( {
     "drawCallback": function( settings ) {
          $('#trait_table tr').click(function(event) {
              if (event.target.type !== 'checkbox') {
