@@ -3,6 +3,7 @@ from .session import session_info
 from .client import user_logged_in
 from .client import oauth2_get, no_token_get
 
+
 def num_collections() -> int:
     """Compute the number of collections available for the current session."""
     anon_id = session_info()["anon_id"]
@@ -13,4 +14,5 @@ def num_collections() -> int:
         all_collections = all_collections + oauth2_get(
             "auth/user/collections/list").either(
                 lambda _err: [], lambda colls: colls)
-    return len(all_collections)
+
+    return len([coll for coll in all_collections if coll['num_members'] > 0])

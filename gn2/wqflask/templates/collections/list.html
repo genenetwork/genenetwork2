@@ -53,6 +53,7 @@
 
             <tbody>
               {% for uc in anon_collections %}
+              {% if uc.num_members > 0 %}
               <tr class="collection_line">
                 <td align="center" style="padding: 0px;"><INPUT TYPE="checkbox" NAME="collection" class="checkbox trait_checkbox" VALUE="{{ uc.id }}"></td>
                 <td align="right">{{ loop.index }}
@@ -61,6 +62,7 @@
                 <td>{{ uc.changed }}</td>
                 <td align="right">{{ uc.num_members }}</td>
               </tr>
+              {% endif %}
               {% endfor %}
             </tbody>
           </table>
