@@ -37,15 +37,15 @@
                     <div class="form-group">
                         <label for="species" class="col-sm-2">Species:</label>
                         <select name="species" id="species">
+			    {% if not content.species %}
+ 			        {% set selected = "mouse" %}
+			    {% else %}
+			        {% set selected = content.species %}
+			    {% endif %}
                             {% for name, species_name in species_dict.items() %}
-                                {% if name == content["species"] %}
-                                    <option selected="selected" value="{{ name }}">{{ species_name }}</option>
-			        {% elif name == "mouse" %}
-				    <option selected="selected" value="{{ name }}">{{ species_name }}</option>
-                                {% else %}
-                                    <option value="{{ name }}">{{ species_name }}</option>
-                                {% endif %}
-                            {% endfor %}
+  			        <option value="{{ name }}" {% if name == selected %}selected="selected"{% endif %}>{{ species_name }}</option>
+			    {% endfor %}
+        		    <option value="no specific species">no specific species</option>
                         </select>
                     </div>
                     <div class="form-group">
