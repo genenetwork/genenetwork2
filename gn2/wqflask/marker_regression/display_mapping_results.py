@@ -2599,7 +2599,7 @@ class DisplayMappingResults:
             font=FNT_BS_FILE, size=5)  # ZS: For Manhattan Plot
         previous_chr = 1
         if self.mapping_method == "rqtl2_geno": # rqtl2 return chromosome as strings not ints
-            previous_chr = '1'
+            previous_chr = self.qtlresults[0]["chr"]  # use the first chromosome in list
         previous_chr_as_int = 0
         lineWidth = 1
         oldStartPosX = 0
