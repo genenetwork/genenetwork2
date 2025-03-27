@@ -724,6 +724,10 @@ def show_trait_page():
             template_vars.js_data = json.dumps(template_vars.js_data,
                                                default=json_default_handler,
                                                indent="   ")
+            if template_vars.dataset.group.name == "DO":
+                # this is for debugging purposes;
+                # TODO Update the mapping methid in IbredSet Database
+                template_vars.dataset.group.mapping_names.append("R/qtl")
             return render_template(
                 "show_trait.html",
                 **{
