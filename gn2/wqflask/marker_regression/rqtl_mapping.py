@@ -41,34 +41,22 @@ def run_rqtl2(metadata, pheno_file, run_id, group="bxd"):
     try:
         # Locate and load files
         # assumes these files are already in this csv format for example genotypes_files/bxd/bxd_geno.csv
-        geno_data = read_csv_to_dict(locate(name=f"{group}_geno.csv",
+
+        results = {}
+        for (key, value) in metadata.items():
+            if str(value).endswith(".csv") and key not in ["pheno", "pheno_file"]:
+                # handle pheno data separately
+                metadata_name = f"{key}_data"
+                results[metadata_name] = read_csv_to_dict(locate(name=f"{value}",
                                             subdir=group))
-        pheno_data = read_csv_to_dict(pheno_file, "\t")
-        genetic_map_data = read_csv_to_dict(locate(name=f"{group}_gmap.csv",
-                                                   subdir=group))
-        physical_map_data = read_csv_to_dict(locate(f"{group}_pmap.csv",
-                                                    subdir=group))
-        # to get these process the geno files
-        crosstype = metadata.get("crosstype", "risib")
-        alleles =  metadata.get("alleles")
-        geno_codes = metadata["geno_codes"]
-        # Build request payload
-        data = {
-            "crosstype": crosstype,
-            "geno_data": geno_data,
-            "geno_map_data": genetic_map_data,
-            "pheno_data": pheno_data,
-            "physical_map_data": physical_map_data,
-            "geno_transposed": True,
-            "alleles": alleles,
-            "geno_codes": geno_codes, 
-            "na.strings": ["-", "NA"],
-            "model" : metadata["model"],
-            "method" : metadata["method"],
-            "nperm": metadata.get("nperm", 0)
-        }
+        metadata = {**metadata, **results}
+        metadata["pheno_data"] = read_csv_to_dict(pheno_file, "\t")
+        # for uniformity with gn3 api duplicate some of the metadata 
+        metadata["geno_codes"] = metadata["genotypes"]
+        metadata["physical_map_data"] = metadata["pmap_data"]
+        metadata["geno_map_data"] = metadata["gmap_data"]
         response = requests.post(urljoin(GN3_LOCAL_URL,
-                                         f"/api/rqtl2/compute?id={run_id}"), json=data)
+                                         f"/api/rqtl2/compute?id={run_id}"), json=metadata)
         response.raise_for_status()
         return response.json()
     except requests.HTTPError as error:
@@ -118,16 +106,10 @@ def run_rqtl(trait_name, vals, samples, dataset, pair_scan,
     if perm_strata_list:
         post_data["pstrata"] = True
     if use_rqtl2:
-        #  TODO: pass this data after processing the geno files.
-        # This is test data for BXD family dataset
-        rqtl2_metadata = {
-        "crosstype" : "risib",
-        "alleles" : ["B","D"],
-        "geno_codes": {
-             "B": 1,
-             "D": 2
-  }}
-        rqtl_output = run_rqtl2({**post_data, **rqtl2_metadata}, pheno_file, run_id)
+        group = dataset.group.name.lower()
+        with open(locate(name=f"{group}.json", subdir=group), encoding="utf-8") as file_handler:
+            rqtl2_metadata = json.load(file_handler)
+        rqtl_output = run_rqtl2({**post_data, **rqtl2_metadata}, pheno_file, run_id,dataset.group.name.lower())
         if num_perm > 0:
             perm_results, suggestive, significant = process_rqtl2_permutations(rqtl_output)
             return perm_results, suggestive, significant, rqtl_output["qtl_results"]
