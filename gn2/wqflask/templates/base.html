@@ -240,9 +240,18 @@
                         {% endif %}
                         {% if logged_in() %}
                             <li>
-                                <a id="user:profile"
-                                   title="User's profile page."
-                                   href="{{ url_for("oauth2.user.user_profile") }}">Profile</a>
+                                <a href="#"
+                                class="dropdown-toggle"
+                                data-toggle="dropdown"
+                                aria-haspopup="true"
+                                aria-expanded="false">{{ user_dets.email }} <span class="caret"></span></a>
+                                <ul class="dropdown-menu">
+                                    <li>
+                                        <a id="user:profile"
+                                        title="User Dashboard"
+                                        href="{{ url_for("oauth2.user.user_profile") }}">View Dashboard</a>
+                                    </li>
+                                </ul>
                             </li>
                         {% endif %}
                     </ul>
