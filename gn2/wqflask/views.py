@@ -1,5 +1,5 @@
 """Main routing table for GN2"""
-
+import time
 import array
 import base64
 import csv
@@ -938,14 +938,12 @@ def loading_page():
     start_vars_container["streaming_enabled"] = streaming_enabled
     start_vars_container["run_id"] = run_id
     rendered_template = render_template("loading.html", **start_vars_container)
-
     return rendered_template
 
 
 @app.route("/run_mapping", methods=('POST',))
 @app.route("/run_mapping/<path:hash_of_inputs>")
 def mapping_results_page(hash_of_inputs=None):
-
     RUN_ID = request.args.get("id")  # require to stream output
     if not RUN_ID:
         RUN_ID = request.form.get("run_id")
@@ -1059,7 +1057,6 @@ def mapping_results_page(hash_of_inputs=None):
                                            indent="   ")
 
     result = template_vars.__dict__
-
     if result['pair_scan']:
         return render_template(
             "pair_scan_results.html", **result)
@@ -1153,6 +1150,7 @@ def __handle_correlation_error__(exc):
 def corr_compute_page():
     with Redis.from_url(REDIS_URL, decode_responses=True) as rconn:
         if request.method == "POST":
+            start_time = time.time()
             request_received = datetime.datetime.utcnow()
             filename = hmac.hmac_creation(
                 f"request_form_{request_received.isoformat()}")
@@ -1169,16 +1167,28 @@ def corr_compute_page():
                         "status": "queued"
                     })
                 jobs.run(job_id, REDIS_URL)
+            Redis.set(f"{job_id}-running-time", "%.5f" % time.time())
 
-            return redirect(url_for("corr_compute_page", job_id=str(job_id)))
+            return redirect(url_for("corr_compute_page",
+                                    job_id=str(job_id)))
 
         job = jobs.job(
             rconn, UUID(request.args.get("job_id"))).maybe(
                 {}, lambda the_job: the_job)
 
         if jobs.completed_successfully(job):
+            total_time = None
             output = json.loads(job.get("stdout", "{}"))
-            return render_template("correlation_page.html", **output)
+            job_id = request.args.get("job_id")
+            curr_time = Redis.get(f"{job_id}-running-time")
+            if curr_time:
+                total_time = "%.5fs" % (time.time() - float(curr_time.decode()))
+                Redis.delete(f"{job_id}-running-time")
+            return render_template(
+                "correlation_page.html",
+                correlation_run_time=total_time,
+                **output
+            )
 
         if jobs.completed_erroneously(job):
             try:
