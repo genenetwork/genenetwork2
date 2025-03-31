@@ -244,6 +244,27 @@
      }
  }, 100);
 
- $("#loading_form").attr("action", "{{ start_vars.form_url }}");
- setTimeout(function(){ $("#loading_form").submit()}, 350);
+$("#loading_form").attr("action", "{{ start_vars.form_url }}");
+
+$("#loading_form").on('submit', function(e) {
+    e.preventDefault();
+    var form = $(this);
+    $.ajax({
+        url: form.attr('action'),
+        type: 'POST',
+        data: form.serialize(),
+        success: function(data) {
+            if (data.redirect_url) {
+                window.location.href = data.redirect_url;
+            }
+        },
+        error: function(xhr) {
+            console.error("Error:", xhr.statusText);
+        }
+    });
+});
+
+setTimeout(function() {
+    $("#loading_form").trigger('submit');
+}, 350);
 </script>

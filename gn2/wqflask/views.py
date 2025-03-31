@@ -941,8 +941,8 @@ def loading_page():
     return rendered_template
 
 
-@app.route("/run_mapping", methods=('POST',))
-@app.route("/run_mapping/<path:hash_of_inputs>")
+@app.route("/run_mapping", methods=['POST'], endpoint='run_mapping_post')  # POST-only
+@app.route("/run_mapping/<path:hash_of_inputs>", methods=['GET'], endpoint='run_mapping_get')
 def mapping_results_page(hash_of_inputs=None):
     start_time = time.time()
     RUN_ID = request.args.get("id")  # require to stream output
@@ -1058,20 +1058,27 @@ def mapping_results_page(hash_of_inputs=None):
                                            indent="   ")
 
     result = template_vars.__dict__
-    total_time = time.time() - start_time
-    if result['pair_scan']:
-        return render_template(
-            "pair_scan_results.html",
-            mapping_run_time=total_time,
-            **result)
-    else:
-        gn1_template_vars = display_mapping_results.DisplayMappingResults(
-            result).__dict__
-        return render_template(
-            "mapping_results.html",
-            mapping_run_time=total_time,
-            **gn1_template_vars)
 
+    total_time = time.time() - start_time
+    if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+        redirect_url = url_for(
+            'run_mapping_get',
+            hash_of_inputs=hash_of_inputs,
+            mapping_run_time=total_time
+        )
+        return jsonify(redirect_url=redirect_url)
+    else:
+        if result['pair_scan']:
+            return render_template(
+                "pair_scan_results.html",
+                mapping_run_time=total_time,
+                **result)
+        else:
+            gn1_template_vars = display_mapping_results.DisplayMappingResults(result).__dict__
+            return render_template(
+                "mapping_results.html", 
+                mapping_run_time=total_time,
+                **gn1_template_vars)
 
 
 @app.route("/cache_mapping_inputs", methods=('POST',))
