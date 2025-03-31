@@ -20,7 +20,6 @@ from gn2.base.webqtlConfig import PUBMEDLINK_URL
 from gn2.wqflask import parser
 from gn2.wqflask import do_search
 
-from gn2.utility.authentication_tools import check_resource_availability
 from gn2.utility.hmac import hmac_creation
 from gn2.utility.tools import get_setting, GN2_BASE_URL, GN3_LOCAL_URL
 from gn2.utility.type_checking import is_str

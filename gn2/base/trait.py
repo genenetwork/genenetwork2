@@ -6,9 +6,8 @@ import gn2.utility.hmac as hmac
 from gn2.base import webqtlConfig
 from gn2.base.webqtlCaseData import webqtlCaseData
 from gn2.base.data_set import create_dataset
-from gn2.utility.authentication_tools import check_resource_availability
 from gn2.utility.tools import get_setting, GN2_BASE_URL
-from gn2.utility.redis_tools import get_redis_conn, get_resource_id
+from gn2.utility.redis_tools import get_redis_conn
 
 from flask import g, request, url_for
 
@@ -36,25 +35,13 @@ def create_trait(**kw):
                     dataset_type="Temp",
                     group_name= kw.get('name').split("_")[2])
 
-
-    if dataset.type == 'Publish':
-        permissions = check_resource_availability(
-            dataset, g.user_session.user_id, kw.get('name'))
-    else:
-        permissions = check_resource_availability(
-            dataset, g.user_session.user_id)
-
-    if permissions['data'] != "no-access":
-
-        the_trait = GeneralTrait(**dict(kw,dataset=dataset))
-        if the_trait.dataset.type != "Temp":
-            the_trait = retrieve_trait_info(
-                the_trait,
-                the_trait.dataset,
-                get_qtl_info=kw.get('get_qtl_info'))
-        return the_trait
-    else:
-        return None
+    the_trait = GeneralTrait(**dict(kw,dataset=dataset))
+    if the_trait.dataset.type != "Temp":
+        the_trait = retrieve_trait_info(
+            the_trait,
+            the_trait.dataset,
+            get_qtl_info=kw.get('get_qtl_info'))
+    return the_trait
 
 
 class GeneralTrait:

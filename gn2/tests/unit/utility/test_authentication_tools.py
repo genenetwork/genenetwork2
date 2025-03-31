@@ -2,7 +2,6 @@
 import unittest
 from unittest import mock
 
-from gn2.utility.authentication_tools import check_resource_availability
 from gn2.utility.authentication_tools import add_new_resource
 
 
@@ -34,87 +33,6 @@ class TestUserSession:
 
 def mock_add_resource(resource_ob, update=False):
     return resource_ob
-
-
-class TestCheckResourceAvailability(unittest.TestCase):
-    """Test methods related to checking the resource availability"""
-    @mock.patch('gn2.utility.authentication_tools.add_new_resource')
-    @mock.patch('gn2.utility.authentication_tools.Redis')
-    @mock.patch('gn2.utility.authentication_tools.g', TestUserSession())
-    @mock.patch('gn2.utility.authentication_tools.get_resource_id')
-    def test_check_resource_availability_default_mask(
-            self,
-            resource_id_mock,
-            redis_mock,
-            add_new_resource_mock):
-        """Test the resource availability with default mask"""
-
-        resource_id_mock.return_value = 1
-        redis_mock.smembers.return_value = []
-        test_dataset = mock.MagicMock()
-        type(test_dataset).type = mock.PropertyMock(return_value="Test")
-        add_new_resource_mock.return_value = {"default_mask": 2}
-        self.assertEqual(check_resource_availability(test_dataset, user_id), 2)
-
-    @mock.patch('gn2.utility.authentication_tools.requests.get')
-    @mock.patch('gn2.utility.authentication_tools.add_new_resource')
-    @mock.patch('gn2.utility.authentication_tools.Redis')
-    @mock.patch('gn2.utility.authentication_tools.g', TestUserSession())
-    @mock.patch('gn2.utility.authentication_tools.get_resource_id')
-    def test_check_resource_availability_non_default_mask(
-            self,
-            resource_id_mock,
-            redis_mock,
-            add_new_resource_mock,
-            requests_mock):
-        """Test the resource availability with non-default mask"""
-        resource_id_mock.return_value = 1
-        redis_mock.smembers.return_value = []
-        add_new_resource_mock.return_value = {"default_mask": 2}
-        requests_mock.return_value = TestResponse()
-        test_dataset = mock.MagicMock()
-        type(test_dataset).type = mock.PropertyMock(return_value="Test")
-        self.assertEqual(check_resource_availability(test_dataset, user_id),
-                         ['foo'])
-
-    @mock.patch('gn2.utility.authentication_tools.webqtlConfig.SUPER_PRIVILEGES',
-                "SUPERUSER")
-    @mock.patch('gn2.utility.authentication_tools.requests.get')
-    @mock.patch('gn2.utility.authentication_tools.add_new_resource')
-    @mock.patch('gn2.utility.authentication_tools.Redis')
-    @mock.patch('gn2.utility.authentication_tools.g', TestUserSession())
-    @mock.patch('gn2.utility.authentication_tools.get_resource_id')
-    def test_check_resource_availability_of_super_user(
-            self,
-            resource_id_mock,
-            redis_mock,
-            add_new_resource_mock,
-            requests_mock):
-        """Test the resource availability if the user is the super user"""
-        resource_id_mock.return_value = 1
-        redis_mock.smembers.return_value = [b"Jane"]
-        add_new_resource_mock.return_value = {"default_mask": 2}
-        requests_mock.return_value = TestResponse()
-        test_dataset = mock.MagicMock()
-        type(test_dataset).type = mock.PropertyMock(return_value="Test")
-        self.assertEqual(check_resource_availability(test_dataset, user_id),
-                         "SUPERUSER")
-
-    @mock.patch('gn2.utility.authentication_tools.webqtlConfig.DEFAULT_PRIVILEGES',
-                "John Doe")
-    def test_check_resource_availability_string_dataset(self):
-        """Test the resource availability if the dataset is a string"""
-        self.assertEqual(check_resource_availability("Test", user_id),
-                         "John Doe")
-
-    @mock.patch('gn2.utility.authentication_tools.webqtlConfig.DEFAULT_PRIVILEGES',
-                "John Doe")
-    def test_check_resource_availability_temp(self):
-        """Test the resource availability if the dataset is a string"""
-        test_dataset = mock.MagicMock()
-        type(test_dataset).type = mock.PropertyMock(return_value="Temp")
-        self.assertEqual(check_resource_availability(test_dataset, user_id),
-                         "John Doe")
 
 
 class TestAddNewResource(unittest.TestCase):

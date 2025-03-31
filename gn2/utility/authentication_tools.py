@@ -13,38 +13,6 @@ from gn2.utility.tools import get_setting, GN_PROXY_URL
 
 Redis = get_redis_conn()
 
-def check_resource_availability(dataset, user_id, trait_id=None):
-    # At least for now assume temporary entered traits are accessible
-    if type(dataset) == str or dataset.type == "Temp":
-        return webqtlConfig.DEFAULT_PRIVILEGES
-
-    resource_id = get_resource_id(dataset, trait_id)
-
-    # ZS: This should never be false, but it's technically possible if
-    # a non-Temp dataset somehow had a type other than
-    # Publish/ProbeSet/Geno
-    if resource_id:
-        resource_info = get_resource_info(resource_id)
-
-        # If resource isn't already in redis, add it with default
-        # privileges
-        if not resource_info:
-            resource_info = add_new_resource(dataset, trait_id)
-
-    # Check if super-user - we should probably come up with some
-    # way to integrate this into the proxy
-    if user_id in Redis.smembers("super_users"):
-        return webqtlConfig.SUPER_PRIVILEGES
-
-    response = None
-    the_url = f"{GN_PROXY_URL}available?resource={resource_id}&user={user_id}"
-    try:
-        response = json.loads(requests.get(the_url).content)
-    except:
-        response = resource_info['default_mask']
-
-    return response
-
 
 def add_new_resource(dataset, trait_id=None):
     resource_ob = {
