@@ -186,10 +186,6 @@ class SearchResultPage:
                     # Check permissions on a trait-by-trait basis for phenotype traits
                     trait_dict['name'] = trait_dict['display_name'] = str(result[0])
                     trait_dict['hmac'] = f"{trait_dict['display_name']}:{trait_dict['dataset']}:{hmac_creation('{}:{}'.format(trait_dict['display_name'], trait_dict['dataset']))}"
-                    permissions = check_resource_availability(
-                        self.dataset, g.user_session.user_id, trait_dict['display_name'])
-                    if not any(x in permissions['data'] for x in ["view", "edit"]):
-                        continue
 
                     if result[10]:
                         trait_dict['display_name'] = str(result[10]) + "_" + str(result[0])
