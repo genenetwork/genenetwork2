@@ -323,6 +323,9 @@
 		    {% if correlation_run_time %}
 			<p>It took the server {{ correlation_run_time }} seconds to run this correlation.</p>
 		    {% endif %}
+		    {% if mapping_run_time %}
+			<p>It took the server {{ mapping_run_time }} seconds to run this mapping.</p>
+		    {% endif %}
                     <p>It took the server {{ g.request_time() }} seconds to process this page.</p>
                 </div>
                 <div class="col-xs-2">

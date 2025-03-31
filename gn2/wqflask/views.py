@@ -944,6 +944,7 @@ def loading_page():
 @app.route("/run_mapping", methods=('POST',))
 @app.route("/run_mapping/<path:hash_of_inputs>")
 def mapping_results_page(hash_of_inputs=None):
+    start_time = time.time()
     RUN_ID = request.args.get("id")  # require to stream output
     if not RUN_ID:
         RUN_ID = request.form.get("run_id")
@@ -1057,14 +1058,19 @@ def mapping_results_page(hash_of_inputs=None):
                                            indent="   ")
 
     result = template_vars.__dict__
+    total_time = time.time() - start_time
     if result['pair_scan']:
         return render_template(
-            "pair_scan_results.html", **result)
+            "pair_scan_results.html",
+            mapping_run_time=total_time,
+            **result)
     else:
         gn1_template_vars = display_mapping_results.DisplayMappingResults(
             result).__dict__
         return render_template(
-            "mapping_results.html", **gn1_template_vars)
+            "mapping_results.html",
+            mapping_run_time=total_time,
+            **gn1_template_vars)
 
 
 
