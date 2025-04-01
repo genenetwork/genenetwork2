@@ -86,6 +86,7 @@
 
             <tbody>
             {% for uc in collections %}
+            {% if uc.num_members > 0 %}
             <tr class="collection_line">
               <td align="center" style="padding: 0px;"><INPUT TYPE="checkbox" NAME="collection" class="checkbox trait_checkbox" VALUE="{{ uc.id }}"></td>
               <td align="right">{{ loop.index }}
