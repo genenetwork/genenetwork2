@@ -92,16 +92,17 @@ app = Flask(__name__)
 # Note no longer use the badly named WQFLASK_OVERRIDES (nyi)
 app.config.from_object('gn2.default_settings')
 app.config.from_envvar('GN2_SETTINGS')
-app.config["SESSION_CACHELIB"] = FileSystemCache(
-    cache_dir=Path(app.config["SESSION_FILESYSTEM_CACHE_PATH"]).absolute(),
-    threshold=int(app.config["SESSION_FILESYSTEM_CACHE_THRESHOLD"]),
-    default_timeout=int(app.config["SESSION_FILESYSTEM_CACHE_TIMEOUT"]))
-app.config['TEMPLATES_AUTO_RELOAD'] = True
 # BEGIN: SECRETS -- Should be the last of the settings to load
 secrets_file = Path(app.config.get("GN2_SECRETS", "")).absolute()
 if secrets_file.exists() and secrets_file.is_file():
     app.config.from_pyfile(str(secrets_file))
 # END: SECRETS
+
+app.config["SESSION_CACHELIB"] = FileSystemCache(
+    cache_dir=Path(app.config["SESSION_FILESYSTEM_CACHE_PATH"]).absolute(),
+    threshold=int(app.config["SESSION_FILESYSTEM_CACHE_THRESHOLD"]),
+    default_timeout=int(app.config["SESSION_FILESYSTEM_CACHE_TIMEOUT"]))
+app.config['TEMPLATES_AUTO_RELOAD'] = True
 ## END: Setup configurations ##
 setup_logging(app)
 ### DO NOT USE logging BEFORE THIS POINT!!!! ###
