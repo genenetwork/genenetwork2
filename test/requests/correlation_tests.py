@@ -8,6 +8,7 @@ from lxml import etree
 from pathlib import Path
 from lxml.html import parse
 from functools import reduce
+from urllib.parse import urljoin
 from link_checker import check_page
 
 def corrs_base_data():
@@ -45,6 +46,9 @@ def do_request(url, data):
             "location_type": "gene",
             **data,
         })
+    if response.headers["Content-Type"] == "application/json":
+        response = requests.get(urljoin(url, response.json()["redirect_url"]))
+
     while response.text.find('<meta http-equiv="refresh" content="5">') >= 0:
         response = requests.get(response.url)
         pass
