@@ -53,7 +53,7 @@ $.ajax(gn_server_url +'/menu/generate/json', {
 
 populate_species = function() {
   var species_list;
-  species_list = this.jdata.species;
+  species_list = this.jdata.species || [];
   redo_dropdown($('#species'), species_list);
   return populate_group();
 };
@@ -62,7 +62,7 @@ window.populate_species = populate_species;
 populate_group = function() {
   var group_list, species;
   species = $('#species').val();
-  group_list = this.jdata.groups[species];
+  group_list = this.jdata.groups[species] || [];
   for (_i = 0, _len = group_list.length; _i < (_len - 1); _i++) {
      if (group_list[_i][0] == "BXD300"){
          group_list.splice(_i, 1)
@@ -79,7 +79,7 @@ populate_type = function() {
   var group, species, type_list;
   species = $('#species').val();
   group = $('#group').val();
-  type_list = this.jdata.types[species][group];
+  type_list = this.jdata.types[species][group] || [];
   redo_dropdown($('#type'), type_list);
   return populate_dataset();
 };
@@ -90,7 +90,11 @@ populate_dataset = function() {
   species = $('#species').val();
   group = $('#group').val();
   type = $('#type').val();
-  dataset_list = this.jdata.datasets[species][group][type];
+  try {
+      dataset_list = this.jdata.datasets[species][group][type] || [];
+  } catch (exc) {
+      dataset_list = [];
+  }
   return redo_dropdown($('#dataset'), dataset_list);
 };
 window.populate_dataset = populate_dataset;
