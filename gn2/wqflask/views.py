@@ -747,39 +747,49 @@ def show_trait_page():
                   __show_trait__)
 
 
-@app.route("/heatmap", methods=('POST',))
+@app.route("/heatmap", methods=('POST','GET'))
 def heatmap_page():
-    start_vars = request.form
-    temp_uuid = uuid.uuid4()
+    if request.method == "POST":
+        inputs_json = json.dumps(request.form, sort_keys=True)
+        dhash = hashlib.md5()
+        dhash.update(inputs_json.encode())
+        hash_of_inputs = dhash.hexdigest()
 
-    traits = [trait.strip() for trait in start_vars['trait_list'].split(',')]
-    with database_connection(get_setting("SQL_URI")) as conn, conn.cursor() as cursor:
-        if traits[0] != "":
-            version = "v5"
-            key = "heatmap:{}:".format(
-                version) + json.dumps(start_vars, sort_keys=True)
-            result = Redis.get(key)
+        Redis.set(hash_of_inputs, inputs_json, ex=60*60)
 
-            if result:
-                result = pickle.loads(result)
+        redirect_url = url_for('heatmap_page', hash_of_inputs=hash_of_inputs)
+        return jsonify(redirect_url=redirect_url)
+    else:
+        start_vars = json.loads(Redis.get(request.args['hash_of_inputs']))
+        temp_uuid = uuid.uuid4()
+
+        traits = [trait.strip() for trait in start_vars['trait_list'].split(',')]
+        with database_connection(get_setting("SQL_URI")) as conn, conn.cursor() as cursor:
+            if traits[0] != "":
+                version = "v5"
+                key = "heatmap:{}:".format(
+                    version) + json.dumps(start_vars, sort_keys=True)
+                result = Redis.get(key)
+
+                if result:
+                    result = pickle.loads(result)
+                else:
+                    template_vars = heatmap.Heatmap(
+                        cursor, request.form, temp_uuid)
+                    template_vars.js_data = json.dumps(template_vars.js_data,
+                                                    default=json_default_handler,
+                                                    indent="   ")
+
+                    result = template_vars.__dict__
+
+                    pickled_result = pickle.dumps(result, pickle.HIGHEST_PROTOCOL)
+                    Redis.set(key, pickled_result)
+                    Redis.expire(key, 60 * 60)
+                rendered_template = render_template("heatmap.html", **result)
 
             else:
-                template_vars = heatmap.Heatmap(
-                    cursor, request.form, temp_uuid)
-                template_vars.js_data = json.dumps(template_vars.js_data,
-                                                   default=json_default_handler,
-                                                   indent="   ")
-
-                result = template_vars.__dict__
-
-                pickled_result = pickle.dumps(result, pickle.HIGHEST_PROTOCOL)
-                Redis.set(key, pickled_result)
-                Redis.expire(key, 60 * 60)
-            rendered_template = render_template("heatmap.html", **result)
-
-        else:
-            rendered_template = render_template(
-                "empty_collection.html", **{'tool': 'Heatmap'})
+                rendered_template = render_template(
+                    "empty_collection.html", **{'tool': 'Heatmap'})
 
     return rendered_template
 
@@ -1133,19 +1143,30 @@ def export_pdf():
     return response
 
 
-@app.route("/network_graph", methods=('POST',))
+@app.route("/network_graph", methods=('POST','GET'))
 def network_graph_page():
-    start_vars = request.form
-    traits = [trait.strip() for trait in start_vars['trait_list'].split(',')]
-    if traits[0] != "":
-        template_vars = network_graph.NetworkGraph(start_vars)
-        template_vars.js_data = json.dumps(template_vars.js_data,
-                                           default=json_default_handler,
-                                           indent="   ")
+    if request.method == "POST":
+        inputs_json = json.dumps(request.form, sort_keys=True)
+        dhash = hashlib.md5()
+        dhash.update(inputs_json.encode())
+        hash_of_inputs = dhash.hexdigest()
 
-        return render_template("network_graph.html", **template_vars.__dict__)
+        Redis.set(hash_of_inputs, inputs_json, ex=60*60)
+
+        redirect_url = url_for('network_graph_page', hash_of_inputs=hash_of_inputs)
+        return jsonify(redirect_url=redirect_url)
     else:
-        return render_template("empty_collection.html", **{'tool': 'Network Graph'})
+        start_vars = json.loads(Redis.get(request.args['hash_of_inputs']))
+        traits = [trait.strip() for trait in start_vars['trait_list'].split(',')]
+        if traits[0] != "":
+            template_vars = network_graph.NetworkGraph(start_vars)
+            template_vars.js_data = json.dumps(template_vars.js_data,
+                                            default=json_default_handler,
+                                            indent="   ")
+
+            return render_template("network_graph.html", **template_vars.__dict__)
+        else:
+            return render_template("empty_collection.html", **{'tool': 'Network Graph'})
 
 
 def __handle_correlation_error__(exc):
@@ -1223,19 +1244,31 @@ def corr_compute_page():
         return render_template("loading_corrs.html")
 
 
-@app.route("/corr_matrix", methods=('POST',))
+@app.route("/corr_matrix", methods=('POST','GET'))
 def corr_matrix_page():
-    start_vars = request.form
-    traits = [trait.strip() for trait in start_vars['trait_list'].split(',')]
-    if len(traits) > 1:
-        template_vars = show_corr_matrix.CorrelationMatrix(start_vars)
-        template_vars.js_data = json.dumps(template_vars.js_data,
-                                           default=json_default_handler,
-                                           indent="   ")
+    if request.method == "POST":
+        inputs_json = json.dumps(request.form, sort_keys=True)
+        dhash = hashlib.md5()
+        dhash.update(inputs_json.encode())
+        hash_of_inputs = dhash.hexdigest()
 
-        return render_template("correlation_matrix.html", **template_vars.__dict__)
+        Redis.set(hash_of_inputs, inputs_json, ex=60*60)
+
+        redirect_url = url_for('corr_matrix_page', hash_of_inputs=hash_of_inputs)
+        return jsonify(redirect_url=redirect_url)
     else:
-        return render_template("empty_collection.html", **{'tool': 'Correlation Matrix'})
+        start_vars = json.loads(Redis.get(request.args['hash_of_inputs']))
+        traits = [trait.strip() for trait in start_vars['trait_list'].split(',')]
+        if len(traits) > 1:
+            template_vars = show_corr_matrix.CorrelationMatrix(start_vars)
+            template_vars.js_data = json.dumps(template_vars.js_data,
+                                            default=json_default_handler,
+                                            indent="   ")
+
+            redirect_url = url_for('corr_matrix_page')
+            return render_template("correlation_matrix.html", **template_vars.__dict__)
+        else:
+            return render_template("empty_collection.html", **{'tool': 'Correlation Matrix'})
 
 
 @app.route("/corr_scatter_plot")
