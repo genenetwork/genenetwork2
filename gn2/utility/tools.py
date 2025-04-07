@@ -158,8 +158,8 @@ def assert_writable_dir(dir):
         fh.write("I am writing this text to the file\n")
         fh.close()
         os.remove(fn)
-    except IOError:
-        raise Exception('Unable to write test.txt to directory ' + dir)
+    except IOError as ioerror:
+        raise Exception('Unable to write test.txt to directory ' + dir) from ioerror
     return dir
 
 
