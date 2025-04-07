@@ -518,7 +518,16 @@ def wcgna_results():
 def ctl_setup():
     # We are going to get additional user input for the analysis
     # Display them using the template
-    return render_template("ctl_setup.html", **request.form)
+    if request.form.get("submitted_by") == "javascript":
+        return render_template("ctl_setup.html", **request.form)
+    return {
+        "submit_url": url_for("ctl_setup"),
+        "submit_method": "POST",
+        "data": {
+            "trait_list": request.form["trait_list"],
+            "submitted_by": "javascript"
+        }
+    }
 
 
 @app.route("/ctl_results", methods=["POST"])
