@@ -256,6 +256,22 @@ $("#loading_form").on('submit', function(e) {
         success: function(data) {
             if (data.redirect_url) {
                 window.location.href = data.redirect_url;
+            } else if (data.submit_url) {
+                const form = document.createElement("form");
+                form.action = data.submit_url;
+                form.method = data.submit_method.toUpperCase();
+                for(const key in data.data) {
+                    if(data.data.hasOwnProperty(key)) {
+                        const input = document.createElement("input");
+                        input.type = "hidden";
+                        input.name = key;
+                        input.value = data.data[key];
+                        form.appendChild(input)
+                    }
+                }
+                document.body.appendChild(form);
+                form.submit();
+                document.body.removeChild(form);
             }
         },
         error: function(xhr) {
