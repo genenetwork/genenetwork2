@@ -125,6 +125,7 @@ AUTH_SERVER_SSL_PUBLIC_KEY = "/absolute/path/to/ssl_public_key.pem"
 SSL_PRIVATE_KEY = "/absolute/path/to/ssl-private-key.pem"
 
 SESSION_PERMANENT = True
+PERMANENT_SESSION_LIFETIME = 691200 # 8 days
 SESSION_USE_SIGNER = True
 SESSION_TYPE = "cachelib"
 ## --- Settings for CacheLib session type --- ##
