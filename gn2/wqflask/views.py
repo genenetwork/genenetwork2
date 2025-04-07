@@ -784,7 +784,7 @@ def heatmap_page():
                     result = pickle.loads(result)
                 else:
                     template_vars = heatmap.Heatmap(
-                        cursor, request.form, temp_uuid)
+                        cursor, start_vars, temp_uuid)
                     template_vars.js_data = json.dumps(template_vars.js_data,
                                                     default=json_default_handler,
                                                     indent="   ")
