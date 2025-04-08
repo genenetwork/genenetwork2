@@ -24,14 +24,14 @@ def main():
             cursor.execute("SELECT Name FROM ProbeSetFreeze")
             probeset_datasets = cursor.fetchall()
 
-        for (db_name,) in probeset_datasets:
-            db_name = db_name.strip()
-            logging.info(f"Processing {db_name}...")
+        for (name,) in probeset_datasets:
+            name = name.strip()
+            logging.info(f"Processing {name}...")
             try:
-                write_db_to_textfile(db_name, conn, text_dir=CACHEDIR)
-                logging.info(f"Finished {db_name}")
+                write_db_to_textfile(name, conn, text_dir=CACHEDIR)
+                logging.info(f"Finished {name}")
             except Exception as e:
-                logging.error(f"Error processing {db_name}: {e}", exc_info=True)
+                logging.error(f"Error processing {name}: {e}", exc_info=True)
 
     logging.info("All processing complete.")
 
