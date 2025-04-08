@@ -5,6 +5,7 @@
 import os
 import time
 import datetime
+import sys
 import logging
 import click
 import hashlib
@@ -26,6 +27,21 @@ def get_cache_checksum():
         ProbeSet, ProbeSetData, ProbeSetXRef")
         checksums = [str(checksum) for (_, checksum) in cursor.fetchall()]
         return hashlib.md5(" ".join(checksums).encode("utf-8")).hexdigest()
+
+
+@click.command(help="Verify checksums and return True when the data has been changed.")
+def is_data_modified():
+    """Check whether checksums have changed.  Return a zero exit
+    status code when the data has changed; otherwise exit with a 1
+    exit status code."""
+    checksum_file = os.path.join(CACHEDIR, "CHECKSUM.txt")
+    if not os.path.exists(checksum_file):
+        sys.exit(0)
+    with open(checksum_file, "r") as _file:
+        checksum = _file.read()
+        if checksum == get_cache_checksum():
+            sys.exit(1)
+        sys.exit(0)
 
 
 @click.command(help="Read all the Probeset data and cache it into CACHEDIR")
@@ -61,6 +77,7 @@ def cli():
     pass
 
 
+cli.add_command(is_data_modified)
 cli.add_command(build_probeset_cache)
 
 
