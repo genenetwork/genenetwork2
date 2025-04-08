@@ -12,15 +12,72 @@ To build the cache:
 """
 
 import os
+import csv
 import time
 import datetime
 import sys
 import logging
-import click
 import hashlib
+import click
 
-from gn2.wqflask.correlation.pre_computes import write_db_to_textfile
 from gn_libs.mysqldb import database_connection
+
+
+# KLUDGE: FIXME: Duplicate of
+# `gn2.wqflask.correlation.pre_computes.write_db_to_textfile`.  We
+# have it since importing anything from wqflask co-erces asserts,
+# thereby forcing one to set environment variables like GN2_PROFILE
+# that we don't need for this script.
+def write_db_to_textfile(db_name, conn, text_dir="/tmp/gn2/cache"):
+    def __sanitise_filename__(filename):
+        ttable = str.maketrans({" ": "_", "/": "_", "\\": "_"})
+        return str.translate(filename, ttable)
+
+    def __generate_file_name__(db_name):
+        with conn.cursor() as cursor:
+            cursor.execute(
+                'SELECT Id, FullName FROM ProbeSetFreeze WHERE Name = %s',
+                (db_name,))
+            results = cursor.fetchone()
+            if (results):
+                return __sanitise_filename__(
+                    f"ProbeSetFreezeId_{results[0]}_{results[1]}")
+
+    def __parse_to_dict__(results):
+        ids = ["ID"]
+        data = {}
+        for (trait, strain, val) in results:
+            if strain not in ids:
+                ids.append(strain)
+            if trait in data:
+                data[trait].append(val)
+            else:
+                data[trait] = [trait, val]
+        return (data, ids)
+
+    def __write_to_file__(file_path, data, col_names):
+        with open(file_path, 'w+', encoding='UTF8') as file_handler:
+            writer = csv.writer(file_handler)
+            writer.writerow(col_names)
+            writer.writerows(data.values())
+
+    with conn.cursor() as cursor:
+        cursor.execute(
+            "SELECT ProbeSet.Name, Strain.Name, ProbeSetData.value "
+            "FROM Strain LEFT JOIN ProbeSetData "
+            "ON Strain.Id = ProbeSetData.StrainId "
+            "LEFT JOIN ProbeSetXRef ON ProbeSetData.Id = ProbeSetXRef.DataId "
+            "LEFT JOIN ProbeSet ON ProbeSetXRef.ProbeSetId = ProbeSet.Id "
+            "WHERE ProbeSetXRef.ProbeSetFreezeId IN "
+            "(SELECT Id FROM ProbeSetFreeze WHERE Name = %s) "
+            "ORDER BY Strain.Name",
+            (db_name,))
+        results = cursor.fetchall()
+        file_name = __generate_file_name__(db_name)
+        if (results and file_name):
+            __write_to_file__(os.path.join(text_dir, file_name),
+                              *__parse_to_dict__(results))
+
 
 
 def get_cache_checksum(sql_uri: str) -> str:
