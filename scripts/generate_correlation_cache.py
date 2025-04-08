@@ -60,10 +60,8 @@ def build_probeset_cache():
                         datefmt='%Y-%m-%d %H:%M:%S %Z')
     logging.info("Starting database text file export...")
     start_time = time.perf_counter()
-    with database_connection(SQL_URI) as conn:
-        with conn.cursor() as cursor:
-            cursor.execute("SELECT Name FROM ProbeSetFreeze")
-
+    with database_connection(SQL_URI) as conn, conn.cursor() as cursor:
+        cursor.execute("SELECT Name FROM ProbeSetFreeze")
         for (name,) in cursor.fetchall():
             name = name.strip()
             logging.info(f"Processing {name}...")
