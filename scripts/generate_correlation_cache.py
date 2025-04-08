@@ -21,13 +21,12 @@ import hashlib
 
 from gn2.wqflask.correlation.pre_computes import write_db_to_textfile
 from gn_libs.mysqldb import database_connection
-from gn2.utility.tools import SQL_URI
 
 
-def get_cache_checksum():
+def get_cache_checksum(sql_uri: str) -> str:
     """Get a checksum for the Tables: Strain, ProbeSetFreeze,
     ProbeSet, ProbeSetData, ProbeSetXRef as a single md5 hash"""
-    with database_connection(SQL_URI) as conn, conn.cursor() as cursor:
+    with database_connection(sql_uri) as conn, conn.cursor() as cursor:
         cursor.execute("CHECKSUM Table Strain, ProbeSetFreeze, \
         ProbeSet, ProbeSetData, ProbeSetXRef")
         checksums = [str(checksum) for (_, checksum) in cursor.fetchall()]
@@ -35,11 +34,12 @@ def get_cache_checksum():
 
 
 @click.command(help="Verify checksums and return True when the data has been changed.")
+@click.argument("sql_uri")
 @click.option("-c", "--cache-dir",
               type=str,
               default="/tmp/gn2/cache",
               show_default=True)
-def is_data_modified(cache_dir: str):
+def is_data_modified(sql_uri: str, cache_dir: str):
     """Check whether checksums have changed.  Return a zero exit
     status code when the data has changed; otherwise exit with a 1
     exit status code."""
@@ -48,23 +48,24 @@ def is_data_modified(cache_dir: str):
         sys.exit(0)
     with open(checksum_file, "r") as _file:
         checksum = _file.read()
-        if checksum == get_cache_checksum():
+        if checksum == get_cache_checksum(sql_uri):
             sys.exit(1)
         sys.exit(0)
 
 
 @click.command(help="Read all the Probeset data and cache it into CACHEDIR")
+@click.argument("sql_uri")
 @click.option("-c", "--cache-dir",
               type=str,
               default="/tmp/gn2/cache",
               show_default=True)
-def build_probeset_cache(cache_dir: str):
+def build_probeset_cache(sql_uri: str, cache_dir: str):
     logging.basicConfig(level=os.environ.get("LOGLEVEL", "DEBUG"),
                         format='%(asctime)s %(levelname)s: %(message)s',
                         datefmt='%Y-%m-%d %H:%M:%S %Z')
     logging.info("Starting database text file export...")
     start_time = time.perf_counter()
-    with database_connection(SQL_URI) as conn, conn.cursor() as cursor:
+    with database_connection(sql_uri) as conn, conn.cursor() as cursor:
         cursor.execute("SELECT Name FROM ProbeSetFreeze")
         for (name,) in cursor.fetchall():
             name = name.strip()
@@ -77,7 +78,7 @@ def build_probeset_cache(cache_dir: str):
     index_time = datetime.timedelta(seconds=time.perf_counter() - start_time)
 
     with open(os.path.join(cache_dir, "CHECKSUM.txt"), "w") as checksum:
-        checksum.write(get_cache_checksum())
+        checksum.write(get_cache_checksum(sql_uri))
 
     logging.info("Cache files successfully built.")
     logging.info(f"Time to build cache: {index_time}")
