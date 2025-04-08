@@ -3,6 +3,8 @@
 """This script file reads all Probeset Dataset and caches the data in the CACHEDIR"""
 
 import os
+import time
+import datetime
 import logging
 import click
 
@@ -21,7 +23,7 @@ def build_probeset_cache():
                         format='%(asctime)s %(levelname)s: %(message)s',
                         datefmt='%Y-%m-%d %H:%M:%S %Z')
     logging.info("Starting database text file export...")
-
+    start_time = time.perf_counter()
     with database_connection(SQL_URI) as conn:
         with conn.cursor() as cursor:
             cursor.execute("SELECT Name FROM ProbeSetFreeze")
@@ -35,8 +37,9 @@ def build_probeset_cache():
                 logging.info(f"Finished {name}")
             except Exception as e:
                 logging.error(f"Error processing {name}: {e}", exc_info=True)
-
-    logging.info("All processing complete.")
+    index_time = datetime.timedelta(seconds=time.perf_counter() - start_time)
+    logging.info("Cache files successfully built.")
+    logging.info(f"Time to build cache: {index_time}")
 
 
 @click.group()
