@@ -22,9 +22,9 @@ def main():
     with database_connection(SQL_URI) as conn:
         with conn.cursor() as cursor:
             cursor.execute("SELECT Name FROM ProbeSetFreeze")
-            db_names = cursor.fetchall()
+            probeset_datasets = cursor.fetchall()
 
-        for (db_name,) in db_names:
+        for (db_name,) in probeset_datasets:
             db_name = db_name.strip()
             logging.info(f"Processing {db_name}...")
             try:
