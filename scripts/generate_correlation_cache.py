@@ -20,12 +20,8 @@ import click
 import hashlib
 
 from gn2.wqflask.correlation.pre_computes import write_db_to_textfile
-from gn2.base.webqtlConfig import CACHEDIR
 from gn_libs.mysqldb import database_connection
-from gn2.utility.tools import SQL_URI, assert_writable_dir
-
-
-assert_writable_dir(CACHEDIR)
+from gn2.utility.tools import SQL_URI
 
 
 def get_cache_checksum():
@@ -39,11 +35,15 @@ def get_cache_checksum():
 
 
 @click.command(help="Verify checksums and return True when the data has been changed.")
-def is_data_modified():
+@click.option("-c", "--cache-dir",
+              type=str,
+              default="/tmp/gn2/cache",
+              show_default=True)
+def is_data_modified(cache_dir: str):
     """Check whether checksums have changed.  Return a zero exit
     status code when the data has changed; otherwise exit with a 1
     exit status code."""
-    checksum_file = os.path.join(CACHEDIR, "CHECKSUM.txt")
+    checksum_file = os.path.join(cache_dir, "CHECKSUM.txt")
     if not os.path.exists(checksum_file):
         sys.exit(0)
     with open(checksum_file, "r") as _file:
@@ -54,7 +54,11 @@ def is_data_modified():
 
 
 @click.command(help="Read all the Probeset data and cache it into CACHEDIR")
-def build_probeset_cache():
+@click.option("-c", "--cache-dir",
+              type=str,
+              default="/tmp/gn2/cache",
+              show_default=True)
+def build_probeset_cache(cache_dir: str):
     logging.basicConfig(level=os.environ.get("LOGLEVEL", "DEBUG"),
                         format='%(asctime)s %(levelname)s: %(message)s',
                         datefmt='%Y-%m-%d %H:%M:%S %Z')
@@ -66,13 +70,13 @@ def build_probeset_cache():
             name = name.strip()
             logging.info(f"Processing {name}...")
             try:
-                write_db_to_textfile(name, conn, text_dir=CACHEDIR)
+                write_db_to_textfile(name, conn, text_dir=cache_dir)
                 logging.info(f"Finished {name}")
             except Exception as e:
                 logging.error(f"Error processing {name}: {e}", exc_info=True)
     index_time = datetime.timedelta(seconds=time.perf_counter() - start_time)
 
-    with open(os.path.join(CACHEDIR, "CHECKSUM.txt"), "w") as checksum:
+    with open(os.path.join(cache_dir, "CHECKSUM.txt"), "w") as checksum:
         checksum.write(get_cache_checksum())
 
     logging.info("Cache files successfully built.")
