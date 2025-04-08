@@ -1,6 +1,15 @@
 #! /usr/bin/env python3
 
-"""This script file reads all Probeset Dataset and caches the data in the CACHEDIR"""
+"""This script file reads all Probeset Dataset and caches the data in
+the CACHEDIR.
+
+USAGE:
+To check whether the files changed:
+   ./generate_correlation_cache.py is-data-modified
+
+To build the cache:
+   ./generate_correlation_cache.py build-probeset-cache
+"""
 
 import os
 import time
