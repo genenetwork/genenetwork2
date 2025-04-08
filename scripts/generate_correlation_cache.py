@@ -27,9 +27,8 @@ def build_probeset_cache():
     with database_connection(SQL_URI) as conn:
         with conn.cursor() as cursor:
             cursor.execute("SELECT Name FROM ProbeSetFreeze")
-            probeset_datasets = cursor.fetchall()
 
-        for (name,) in probeset_datasets:
+        for (name,) in cursor.fetchall():
             name = name.strip()
             logging.info(f"Processing {name}...")
             try:
