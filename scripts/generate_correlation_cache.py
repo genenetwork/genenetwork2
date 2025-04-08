@@ -2,23 +2,21 @@
 
 """This script file reads all Probeset Dataset and caches the data in the CACHEDIR"""
 
+import os
 import logging
 from gn2.wqflask.correlation.pre_computes import write_db_to_textfile
 from gn2.base.webqtlConfig import CACHEDIR
 from gn_libs.mysqldb import database_connection
 from gn2.utility.tools import SQL_URI, assert_writable_dir
 
-# Setup logging
-logging.basicConfig(
-    filename="write_db_to_textfile.log",
-    filemode="a",
-    level=logging.INFO,
-    format="%(asctime)s - %(levelname)s - %(message)s"
-)
 
 assert_writable_dir(CACHEDIR)
 
+
 def main():
+    logging.basicConfig(level=os.environ.get("LOGLEVEL", "DEBUG"),
+                        format='%(asctime)s %(levelname)s: %(message)s',
+                        datefmt='%Y-%m-%d %H:%M:%S %Z')
     logging.info("Starting database text file export...")
 
     with database_connection(SQL_URI) as conn:
