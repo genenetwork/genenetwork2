@@ -1,3 +1,5 @@
+#! /usr/bin/env python3
+
 """This script file reads all Probeset Dataset and caches the data in the CACHEDIR"""
 
 import logging
