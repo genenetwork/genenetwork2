@@ -70,8 +70,6 @@ class RunMapping:
                     0]
                 genofile_samplelist = get_genofile_samplelist(self.dataset)
 
-        all_samples_ordered = self.dataset.group.all_samples_ordered()
-
         self.vals = []
         self.samples = []
         self.sample_vals = start_vars['sample_vals']
