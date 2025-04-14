@@ -175,7 +175,7 @@ var mapping_input_list = ['temp_uuid', 'trait_id', 'dataset', 'tool_used', 'form
                           'genofile', 'pair_scan', 'startMb', 'endMb', 'graphWidth', 'lrsMax',
                           'additiveCheck', 'showSNP', 'showGenes', 'viewLegend', 'haplotypeAnalystCheck', 
                           'mapmethod_rqtl', 'mapmodel_rqtl', 'temp_trait', 'group', 'species',
-                          'reaper_version', 'primary_samples']
+                          'reaper_version', 'primary_samples', 'cross_type']
 
 
 

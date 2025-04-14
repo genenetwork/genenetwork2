@@ -135,6 +135,18 @@ class DatasetGroup:
         jsondata = json.load(f)
         return jsondata['genofile']
 
+    def get_type(self):
+        jsonfile = "%s/%s.json" % (webqtlConfig.GENODIR, self.name)
+        try:
+            f = open(jsonfile)
+        except:
+            return None
+        jsondata = json.load(f)
+        try:
+            return jsondata['type']
+        except:
+            return None
+
     def get_samplelist(self, redis_conn):
         result = None
         key = "samplelist:v3:" + self.name

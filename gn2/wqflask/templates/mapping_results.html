@@ -57,6 +57,7 @@
         <input type="hidden" name="covariates" value="{{ covariates }}">
         <input type="hidden" name="mapmethod_rqtl" value="{{ mapmethod_rqtl }}">
         <input type="hidden" name="mapmodel_rqtl" value="{{ mapmodel_rqtl }}">
+        <input type="hidden" name="cross_type" value="{{ cross_type }}">
         <input type="hidden" name="pair_scan" value="{{ pair_scan }}">
         <input type="hidden" name="transform" value="{{ transform }}">
         <input type="hidden" name="tool_used" value="Mapping">
@@ -264,7 +265,7 @@
         <button class="btn btn-default export_mapping_results" ><span class="glyphicon glyphicon-download"></span> Download</span></button>
         <br />
         <br />
-          <div id="trait_table_container" style="width:{% if 'additive' in trimmed_markers[0] %}600{% else %}550{% endif %}px;">
+          <div id="trait_table_container" style="width:{% if 'additive' in trimmed_markers[0] %}600{% elif 'mean1' in trimmed_markers[0] %}1000{% else %}550{% endif %}px;">
             <table class="table-hover table-striped cell-border no-footer" id='trait_table' style="float: left;">
               <tbody>
                <td colspan="100%" align="center"><br><b><font size="15">Loading...</font></b><br></td>
@@ -369,7 +370,6 @@
               {
                 'title': "Marker",
                 'type': "natural",
-                'width': "20%",
                 'targets': 2,
                 {% if geno_db_exists == "True" %}
                 'data': null,
@@ -406,6 +406,7 @@
               {
                 'title': "<div style='text-align: right;'>Position ({% if plotScale == 'physic' %}Mb{% else %}cM{% endif %})</div>",
                 'type': 'natural',
+                'width': "150px",
                 'targets': 4,
                 'data': "display_pos"
               },
@@ -437,6 +438,83 @@
               {% endif %}
             ]
 
+            {% if cross_type == '4-way' %}
+            columnDefs = columnDefs.concat([
+            {
+                'title': "<div style='text-align: right;'>AC Mean</div>",
+                'type': "natural",
+                'targets': 5,
+                'data': null,
+                'render': function(data, type, row, meta) {
+                  return String(parseFloat(data.mean1).toFixed(0))
+                }
+            },
+            {
+                'title': "<div style='text-align: right;'>AC SE</div>",
+                'type': "natural",
+                'targets': 5,
+                'data': null,
+                'render': function(data, type, row, meta) {
+                  return String(parseFloat(data.se1).toFixed(3))
+                }
+            },
+            {
+                'title': "<div style='text-align: right;'>AD Mean</div>",
+                'type': "natural",
+                'targets': 5,
+                'data': null,
+                'render': function(data, type, row, meta) {
+                  return String(parseFloat(data.mean2).toFixed(0))
+                }
+            },
+            {
+                'title': "<div style='text-align: right;'>AD SE</div>",
+                'type': "natural",
+                'targets': 5,
+                'data': null,
+                'render': function(data, type, row, meta) {
+                  return String(parseFloat(data.se2).toFixed(3))
+                }
+            },
+            {
+                'title': "<div style='text-align: right;'>BC Mean</div>",
+                'type': "natural",
+                'targets': 5,
+                'data': null,
+                'render': function(data, type, row, meta) {
+                  return String(parseFloat(data.mean3).toFixed(0))
+                }
+            },
+            {
+                'title': "<div style='text-align: right;'>BC SE</div>",
+                'type': "natural",
+                'targets': 5,
+                'data': null,
+                'render': function(data, type, row, meta) {
+                  return String(parseFloat(data.se3).toFixed(3))
+                }
+            },
+            {
+                'title': "<div style='text-align: right;'>BD Mean</div>",
+                'type': "natural",
+                'targets': 5,
+                'data': null,
+                'render': function(data, type, row, meta) {
+                  return String(parseFloat(data.mean4).toFixed(0))
+                }
+            },
+            {
+                'title': "<div style='text-align: right;'>BD SE</div>",
+                'type': "natural",
+                'targets': 5,
+                'data': null,
+                'render': function(data, type, row, meta) {
+                  return String(parseFloat(data.se4).toFixed(3))
+                }
+            }
+            ])
+            {% endif %}
+
             tableSettings = {
               "createdRow": function ( row, data, index ) {
                 $('td', row).eq(0).attr("style", "text-align: center; padding: 0px 10px 2px 10px;");
@@ -454,6 +532,12 @@
                 {% if 'dominance' in trimmed_markers[0] %}
                 $('td', row).eq(6).attr("align", "right");
                 $('td', row).eq(6).attr('data-export', $('td', row).eq(6).text());
+                {% endif %}
+                {% if cross_type == '4-way' %}
+                for (let i = 5; i <= 8; i++) {
+                  $('td', row).eq(i).attr("align", "right");
+                  $('td', row).eq(i).attr('data-export', $('td', row).eq(i).text());
+                }
                 {% endif %}
               },
               "language": {

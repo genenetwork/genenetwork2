@@ -1040,7 +1040,8 @@ def mapping_results_page(hash_of_inputs=None):
         'n_samples',
         'transform',
         'hash_of_inputs',
-        'dataid'
+        'dataid',
+        'cross_type'
     )
     start_vars = {}
     for key, value in list(initial_start_vars.items()):

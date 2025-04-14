@@ -236,6 +236,7 @@ class RunMapping:
             else:
                 self.method = "em"
             self.model = start_vars['mapmodel_rqtl']
+            self.cross_type = self.dataset.group.get_type()
             self.pair_scan = False
             if start_vars['pair_scan'] == "true":
                self.pair_scan = True
