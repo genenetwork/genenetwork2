@@ -755,6 +755,10 @@ def show_trait_page():
         }).either(with_flash_error(render_template("show_trait_error.html")),
                   __show_trait__)
 
+@app.route("/save_trait", methods=('POST',))
+def save_trait():
+    Redis.set(request.form['trait_name'], request.form['trait_vals'], ex=60 * 60 * 24 * 365)
+    return jsonify(request.form)
 
 @app.route("/heatmap", methods=('POST','GET'))
 def heatmap_page():

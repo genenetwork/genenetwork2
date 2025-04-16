@@ -96,6 +96,16 @@ toggleDescription = function() {
 add = function() {
   var trait;
   trait = $("input[name=trait_hmac]").val();
+
+  if ($("input[name=temp_trait]").val() == "True"){
+    let sampleVals = fetchSampleValues(asArray=true);
+    let sampleValsString = sampleVals.join(" ");
+    $.post(
+      '/save_trait',
+      { trait_name: trait.split(":")[0], trait_vals: sampleValsString }
+    );
+  }
+
   return $.colorbox({
     href: "/collections/add",
     data: {
@@ -456,9 +466,10 @@ processId = function() {
   return processed;
 };
 
-fetchSampleValues = function() {
+fetchSampleValues = function(asArray=false) {
   // This is meant to fetch all sample values using DataTables API, since they can't all be submitted with the form when using Scroller (and this should also be faster)
   sample_val_dict = {};
+  sample_val_list = [];
 
   table = 'samples_primary';
   if ($('#' + table).length){
@@ -467,11 +478,16 @@ fetchSampleValues = function() {
     for (_j = 0; _j < val_nodes.length; _j++){
       sample_name = val_nodes[_j].childNodes[0].name.split(":")[1]
       sample_val = val_nodes[_j].childNodes[0].value
-      sample_val_dict[sample_name] = sample_val
+      sample_vals[sample_name] = sample_val
+      sample_val_list.push(sample_val)
     }
   }
 
-  return sample_val_dict;
+  if (asArray) {
+    return sample_val_list;
+  } else {
+    return sample_val_dict;
+  }
 }
 
 editDataChange = function() {
