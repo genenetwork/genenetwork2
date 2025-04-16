@@ -70,7 +70,11 @@ class ShowTrait:
             self.this_trait = create_trait(dataset=self.dataset,
                                            name=self.trait_id,
                                            cellid=None)
-            self.trait_vals = Redis.get(self.trait_id).split()
+            if Redis.get(self.trait_id):
+                self.trait_vals = Redis.get(self.trait_id).split()
+            else:
+                self.trait_vals = ["X"] # There needs to be at least one value, not sure why
+
 
         # Get verify/rna-seq link URLs
         try:
