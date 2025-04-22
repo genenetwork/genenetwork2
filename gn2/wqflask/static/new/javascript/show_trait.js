@@ -478,7 +478,7 @@ fetchSampleValues = function(asArray=false) {
     for (_j = 0; _j < val_nodes.length; _j++){
       sample_name = val_nodes[_j].childNodes[0].name.split(":")[1]
       sample_val = val_nodes[_j].childNodes[0].value
-      sample_vals[sample_name] = sample_val
+      sample_val_dict[sample_name] = sample_val
       sample_val_list.push(sample_val)
     }
   }
