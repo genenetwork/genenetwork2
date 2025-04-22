@@ -2706,7 +2706,10 @@ class DisplayMappingResults:
                     else:
                         if qtlresult['Mb'] - startMb < 0:
                             continue
-                        Xc = startPosX + (qtlresult['Mb'] - startMb - 1) * plotXScale
+                        if self.selectedChr == -1:
+                            Xc = startPosX + (qtlresult['Mb'] - startMb - 1) * plotXScale
+                        else:
+                            Xc = startPosX + (qtlresult['Mb'] - startMb) * plotXScale
 
                 # updated by NL 06-18-2011:
                 # fix the over limit LRS graph issue since genotype trait may give infinite LRS;
