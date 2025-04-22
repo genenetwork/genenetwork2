@@ -11,24 +11,34 @@ To build the cache:
    ./generate_correlation_cache.py build-probeset-cache
 """
 
-import os
-import csv
-import time
+import concurrent.futures
 import datetime
-import sys
-import logging
 import hashlib
-import click
+import logging
+import os
+import sys
+import time
+import warnings
 
+import click
+import pandas as pd
 from gn_libs.mysqldb import database_connection
 
+warnings.simplefilter(action='ignore', category=UserWarning)
+
+
+logging.basicConfig(level=os.environ.get("LOGLEVEL", "DEBUG"),
+                    format='%(asctime)s %(levelname)s: %(message)s',
+                    datefmt='%Y-%m-%d %H:%M:%S %Z')
 
 # KLUDGE: FIXME: Duplicate of
 # `gn2.wqflask.correlation.pre_computes.write_db_to_textfile`.  We
 # have it since importing anything from wqflask co-erces asserts,
 # thereby forcing one to set environment variables like GN2_PROFILE
 # that we don't need for this script.
-def write_db_to_textfile(db_name, conn, text_dir="/tmp/gn2/cache"):
+
+
+def write_db_to_textfile(db_name, sql_uri, text_dir="/tmp/gn2/cache"):
     def __sanitise_filename__(filename):
         ttable = str.maketrans({" ": "_", "/": "_", "\\": "_"})
         return str.translate(filename, ttable)
@@ -41,43 +51,34 @@ def write_db_to_textfile(db_name, conn, text_dir="/tmp/gn2/cache"):
             results = cursor.fetchone()
             if (results):
                 return __sanitise_filename__(
-                    f"ProbeSetFreezeId_{results[0]}_{results[1]}")
+                    f"ProbeSetFreezeId_{results[0]}_{results[1]}.parquet")
 
-    def __parse_to_dict__(results):
-        ids = ["ID"]
-        data = {}
-        for (trait, strain, val) in results:
-            if strain not in ids:
-                ids.append(strain)
-            if trait in data:
-                data[trait].append(val)
-            else:
-                data[trait] = [trait, val]
-        return (data, ids)
-
-    def __write_to_file__(file_path, data, col_names):
-        with open(file_path, 'w+', encoding='UTF8') as file_handler:
-            writer = csv.writer(file_handler)
-            writer.writerow(col_names)
-            writer.writerows(data.values())
-
-    with conn.cursor() as cursor:
-        cursor.execute(
-            "SELECT ProbeSet.Name, Strain.Name, ProbeSetData.value "
-            "FROM Strain LEFT JOIN ProbeSetData "
-            "ON Strain.Id = ProbeSetData.StrainId "
-            "LEFT JOIN ProbeSetXRef ON ProbeSetData.Id = ProbeSetXRef.DataId "
-            "LEFT JOIN ProbeSet ON ProbeSetXRef.ProbeSetId = ProbeSet.Id "
-            "WHERE ProbeSetXRef.ProbeSetFreezeId IN "
-            "(SELECT Id FROM ProbeSetFreeze WHERE Name = %s) "
-            "ORDER BY Strain.Name",
-            (db_name,))
-        results = cursor.fetchall()
+    with database_connection(sql_uri) as conn, conn.cursor() as cursor:
         file_name = __generate_file_name__(db_name)
-        if (results and file_name):
-            __write_to_file__(os.path.join(text_dir, file_name),
-                              *__parse_to_dict__(results))
+        file_path = os.path.join(text_dir, file_name)
+        query = f"""SELECT ProbeSet.Name AS trait, Strain.Name AS strain,
+ProbeSetData.value AS val
+FROM ProbeSetXRef
+INNER JOIN ProbeSetFreeze ON ProbeSetXRef.ProbeSetFreezeId = ProbeSetFreeze.Id
+INNER JOIN ProbeSet ON ProbeSetXRef.ProbeSetId = ProbeSet.Id
+INNER JOIN ProbeSetData ON ProbeSetXRef.DataId = ProbeSetData.Id
+INNER JOIN Strain ON ProbeSetData.StrainId = Strain.Id
+WHERE ProbeSetFreeze.Name = '{db_name}'"""
+        data = pd.read_sql(query, conn)
+        df_pivoted = data.pivot(index='trait', columns='strain', values='val')
+        df_pivoted.index.name = 'ID'
+        df_pivoted.to_parquet(file_path, index=True)
+        logging.info(f"Wrote data for {db_name} to {file_path}")
 
+
+def cache_data(i, name, sql_uri, cache_dir):
+    result = ""
+    start_time = time.perf_counter()
+    logging.info(f"#{i+1}. Processing {name}")
+    write_db_to_textfile(name, sql_uri, text_dir=cache_dir)
+    total_time = datetime.timedelta(seconds=time.perf_counter() - start_time)
+    result = f"#{i+1}. {name} took: {total_time} to finish"
+    return result
 
 
 def get_cache_checksum(sql_uri: str) -> str:
@@ -117,28 +118,32 @@ def is_data_modified(sql_uri: str, cache_dir: str):
               default="/tmp/gn2/cache",
               show_default=True)
 def build_probeset_cache(sql_uri: str, cache_dir: str):
-    logging.basicConfig(level=os.environ.get("LOGLEVEL", "DEBUG"),
-                        format='%(asctime)s %(levelname)s: %(message)s',
-                        datefmt='%Y-%m-%d %H:%M:%S %Z')
     logging.info("Starting database text file export...")
     start_time = time.perf_counter()
+    datasets = []
     with database_connection(sql_uri) as conn, conn.cursor() as cursor:
         cursor.execute("SELECT Name FROM ProbeSetFreeze")
-        for (name,) in cursor.fetchall():
-            name = name.strip()
-            logging.info(f"Processing {name}...")
-            try:
-                write_db_to_textfile(name, conn, text_dir=cache_dir)
-                logging.info(f"Finished {name}")
-            except Exception as e:
-                logging.error(f"Error processing {name}: {e}", exc_info=True)
-    index_time = datetime.timedelta(seconds=time.perf_counter() - start_time)
+        datasets = cursor.fetchall()
+        total_datasets = len(datasets)
+        logging.info(f"Found {total_datasets} datasets to process")
+    with concurrent.futures.ThreadPoolExecutor() as executor:
+        futures = []
+        for i, (name,) in enumerate(datasets):
+            futures.append(executor.submit(cache_data, i=i, name=name,
+                                           sql_uri=sql_uri, cache_dir=cache_dir))
+        for i, future in enumerate(concurrent.futures.as_completed(futures), 1):
+            logging.info(f"Progress: {i}/{total_datasets} datasets completed")
+            logging.info(future.result())
 
+    logging.info(f"Time to build cache: \
+{datetime.timedelta(seconds=time.perf_counter() - start_time)}")
+
+    start_time = time.perf_counter()
+    logging.info("Writing checksum")
     with open(os.path.join(cache_dir, "CHECKSUM.txt"), "w") as checksum:
         checksum.write(get_cache_checksum(sql_uri))
-
-    logging.info("Cache files successfully built.")
-    logging.info(f"Time to build cache: {index_time}")
+    logging.info(f"Time to write checksum: \
+{datetime.timedelta(seconds=time.perf_counter() - start_time)}")
 
 
 @click.group()
