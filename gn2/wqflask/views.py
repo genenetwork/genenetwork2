@@ -1093,6 +1093,7 @@ def mapping_results_page(hash_of_inputs=None):
         )
         return jsonify(redirect_url=redirect_url)
     else:
+        total_time +=float(request.args.get("mapping_run_time", 0.0))
         if result['pair_scan']:
             return render_template(
                 "pair_scan_results.html",
