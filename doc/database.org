@@ -951,7 +951,7 @@ WHERE px.Id = 10006 AND px.PhenotypeId = 28409 LIMIT 10;
 We were facing some issues with slow queries. A query
 was really slow on Penguin2:
 
-: time mysql -u webqtlout -pwebqtlout db_webqtl < ~/chunk.sql  > /dev/null
+: time mysql -u webqtlout -p* db_webqtl < ~/chunk.sql  > /dev/null
 : real    0m13.082s
 : user    0m0.292s
 : sys     0m0.032s
@@ -1081,11 +1081,11 @@ Running the same query twice (so you can see the warmup after
 a restart of MariaDB)
 
 #+begin_src sh
-penguin2:/etc$ time mysql -u webqtlout -pwebqtlout db_webqtl < ~/chunk.sql  > ~/test.out
+penguin2:/etc$ time mysql -u webqtlout -p db_webqtl < ~/chunk.sql  > ~/test.out
 real    0m4.253s
 user    0m0.276s
 sys     0m0.040s
-penguin2:/etc$ time mysql -u webqtlout -pwebqtlout db_webqtl < ~/chunk.sql  > ~/test.out
+penguin2:/etc$ time mysql -u webqtlout -p db_webqtl < ~/chunk.sql  > ~/test.out
 real    0m2.633s
 user    0m0.296s
 sys     0m0.028s
