@@ -1059,10 +1059,15 @@ def mapping_results_page(hash_of_inputs=None):
 
     version = "v3"
     key = "mapping_results:{}:".format(
-        version) + json.dumps(start_vars, sort_keys=True)
+        version) + str(hash_of_inputs)
     try:
-        template_vars = run_mapping.RunMapping(start_vars,
+        cached_mapping_results  = Redis.get(key)
+        if cached_mapping_results:
+            template_vars = pickle.loads(cached_mapping_results)
+        else:
+            template_vars = run_mapping.RunMapping(start_vars,
                                            temp_uuid, run_id=RUN_ID)
+            Redis.set(key, pickle.dumps(template_vars), ex=7*24*60*60)
     except RQTLError as error:
         return render_template("rqtl_error.html",
                                error=error.message,
