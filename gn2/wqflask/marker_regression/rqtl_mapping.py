@@ -4,6 +4,7 @@ import io
 import json
 import requests
 import shutil
+import hashlib
 from typing import Dict
 from typing import List
 from typing import Optional
@@ -19,7 +20,9 @@ from gn2.base.trait import create_trait
 from gn2.utility.redis_tools import get_redis_conn
 from gn2.utility.tools import locate, get_setting, GN3_LOCAL_URL
 from gn_libs.mysqldb import database_connection
+from gn2.utility.redis_tools import get_redis_conn
 
+Redis = get_redis_conn()
 
 
 def read_csv_to_dict(csv_file, delimiter=","):
@@ -29,6 +32,14 @@ def read_csv_to_dict(csv_file, delimiter=","):
              for row in csv.DictReader(filter(lambda line : not line.startswith("#"), file_handler),
                                        skipinitialspace=True, delimiter = delimiter)]
 
+
+def get_input_hash(metadata):
+    """Given a set of dict input generate the  hash"""
+    dhash = hashlib.md5()
+    metadata_bytes = json.dumps(metadata).encode("utf-8")
+    dhash.update(metadata_bytes)
+    return dhash.hexdigest()
+    
 class RQTLError(Exception):
     def __init__(self, message="rqtlerror", status_code=400, log =""):
         self.message = message
@@ -55,10 +66,19 @@ def run_rqtl2(metadata, pheno_file, run_id, group="bxd"):
         metadata["geno_codes"] = metadata["genotypes"]
         metadata["physical_map_data"] = metadata["pmap_data"]
         metadata["geno_map_data"] = metadata["gmap_data"]
-        response = requests.post(urljoin(GN3_LOCAL_URL,
+        hash_string = get_input_hash(metadata)
+        response = Redis.get(f"GN3_RQTL2_{hash_string}")
+        if response:
+            return json.loads(Redis.get(hash_string))
+        else:
+            response = requests.post(urljoin(GN3_LOCAL_URL,
                                          f"/api/rqtl2/compute?id={run_id}"), json=metadata)
-        response.raise_for_status()
-        return response.json()
+            response.raise_for_status()
+            results = response.json()
+            # store the results for 7 days
+            Redis.set(f"GN3_RQTL2_{hash_string}", json.dumps(results), ex=7*24*60*60)
+            return results
+
     except requests.HTTPError as error:
         error_results = response.json()
         raise RQTLError(f'{str(error)}---{error_results.get("msg","")}',
