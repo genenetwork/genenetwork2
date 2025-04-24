@@ -1789,6 +1789,22 @@ def search_wiki():
         symbol=request.form.get("search")))
 
 
+@app.route("/genewiki/<int:comment_id>/delete", methods=["GET", "POST"])
+@require_oauth2
+def delete_wiki(comment_id: int):
+    token = session_info()["user"]["token"].either(
+        lambda err: err, lambda tok: tok["access_token"]
+    )
+    post_response = requests.post(
+        urljoin(GN3_LOCAL_URL, f"/api/metadata/wiki/{comment_id}/delete"),
+        headers={"Authorization": f"Bearer {token}"},
+    )
+    post_response.raise_for_status()
+
+    flash(f"Wiki entry successfully deleted", "alert-success")
+    return redirect(request.referrer)
+
+
 @app.route("/streaming/", methods=["POST", "GET"])
 def streaming():
     """Search genewiki for a given symbol"""
