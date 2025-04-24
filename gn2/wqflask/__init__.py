@@ -114,6 +114,7 @@ app.jinja_env.globals.update(
     authserver_authorise_uri=authserver_authorise_uri,
     user_details=user_details,
     num_collections=numcoll,
+    is_test_feature_enabled=lambda:app.config.get("TEST_FEATURE_SWITCH", False),
     datetime=datetime)
 
 
