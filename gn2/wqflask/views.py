@@ -1721,21 +1721,11 @@ def edit_wiki(comment_id: Optional[int]):
         species_dict_resp.raise_for_status()
         species_dict = species_dict_resp.json()
 
-        categories_resp = requests.get(
-            urljoin(GN3_LOCAL_URL, "/api/metadata/wiki/categories")
-        )
-        categories_resp.raise_for_status()
-        categories = list(categories_resp.json().keys())
-        grouped_categories = [
-            categories[i: i + 3] for i in range(0, len(categories), 3)
-        ]
-
         session_email = session_info()["user"]["email"]
         return render_template(
             "wiki/edit_wiki.html",
             content=last_wiki_content,
             species_dict=species_dict,
-            grouped_categories=grouped_categories,
             session_email=session_email,
         )
     if request.method == "POST":

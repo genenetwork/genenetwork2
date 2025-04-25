@@ -84,32 +84,6 @@
                         <input type="text" name="initial" value="{{ content["initial"] }}" />
                         (optional user or project code or your initials)
                     </div>
-                    <div class="form-group">
-                        <label class="col-sm-2">
-                            Category of Gene
-                            <br>
-                            (Please select one or
-                            <br>
-                            many categories):
-                        </label>
-                        <div class="col-sm-10">
-                            {% for group in grouped_categories %}
-                                <div class="row">
-                                    {% for cat in group %}
-                                        <label class="checkbox-inline col-sm-3">
-                                            {% if cat in content["categories"] %}
-                                                <input checked type="checkbox" name="genecategory" value="{{ cat }}">
-                                                {{ cat }}
-                                            {% else %}
-                                                <input type="checkbox" name="genecategory" value="{{ cat }} ">
-                                                {{ cat }}
-                                            {% endif %}
-                                        </label>
-                                    {% endfor %}
-                                </div>
-                            {% endfor %}
-                        </div>
-                    </div>
                     <div class="form-group wiki-btns">
                         <button type="submit" name="submit" class="btn btn-lg btn-primary">
 			    Submit
