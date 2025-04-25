@@ -1,23 +1,10 @@
 {% extends "index_page.html" %}
 {% block css %}
-<style>
-        .rif-form {
-            margin-left: 2em;
-            max-width: 100em;
-            width: fit-content;
-        }
-        #char-count {
-            font-weight: bold;
-            display: block;
-            width: 100%;
-            text-align: right;
-            padding-right: 23px;
-            margin-bottom: 1em;
-            margin-top: -1.5rem;
-        }
+    <style>
         .wiki-btns {
             margin-top: 5em;
         }
+
         .wiki-btns button:first-child {
             margin-right: 1em;
             margin-left: 1em;
@@ -29,7 +16,7 @@
     {% set has_previous_versions = content|length > 1 %}
     <div class="container">
         <div class="row">
-            <div class="rif-form">
+            <div class="col-md-12">
                 <h1>
                     {% if not has_previous_versions %}
                         Add GeneWiki Entry
@@ -46,12 +33,7 @@
                             <label for="reason" class="col-sm-2">Reason for Modification:</label>
                             <input type="text" name="reason" size=45 maxlength=100 required>
                         </div>
-		    {% endif %}
-                    <div class="form-group">
-                        <label for="comment" class="col-sm-2">Text:</label>
-                        <textarea name="comment" id="textbox" rows=13 cols=60 placeholder="Enter your GeneWiki entry here" required>{{ content["comment"] }}</textarea>
-                    </div>
-		    <span id="char-count">512/512</span>
+                    {% endif %}
                     <div class="form-group">
                         <label for="pubmed_ids" class="col-sm-2">PubMed IDS:</label>
                         <input type="text"
@@ -74,6 +56,10 @@
                             <input type="text" name="web_url" value="http://" size=50 maxlength=255>
                         {% endif %}
                         (optional)
+                    </div>
+                    <div class="form-group">
+                        <label for="comment" class="col-sm-2">Text:</label>
+                        <textarea name="comment" rows=5 cols=60 required>{{ content["comment"] }}</textarea>
                     </div>
                     <div class="form-group">
                         <label for="email" class="col-sm-2">Email:</label>
@@ -111,24 +97,4 @@
             </div>
         </div>
     </div>
-{% endblock %}
-
-
-{% block js %}
-<script type="text/javascript">
- let textArea = document.getElementById("textbox");
- let characterCounter = document.getElementById("char-count");
- const maxNumOfChars = 512;
- const countCharacters = () => {
-	 let numOfEnteredChars = textArea.value.length;
-	 let counter = maxNumOfChars - numOfEnteredChars;
-	 if (counter < 0) {
-	     characterCounter.style.color = "red";
-	 } else {
-	     characterCounter.style.color = "black";
-	 }
-	 characterCounter.textContent = counter + "/512";
- };
- textArea.addEventListener("input", countCharacters);
-</script>
 {% endblock %}
