@@ -35,6 +35,20 @@
                         </div>
                     {% endif %}
                     <div class="form-group">
+                        <label for="species" class="col-sm-2">Species:</label>
+                        <select name="species" id="species">
+			    {% if not content.species %}
+ 			        {% set selected = "mouse" %}
+			    {% else %}
+			        {% set selected = content.species %}
+			    {% endif %}
+                            {% for name, species_name in species_dict.items() %}
+  			        <option value="{{ name }}" {% if name == selected %}selected="selected"{% endif %}>{{ species_name }}</option>
+			    {% endfor %}
+        		    <option value="no specific species">no specific species</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
                         <label for="pubmed_ids" class="col-sm-2">PubMed IDS:</label>
                         <input type="text"
                                name="pubmed_ids"
@@ -70,26 +84,12 @@
                         <input type="text" name="initial" value="{{ content["initial"] }}" />
                         (optional user or project code or your initials)
                     </div>
-		    <div class="form-group">
-                        <label for="species" class="col-sm-2">Species:</label>
-                        <select name="species" id="species">
-			    {% if not content.species %}
-  			        {% set selected = "no specific species" %}
-			    {% else %}
-			        {% set selected = content.species %}
-			    {% endif %}
-                            {% for name, species_name in species_dict.items() %}
-  			        <option value="{{ name }}" {% if name == selected %}selected="selected"{% endif %}>{{ species_name }}</option>
-			    {% endfor %}
-                        </select>
-			(optional)
-		    </div>
-		    <div class="form-group wiki-btns">
+                    <div class="form-group wiki-btns">
                         <button type="submit" name="submit" class="btn btn-lg btn-primary">
 			    Submit
                         </button>
                         <button type="reset"
-                                name="reset"
+                                name="rest"
                                 class="btn btn-lg btn-secondary"
                                 onClick="window.location.reload();">Reset</button>
                     </div>

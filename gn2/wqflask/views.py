@@ -1720,7 +1720,6 @@ def edit_wiki(comment_id: Optional[int]):
         )
         species_dict_resp.raise_for_status()
         species_dict = species_dict_resp.json()
-        species_dict["no specific species"] = "no specific species"
 
         session_email = session_info()["user"]["email"]
         return render_template(
