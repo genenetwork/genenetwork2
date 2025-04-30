@@ -14,7 +14,7 @@ import jinja2
 from flask_session import Session
 from authlib.jose import JsonWebKey
 from cachelib import FileSystemCache
-from flask import g, Flask, flash, session, url_for, redirect, current_app
+from flask import g, Flask, flash, session, url_for, redirect, current_app, request
 
 
 from gn2.utility import formatting
@@ -163,3 +163,8 @@ def include_admin_role_class():
 @app.context_processor
 def include_data_role_class():
     return {'DataRole': DataRole}
+
+@app.context_processor
+def inject_banner_cookie():
+    hide_test_banner = request.cookies.get('hide_test_banner') == 'true'
+    return dict(hide_test_banner=hide_test_banner)
