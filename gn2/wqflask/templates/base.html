@@ -9,6 +9,16 @@
         <meta name="description" content="">
         <meta name="author" content="">
         <script type="text/javascript">var pageLoadStart = Date.now();</script>
+	{% if is_test_feature_enabled %}
+	<link rel="icon"
+	      type="image/png"
+	      sizes="64x64"
+	      href="/static/new/images/CITGLogo-CD.png">
+	<link rel="apple-touch-icon"
+	      type="image/png"
+	      sizes="64x64"
+	      href="/static/new/images/CITGLogo-CD.png">
+	{% else %}
         <link rel="icon"
               type="image/png"
               sizes="64x64"
@@ -17,6 +27,7 @@
               type="image/png"
               sizes="64x64"
               href="/static/new/images/CITGLogo.png">
+	{% endif %}
         <link REL="stylesheet"
               TYPE="text/css"
               href="{{ url_for('css', filename='bootstrap/css/bootstrap.css') }}" />
