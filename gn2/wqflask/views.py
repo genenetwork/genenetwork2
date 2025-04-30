@@ -968,7 +968,11 @@ def mapping_results_page(hash_of_inputs=None):
     if not RUN_ID:
         RUN_ID = request.form.get("run_id")
     if hash_of_inputs:
-        initial_start_vars = json.loads(Redis.get(hash_of_inputs))
+        input_results  =  Redis.get(hash_of_inputs) # can be none 
+    else:
+        input_results = None
+    if input_results :
+        initial_start_vars = json.loads(input_results)
         initial_start_vars['hash_of_inputs'] = hash_of_inputs
     else:
         initial_start_vars = request.form
