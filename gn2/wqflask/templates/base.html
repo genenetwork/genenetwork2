@@ -61,12 +61,75 @@
          table.dataTable thead .sorting_desc {
              background-image: url({{ url_for("js", filename="DataTables/images/sort_desc_disabled.png") }});
          }
-	
+
+	 {% if is_test_feature_enabled %}
+	 .test-env-banner {
+	     background-color: #e6f4ea;;
+	     color: #856404;
+	     padding: 5px;
+	     text-align: left;
+	     font-size: 12px;
+	     font-weight: 600;
+	     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif;
+	     letter-spacing: 0.5px;
+	     text-shadow: 0 1px 1px rgba(0, 0, 0, 0.05);
+	     position: fixed;
+	     top: 0;
+	     width: 100%;
+	     z-index: 1000;
+	     cursor: pointer;
+	     border-bottom: 1px solid #ffeeba;
+	 }
+	 .test-env-banner:hover {
+	     background-color: #d4edda;
+         }
+	 .navbar-test {
+	     margin-top: 0.3em;
+	 }
+         .tooltip-inner {
+             background-color: #e6f4ea;
+             color: #1a3c34;
+             font-size: 13px;
+             padding: 8px 12px;
+             border: 1px solid #28a745;
+             box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+         }
+         .tooltip.top .tooltip-arrow {
+             border-top-color: #28a745;
+         }
+         .tooltip.bottom .tooltip-arrow {
+             border-bottom-color: #28a745;
+         }
+         .tooltip.left .tooltip-arrow {
+             border-left-color: #28a745;
+         }
+	 .tooltip.right .tooltip-arrow {
+	     border-right-color: #28a745;
+	 }
+	 .dismiss-btn {
+	     background: none;
+	     border: none;
+	     color: #1a3c34;
+	     font-size: 10px;
+	     margin-left: auto;
+	     cursor: pointer;
+	     padding: 0 5px;
+	 }
+	 {% endif %}
         </style>
     </head>
     <body style="width: 100%">
+	{% if is_test_feature_enabled and not hide_test_banner %}
+	<div class="test-env-banner" role="region" tabindex="0" aria-label="Testing in CD Environment" aria-describedby="test-env-desc">
+	    <span id="test-env-desc" class="sr-only">Hover or focus to learn more about the CD test environment</span>
+	    <i class="fa fa-flask" aria-hidden="true"></i>
+	    <span data-toggle="tooltip" data-placement="bottom" title="You’re in the CD Test Environment! Feel free to experiment—this is a safe space for testing.">Test Mode: CD!</span>
+	    <button class="dismiss-btn" onclick="dismissBanner()">✕</button>
+	</div>
+	<br/>
+	{% endif %}
         <!-- Navbar ================================================== -->
-        <div class="navbar navbar-inverse navbar-static-top pull-left"
+        <div id="navbar" class="navbar navbar-inverse navbar-static-top pull-left navbar-test"
              role="navigation"
              style="width: 100%;
                     min-width: 1000px;
@@ -377,6 +440,24 @@
                 type="text/javascript"></script>
         <script src="{{ url_for('js', filename='bootstrap/js/bootstrap.min.js') }}"
                 type="text/javascript"></script>
+	{% if is_test_feature_enabled %}
+	<script type="text/javascript">
+	 function dismissBanner() {
+	     $.cookie('hide_test_banner', 'true', { expires: 7 });
+	     $('.test-env-banner').remove();
+	     $('.navbar').removeClass('navbar-test');
+	     $('br').first().remove();
+	 }
+	 $(document).ready(function() {
+	     $('[data-toggle="tooltip"]').tooltip({
+		 container: 'body',
+		 trigger: 'hover focus',
+		 delay: { show: 200, hide: 100 },
+		 animation: true
+	     });
+	 });
+	</script>
+	{% endif %}
         <script>
                  //http://stackoverflow.com/questions/11521763/bootstrap-scrollspy-not-working
                  var $window = $(window)
