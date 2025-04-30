@@ -9,17 +9,22 @@
                             <li class="gemma-tab mapping-tab {% if dataset.group.mapping_id == '1' or dataset.group.mapping_id == '2' %}active{% endif %}">
                                 <a href="#gemma" data-toggle="tab">GEMMA</a>
                             </li>
-                        {% elif mapping_method == "R/qtl" %}
+                            {% elif mapping_method == "R/qtl" %}
+			    {% if dataset.group.name.lower() !="do" %} 
                             <li class="rqtl-geno-tab mapping-tab {% if dataset.group.mapping_id == '3' %}active{% endif %}">
                                 <a href="#rqtl_geno" data-toggle="tab">R/qtl</a>
                             </li>
                             <!-- rethink about the mapping id  -->
+			    {% endif %}
+			    
                             <li class="rqtl-geno-tab mapping-tab">
                                 <a href="#rqtl2_geno" data-toggle="tab">R/qtl2</a>
                             </li>
+			    {% if dataset.group.name.lower() != "do" %}
                             <li class="rqtl-pair-tab mapping-tab">
                                 <a href="#rqtl_pair" data-toggle="tab">Pair Scan</a>
                             </li>
+			    {% endif %}
                         {% elif mapping_method == "QTLReaper" %}
                             <li class="reaper-tab mapping-tab">
                                 <a href="#interval_mapping" data-toggle="tab">Haley-Knott Regression</a>
@@ -222,7 +227,9 @@
                                     </div>
                                 </div>
                             </div>
-                        {% elif mapping_method == "R/qtl" %}
+                            {% elif mapping_method == "R/qtl" %}
+			    {% if dataset.group.name.lower() != "do" %}
+			    This is another test
                             <div class="tab-pane {% if dataset.group.mapping_id == '3' %}active{% endif %}"
                                  id="rqtl_geno">
                                 <div class="form-horizontal section-form-div">
@@ -386,9 +393,10 @@
                                         </div>
                                     </div>
                                 </div>
-                            </div>
+			    </div>
+			    {% endif %}
                             <!-- start qtl2  -->
-                            <div class="tab-pane" id="rqtl2_geno">
+                            <div class="tab-pane" id="rqtl2_geno" >
                                 <div class="form-horizontal section-form-div">
                                     <div class="mapping_method_fields form-group">
                                         <label for="chr_select" class="col-xs-3 control-label">Chromosome</label>
@@ -536,8 +544,9 @@
                                         </div>
                                     </div>
                                 </div>
-                            </div>
+			    </div>
                             <!-- end qtl2 -->
+			    {% if dataset.group.name.lower() != "do" %}
                             <div class="tab-pane" id="rqtl_pair">
                                 <div class="form-horizontal section-form-div">
                                     {% if genofiles and genofiles|length > 0 %}
@@ -646,7 +655,8 @@
                                         </div>
                                     </div>
                                 </div>
-                            </div>
+						    </div>
+			    {% endif %}
                         {% endif %}
                     {% endfor %}
                 </div>
