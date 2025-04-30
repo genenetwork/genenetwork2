@@ -4,6 +4,7 @@ import io
 import json
 import requests
 import shutil
+import hashlib
 from typing import Dict
 from typing import List
 from typing import Optional
@@ -19,7 +20,9 @@ from gn2.base.trait import create_trait
 from gn2.utility.redis_tools import get_redis_conn
 from gn2.utility.tools import locate, get_setting, GN3_LOCAL_URL
 from gn_libs.mysqldb import database_connection
+from gn2.utility.redis_tools import get_redis_conn
 
+Redis = get_redis_conn()
 
 
 def read_csv_to_dict(csv_file, delimiter=","):
@@ -29,6 +32,14 @@ def read_csv_to_dict(csv_file, delimiter=","):
              for row in csv.DictReader(filter(lambda line : not line.startswith("#"), file_handler),
                                        skipinitialspace=True, delimiter = delimiter)]
 
+
+def get_input_hash(metadata):
+    """Given a set of dict input generate the  hash"""
+    dhash = hashlib.md5()
+    metadata_bytes = json.dumps(metadata).encode("utf-8")
+    dhash.update(metadata_bytes)
+    return dhash.hexdigest()
+    
 class RQTLError(Exception):
     def __init__(self, message="rqtlerror", status_code=400, log =""):
         self.message = message
@@ -37,7 +48,7 @@ class RQTLError(Exception):
         super().__init__(self.message, self.status_code,self.log)
 
 
-def run_rqtl2(metadata, pheno_file, run_id, group="bxd"):
+def run_rqtl2(metadata, pheno_file, run_id, group="bxd", use_cache=False):
     try:
         # Locate and load files
         # assumes these files are already in this csv format for example genotypes_files/bxd/bxd_geno.csv
@@ -55,10 +66,20 @@ def run_rqtl2(metadata, pheno_file, run_id, group="bxd"):
         metadata["geno_codes"] = metadata["genotypes"]
         metadata["physical_map_data"] = metadata["pmap_data"]
         metadata["geno_map_data"] = metadata["gmap_data"]
-        response = requests.post(urljoin(GN3_LOCAL_URL,
+        hash_string = get_input_hash(metadata)
+        response = Redis.get(f"GN3_RQTL2_{hash_string}")
+        
+        if response and use_cache:
+            return json.loads(response)
+        else:
+            response = requests.post(urljoin(GN3_LOCAL_URL,
                                          f"/api/rqtl2/compute?id={run_id}"), json=metadata)
-        response.raise_for_status()
-        return response.json()
+            response.raise_for_status()
+            results = response.json()
+            # enable caching only for do dataset
+            Redis.set(f"GN3_RQTL2_{hash_string}", json.dumps(results), ex=7*24*60*60)
+            return results
+
     except requests.HTTPError as error:
         error_results = response.json()
         raise RQTLError(f'{str(error)}---{error_results.get("msg","")}',
@@ -70,7 +91,7 @@ def run_rqtl2(metadata, pheno_file, run_id, group="bxd"):
 def run_rqtl(trait_name, vals, samples, dataset, pair_scan,
             mapping_scale, model, method, num_perm, perm_strata_list,
             do_control, control_marker, manhattan_plot, cofactors, run_id="",
-            use_rqtl2 = False):
+            use_rqtl2=False):
     """Run R/qtl by making a request to the GN3 endpoint and reading in the output file(s)"""
 
     pheno_file = write_phenotype_file(trait_name, samples, vals, dataset, cofactors, perm_strata_list)
@@ -109,7 +130,7 @@ def run_rqtl(trait_name, vals, samples, dataset, pair_scan,
         group = dataset.group.name.lower()
         with open(locate(name=f"{group}.json", subdir=group), encoding="utf-8") as file_handler:
             rqtl2_metadata = json.load(file_handler)
-        rqtl_output = run_rqtl2({**post_data, **rqtl2_metadata}, pheno_file, run_id,dataset.group.name.lower())
+        rqtl_output = run_rqtl2({**post_data, **rqtl2_metadata}, pheno_file, run_id,dataset.group.name.lower(), use_cache=True)
         if num_perm > 0:
             perm_results, suggestive, significant = process_rqtl2_permutations(rqtl_output)
             return perm_results, suggestive, significant, rqtl_output["qtl_results"]

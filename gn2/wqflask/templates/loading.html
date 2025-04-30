@@ -19,7 +19,7 @@
 {% endfor %}
 		<div class="container" style="padding: 40px 0;">
 			<div style="display: flex; flex-direction: column; gap: 40px; min-height: 90vh; justify-content: center; align-items: center;">
-			    <div style="max-width: 500px; width: 100%;">
+			    <div style="max-width: 900px; width: 100%;">
 				{% if start_vars.tool_used == "Mapping" %}
 				<h1>Computing the Maps</h1>
 				<br>
@@ -84,8 +84,8 @@
 					<img align="center" src="/static/gif/waitAnima2.gif">
 				</div>
 				</div>
-				<div style="max-width: 500px; width: 100%;">
-					<div class="panel-group" id="accordion" role="tablist" style="width: 400px; margin: 0;">
+				<div style="max-width: 900px; width: 100%;">
+					<div class="panel-group" id="accordion" role="tablist" style="width: 700px; margin: 0;">
 					{% if start_vars.method == 'rqtl_geno' or start_vars.method == 'rqtl2_geno' %}
 					<div class="panel panel-default">
 						<div class="panel-heading">
@@ -212,7 +212,7 @@
             lineHeight: 1.1,
             scrollback: 9999999,
             macOptionIsMeta: true,
-            cols: 40
+            cols: 60
         });
         term.open(document.getElementById('terminal'));
 

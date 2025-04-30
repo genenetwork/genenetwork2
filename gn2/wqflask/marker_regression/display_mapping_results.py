@@ -3003,7 +3003,17 @@ class DisplayMappingResults:
             chrLabelFont = ImageFont.truetype(
                 font=VERDANA_FILE, size=24 * chrFontZoom)
 
-            for i, _chr in enumerate(self.genotype):
+            # : sort the genotypes by chromosomes i.e 1...20...X for gifmap rendering 
+            def sort_key(chr_obj):
+                try:
+                    # Try to convert the name to an integer
+                    return (0, int(chr_obj.name))
+                except ValueError:
+                    # If it fails (non-numeric), push it to the end
+                    return (1, chr_obj.name)
+            # Sort the chromosome list
+            sorted_chr_list = sorted(list(self.genotype), key=sort_key)
+            for i, _chr in enumerate(sorted_chr_list):
                 if (i % 2 == 0):
                     theBackColor = self.GRAPH_BACK_DARK_COLOR
                 else:

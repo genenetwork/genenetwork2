@@ -972,7 +972,11 @@ def mapping_results_page(hash_of_inputs=None):
     if not RUN_ID:
         RUN_ID = request.form.get("run_id")
     if hash_of_inputs:
-        initial_start_vars = json.loads(Redis.get(hash_of_inputs))
+        input_results  =  Redis.get(hash_of_inputs) # can be none 
+    else:
+        input_results = None
+    if input_results :
+        initial_start_vars = json.loads(input_results)
         initial_start_vars['hash_of_inputs'] = hash_of_inputs
     else:
         initial_start_vars = request.form
@@ -1063,10 +1067,15 @@ def mapping_results_page(hash_of_inputs=None):
 
     version = "v3"
     key = "mapping_results:{}:".format(
-        version) + json.dumps(start_vars, sort_keys=True)
+        version) + str(hash_of_inputs)
     try:
-        template_vars = run_mapping.RunMapping(start_vars,
+        cached_mapping_results  = Redis.get(key)
+        if cached_mapping_results:
+            template_vars = pickle.loads(cached_mapping_results)
+        else:
+            template_vars = run_mapping.RunMapping(start_vars,
                                            temp_uuid, run_id=RUN_ID)
+            Redis.set(key, pickle.dumps(template_vars), ex=7*24*60*60)
     except RQTLError as error:
         return render_template("rqtl_error.html",
                                error=error.message,
@@ -1092,6 +1101,7 @@ def mapping_results_page(hash_of_inputs=None):
         )
         return jsonify(redirect_url=redirect_url)
     else:
+        total_time +=float(request.args.get("mapping_run_time", 0.0))
         if result['pair_scan']:
             return render_template(
                 "pair_scan_results.html",
