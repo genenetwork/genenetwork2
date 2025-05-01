@@ -21,7 +21,7 @@
                                 <a href="#rqtl2_geno" data-toggle="tab">R/qtl2</a>
                             </li>
 
-			    { % endif %}
+			    {% endif %}
 			    {% if dataset.group.name.lower() != "do" %}
                             <li class="rqtl-pair-tab mapping-tab">
                                 <a href="#rqtl_pair" data-toggle="tab">Pair Scan</a>
@@ -397,7 +397,7 @@
 						    </div>
 			    {% endif %}
                             <!-- start qtl2  -->
-			    {% if dataset.group.name.lower() == "bxd" or  if dataset.group.name.lower() == "bxd" %}
+			    {% if dataset.group.name.lower() == "bxd" or  dataset.group.name.lower() == "bxd" %}
                             <div class="tab-pane" id="rqtl2_geno" >
                                 <div class="form-horizontal section-form-div">
                                     <div class="mapping_method_fields form-group">
@@ -547,8 +547,7 @@
                                     </div>
                                 </div>
 						    </div>
-
-			    {%endif %}
+			    {% endif %}
                             <!-- end qtl2 -->
 			    {% if dataset.group.name.lower() != "do" %}
                             <div class="tab-pane" id="rqtl_pair">
