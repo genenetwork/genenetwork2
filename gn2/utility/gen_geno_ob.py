@@ -108,6 +108,8 @@ class genotype:
                     else:
                         self.prgy = header_row[3:]
                     self.nprgy = len(self.prgy)
+                elif line.isspace():
+                    continue
                 else:
                     if line.split("\t")[0] != this_chr:
                         if this_chr != "":
