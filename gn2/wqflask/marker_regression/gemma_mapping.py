@@ -83,7 +83,7 @@ def run_gemma(this_trait, this_dataset, samples, vals, covariates, use_loco,
                              f"-g {geno_filepath} "
                              f"-p {pheno_filepath} ")
             if covariates != "":
-                gemma_command += (f"-c {flat_files('mapping')}/"
+                gemma_command += (f"-c {TEMPDIR}/gn2/"
                                   f"{covar_filename}.txt "
                                   f"-a {flat_files('genotype/bimbam')}/"
                                   f"{genofile_name}_snps.txt "
@@ -117,7 +117,7 @@ def run_gemma(this_trait, this_dataset, samples, vals, covariates, use_loco,
                              f"{TEMPDIR}/gn2/{pheno_filename}.txt ")
 
             if covariates != "":
-                gemma_command += (f" -c {flat_files('mapping')}/"
+                gemma_command += (f" -c {TEMPDIR}/gn2/"
                                   f"{covar_filename}.txt > "
                                   f"{TEMPDIR}/gn2/{gwa_output_filename}.json")
             else:
@@ -182,7 +182,7 @@ def gen_covariates_file(this_dataset, covariates, samples):
 
     filename = "COVAR_" + generate_hash_of_string(this_dataset.name + str(covariate_data_object)).replace("/", "_")
 
-    with open((f"{flat_files('mapping')}/"
+    with open((f"{TEMPDIR}/gn2/"
                f"{filename}.txt"),
               "w") as outfile:
         for i in range(len(covariate_data_object[0])):
