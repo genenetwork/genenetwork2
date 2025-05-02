@@ -1,6 +1,8 @@
 import re
+import csv
 import datetime
 import json
+import io
 import os
 from pathlib import Path
 from functools import reduce
@@ -40,7 +42,8 @@ from gn3.db import diff_from_dict
 from gn3.db.datasets import (
     retrieve_sample_list,
     retrieve_mrna_group_name,
-    retrieve_phenotype_group_name)
+    retrieve_phenotype_group_name,
+    retrieve_group_id)
 from gn3.db.metadata_audit import (
     create_metadata_audit,
     fetch_probeset_metadata_audit_by_trait_name,
@@ -96,7 +99,6 @@ def _get_diffs(diff_dir: str, redis_conn: redis.Redis):
         "diff": __get_diff__(diff_dir, dname)
     } for dname in os.listdir(diff_dir))
 
-
 def edit_phenotype(conn, name, dataset_id):
     publish_xref = fetch_trait(conn, dataset_id=dataset_id, trait_name=name)
     return {
@@ -104,6 +106,102 @@ def edit_phenotype(conn, name, dataset_id):
         "phenotype": fetch_metadata(conn, publish_xref["phenotype_id"]),
         "publication": fetch_publication_by_id(conn, publish_xref["publication_id"])
     }
+
+def get_sample_data_diff(dict1, dict2):
+    """Get the diff between two sets of sample data"""
+
+    diff = {
+        "Additions": {},
+        "Modifications": {},
+        "Deletions": {}
+    }
+
+    all_keys = set(dict1.keys()) | set(dict2.keys())
+    for key in all_keys:
+        # Check if sample exists in both sets of data
+        in_dict1 = key in dict1
+        in_dict2 = key in dict2
+
+        if not in_dict1:
+            diff["Additions"][key] = dict2[key]
+            continue
+        if not in_dict2:
+            diff["Deletions"][key] = dict1[key]
+            continue
+
+        # Remove 'n_cases' if present, since it's not included in the upload file
+        sub1 = {k: v for k, v in dict1[key].items() if k != "n_cases"}
+        sub2 = {k: v for k, v in dict2[key].items() if k != "n_cases"}
+
+        # Compare sample data
+        if sub1 != sub2:
+            sub_diff = {}
+            for k in sub1.keys() | sub2.keys():
+                try:
+                    v1 = float(sub1.get(k, None))
+                    v2 = float(sub2.get(k, None))
+                    if v1 != v2:
+                        sub_diff[k] = {"Original": v1, "Current": v2}
+                except:
+                    continue
+            if sub_diff:
+                diff["Modifications"][key] = sub_diff
+
+    return diff
+
+def batch_edit(upload_file):
+    dataset_type = "Publish" # Default to assuming Publish/Phenotype
+    sample_list = []
+    start_line = 11 # The normal line after the header
+
+    all_diffs = {}
+
+    from gn2.utility.tools import get_setting
+    i = 0
+    with database_connection(get_setting("SQL_URI")) as conn:
+        upload_reader = csv.reader(upload_file.splitlines(), delimiter=',')
+        for line in upload_reader:
+            if i == 1: # Line with Dataset Type
+                dataset_type = line[0].split(":")[1].strip()
+
+            if "Index" in line: # Header line
+                start_line = i + 1
+                sample_list = line[27::2]
+
+            if i >= start_line:
+                group_name = line[3]
+                dataset_name = line[4]
+                trait_name = line[5]
+                group_id = retrieve_group_id(conn, group_name)
+
+                sample_data_vals = line[27::2]
+                sample_data_se = line[28::2]
+
+                edited_sample_data = {}
+                for j, sample in enumerate(sample_list):
+                    if sample_data_vals[j] != 'x':
+                        edited_sample_data[sample] = {
+                            'value': sample_data_vals[j],
+                            'error': sample_data_se[j]
+                        }
+
+                if dataset_type == "Publish":
+                    orig_sample_data = get_pheno_sample_data(conn, trait_name, None, group_id=group_id)
+                else:
+                    orig_sample_data = get_mrna_sample_data(conn, None, dataset_name, probeset_name = trait_name)
+
+                diff = get_sample_data_diff(orig_sample_data, edited_sample_data)
+                all_diffs[dataset_name + ":" + trait_name] = diff
+            i += 1
+
+
+@metadata_edit.route("/batch_edit", methods=["GET", "POST"])
+def batch_edit_page() -> Response:
+    if request.method == "POST":
+        upload_file = request.files['traits_file'].read().decode('utf-8')
+        batch_edit(upload_file)
+    else:
+        return render_template("batch_edit.html")
 
 
 @metadata_edit.route("/<dataset_id>/traits/<name>")
