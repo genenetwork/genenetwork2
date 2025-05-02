@@ -69,6 +69,7 @@ def export_traitlist(targs):
     if 'database_name' in targs:
         if targs['database_name'] != "None":
             metadata.append(["Data Set: " + targs['database_name']])
+            metadata.append(["Data Set Type: "  + targs['dataset_type']])
     if 'accession_id' in targs:
         if targs['accession_id'] != "None":
             metadata.append(
