@@ -1,5 +1,4 @@
-create_table = function(tableId="trait_table", tableData = [], columnDefs = [], customSettings = {}) {
-
+create_table = function(tableId="trait_table", tableData = [], columnDefs = [], customSettings = {}, hasIndex=true) {
     loadDataTable(tableId=tableId, tableData=tableData, customSettings, firstRun=true)
 
     var widthChange = 0; // For storing the change in width so overall table width can be adjusted by that amount
@@ -74,11 +73,13 @@ create_table = function(tableId="trait_table", tableData = [], columnDefs = [], 
         }
     }
 
-    theTable.on( 'order.dt search.dt draw.dt', function () {
-        theTable.column(1, {search:'applied', order:'applied'}).nodes().each( function (cell, i) {
-        cell.innerHTML = i+1;
-        } );
-    } ).draw();
+    if (hasIndex) {
+        theTable.on( 'order.dt search.dt draw.dt', function () {
+            theTable.column(1, {search:'applied', order:'applied'}).nodes().each( function (cell, i) {
+            cell.innerHTML = i+1;
+            } );
+        } ).draw();
+    }
 
     window.addEventListener('resize', function(){
         theTable.columns.adjust();
