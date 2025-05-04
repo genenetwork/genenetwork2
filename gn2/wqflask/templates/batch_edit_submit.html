@@ -1,0 +1,17 @@
+{% extends "index_page.html" %}
+{% block title %}Batch Edit{% endblock %}
+{% block content %}
+<div class="container">
+    <form id="edit-form" class="form-horizontal" method="post" action="/datasets/batch_edit" enctype="multipart/form-data">
+        <div>
+            <h2>Batch Edit</h2>
+            <p>
+                Upload a file (of the same format downloaded from the Search Result page) with the desired sample data edits
+            </p>
+            <div class="form-group">
+                <input type="file" name="traits_file" class="col-md-4 control-label text-left" />
+            </div>
+            <input type="submit" style="width: 125px; margin-right: 25px;" class="btn btn-success form-control changed" value="Submit Edits">
+        </div>
+</div>
+{% endblock %}
