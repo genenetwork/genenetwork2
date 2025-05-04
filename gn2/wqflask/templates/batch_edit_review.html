@@ -1,0 +1,131 @@
+{% extends "index_page.html" %}
+{% block title %}Batch Edit{% endblock %}
+{% block css %}
+    <link rel="stylesheet" type="text/css" href="{{ url_for('css', filename='DataTables/css/jquery.dataTables.css') }}" />
+{% endblock %}
+{% block content %}
+<div class="container">
+    <form id="edit-form" class="form-horizontal" method="post" action="/datasets/batch_edit" enctype="multipart/form-data">
+        <input type="hidden" name="diffs" value="{{ diffs }}">
+        <div>
+            <h2>Review Your Changes</h2>
+            <p>
+                Please carefully check that the changes listed below are the ones you intend to make. 
+            </p>
+            <h3>Modifications</h3>
+            <table class="table-hover table-striped cell-border" id='modifications' style="float: left;">
+                <thead>
+                    <tr>
+                        <th>Trait</th>
+                        <th>Dataset</th>
+                        {% for sample in sample_list %}
+                        <th>{{ sample }}</th>
+                        <th>{{ sample }}_SE</th>
+                        {% endfor %}
+                    </tr>
+                </thead>
+                <tbody>
+                {% for trait_dataset in diffs %}
+                {% if diffs[trait_dataset]['Modifications']|length %}
+                <tr>
+                    <td>{{ trait_dataset.split(":")[1] }}</td>
+                    <td>{{ trait_dataset.split(":")[0] }}</td>
+                    {% for sample in sample_list %}
+                    {% if sample in diffs[trait_dataset]['Modifications'] %}
+                    <td>{{ diffs[trait_dataset]['Modifications'][sample]['value']['Original'] }} &rarr; {{ diffs[trait_dataset]['Modifications'][sample]['value']['Current'] }}</td>
+                    <td>{{ diffs[trait_dataset]['Modifications'][sample]['error']['Original'] }} &rarr; {{ diffs[trait_dataset]['Modifications'][sample]['error']['Current'] }}</td>
+                    {% else %}
+                    <td>--</td>
+                    <td>--</td>
+                    {% endif %}
+                    {% endfor %}
+                </tr>
+                {% endif %}
+                {% endfor %}
+                </tbody>
+            </table>
+
+            <h3>Additions</h3>
+            <table class="table-hover table-striped cell-border" id='additions' style="float: left;">
+                <thead>
+                    <tr>
+                        <th>Trait</th>
+                        <th>Dataset</th>
+                        {% for sample in sample_list %}
+                        <th>{{ sample }}</th>
+                        <th>{{ sample }}_SE</th>
+                        {% endfor %}
+                    </tr>
+                </thead>
+                <tbody>
+                {% for trait_dataset in diffs %}
+                {% if diffs[trait_dataset]['Additions']|length %}
+                <tr>
+                    <td>{{ trait_dataset.split(":")[1] }}</td>
+                    <td>{{ trait_dataset.split(":")[0] }}</td>
+                    {% for sample in sample_list %}
+                    {% if sample in diffs[trait_dataset]['Additions'] %}
+                    <td><b><font color="green">{{ diffs[trait_dataset]['Additions'][sample]['value'] }}</font></b></td>
+                    <td><b><font color="green">{{ diffs[trait_dataset]['Additions'][sample]['error'] }}</font></b></td>
+                    {% else %}
+                    <td>--</td>
+                    <td>--</td>
+                    {% endif %}
+                    {% endfor %}
+                </tr>
+                {% endif %}
+                {% endfor %}
+                </tbody>
+            </table>
+
+            <h3>Deletions</h3>
+            <table class="table-hover table-striped cell-border" id='deletions' style="float: left;">
+                <thead>
+                    <tr>
+                        <th>Trait</th>
+                        <th>Dataset</th>
+                        {% for sample in sample_list %}
+                        <th>{{ sample }}</th>
+                        <th>{{ sample }}_SE</th>
+                        {% endfor %}
+                    </tr>
+                </thead>
+                <tbody>
+                {% for trait_dataset in diffs %}
+                {% if diffs[trait_dataset]['Deletions']|length %}
+                <tr>
+                    <td>{{ trait_dataset.split(":")[1] }}</td>
+                    <td>{{ trait_dataset.split(":")[0] }}</td>
+                    {% for sample in sample_list %}
+                    {% if sample in diffs[trait_dataset]['Deletions'] %}
+                    <td><b><font color="red">{{ diffs[trait_dataset]['Deletions'][sample]['value'] }}</font></b></td>
+                    <td><b><font color="red">{{ diffs[trait_dataset]['Deletions'][sample]['error'] }}</font></b></td>
+                    {% else %}
+                    <td>--</td>
+                    <td>--</td>
+                    {% endif %}
+                    {% endfor %}
+                </tr>
+                {% endif %}
+                {% endfor %}
+                </tbody>
+            </table>
+
+            <input type="submit" style="width: 125px; margin-right: 25px;" class="btn btn-success form-control changed" value="Confirm Edits">
+        </div>
+</div>
+{% endblock %}
+{% block js %}
+<script language="javascript" type="text/javascript" src="{{ url_for('js', filename='DataTables/js/jquery.dataTables.min.js') }}"></script>
+<script type="text/javascript" src="/static/new/javascript/table_functions.js"></script>
+<script type="text/javascript" src="/static/new/javascript/create_datatable.js"></script>
+<script>
+
+    columnDefs = new Array(2 + {{ sample_list | length * 2 }})
+
+    create_table("modifications", [], columnDefs, {}, hasIndex=false);
+    create_table("additions", [], columnDefs, {}, hasIndex=false);
+    create_table("deletions", [], columnDefs, {}, hasIndex=false);
+
+</script>
+{% endblock %}
