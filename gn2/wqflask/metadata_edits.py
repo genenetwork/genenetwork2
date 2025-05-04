@@ -149,15 +149,15 @@ def get_sample_data_diff(dict1, dict2):
 
     return diff
 
-def batch_edit(upload_file):
+def calculate_diffs(upload_file):
     dataset_type = "Publish" # Default to assuming Publish/Phenotype
     sample_list = []
     start_line = 11 # The normal line after the header
 
     all_diffs = {}
 
-    from gn2.utility.tools import get_setting
     i = 0
+    from gn2.utility.tools import get_setting
     with database_connection(get_setting("SQL_URI")) as conn:
         upload_reader = csv.reader(upload_file.splitlines(), delimiter=',')
         for line in upload_reader:
@@ -194,14 +194,18 @@ def batch_edit(upload_file):
                 all_diffs[dataset_name + ":" + trait_name] = diff
             i += 1
 
+    return all_diffs, sample_list
+
 
 @metadata_edit.route("/batch_edit", methods=["GET", "POST"])
 def batch_edit_page() -> Response:
     if request.method == "POST":
-        upload_file = request.files['traits_file'].read().decode('utf-8')
-        batch_edit(upload_file)
+        if 'traits_file' in request.files:
+            upload_file = request.files['traits_file'].read().decode('utf-8')
+            all_diffs, sample_list = calculate_diffs(upload_file)
+            return render_template("batch_edit_review.html", diffs = all_diffs, sample_list = sample_list)
     else:
-        return render_template("batch_edit.html")
+        return render_template("batch_edit_submit.html")
 
 
 @metadata_edit.route("/<dataset_id>/traits/<name>")
