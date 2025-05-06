@@ -16,7 +16,7 @@
                             </li>
                             <!-- rethink about the mapping id  -->
 			    {% endif %}
-			    {% if dataset.group.name.lower() == "do" or dataset.group.name.lower()== "bxd" %}
+			    {% if dataset.group.name.lower() == "do" or dataset.group.name.lower()== "bxd" and  is_test_feature_enabled  %}
                             <li class="rqtl-geno-tab mapping-tab">
                                 <a href="#rqtl2_geno" data-toggle="tab">R/qtl2</a>
                             </li>
@@ -25,8 +25,7 @@
 			    {% if dataset.group.name.lower() != "do" %}
                             <li class="rqtl-pair-tab mapping-tab">
                                 <a href="#rqtl_pair" data-toggle="tab">Pair Scan</a>
-                            </li>
-			    {% endif %}
+                            </li>			    {% endif %}
                         {% elif mapping_method == "QTLReaper" %}
                             <li class="reaper-tab mapping-tab">
                                 <a href="#interval_mapping" data-toggle="tab">Haley-Knott Regression</a>
@@ -397,7 +396,7 @@
 						    </div>
 			    {% endif %}
                             <!-- start qtl2  -->
-			    {% if dataset.group.name.lower() == "bxd" or  dataset.group.name.lower() == "bxd" %}
+			    {% if dataset.group.name.lower() == "bxd" or  dataset.group.name.lower() == "bxd" and  is_test_feature_enabled %}
                             <div class="tab-pane" id="rqtl2_geno" >
                                 <div class="form-horizontal section-form-div">
                                     <div class="mapping_method_fields form-group">
