@@ -95,10 +95,10 @@ class TestGemmaMapping(unittest.TestCase):
 
             filehandler.write.assert_has_calls(write_calls)
 
-    @mock.patch("gn2.wqflask.marker_regression.gemma_mapping.flat_files")
+    @mock.patch("gn2.wqflask.marker_regression.gemma_mapping.TEMPDIR", "/home/user/data")
     @mock.patch("gn2.wqflask.marker_regression.gemma_mapping.create_trait")
     @mock.patch("gn2.wqflask.marker_regression.gemma_mapping.create_dataset")
-    def test_gen_covariates_file(self, create_dataset, create_trait, flat_files):
+    def test_gen_covariates_file(self, create_dataset, create_trait):
         """add tests for generating covariates files"""
         covariates = "X1:X2,Y1:Y2,M1:M3,V1:V2"
         samplelist = ["X1", "X2", "X3", "X4"]
@@ -116,7 +116,6 @@ class TestGemmaMapping(unittest.TestCase):
 
         group = MockGroup({"name": "group_X", "samplelist": samplelist})
         this_dataset = AttributeSetter({"group": group, "name": "dataset1_name"})
-        flat_files.return_value = "Home/Genenetwork"
 
         with mock.patch("builtins.open", mock.mock_open())as mock_open:
             gen_covariates_file(this_dataset=this_dataset, covariates=covariates,
@@ -133,9 +132,8 @@ class TestGemmaMapping(unittest.TestCase):
 
             create_trait.assert_has_calls(mock_calls)
 
-            flat_files.assert_called_once_with('mapping')
             mock_open.assert_called_once_with(
-                'Home/Genenetwork/COVAR_npKxIOnq3azWdgYixtd9IQ.txt', 'w')
+                '/home/user/data/gn2/COVAR_npKxIOnq3azWdgYixtd9IQ.txt', 'w')
             filehandler = mock_open()
             filehandler.write.assert_has_calls([mock.call(
                 '-9\t'), mock.call('-9\t'), mock.call('-9\t'), mock.call('-9\t'), mock.call('\n')])
