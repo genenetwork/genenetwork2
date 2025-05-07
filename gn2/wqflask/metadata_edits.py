@@ -1,6 +1,7 @@
 import re
 import csv
 import datetime
+import math
 import json
 import io
 import os
@@ -63,6 +64,7 @@ from gn3.db.sample_data import (
     delete_sample_data,
     insert_sample_data,
     update_sample_data,
+    batch_update_sample_data,
     get_pheno_sample_data,
     get_pheno_csv_sample_data,
     get_mrna_sample_data,
@@ -140,16 +142,26 @@ def get_sample_data_diff(dict1, dict2):
                 try:
                     v1 = float(sub1.get(k, None))
                     v2 = float(sub2.get(k, None))
-                    if v1 != v2:
+
+                    if v1 != v2 and not math.isclose(v1, v2, abs_tol = 0.02):
                         sub_diff[k] = {"Original": v1, "Current": v2}
                 except:
                     continue
+
             if sub_diff:
                 diff["Modifications"][key] = sub_diff
 
     return diff
 
 def calculate_diffs(upload_file):
+
+    def is_number(value):
+        try:
+            float(value)
+            return True
+        except:
+            return False
+
     dataset_type = "Publish" # Default to assuming Publish/Phenotype
     sample_list = []
     start_line = 11 # The normal line after the header
@@ -179,18 +191,28 @@ def calculate_diffs(upload_file):
 
                 edited_sample_data = {}
                 for j, sample in enumerate(sample_list):
-                    if sample_data_vals[j] != 'x':
-                        edited_sample_data[sample] = {
-                            'value': sample_data_vals[j],
-                            'error': sample_data_se[j]
-                        }
+                    if is_number(sample_data_vals[j]):
+                        edited_sample_data[sample] = {}
+                        edited_sample_data[sample]['value'] = f"{round(float(sample_data_vals[j]), 2)}"
+
+                        if is_number(sample_data_se[j]):
+                            edited_sample_data[sample]['error'] = f"{round(float(sample_data_se[j]), 3)}"
+                        else:
+                            edited_sample_data[sample]['error'] = 'x'
 
                 if dataset_type == "Publish":
                     orig_sample_data = get_pheno_sample_data(conn, trait_name, None, group_id=group_id)
                 else:
                     orig_sample_data = get_mrna_sample_data(conn, None, dataset_name, probeset_name = trait_name)
 
+                # Remove samples not in main samplelist
+                extra_samples = list(set(orig_sample_data.keys()) - set(sample_list))
+                for sample in extra_samples:
+                    if sample in orig_sample_data:
+                        del orig_sample_data[sample]
+
                 diff = get_sample_data_diff(orig_sample_data, edited_sample_data)
+
                 all_diffs[dataset_name + ":" + trait_name] = diff
             i += 1
 
@@ -200,10 +222,12 @@ def calculate_diffs(upload_file):
 @metadata_edit.route("/batch_edit", methods=["GET", "POST"])
 def batch_edit_page() -> Response:
     if request.method == "POST":
-        if 'traits_file' in request.files:
+        if 'traits_file' in request.files: # Review page
             upload_file = request.files['traits_file'].read().decode('utf-8')
             all_diffs, sample_list = calculate_diffs(upload_file)
             return render_template("batch_edit_review.html", diffs = all_diffs, sample_list = sample_list)
+        elif 'diffs' in request.form: # Actual DB update
+            batch_update_sample_data(request.form['diffs'])
     else:
         return render_template("batch_edit_submit.html")
 
