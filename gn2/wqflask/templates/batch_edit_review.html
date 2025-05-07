@@ -32,8 +32,16 @@
                     <td>{{ trait_dataset.split(":")[0] }}</td>
                     {% for sample in sample_list %}
                     {% if sample in diffs[trait_dataset]['Modifications'] %}
+                    {% if 'value' in diffs[trait_dataset]['Modifications'][sample] %}
                     <td>{{ diffs[trait_dataset]['Modifications'][sample]['value']['Original'] }} &rarr; {{ diffs[trait_dataset]['Modifications'][sample]['value']['Current'] }}</td>
+                    {% else %}
+                    <td>--</td>
+                    {% endif %}
+                    {% if 'error' in diffs[trait_dataset]['Modifications'][sample] %}
                     <td>{{ diffs[trait_dataset]['Modifications'][sample]['error']['Original'] }} &rarr; {{ diffs[trait_dataset]['Modifications'][sample]['error']['Current'] }}</td>
+                    {% else %}
+                    <td>--</td>
+                    {% endif %}
                     {% else %}
                     <td>--</td>
                     <td>--</td>
@@ -113,6 +121,7 @@
 
             <input type="submit" style="width: 125px; margin-right: 25px;" class="btn btn-success form-control changed" value="Confirm Edits">
         </div>
+    </form>
 </div>
 {% endblock %}
 {% block js %}
