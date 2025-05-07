@@ -164,8 +164,10 @@ def export_traitlist(targs):
 
             for sample in samplelist:
                 if sample in trait.data:
-                    row_contents += [trait.data[sample].value,
-                                     trait.data[sample].variance]
+                    trait_val = trait.data[sample].value if trait.data[sample].value else "x"
+                    trait_var = trait.data[sample].variance if trait.data[sample].variance else "x"
+                    row_contents += [trait_val,
+                                     trait_var]
                 else:
                     row_contents += ["x", "x"]
 
