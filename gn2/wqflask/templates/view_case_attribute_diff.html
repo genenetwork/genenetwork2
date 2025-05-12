@@ -94,12 +94,14 @@
             {% endif %}
             {% if the_diff.Deletions | length %}
             <h4>Deletions</h4>
+	    {% for item in the_diff.Modifications %}
             <div class="diff-row">
                 <span class="diff-indicator diff-addition">+</span>
                 <span class="diff-original diff-addition">{{ item.Original }}</span>
                 <span class="diff-indicator diff-deletion">-</span>
                 <span class="diff-current diff-deletion">{{ item.Current }}</span>
             </div>
+	    {% endfor %}
             {% endif %}
         </div>
         <div class="panel-footer">
