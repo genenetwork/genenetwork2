@@ -132,8 +132,8 @@ def get_sample_data_diff(dict1, dict2):
             continue
 
         # Remove 'n_cases' if present, since it's not included in the upload file
-        sub1 = {k: v for k, v in dict1[key].items() if k != "n_cases"}
-        sub2 = {k: v for k, v in dict2[key].items() if k != "n_cases"}
+        sub1 = {k: v for k, v in dict1[key].items()}
+        sub2 = {k: v for k, v in dict2[key].items()}
 
         # Compare sample data
         if sub1 != sub2:
@@ -153,7 +153,7 @@ def get_sample_data_diff(dict1, dict2):
 
     return diff
 
-def calculate_diffs(upload_file):
+def calculate_diffs(conn, upload_file, group_name):
 
     def is_number(value):
         try:
@@ -162,48 +162,50 @@ def calculate_diffs(upload_file):
         except:
             return False
 
-    dataset_type = "Publish" # Default to assuming Publish/Phenotype
     sample_list = []
     start_line = 11 # The normal line after the header
 
     all_diffs = {}
 
     i = 0
-    from gn2.utility.tools import get_setting
-    with database_connection(get_setting("SQL_URI")) as conn:
-        upload_reader = csv.reader(upload_file.splitlines(), delimiter=',')
-        for line in upload_reader:
-            if i == 1: # Line with Dataset Type
-                dataset_type = line[0].split(":")[1].strip()
 
-            if "Index" in line: # Header line
-                start_line = i + 1
-                sample_list = line[27::2]
+    upload_reader = csv.reader(upload_file.splitlines(), delimiter=',')
+    trait_name = "" # This gets set every 3 lines, since there are 3 lines per trait
+    edited_sample_data = {} # Also set every 3 lines
+    for line in upload_reader:
+        if i == 0: # Header line
+            sample_list = line[2:]
 
-            if i >= start_line:
-                group_name = line[3]
-                dataset_name = line[4]
-                trait_name = line[5]
-                group_id = retrieve_group_id(conn, group_name)
+        if i >= 1:
+            dataset_name = group_name + "Publish"
+            if i % 3 == 1:
+                trait_name = line[0]
+            group_id = retrieve_group_id(conn, group_name)
 
-                sample_data_vals = line[27::2]
-                sample_data_se = line[28::2]
-
-                edited_sample_data = {}
-                for j, sample in enumerate(sample_list):
-                    if is_number(sample_data_vals[j]):
+            sample_data = line[2:]
+            for j, sample in enumerate(sample_list):
+                if is_number(sample_data[j]):
+                    if sample not in edited_sample_data:
                         edited_sample_data[sample] = {}
-                        edited_sample_data[sample]['value'] = f"{round(float(sample_data_vals[j]), 2)}"
 
-                        if is_number(sample_data_se[j]):
-                            edited_sample_data[sample]['error'] = f"{round(float(sample_data_se[j]), 3)}"
+                    if i % 3 == 1:
+                        if is_number(sample_data[j]):
+                            edited_sample_data[sample]['value'] = f"{round(float(sample_data[j]), 2)}"
+                        else:
+                            edited_sample_data[sample]['value'] = 'x'
+                    if i % 3 == 2 and is_number(sample_data[j]):
+                        if is_number(sample_data[j]):
+                            edited_sample_data[sample]['error'] = f"{round(float(sample_data[j]), 3)}"
                         else:
                             edited_sample_data[sample]['error'] = 'x'
+                    if i % 3 == 0 and is_number(sample_data[j]):
+                        if is_number(sample_data[j]):
+                            edited_sample_data[sample]['n_cases'] = f"{int(sample_data[j])}"
+                        else:
+                            edited_sample_data[sample]['n_cases'] = 'x'
 
-                if dataset_type == "Publish":
-                    orig_sample_data = get_pheno_sample_data(conn, trait_name, None, group_id=group_id)
-                else:
-                    orig_sample_data = get_mrna_sample_data(conn, None, dataset_name, probeset_name = trait_name)
+            if i % 3 == 0:
+                orig_sample_data = get_pheno_sample_data(conn, trait_name, None, group_id=group_id)
 
                 # Remove samples not in main samplelist
                 extra_samples = list(set(orig_sample_data.keys()) - set(sample_list))
@@ -212,9 +214,13 @@ def calculate_diffs(upload_file):
                         del orig_sample_data[sample]
 
                 diff = get_sample_data_diff(orig_sample_data, edited_sample_data)
+                if (len(diff['Modifications']) > 0 or
+                    len(diff['Additions']) > 0 or
+                    len(diff['Deletions']) > 0):
+                    all_diffs[dataset_name + ":" + trait_name] = diff
 
-                all_diffs[dataset_name + ":" + trait_name] = diff
-            i += 1
+                edited_sample_data = {} # Reset every 3 lines
+        i += 1
 
     return all_diffs, sample_list
 
@@ -222,14 +228,17 @@ def calculate_diffs(upload_file):
 @metadata_edit.route("/batch_edit", methods=["GET", "POST"])
 def batch_edit_page() -> Response:
     if request.method == "POST":
-        if 'traits_file' in request.files: # Review page
-            upload_file = request.files['traits_file'].read().decode('utf-8')
-            all_diffs, sample_list = calculate_diffs(upload_file)
-            return render_template("batch_edit_review.html", diffs = all_diffs, sample_list = sample_list)
-        elif 'diffs' in request.form: # Actual DB update
-            batch_update_sample_data(request.form['diffs'])
+        from gn2.utility.tools import get_setting
+        with database_connection(get_setting("SQL_URI")) as conn:
+            if 'traits_file' in request.files: # Review page
+                upload_file = request.files['traits_file'].read().decode('utf-8')
+                all_diffs, sample_list = calculate_diffs(conn, upload_file, group_name=request.form['group'])
+                return render_template("batch_edit_review.html", diffs = all_diffs, diffs_str = json.dumps(all_diffs), sample_list = sample_list)
+            elif 'diffs' in request.form: # Actual DB update
+                diff_data = batch_update_sample_data(conn, json.loads(request.form['diffs']))
+                return render_template("batch_edit_complete.html", diffs=diff_data)
     else:
-        return render_template("batch_edit_submit.html")
+        return render_template("batch_edit_submit.html", gn_server_url=current_app.config["GN_SERVER_URL"])
 
 
 @metadata_edit.route("/<dataset_id>/traits/<name>")
