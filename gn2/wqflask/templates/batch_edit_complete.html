@@ -1,0 +1,37 @@
+{% extends "index_page.html" %}
+{% block title %}Batch Edit Summary{% endblock %}
+{% block css %}
+    <link rel="stylesheet" type="text/css" href="{{ url_for('css', filename='DataTables/css/jquery.dataTables.css') }}" />
+{% endblock %}
+{% block content %}
+<div class="container">
+    <div>
+        <h2>Edit Complete</h2>
+        <p>
+            The following traits have been updated
+        </p>
+        <table class="table-hover table-striped cell-border" id='diffs_summary' style="float: left; width: 300px;">
+            <thead>
+                <th>Trait</th>
+                <th>Dataset</th>
+            </thead>
+            <tbody>
+                {% for sample in diffs %}
+                <tr>
+                    <td>{{ sample.split(":")[0] }}</td>
+                    <td>{{ sample.split(":")[1] }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}
+{% block js %}
+<script language="javascript" type="text/javascript" src="{{ url_for('js', filename='DataTables/js/jquery.dataTables.min.js') }}"></script>
+<script type="text/javascript" src="/static/new/javascript/table_functions.js"></script>
+<script type="text/javascript" src="/static/new/javascript/create_datatable.js"></script>
+<script>
+    create_table("diffs_summary", [], [], {}, hasIndex=false);
+</script>
+{% endblock %}
