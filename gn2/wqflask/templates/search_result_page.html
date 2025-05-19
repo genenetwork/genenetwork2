@@ -100,10 +100,14 @@
               <button class="btn btn-success" id="add" type="button" disabled><span class="glyphicon glyphicon-plus-sign"></span> Add</button>
               <button class="btn btn-default" id="select_all" type="button"><span class="glyphicon glyphicon-ok"></span> Select All</button>
               <input type="text" id="select_top" class="form-control" style="width: 200px; display: inline;" placeholder="Select Rows (1-5, 11)">
-              <button class="btn btn-default" id="export_traits"><span class="glyphicon glyphicon-download-alt"></span> Download</button>
               <a class="btn btn-default" href="/datasets/batch_edit" target="_blank" role="button" title="Batch Edit"><span class="glyphicon glyphicon-upload"></span> Batch Edit</a>
               <button class="btn btn-default" id="invert" type="button"><span class="glyphicon glyphicon-adjust"></span> Invert</button>
               <button class="btn btn-default" id="deselect_all" type="button"><span class="glyphicon glyphicon-remove"></span> Deselect</button>
+              <button class="btn btn-default" id="export_traits"><span class="glyphicon glyphicon-download-alt"></span> Download</button>
+              <select name="export_type" id="cars">
+                <option value="full">Full</option>
+                <option value="sample_data">Sample Data</option>
+              </select>
             </div>
             <div id="select_samples_invalid" class="alert alert-error" style="display:none;">
               Please check that your syntax includes only a combination of integers, dashes, and commas of a format 
