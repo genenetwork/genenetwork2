@@ -3,15 +3,42 @@
 {% block content %}
 <div class="container">
     <form id="edit-form" class="form-horizontal" method="post" action="/datasets/batch_edit" enctype="multipart/form-data">
-        <div>
+        <div style="max-width: 600px;">
             <h2>Batch Edit</h2>
             <p>
-                Upload a file (of the same format downloaded from the Search Result page) with the desired sample data edits
+                Upload a file (of either the full or sample-data format downloaded from the Search Result page) with the desired changes.
             </p>
-            <div class="form-group">
-                <input type="file" name="traits_file" class="col-md-4 control-label text-left" />
+
+            <div style="margin-bottom: 10px;">
+                <label for="file_type" style="display: block; margin-bottom: 5px;">File type:</label>
+                <select name="file_type" id="file_type" style="width: 280px;">
+                    <option value="sample-data">Sample Data</option>
+                    <option value="metadata">Metadata</option>
+                </select>
             </div>
-            <input type="submit" style="width: 125px; margin-right: 25px;" class="btn btn-success form-control changed" value="Submit Edits">
+
+            <div style="margin-bottom: 10px;">
+                <label for="species" style="display: block; margin-bottom: 5px;">Species:</label>
+                <select name="species" id="species" style="width: 280px;"></select>
+            </div>
+
+            <div style="margin-bottom: 10px;">
+                <label for="group" style="display: block; margin-bottom: 5px;">Group:</label>
+                <select name="group" id="group" style="width: 280px;"></select>
+            </div>
+
+            <div style="margin-bottom: 15px;">
+                <label style="display: block; margin-bottom: 5px;">File to upload:</label>
+                <input type="file" name="traits_file" />
+            </div>
+
+            <input type="submit" style="width: 125px;" class="btn btn-success" value="Submit Edits">
         </div>
 </div>
+{% endblock %}
+{% block js %}
+    <script>
+      gn_server_url = "{{ gn_server_url }}";
+    </script>
+    <script src="/static/new/javascript/dataset_select_menu_orig.js"></script>
 {% endblock %}
