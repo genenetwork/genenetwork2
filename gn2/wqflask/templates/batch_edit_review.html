@@ -6,7 +6,7 @@
 {% block content %}
 <div class="container">
     <form id="edit-form" class="form-horizontal" method="post" action="/datasets/batch_edit" enctype="multipart/form-data">
-        <input type="hidden" name="diffs" value="{{ diffs }}">
+        <input type="hidden" name="diffs" value="{{ diffs_str }}">
         <div>
             <h2>Review Your Changes</h2>
             <p>
