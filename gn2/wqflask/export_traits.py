@@ -15,9 +15,11 @@ from gn3.computations.gemma import generate_hash_of_string
 from gn2.base.trait import create_trait, retrieve_trait_info
 
 
-def export_traits(targs, export_type):
+def export_traits(targs, export_type="full"):
     if export_type == "collection":
         return export_collection(targs)
+    elif export_type == "sample_data":
+        return export_sample_data(targs)
     else:
         return export_traitlist(targs)
 
@@ -56,13 +58,6 @@ def export_collection(targs):
 def export_traitlist(targs):
     table_data = json.loads(targs['export_data'])
     table_rows = table_data['rows']
-
-    now = datetime.datetime.now()
-    time_str = now.strftime('%H:%M_%d%B%Y')
-    if 'file_name' in targs:
-        zip_file_name = targs['file_name'] + "_export_" + time_str
-    else:
-        zip_file_name = "export_" + time_str
 
     metadata = []
 
@@ -182,6 +177,68 @@ def export_traitlist(targs):
 
     return file_list
 
+def export_sample_data(targs):
+    table_data = json.loads(targs['export_data'])
+    table_rows = table_data['rows']
+
+    trait_list = []
+    for trait in table_rows:
+        trait_name, dataset_name, _hash = trait.split(":")
+        trait_ob = create_trait(name=trait_name, dataset_name=dataset_name)
+        trait_ob = retrieve_trait_info(
+            trait_ob, trait_ob.dataset, get_qtl_info=True)
+        trait_list.append(trait_ob)
+
+    samplelist = trait_list[0].dataset.group.all_samples_ordered()
+
+    buff = io.StringIO()
+    writer = csv.writer(buff)
+    csv_rows = []
+
+    table_headers = ['Id', 'Symbol']
+
+    sample_headers = []
+    for sample in samplelist:
+        sample_headers.append(sample)
+
+    full_headers = table_headers + sample_headers
+    csv_rows.append(full_headers)
+
+    for trait in trait_list:
+        if getattr(trait, "symbol", None):
+            trait_symbol = getattr(trait, "symbol")
+        elif getattr(trait, "abbreviation", None):
+            trait_symbol = getattr(trait, "abbreviation")
+
+        val_row = [trait.name, trait_symbol]
+        se_row = ["", "SE"]
+        n_row = ["", "N"]
+
+        for sample in samplelist:
+            if sample in trait.data:
+                trait_val = trait.data[sample].value if trait.data[sample].value else "x"
+                trait_var = trait.data[sample].variance if trait.data[sample].variance else "x"
+                trait_n = trait.data[sample].num_cases if trait.data[sample].num_cases else "x"
+                val_row += [trait_val]
+                se_row += [trait_var]
+                n_row += [trait_n]
+            else:
+                val_row += "x"
+                se_row += "x"
+                n_row += "x"
+
+        csv_rows += [val_row, se_row]
+        if trait.dataset.type == "Publish":
+            csv_rows += [n_row]
+
+    writer.writerows(csv_rows)
+    csv_data = buff.getvalue()
+    buff.close()
+
+    file_name = trait_list[0].dataset.group.name + "_sample_data.csv"
+    file_list = [[file_name, csv_data]]
+
+    return file_list
 
 def sort_traits_by_group(trait_list=[]):
     traits_by_group = {}

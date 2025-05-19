@@ -626,7 +626,8 @@ def export_trait_csv():
 @app.route('/export_traits_csv', methods=('POST',))
 def export_traits_csv():
     """CSV file consisting of the traits from the search result page"""
-    file_list = export_traits(request.form, "metadata")
+
+    file_list = export_traits(request.form, request.form['export_type'])
 
     if len(file_list) > 1:
         now = datetime.datetime.now()
