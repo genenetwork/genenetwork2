@@ -70,7 +70,6 @@ from gn3.db.sample_data import (
     get_mrna_sample_data,
     get_mrna_csv_sample_data)
 
-
 metadata_edit = Blueprint("metadata_edit", __name__)
 
 def _get_diffs(diff_dir: str, redis_conn: redis.Redis):
@@ -153,6 +152,27 @@ def get_sample_data_diff(dict1, dict2):
 
     return diff
 
+def get_dialect(file_text):
+    """Determine the CSV dialect with improved tab detection"""
+    sample = file_text[:2048]
+
+    # First try tab detection
+    if '\t' in sample:
+        try:
+            dialect = csv.Sniffer().sniff(sample, delimiters='\t')
+            if dialect.delimiter == '\t':
+                return dialect
+        except csv.Error:
+            pass
+
+    # Fall back to comma detection
+    try:
+        return csv.Sniffer().sniff(sample, delimiters=',')
+    except csv.Error:
+        # Default to tab if nothing else works
+        return csv.excel_tab if '\t' in sample else csv.excel
+
+
 def calculate_diffs(conn, upload_file, group_name):
 
     def is_number(value):
@@ -169,7 +189,10 @@ def calculate_diffs(conn, upload_file, group_name):
 
     i = 0
 
-    upload_reader = csv.reader(upload_file.splitlines(), delimiter=',')
+    file_text = upload_file.read().decode('utf-8') if hasattr(upload_file, 'read') else upload_file
+    dialect = get_dialect(file_text)
+    upload_reader = csv.reader(io.StringIO(file_text), dialect=dialect)
+
     trait_name = "" # This gets set every 3 lines, since there are 3 lines per trait
     edited_sample_data = {} # Also set every 3 lines
     for line in upload_reader:
