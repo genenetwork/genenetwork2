@@ -23,6 +23,23 @@ def authserver_authorise_uri():
         f"&client_id={oauth2_clientid()}"
         f"&redirect_uri={urljoin(host_uri, 'oauth2/code')}")
 
+def system_privileges():
+    def __handle_error__(err):
+        error = process_error(err)
+        msg = (
+            f"Error from AUTH Server:\n\nError:\t{error['error']}\n\n"
+            f"{error['error-trace']}\nStatus Code:\t{error['status_code']}\n\n")
+        app.logger.error(msg)
+        return tuple()
+
+    def __fetch_privilege_ids__(sys_roles):
+        return tuple(
+            privilege['privilege_id'] for role in sys_roles for privilege in role["privileges"])
+
+    return oauth2_get("auth/system/roles").either(
+        __handle_error__,
+        lambda sys_roles: __fetch_privilege_ids__(sys_roles))
+
 
 def user_details(fetch_remote: bool = False):
     def __handle_error__(err):
