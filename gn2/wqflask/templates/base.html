@@ -210,10 +210,15 @@
                                aria-haspopup="true"
                                aria-expanded="false">Tools <span class="caret"></span> </a>
                             <ul class="dropdown-menu">
-				<li>
-				    <a href="/genewiki">GeneWiki</a>
-				</li>
-				<li>
+								{% if 'system:data:batch-edit' in system_privileges() %}
+								<li>
+									<a href="/datasets/batch_edit">Batch Edit</a>
+								</li>
+								{% endif %}
+								<li>
+									<a href="/genewiki">GeneWiki</a>
+								</li>
+								<li>
                                     <a href="/snp_browser">Variant Browser</a>
                                 </li>
                                 <li>
