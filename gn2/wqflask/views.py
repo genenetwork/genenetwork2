@@ -25,7 +25,7 @@ from zipfile import ZIP_DEFLATED
 from uuid import UUID
 
 from urllib.parse import urljoin
-
+from urllib.parse import urlparse
 import xlsxwriter
 import requests
 import numpy as np
@@ -229,6 +229,42 @@ def search_page():
         return render_template("search_error.html")
 
 
+def is_valid_gnqna_user(session_info, request) -> bool:
+    """
+    Determine if the request is from a valid GNQNA user — either logged in or a safe anonymous visitor.
+    Applies honeypot field logic, blocks headless bots, and validates referrer.
+    """
+    user_info = session_info().get("user", {})
+    if user_info.get("logged_in", False):
+        return True
+    #  Honeypot trap
+    honeypot = None
+    # todo add field 
+    if request.is_json: 
+        data = request.get_json(silent=True) or {}
+        honeypot = data.get("gnqna_username")
+    elif request.form:
+        honeypot = request.form.get("gnqna_username")
+    if honeypot:
+        return False
+    #  Reject known headless browser user agents
+    user_agent = request.headers.get("User-Agent", "").lower()
+    bot_indicators = ["headless", "selenium", "phantomjs"]
+    if any(bot in user_agent for bot in bot_indicators):
+        return False
+    referrer = request.referrer
+    if not referrer:
+        return False
+    parsed = urlparse(referrer)
+    hostname = parsed.hostname or ""
+    path = parsed.path
+    valid_host = (
+        hostname.startswith("localhost:") or
+        hostname == "genenetwork.org" or
+        hostname.endswith(".genenetwork.org")
+    ) # ???cors origin  handles  this anyways
+    return (valid_host and path not in ["/", "/gnqna"])
+
 @app.route("/search_table", methods=('GET',))
 def search_page_table():
     the_search = search_results.SearchResultPage(request.args)
@@ -240,6 +276,7 @@ def search_page_table():
     ).get_page()
 
     return flask.jsonify(current_page)
+
 
 @app.route("/gsearch", methods=("GET",))
 def gsearchact():
