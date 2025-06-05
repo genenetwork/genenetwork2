@@ -241,7 +241,6 @@ def search_page_table():
 
     return flask.jsonify(current_page)
 
-
 @app.route("/gsearch", methods=("GET",))
 def gsearchact():
     result = GSearch(request.args).__dict__
@@ -249,7 +248,9 @@ def gsearchact():
     is_user_logged_in = session_info().get("user", {}).get("logged_in", False)
 
     ai_search_enabled = current_app.config.get("AI_SEARCH_ENABLED")
-    do_ai_search = ai_search_enabled and is_user_logged_in
+    search_count = result.get("trait_count", 0)
+    # get the search count of traits and perform ai search if count >=30
+    do_ai_search = ai_search_enabled and is_user_logged_in and (search_count >= 30)
     if search_type == "gene":
         return render_template("gsearch_gene.html", **result,
                                ai_search_enabled=ai_search_enabled,
