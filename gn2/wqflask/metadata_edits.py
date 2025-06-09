@@ -111,6 +111,13 @@ def edit_phenotype(conn, name, dataset_id):
 def get_sample_data_diff(dict1, dict2):
     """Get the diff between two sets of sample data"""
 
+    # Samples with diffs, since we don't want to display them all
+    diff_samples = {
+        'Additions': [],
+        'Modifications': [],
+        'Deletions': []
+    }
+
     diff = {
         "Additions": {},
         "Modifications": {},
@@ -124,9 +131,11 @@ def get_sample_data_diff(dict1, dict2):
         in_dict2 = key in dict2
 
         if not in_dict1:
+            diff_samples['Additions'].append(key)
             diff["Additions"][key] = dict2[key]
             continue
         if not in_dict2:
+            diff_samples['Deletions'].append(key)
             diff["Deletions"][key] = dict1[key]
             continue
 
@@ -143,6 +152,7 @@ def get_sample_data_diff(dict1, dict2):
                     v2 = float(sub2.get(k, None))
 
                     if v1 != v2 and not math.isclose(v1, v2, abs_tol = 0.02):
+                        diff_samples['Modifications'].append(key)
                         sub_diff[k] = {"Original": v1, "Current": v2}
                 except:
                     continue
@@ -150,7 +160,7 @@ def get_sample_data_diff(dict1, dict2):
             if sub_diff:
                 diff["Modifications"][key] = sub_diff
 
-    return diff
+    return diff, diff_samples
 
 def get_dialect(file_text):
     """Determine the CSV dialect with improved tab detection"""
@@ -183,9 +193,15 @@ def calculate_diffs(conn, upload_file, group_name):
             return False
 
     sample_list = []
-    start_line = 11 # The normal line after the header
 
     all_diffs = {}
+
+    # List of samples with diffs, since we only want to display those in review
+    all_diff_samples = {
+        'Additions': [],
+        'Modifications': [],
+        'Deletions': []
+    }
 
     i = 0
 
@@ -236,7 +252,10 @@ def calculate_diffs(conn, upload_file, group_name):
                     if sample in orig_sample_data:
                         del orig_sample_data[sample]
 
-                diff = get_sample_data_diff(orig_sample_data, edited_sample_data)
+                diff, diff_samples = get_sample_data_diff(orig_sample_data, edited_sample_data)
+                for key in all_diff_samples:
+                    all_diff_samples[key] = list(set(diff_samples[key]).union(set(all_diff_samples[key])))
+
                 if (len(diff['Modifications']) > 0 or
                     len(diff['Additions']) > 0 or
                     len(diff['Deletions']) > 0):
@@ -245,7 +264,7 @@ def calculate_diffs(conn, upload_file, group_name):
                 edited_sample_data = {} # Reset every 3 lines
         i += 1
 
-    return all_diffs, sample_list
+    return all_diffs, all_diff_samples
 
 
 @metadata_edit.route("/batch_edit", methods=["GET", "POST"])
