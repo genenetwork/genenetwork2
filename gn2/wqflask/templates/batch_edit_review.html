@@ -12,15 +12,17 @@
             <p>
                 Please carefully check that the changes listed below are the ones you intend to make. 
             </p>
+            {% if sample_list['Modifications']|length > 0 %}
             <h3>Modifications</h3>
             <table class="table-hover table-striped cell-border" id='modifications' style="float: left;">
                 <thead>
                     <tr>
                         <th>Trait</th>
                         <th>Dataset</th>
-                        {% for sample in sample_list %}
+                        {% for sample in sample_list['Modifications'] %}
                         <th>{{ sample }}</th>
                         <th>{{ sample }}_SE</th>
+                        <th>{{ sample }}_N</th>
                         {% endfor %}
                     </tr>
                 </thead>
@@ -30,7 +32,7 @@
                 <tr>
                     <td>{{ trait_dataset.split(":")[1] }}</td>
                     <td>{{ trait_dataset.split(":")[0] }}</td>
-                    {% for sample in sample_list %}
+                    {% for sample in sample_list['Modifications'] %}
                     {% if sample in diffs[trait_dataset]['Modifications'] %}
                     {% if 'value' in diffs[trait_dataset]['Modifications'][sample] %}
                     <td>{{ diffs[trait_dataset]['Modifications'][sample]['value']['Original'] }} &rarr; {{ diffs[trait_dataset]['Modifications'][sample]['value']['Current'] }}</td>
@@ -42,7 +44,13 @@
                     {% else %}
                     <td>--</td>
                     {% endif %}
+                    {% if 'n_cases' in diffs[trait_dataset]['Modifications'][sample] %}
+                    <td>{{ diffs[trait_dataset]['Modifications'][sample]['n_cases']['Original'] }} &rarr; {{ diffs[trait_dataset]['Modifications'][sample]['n_cases']['Current'] }}</td>
                     {% else %}
+                    <td>--</td>
+                    {% endif %}
+                    {% else %}
+                    <td>--</td>
                     <td>--</td>
                     <td>--</td>
                     {% endif %}
@@ -52,16 +60,19 @@
                 {% endfor %}
                 </tbody>
             </table>
+            {% endif %}
 
+            {% if sample_list['Additions']|length > 0 %}
             <h3>Additions</h3>
             <table class="table-hover table-striped cell-border" id='additions' style="float: left;">
                 <thead>
                     <tr>
                         <th>Trait</th>
                         <th>Dataset</th>
-                        {% for sample in sample_list %}
+                        {% for sample in sample_list['Additions'] %}
                         <th>{{ sample }}</th>
                         <th>{{ sample }}_SE</th>
+                        <th>{{ sample }}_N</th>
                         {% endfor %}
                     </tr>
                 </thead>
@@ -71,11 +82,13 @@
                 <tr>
                     <td>{{ trait_dataset.split(":")[1] }}</td>
                     <td>{{ trait_dataset.split(":")[0] }}</td>
-                    {% for sample in sample_list %}
+                    {% for sample in sample_list['Additions'] %}
                     {% if sample in diffs[trait_dataset]['Additions'] %}
                     <td><b><font color="green">{{ diffs[trait_dataset]['Additions'][sample]['value'] }}</font></b></td>
                     <td><b><font color="green">{{ diffs[trait_dataset]['Additions'][sample]['error'] }}</font></b></td>
+                    <td><b><font color="green">{{ diffs[trait_dataset]['Additions'][sample]['n_cases'] }}</font></b></td>
                     {% else %}
+                    <td>--</td>
                     <td>--</td>
                     <td>--</td>
                     {% endif %}
@@ -85,16 +98,19 @@
                 {% endfor %}
                 </tbody>
             </table>
+            {% endif %}
 
+            {% if sample_list['Deletions']|length > 0 %}
             <h3>Deletions</h3>
             <table class="table-hover table-striped cell-border" id='deletions' style="float: left;">
                 <thead>
                     <tr>
                         <th>Trait</th>
                         <th>Dataset</th>
-                        {% for sample in sample_list %}
+                        {% for sample in sample_list['Deletions'] %}
                         <th>{{ sample }}</th>
                         <th>{{ sample }}_SE</th>
+                        <th>{{ sample }}_N</th>
                         {% endfor %}
                     </tr>
                 </thead>
@@ -104,11 +120,13 @@
                 <tr>
                     <td>{{ trait_dataset.split(":")[1] }}</td>
                     <td>{{ trait_dataset.split(":")[0] }}</td>
-                    {% for sample in sample_list %}
+                    {% for sample in sample_list['Deletions'] %}
                     {% if sample in diffs[trait_dataset]['Deletions'] %}
                     <td><b><font color="red">{{ diffs[trait_dataset]['Deletions'][sample]['value'] }}</font></b></td>
                     <td><b><font color="red">{{ diffs[trait_dataset]['Deletions'][sample]['error'] }}</font></b></td>
+                    <td><b><font color="red">{{ diffs[trait_dataset]['Deletions'][sample]['n_cases'] }}</font></b></td>
                     {% else %}
+                    <td>--</td>
                     <td>--</td>
                     <td>--</td>
                     {% endif %}
@@ -118,6 +136,7 @@
                 {% endfor %}
                 </tbody>
             </table>
+            {% endif %}
 
             <input type="submit" style="width: 125px; margin-right: 25px;" class="btn btn-success form-control changed" value="Confirm Edits">
         </div>
@@ -130,11 +149,20 @@
 <script type="text/javascript" src="/static/new/javascript/create_datatable.js"></script>
 <script>
 
-    columnDefs = new Array(2 + {{ sample_list | length * 2 }})
-
+    {% if sample_list['Modifications']|length > 0 %}
+    columnDefs = new Array(2 + {{ sample_list['Modifications'] | length * 3 }});
     create_table("modifications", [], columnDefs, {}, hasIndex=false);
+    {% endif %}
+
+    {% if sample_list['Additions']|length > 0 %}
+    columnDefs = new Array(2 + {{ sample_list['Additions'] | length * 3 }});
     create_table("additions", [], columnDefs, {}, hasIndex=false);
+    {% endif %}
+
+    {% if sample_list['Deletions']|length > 0 %}
+    columnDefs = new Array(2 + {{ sample_list['Deletions'] | length * 3 }});
     create_table("deletions", [], columnDefs, {}, hasIndex=false);
+    {% endif %}
 
 </script>
 {% endblock %}
