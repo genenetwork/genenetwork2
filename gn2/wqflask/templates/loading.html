@@ -18,8 +18,9 @@
 <input type="hidden" name="{{ key }}" value="{{ value }}">
 {% endfor %}
 		<div class="container" style="padding: 40px 0;">
-			<div style="display: flex; flex-direction: column; gap: 40px; min-height: 90vh; justify-content: center; align-items: center;">
-			    <div style="max-width: 900px; width: 100%;">
+			<h1 class="error-message" style="display: none; flex-direction: column; gap: 40px; min-height: 90vh; justify-content: center; text-align: center;"></h1>
+			<div class="loading-metadata" style="display: flex; flex-direction: column; gap: 40px; min-height: 90vh; justify-content: center; align-items: center;">
+				<div style="max-width: 900px; width: 100%;">
 				{% if start_vars.tool_used == "Mapping" %}
 				<h1>Computing the Maps</h1>
 				<br>
@@ -275,6 +276,9 @@ $("#loading_form").on('submit', function(e) {
             }
         },
         error: function(xhr) {
+            $('.loading-metadata').hide();
+            $('.error-message').show();
+            $('.error-message').text(xhr.statusText);
             console.error("Error:", xhr.statusText);
         }
     });
