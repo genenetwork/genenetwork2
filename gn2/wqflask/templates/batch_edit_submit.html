@@ -2,6 +2,7 @@
 {% block title %}Batch Edit{% endblock %}
 {% block content %}
 <div class="container">
+    {% if 'system:data:batch-edit' in system_privileges() %}
     <form id="edit-form" class="form-horizontal" method="post" action="/datasets/batch_edit" enctype="multipart/form-data">
         <div style="max-width: 600px;">
             <h2>Batch Edit</h2>
@@ -34,6 +35,10 @@
 
             <input type="submit" style="width: 125px;" class="btn btn-success" value="Submit Edits">
         </div>
+    </form>
+    {% else %}
+    <h2>You lack the permissions to view this page. Please <a href="{{ authserver_authorise_uri() }}">sign in</a>.</h2>
+    {% endif %}
 </div>
 {% endblock %}
 {% block js %}
