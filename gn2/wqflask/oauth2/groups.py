@@ -55,7 +55,7 @@ def create_group():
 @require_oauth2
 def join_or_create():
     usr_dets = user_details()
-    if bool(usr_dets["group"]):
+    if bool(usr_dets.get("group")):
         flash("You are already a member of a group.", "alert-info")
         return redirect(url_for("oauth2.user.user_profile"))
     def __group_error__(err):
