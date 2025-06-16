@@ -3,13 +3,15 @@ import datetime
 from functools import partial
 
 from flask import (
-    flash, session, request, url_for, redirect, Response, Blueprint)
+    flash, request, url_for, redirect, Response, Blueprint)
 
 from .ui import render_ui
 from .checks import require_oauth2
 from .client import oauth2_get, oauth2_post
 from .request_utils import (
     user_details, handle_error, process_error, handle_success)
+
+from . import session
 
 groups = Blueprint("group", __name__)
 
@@ -42,7 +44,7 @@ def user_group():
 @require_oauth2
 def create_group():
     def __setup_group__(response):
-        session["user_details"]["group"] = response
+        user_dets = session.session_info()["user"]
 
     resp = oauth2_post("auth/group/create", json=dict(request.form))
     return resp.either(
