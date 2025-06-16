@@ -45,6 +45,8 @@ def user_group():
 def create_group():
     def __setup_group__(response):
         user_dets = session.session_info()["user"]
+        group_dets = user_details(fetch_remote=True)
+        session.set_user_details({**user_dets, "group": group_dets["group"]})
 
     resp = oauth2_post("auth/group/create", json=dict(request.form))
     return resp.either(
