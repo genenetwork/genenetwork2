@@ -75,9 +75,8 @@ def authorisation_code():
             session.set_user_token(token)
             udets = user_details(True)
             session.set_user_details({
+                **udets,
                 "user_id": uuid.UUID(udets["user_id"]),
-                "name": udets["name"],
-                "email": udets["email"],
                 "token": session.user_token(),
                 "logged_in": True
             })
