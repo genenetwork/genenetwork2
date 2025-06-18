@@ -161,3 +161,10 @@ def masquerade():
         json={"masquerade_as": request.form.get("masquerade_as")}).either(
             with_flash_error(redirect(url_for("oauth2.user.masquerade"))),
             __masq_success__)
+
+
+@users.route("/list", methods=["GET"])
+@require_oauth2
+def list_users():
+    """List all users in the system"""
+    return render_ui("oauth2/list-users.html")
