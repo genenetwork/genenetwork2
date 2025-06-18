@@ -1554,22 +1554,7 @@ def edit_case_attributes(inbredset_id: int) -> Response:
     Edit the case-attributes for InbredSet group identified by `inbredset_id`.
     """
     if request.method == "POST":
-        form = request.form
-
-        def __process_data__(acc, item):
-            _new, strain, calabel = tuple(val.strip()
-                                          for val in item[0].split(":"))
-            old_row = acc.get(strain, {})
-            return {
-                **acc,
-                strain: {
-                    **old_row, "case-attributes": {
-                        **old_row.get("case-attributes", {}),
-                        calabel: item[1]
-                    }
-                }
-            }
-
+        data = request.json
         edit_case_attributes_page = redirect(url_for(
             "edit_case_attributes", inbredset_id=inbredset_id))
         token = session_info()["user"]["token"].either(
@@ -1577,16 +1562,15 @@ def edit_case_attributes(inbredset_id: int) -> Response:
 
         def flash_success(resp):
             def __succ__(remote_resp):
-                flash(
-                    f"Success: {remote_resp.json()['message']}", "alert-success")
-                return resp
+                return redirect(url_for("edit_case_attributes", inbredset_id=inbredset_id))
             return __succ__
         return monad_requests.post(
             urljoin(
                 current_app.config["GN_SERVER_URL"],
                 f"case-attribute/{inbredset_id}/edit"),
             json={
-                "edit-data": reduce(__process_data__, form.items(), {})
+                "edit-data": request.json,
+                "user-id": g.user_session.user_id,
             },
             headers={
                 "Authorization": f"Bearer {token}"}).either(
