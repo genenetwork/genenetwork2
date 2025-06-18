@@ -63,11 +63,6 @@
 {%endblock%}
 
 {%block js%}
-<script type='text/javascript'>
-    var strainList = {{ strains|safe }};
-    var caseAttributeNames = {{ case_attribute_names|safe }};
-    var caseAttributeValues = {{ case_attribute_values|safe }};
-</script>
 <script language="javascript"
     type="text/javascript"
     src="{{ url_for('js', filename='DataTables/js/jquery.dataTables.min.js') }}"></script>
@@ -77,6 +72,8 @@
 <script language="javascript" type="text/javascript" src="/static/new/javascript/table_functions.js"></script>
 <script language="javascript" type="text/javascript" src="/static/new/javascript/create_datatable.js"></script>
 <script  type="text/javascript">
+    let caseAttributeNames = {{ case_attribute_names|safe }};
+    let caseAttributeValues = {{ case_attribute_values|safe }};
 
     createTableJson = function(caseAttributeNames, caseAttributeValues) {
         tableJson = []
