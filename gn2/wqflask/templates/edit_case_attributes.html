@@ -39,7 +39,7 @@
     </li>
   </ul>
 
-  <form method="POST" action="{{url_for('edit_case_attributes', inbredset_id=inbredset_id)}}">
+  <form id="edit-case-attributes" method="POST" action="{{url_for('edit_case_attributes', inbredset_id=inbredset_id)}}">
     <div class="form-group" style="text-align: center; padding: 1em 0 0 0;">
       <input type="submit" value="Submit" class="btn btn-primary" />
       <input type="reset" value="Reset" class="btn btn-warning" />
@@ -72,64 +72,95 @@
 <script language="javascript" type="text/javascript" src="/static/new/javascript/table_functions.js"></script>
 <script language="javascript" type="text/javascript" src="/static/new/javascript/create_datatable.js"></script>
 <script  type="text/javascript">
-    let caseAttributeNames = {{ case_attribute_names|safe }};
-    let caseAttributeValues = {{ case_attribute_values|safe }};
+ let caseAttributeNames = {{ case_attribute_names|safe }};
+ let caseAttributeValues = {{ case_attribute_values|safe }};
 
-    createTableJson = function(caseAttributeNames, caseAttributeValues) {
-        tableJson = []
-        for (const [key, value] of Object.entries(caseAttributeValues)) {
-            let row_dict = {};
-            row_dict['sample_name'] = key
-            for (let i = 0; i < caseAttributeNames.length; i++) {
-                attr = caseAttributeNames[i]['Name']
-                row_dict[attr] = value['case-attributes'][attr]
-                attr_list = [];
-                for (var attr in value['case-attributes']){
-                    attr_list.push([attr, value['case-attributes'][attr]])
-                }
-                row_dict['caseAttributes'] = attr_list
-            }
-            tableJson.push(row_dict);
-        }
-        return tableJson
-    }
+ createTableJson = function(caseAttributeNames, caseAttributeValues) {
+     tableJson = []
+     for (const [key, value] of Object.entries(caseAttributeValues)) {
+	 let row_dict = {};
+	 row_dict['sample_name'] = key
+	 for (let i = 0; i < caseAttributeNames.length; i++) {
+	     attr = caseAttributeNames[i]['Name']
+	     row_dict[attr] = value['case-attributes'][attr]
+	     attr_list = [];
+	     for (var attr in value['case-attributes']){
+		 attr_list.push([attr, value['case-attributes'][attr]])
+	     }
+	     row_dict['caseAttributes'] = attr_list
+	 }
+	 tableJson.push(row_dict);
+     }
+     return tableJson
+ }
 
-    tableJson = createTableJson(caseAttributeNames, caseAttributeValues);
+ tableJson = createTableJson(caseAttributeNames, caseAttributeValues);
 
-    let columnDefs = [
-      {
-        'title': "Sample",
-        'type': "natural",
-        'data': 'sample_name',
-        'width': "60px"
-      }
-    ];
+ let columnDefs = [
+     {
+	 'title': "Sample",
+	 'type': "natural",
+	 'data': 'sample_name',
+	 'width': "60px"
+     }
+ ];
 
-    for (let i = 0; i < tableJson[0].caseAttributes.length - 1; i++) {
-        columnDefs.push({
-            'title': tableJson[0].caseAttributes[i][0],
-            'type': "natural",
-            'data': null,
-            'width': "100px",
-            'render': function(data, type, row, meta) {
-                return '<input type="text" value="' + data.caseAttributes[meta.col - 1][1] + '" name="new:' + data.sample_name + ':' + data.caseAttributes[meta.col - 1][0] + '" class="form-control" />'
-            }
-        })
-    }
+ for (let i = 0; i < tableJson[0].caseAttributes.length - 1; i++) {
+     columnDefs.push({
+	 'title': tableJson[0].caseAttributes[i][0],
+	 'type': "natural",
+	 'data': null,
+	 'width': "100px",
+	 'render': function(data, type, row, meta) {
+	     return '<input type="text" data-original="' + data.caseAttributes[meta.col - 1][1] + '" value="' + data.caseAttributes[meta.col - 1][1] + '" name="' + data.sample_name + ':' + data.caseAttributes[meta.col - 1][0] + '" class="form-control" />'
+         }
+     })
+ }
 
-    tableSettings = {
-        "columns": columnDefs,
-        "sDom": "iti",
-        "destroy": true,
-        "data": tableJson,
-        "order": [[0, "asc" ]],
-        "autoWidth": true,
-        "scrollY": "1000px",
-        "scroller": true,
-        "scrollCollapse":true
-    }
+ tableSettings = {
+     "columns": columnDefs,
+     "sDom": "iti",
+     "destroy": true,
+     "data": tableJson,
+     "order": [[0, "asc" ]],
+     "autoWidth": true,
+     "scrollY": "1000px",
+     "scroller": true,
+     "scrollCollapse":true
+ }
 
-    $('#attr-edit-table').DataTable(tableSettings);
+ $('#attr-edit-table').DataTable(tableSettings);
+
+ document.getElementById("edit-case-attributes").addEventListener("submit", function(e) {
+     e.preventDefault()
+     const form = this;
+     var changed = {};
+     const elements = form.querySelectorAll("input[name]");
+     elements.forEach(el => {
+	 const original = el.dataset.original;
+	 const current = el.value;
+
+	 if (original !== current) {
+	     changed[el.name] = {
+		 "Original": original,
+		 "Current": current
+	     }
+	 }
+     });
+     fetch(form.action, {
+	 method: "POST",
+	 mode: "same-origin",
+	 headers: { "Content-Type": "application/json" },
+	 body: JSON.stringify(changed)
+     }).then(response => {
+	 if (response.ok) {
+             dataTable.ajax.reload();
+	 } else {
+	     dataTable.ajax.reload();
+	     alert("Submission failed.");
+	 }
+     });
+ });
 </script>
 
 {%endblock%}
