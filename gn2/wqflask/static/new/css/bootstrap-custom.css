@@ -223,6 +223,11 @@ table {
     border-collapse: collapse;
 }
 
+th {
+    /* Specific to table headers only! */
+    text-transform: capitalize;
+}
+
 td,
 th {
     padding: 0;

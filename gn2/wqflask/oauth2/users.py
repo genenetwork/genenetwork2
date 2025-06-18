@@ -167,4 +167,10 @@ def masquerade():
 @require_oauth2
 def list_users():
     """List all users in the system"""
-    return render_ui("oauth2/list-users.html")
+    return oauth2_get(
+        "auth/user/list"
+    ).then(
+        lambda users: render_ui("oauth2/list-users.html", users=users)
+    ).either(
+        lambda err: render_ui("oauth2/request_error.html", response=err),
+        lambda resp: resp)

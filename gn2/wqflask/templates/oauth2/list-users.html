@@ -5,8 +5,58 @@
 
 {%block dash_page_content%}
 
+{%if display is defined and display.list_users%}
+<div class="row">
+  <legend>Filter users by</legend>
+  <form class="form-inline">
+    <div class="form-group">
+      <label class="control-label">search</label>
+      <input type="text" class="form-control" />
+    </div>
+
+    <div class="form-group">
+      <label class="control-label">verified</label>
+      <select class="form-control">
+        <option value=""></option>
+        <option value="yes">Yes</option>
+        <option value="no">No</option>
+      </select>
+    </div>
+
+    <div class="form-group">
+      <label class="control-label">age</label>
+      <select class="form-control">
+        <option value=""></option>
+        <option value="older">older than</option>
+        <option value="younger">younger than</option>
+        <option value="exactly">exactly</option>
+      </select>
+      <select class="form-control">
+        <option value=""></option>
+        {%for num in range(1, 31)%}
+        <option value="{{num}}">{{num}}</option>
+        {%endfor%}
+      </select>
+      <select class="form-control">
+        <option value=""></option>
+        <option value="days">days</option>
+        <option value="months">months</option>
+        <option value="years">years</option>
+      </select>
+    </div>
+
+    <div class="form-group"></div>
+  </form>
+</div>
+
+<div class="row">
+  <legend>Batch actions</legend>
+  <span class="btn btn-danger">delete selected</span>
+</div>
+
 <div class="row">
   <table class="table">
+    <caption>Users</caption>
     <thead>
       <tr>
         <th>select</th>
@@ -14,11 +64,57 @@
         <th>name</th>
         <th>created</th>
         <th>verified</th>
+        <th></th>
       </tr>
     </thead>
 
-    <tbody></tbody>
+    <tbody>
+      {%for user in users%}
+      <tr>
+        <td>
+          <input type="checkbox"
+                 name="chk-selected-user"
+                 value="{{user.user_id}}" />
+        </td>
+        <td>{{user.email}}</td>
+        <td>{{user.name}}</td>
+        <td>{{user.created}}</td>
+        <td style="text-align: center;font-weight: larger;">
+          {%if user.verified %}
+          <span class="glyphicon glyphicon-ok text-success"></span>
+          {%else%}
+          <span class="glyphicon glyphicon-remove text-danger"></span>
+          {%endif%}
+        </td>
+        <!--
+            "reset password", "masquerade", "edit", "make sys admin" features
+            are offered in "view user page" presented in the action button
+            below.
+          -->
+        <td><span class="btn btn-info">view</span></td>
+      </tr>
+      {%else%}
+      <tr>
+        <td colspan="5" class="text-info" style="text-align: center;">
+          <span class="glyphicon glyphicon-info-sign"></span>
+          There are no users to list
+        </td>
+      </tr>
+      {%endfor%}
+    </tbody>
   </table>
+
 </div>
+
+{%else%}
+<div class="row">
+  <p class="text-danger">
+    <strong>
+      <span class="glyphicon glyphicon-exclamation-sign"></span>
+      You do not have the appropriate privileges to act this page.
+    </strong>
+  </p>
+</div>
+{%endif%}
 
 {%endblock%}
