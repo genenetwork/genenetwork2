@@ -1,5 +1,4 @@
-{% extends "index_page.html" %}
-{%from "oauth2/profile_nav.html" import profile_nav%}
+{% extends "oauth2/base.html" %}
 {%from "oauth2/display_error.html" import display_error%}
 
 {%block title%}Link Data: Genotype{%endblock%}
@@ -12,35 +11,31 @@
 <link rel="stylesheet" type="text/css" href="/static/new/css/show_trait.css" />
 {%endblock%}
 
-{%block content%}
-<div class="container" style="width: 98%;">
-  {{profile_nav("data", user_privileges)}}
+{%block dash_page_content%}
 
-  {{flash_me()}}
+<div class="row">
+  <noscript>This page needs javascript to work correctly</noscript>
+</div>
 
-  <div class="row">
-    <noscript>This page needs javascript to work correctly</noscript>
-  </div>
+<div class="row">
+  <form id="frm-link" method="POST"
+	action="{{url_for('oauth2.data.link_mrna_data')}}">
+    <legend>Link mRNA Assay Datasets to Group</legend>
 
-  <div class="row">
-    <form id="frm-link" method="POST"
-	  action="{{url_for('oauth2.data.link_mrna_data')}}">
-      <legend>Link mRNA Assay Datasets to Group</legend>
+    <input type="hidden" name="species_name" value="{{species_name}}" />
 
-      <input type="hidden" name="species_name" value="{{species_name}}" />
+    <div class="form-group">
+      <label for="select-group">Group</label>
+      <select id="select-group" name="group_id" required="required"
+	      class="form-control">
+	<option value="">Select group</option>
+	{%for group in groups%}
+	<option value="{{group.group_id}}">{{group.group_name}}</option>
+	{%endfor%}
+      </select>
+    </div>
 
-      <div class="form-group">
-	<label for="select-group">Group</label>
-	<select id="select-group" name="group_id" required="required"
-		class="form-control">
-	  <option value="">Select group</option>
-	  {%for group in groups%}
-	  <option value="{{group.group_id}}">{{group.group_name}}</option>
-	  {%endfor%}
-	</select>
-      </div>
-
-      <div class="form-group">
+    <div class="form-group">
       <table id="tbl-link"
 	     class="table-hover table-striped cell-border dataTable no-footer"
 	     data-datasets='{{selected_datasets | list | tojson}}'>
@@ -76,88 +71,86 @@
 	  {%endfor%}
 	</tbody>
       </table>
-      </div>
-
-      <div class="form-group text-center">
-	<input type="submit" value="Link Selected"
-	       class="btn btn-primary"
-	       style="border-top: 0.3em;"
-	       {%if groups | length <= 0 or selected_datasets | length <= 0%}
-	       disabled="disabled"
-	       {%endif%} />
-      </div>
-    </form>
-  </div>
-
-  <div class="row">
-    <span id="search-messages" class="alert-danger" style="display:none"></span>
-    <form id="frm-search"
-	  action="{{url_for('oauth2.data.json_search_mrna')}}"
-	  method="POST">
-      <legend>Search: mRNA Assay</legend>
-      <input type="hidden" value="{{species_name}}" name="species"
-	     id="txt-species-name" />
-      <input type="hidden" value="{{dataset_type}}" name="dataset_type"
-	     id="txt-dataset-type"  />
-      <input type="hidden" value="{{per_page}}" name="per_page"
-	     id="txt-per-page"  />
-
-      <div class="form-group">
-	<label for="txt-query">Dataset Search String</label>
-	<input type="text" id="txt-query" name="query" class="form-control"
-	       value="{{query}}"/>
-      </div>
-    </form>
-  </div>
-
-  <div class="row">
-    <div id="search-error" class="text-danger" style="display: none;">
-      <span class="glyphicon glyphicon-exclamation-sign"></span>
-      &nbsp
-      <span id="search-error-text"></span>
     </div>
-    <table id="tbl-search"
-	   class="table-hover table-striped cell-border dataTable no-footer"
-	   data-datasets='{{datasets | list | tojson}}'>
-      <thead>
-	<tr>
-	  <th>Select</th>
-	  <th>Group</th>
-	  <th>Study Name</th>
-	  <th>Dataset Name</th>
-	  <th>Dataset FullName</th>
-	  <th>Dataset ShortName</th>
-	</tr>
-      </thead>
-      <tbody>
-	{%for dataset in datasets:%}
-	<tr>
-	  <td>
-	    <input type="checkbox" class="checkbox checkbox-search"
-		   name="search_datasets"
-		   value='{{dataset | tojson}}' />
-	  </td>
-	  <td>{{dataset.InbredSetName}}</td>
-	  <td>{{dataset.StudyName}}</td>
-	  <td>{{dataset.dataset_name}}</td>
-	  <td>{{dataset.dataset_fullname}}</td>
-	  <td>{{dataset.dataset_shortname}}</td>
-	</tr>
-        {%else%}
-	<tr>
-	  <td colspan="100%" align="center">
-	      <span class="glyphicon glyphicon-info-sign text-info"></span>
-	      &nbsp
-	      No datasets available for selection.
-	  </td>
-	</tr>
-	{%endfor%}
-      </tbody>
-    </table>
-  </div>
 
-
+    <div class="form-group text-center">
+      <input type="submit" value="Link Selected"
+	     class="btn btn-primary"
+	     style="border-top: 0.3em;"
+	     {%if groups | length <= 0 or selected_datasets | length <= 0%}
+	                                                                disabled="disabled"
+	                                                                {%endif%} />
+                                     </div>
+  </form>
 </div>
+
+<div class="row">
+  <span id="search-messages" class="alert-danger" style="display:none"></span>
+  <form id="frm-search"
+	action="{{url_for('oauth2.data.json_search_mrna')}}"
+	method="POST">
+    <legend>Search: mRNA Assay</legend>
+    <input type="hidden" value="{{species_name}}" name="species"
+	   id="txt-species-name" />
+    <input type="hidden" value="{{dataset_type}}" name="dataset_type"
+	   id="txt-dataset-type"  />
+    <input type="hidden" value="{{per_page}}" name="per_page"
+	   id="txt-per-page"  />
+
+    <div class="form-group">
+      <label for="txt-query">Dataset Search String</label>
+      <input type="text" id="txt-query" name="query" class="form-control"
+	     value="{{query}}"/>
+    </div>
+  </form>
+</div>
+
+<div class="row">
+  <div id="search-error" class="text-danger" style="display: none;">
+    <span class="glyphicon glyphicon-exclamation-sign"></span>
+    &nbsp
+    <span id="search-error-text"></span>
+  </div>
+  <table id="tbl-search"
+	 class="table-hover table-striped cell-border dataTable no-footer"
+	 data-datasets='{{datasets | list | tojson}}'>
+    <thead>
+      <tr>
+	<th>Select</th>
+	<th>Group</th>
+	<th>Study Name</th>
+	<th>Dataset Name</th>
+	<th>Dataset FullName</th>
+	<th>Dataset ShortName</th>
+      </tr>
+    </thead>
+    <tbody>
+      {%for dataset in datasets:%}
+      <tr>
+	<td>
+	  <input type="checkbox" class="checkbox checkbox-search"
+		 name="search_datasets"
+		 value='{{dataset | tojson}}' />
+	</td>
+	<td>{{dataset.InbredSetName}}</td>
+	<td>{{dataset.StudyName}}</td>
+	<td>{{dataset.dataset_name}}</td>
+	<td>{{dataset.dataset_fullname}}</td>
+	<td>{{dataset.dataset_shortname}}</td>
+      </tr>
+      {%else%}
+      <tr>
+	<td colspan="100%" align="center">
+	  <span class="glyphicon glyphicon-info-sign text-info"></span>
+	  &nbsp
+	  No datasets available for selection.
+	</td>
+      </tr>
+      {%endfor%}
+    </tbody>
+  </table>
+</div>
+
 {%endblock%}
 
 {%block js%}

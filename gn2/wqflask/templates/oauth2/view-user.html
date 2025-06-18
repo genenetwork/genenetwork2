@@ -1,48 +1,43 @@
-{% extends "index_page.html" %}
-{%from "oauth2/profile_nav.html" import profile_nav%}
+{% extends "oauth2/base.html" %}
 {%block title%}View User{%endblock%}
-{%block content%}
-<div class="container" style="min-width: 1250px;">
-  {{profile_nav("dashboard", user_privileges)}}
-  <h3>View User</h3>
 
-  {{flash_me()}}
 
-  <div class="container-fluid">
-    <div class="row">
-      {%if user_details%}
-      <p><strong>Name</strong>: {{user_details.name}}</p>
-      <p><strong>E-Mail</strong>: {{user_details.email}}</p>
-      {%if user_details.group%}
-      <p><strong>Group</strong>:{{user_details.group.group_name}}</p>
-      {%else%}
-      <p>
-	<span class="glyphicon glyphicon-warning-sign text-warning"></span>
-	&nbsp;
-	<span class="text-warning">User is not a member of a group.</span>
-      </p>
+{%block dash_page_heading%}View User{%endblock%}
 
-      {%if group_join_request is defined and group_join_request.exists %}
-      <p>
-	<span class="glyphicon glyphicon-info-sign text-warning"></span>
-	&nbsp;
-	<span class="text-info">You have an active join request to a group.</span>
-      </p>
-      {%else%}
-      <p><a href="{{url_for('oauth2.group.join_or_create')}}"
-	    class="btn btn-primary"
-	    title="Join an existing group, or create your own group">
-	  Join or Create group
-      </a></p>
-      {%endif%}
 
-      {%endif%}
-      {%else%}
-      <p class="text-warning">No details found.</p>
-      {%endif%}
-    </div>
+{%block dash_page_content%}
 
-  </div>
+<div class="row">
+  {%if user_details%}
+  <p><strong>Name</strong>: {{user_details.name}}</p>
+  <p><strong>E-Mail</strong>: {{user_details.email}}</p>
+  {%if user_details.group%}
+  <p><strong>Group</strong>:{{user_details.group.group_name}}</p>
+  {%else%}
+  <p>
+    <span class="glyphicon glyphicon-warning-sign text-warning"></span>
+    &nbsp;
+    <span class="text-warning">User is not a member of a group.</span>
+  </p>
 
+  {%if group_join_request is defined and group_join_request.exists %}
+  <p>
+    <span class="glyphicon glyphicon-info-sign text-warning"></span>
+    &nbsp;
+    <span class="text-info">You have an active join request to a group.</span>
+  </p>
+  {%else%}
+  <p><a href="{{url_for('oauth2.group.join_or_create')}}"
+	class="btn btn-primary"
+	title="Join an existing group, or create your own group">
+      Join or Create group
+  </a></p>
+  {%endif%}
+
+  {%endif%}
+  {%else%}
+  <p class="text-warning">No details found.</p>
+  {%endif%}
 </div>
+
 {%endblock%}

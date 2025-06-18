@@ -1,4 +1,4 @@
-{%macro profile_nav(calling_page, user_sys_privileges)%}
+{%macro profile_nav(calling_page, user_sys_privileges, display)%}
 
 <ul class="nav nav-pills">
 
@@ -15,6 +15,15 @@
       {%endif%}>
     <a href="{{url_for('oauth2.group.user_group')}}">Group</a>
   </li>
+
+  {%if display is defined and display.list_users is sameas true %}
+  <li role="presentation"
+      {%if calling_page == "users"%}
+      class="active"
+      {%endif%}>
+    <a href="{{url_for('oauth2.user.list_users')}}">Users</a>
+  </li>
+  {%endif%}
 
   <li role="presentation"
       {%if calling_page == "resources"%}

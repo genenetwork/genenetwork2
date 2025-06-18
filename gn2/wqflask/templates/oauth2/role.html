@@ -1,56 +1,50 @@
-{% extends "index_page.html" %}
-{%from "oauth2/profile_nav.html" import profile_nav%}
-{%block title%}View User{%endblock%}
-{%block content%}
-<div class="container" style="min-width: 1250px;">
-  {{profile_nav("roles", user_privileges)}}
-  <h3>Role: {{role.role_name}}</h3>
+{% extends "oauth2/base.html" %}
 
-  {{flash_me()}}
+{%block title%}View Role{%endblock%}
 
-  <div class="container-fluid">
-    <div class="row">
-      <div class="panel panel-info">
-	<div class="panel-heading">
-	  <strong>{{role.role_name}}</strong>
-	</div>
-	<div class="panel-body">
-	  <table class="table">
-	    <thead>
-	      <tr><th>privilege id</th><th>description</th></tr>
-	    </thead>
-	    <tbody>
-	      {%for privilege in role.privileges:%}
-	      <tr>
-		<td>{{privilege.privilege_id}}</td>
-		<td>{{privilege.privilege_description}}</td>
-	      </tr>
-	      {%else%}
-	      <tr>
-		<td>
-		  <span class="glyphicon glyphicon-warning-sign text-warning"></span>
-		  &nbsp;
-		</td>
-		<td>
-		  <span class="text-warning">No privileges found for this role.</span>
-		</td>
-	      </tr>
-	      {%endfor%}
-	    </tbody>
-	  </table>
-	</div>
-	<div class="panel-footer">
-	  <p>
-	    This role acts on the resource with ID:
-	    <a href="{{url_for('oauth2.resource.view_resource', resource_id=resource_id)}}">
-	      {{resource_id}}
-	    </a>
-	  </p>
-	</div>
-      </div>
+{%block dash_page_header%}Role: {{role.role_name}}{%endblock%}
+
+{%block dash_page_content%}
+
+<div class="row">
+  <div class="panel panel-info">
+    <div class="panel-heading">
+      <strong>{{role.role_name}}</strong>
     </div>
-
+    <div class="panel-body">
+      <table class="table">
+	<thead>
+	  <tr><th>privilege id</th><th>description</th></tr>
+	</thead>
+	<tbody>
+	  {%for privilege in role.privileges:%}
+	  <tr>
+	    <td>{{privilege.privilege_id}}</td>
+	    <td>{{privilege.privilege_description}}</td>
+	  </tr>
+	  {%else%}
+	  <tr>
+	    <td>
+	      <span class="glyphicon glyphicon-warning-sign text-warning"></span>
+	      &nbsp;
+	    </td>
+	    <td>
+	      <span class="text-warning">No privileges found for this role.</span>
+	    </td>
+	  </tr>
+	  {%endfor%}
+	</tbody>
+      </table>
+    </div>
+    <div class="panel-footer">
+      <p>
+	This role acts on the resource with ID:
+	<a href="{{url_for('oauth2.resource.view_resource', resource_id=resource_id)}}">
+	  {{resource_id}}
+	</a>
+      </p>
+    </div>
   </div>
-
 </div>
+
 {%endblock%}

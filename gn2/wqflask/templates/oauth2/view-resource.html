@@ -1,376 +1,370 @@
-{% extends "index_page.html" %}
-{%from "oauth2/profile_nav.html" import profile_nav%}
+{% extends "oauth2/base.html" %}
 {%from "oauth2/display_error.html" import display_error%}
 {%block title%}View User{%endblock%}
+
 {%block css%}
 <link rel="stylesheet" href="/static/new/css/pills.css" />
 <link rel="stylesheet" href="/static/new/css/resource-roles.css" />
 {%endblock%}
-{%block content%}
-<div class="container" style="min-width: 1250px;">
-  {{profile_nav("resources", user_privileges)}}
-  <h3>Resources</h3>
 
-  {{flash_me()}}
+{%block dash_page_header%}Resources{%endblock%}
 
-  <div class="container-fluid">
+{%block dash_page_content%}
 
-    {%if resource_error is defined %}
-    {{display_error("Resource", resource_error)}}
-    {%else%}
-    <div class="row">
-      <h3>Resource Details</h3>
-      <table class="table">
-	<caption>Resource: {{resource.resource_name}}</caption>
-	<thead>
-	  <tr>
-	    <th>Name</th>
-	    <th>Category</th>
-	    <th colspan="3" style="text-align: center;">Actions</th>
-	  </tr>
-	</thead>
+{%if resource_error is defined %}
+{{display_error("Resource", resource_error)}}
+{%else%}
+<div class="row">
+  <h3>Resource Details</h3>
+  <table class="table">
+    <caption>Resource: {{resource.resource_name}}</caption>
+    <thead>
+      <tr>
+	<th>Name</th>
+	<th>Category</th>
+	<th colspan="3" style="text-align: center;">Actions</th>
+      </tr>
+    </thead>
 
-	<tbody>
-	  <tr>
-	    <td>{{resource.resource_name}}</td>
-	    <td>{{resource.resource_category.resource_category_description}}</td>
-	    <td>
-	      <form method="POST"
-		    action="{{url_for(
-			    'oauth2.resource.toggle_public',
-			    resource_id=resource.resource_id)}}">
+    <tbody>
+      <tr>
+	<td>{{resource.resource_name}}</td>
+	<td>{{resource.resource_category.resource_category_description}}</td>
+	<td>
+	  <form method="POST"
+		action="{{url_for(
+			'oauth2.resource.toggle_public',
+			resource_id=resource.resource_id)}}">
 
-		<div class="input-group">
-		  {%if resource.public%}
-		  <input type="submit" value="Make Private"
-			 class="btn btn-success" />
-		  {%else%}
-		  <input type="submit" value="Make Public"
-			 class="btn btn-danger" />
-		  {%endif%}
-		</div>
-	      </form>
-	    </td>
-	    <td>
-	      <a href="{{url_for(
-		       'oauth2.resource.edit_resource',
-		       resource_id=resource.resource_id)}}"
-		 title="Edit resource"
-		 class="btn btn-warning">Edit</a>
-	    </td>
-	    <td>
-	      <a href="{{url_for(
-		       'oauth2.resource.delete_resource',
-		       resource_id=resource.resource_id)}}"
-		 title="Edit resource"
-		 class="btn btn-danger">Delete</a>
-	    </td>
-	  </tr>
-	</tbody>
-      </table>
-    </div>
-
-    <div class="row">
-      <h3>Resource Data</h3>
-      <table class="table">
-	<caption>Resource Data</caption>
-	<thead>
-	  <tr>
-	    {%if resource.resource_category.resource_category_key == "phenotype"%}
-	    <th>Trait</th>
-	    <th>Description</th>
-	    <th>Year</th>
-	    {%endif%}
-	    <th>Dataset Name</th>
-	    <th>Full Name</th>
-	    <th>Actions</th>
-	  </tr>
-	</thead>
-
-	<tbody>
-	  {%for data_item in resource.resource_data:%}
-	  <tr>
-	    {%if resource.resource_category.resource_category_key == "phenotype"%}
-	    <td>
-	      <a href="/show_trait?trait_id={{data_item.PublishXRefId}}&dataset={{data_item.dataset_name}}"
-		 title="Trait Data and Analysis for {{data_item.PublishXRefId}}"
-		 target="_blank">
-		{{data_item.PublishXRefId}}
-	      </a>
-	    </td>
-	    <td>{{data_item.description}}</td>
-	    <td>
-	      {%if data_item.PubMed_ID%}
-	      <a href="https://pubmed.ncbi.nlm.nih.gov/{{data_item.PubMed_ID}}/"
-		 title="{{data_item.Title}}" target="_blank">
-		{{data_item.Year}}
-	      </a>
+	    <div class="input-group">
+	      {%if resource.public%}
+	      <input type="submit" value="Make Private"
+		     class="btn btn-success" />
 	      {%else%}
-	      {{data_item.Year}}
+	      <input type="submit" value="Make Public"
+		     class="btn btn-danger" />
 	      {%endif%}
-	    </td>
-	    {%endif%}
-	    <td>
-	      <a href="https://gn1.genenetwork.org/webqtl/main.py?FormID=sharinginfo&GN_AccessionId={{data_item.accession_id}}&InfoPageName={{data_item.dataset_name}}"
-		 title="Link to information on dataset '{{data_item.dataset_fullname}}'"
-		 target="_blank">
-		{{data_item.dataset_name}}
-	      </a>
-	    </td>
-	    <td>{{data_item.dataset_fullname}}</td>
-	    <td>
-	      <form action="{{url_for('oauth2.resource.unlink_data_from_resource')}}"
-		    method="POST">
-		<input type="hidden" name="resource_id"
-		       value="{{resource.resource_id}}" />
-		<input type="hidden" name="data_link_id"
-		       value="{{data_item.data_link_id}}" />
-		<input type="submit" value="Unlink" class="btn btn-danger" />
-	      </form>
-	    </td>
-	  </tr>
-	  {%else%}
-	  <tr>
-	    <td colspan="2">
-	      <span class="glyphicon glyphicon-info-sign text-danger">
-	      </span>
-	      &nbsp;
-	      <strong class="text-info">No linked data.</strong>
-	    </td>
-	  </tr>
-	  {%endfor%}
-	</tbody>
-      </table>
-      <form action="{{url_for('oauth2.resource.view_resource', resource_id=resource.resource_id)}}"
-	    method="GET"
-	    style="width:100%;text-align:center;">
-	<input type="hidden" name="page" value="{{page}}" />
-	<input type="hidden" name="count_per_page" value="{{count_per_page}}" />
+	    </div>
+	  </form>
+	</td>
+	<td>
+	  <a href="{{url_for(
+		   'oauth2.resource.edit_resource',
+		   resource_id=resource.resource_id)}}"
+	     title="Edit resource"
+	     class="btn btn-warning">Edit</a>
+	</td>
+	<td>
+	  <a href="{{url_for(
+		   'oauth2.resource.delete_resource',
+		   resource_id=resource.resource_id)}}"
+	     title="Edit resource"
+	     class="btn btn-danger">Delete</a>
+	</td>
+      </tr>
+    </tbody>
+  </table>
+</div>
 
-	<input type="submit" name="submit" value="prev" class="btn btn-info"
-	       {%if page == 1 %}disabled="disabled"{%endif%} />
-	<input type="submit" name="submit" value="next" class="btn btn-info"
-	       {%if resource.resource_data | length < count_per_page %}
-	       disabled="disabled"
-	       {%endif%} />
-      </form>
-    </div>
+<div class="row">
+  <h3>Resource Data</h3>
+  <table class="table">
+    <caption>Resource Data</caption>
+    <thead>
+      <tr>
+	{%if resource.resource_category.resource_category_key == "phenotype"%}
+	<th>Trait</th>
+	<th>Description</th>
+	<th>Year</th>
+	{%endif%}
+	<th>Dataset Name</th>
+	<th>Full Name</th>
+	<th>Actions</th>
+      </tr>
+    </thead>
 
-    <div class="row">
-      <h3>Unlinked Data</h3>
-      <table class="table">
-	<caption>Link Data</caption>
-	<thead>
-	  <tr>
-	    {%if resource.resource_category.resource_category_key == "phenotype"%}
-	    <th>Trait</th>
-	    <th>Description</th>
-	    <th>Year</th>
-	    {%endif%}
-	    <th>Dataset Name</th>
-	    <th>Dataset FullName</th>
-	    <th>Actions</th>
-	  </tr>
-	</thead>
-	<tbody>
-	  {%if unlinked_error is defined%}
-	  {{display_error("Unlinked Data Error", unlinked_error)}}
+    <tbody>
+      {%for data_item in resource.resource_data:%}
+      <tr>
+	{%if resource.resource_category.resource_category_key == "phenotype"%}
+	<td>
+	  <a href="/show_trait?trait_id={{data_item.PublishXRefId}}&dataset={{data_item.dataset_name}}"
+	     title="Trait Data and Analysis for {{data_item.PublishXRefId}}"
+	     target="_blank">
+	    {{data_item.PublishXRefId}}
+	  </a>
+	</td>
+	<td>{{data_item.description}}</td>
+	<td>
+	  {%if data_item.PubMed_ID%}
+	  <a href="https://pubmed.ncbi.nlm.nih.gov/{{data_item.PubMed_ID}}/"
+	     title="{{data_item.Title}}" target="_blank">
+	    {{data_item.Year}}
+	  </a>
 	  {%else%}
-	  {%for data_item in unlinked_data:%}
-	  <tr>
-	    {%if resource.resource_category.resource_category_key == "phenotype"%}
-	    <td>
-	      <a href="/show_trait?trait_id={{data_item.PublishXRefId}}&dataset={{data_item.dataset_name}}"
-		 title="Trait Data and Analysis for {{data_item.PublishXRefId}}"
-		 target="_blank">
-		{{data_item.PublishXRefId}}
-	      </a>
-	    </td>
-	    <td>{{data_item.description}}</td>
-	    <td>
-	      {%if data_item.PubMed_ID%}
-	      <a href="https://pubmed.ncbi.nlm.nih.gov/{{data_item.PubMed_ID}}/"
-		 title="{{data_item.Title}}" target="_blank">
-		{{data_item.Year}}
-	      </a>
-	      {%else%}
-	      {{data_item.Year}}
-	      {%endif%}
-	    </td>
-	    {%endif%}
-	    <td>
-	      <a href="https://gn1.genenetwork.org/webqtl/main.py?FormID=sharinginfo&GN_AccessionId={{data_item.accession_id}}&InfoPageName={{data_item.dataset_name}}"
-		 title="Dataset Group: {{data_item.dataset_name}}"
-		 target="_blank">
-		{{data_item.dataset_name}}
-	      </a>
-	    </td>
-	    <td>{{data_item.dataset_fullname}}</td>
-	    <td>
-	      <form method="POST"
-		    action="{{url_for('oauth2.resource.link_data_to_resource')}}">
-		<input type="hidden" name="resource_id"
-		       value="{{resource.resource_id}}" />
-		<input type="hidden" name="data_link_id"
-		       value="{{data_item.data_link_id}}" />
-		<input type="hidden" name="dataset_type"
-		       value="{{resource.resource_category.resource_category_key | lower}}" />
-		<input type="submit" value="Link" class="btn btn-info"
-		       {%if resource.resource_category.resource_category_description == "mRNA Dataset" and resource.resource_data | count != 0%}
-		       disabled="disabled"
-		       {%endif%} />
-	      </form>
-	    </td>
-	  </tr>
+	  {{data_item.Year}}
+	  {%endif%}
+	</td>
+	{%endif%}
+	<td>
+	  <a href="https://gn1.genenetwork.org/webqtl/main.py?FormID=sharinginfo&GN_AccessionId={{data_item.accession_id}}&InfoPageName={{data_item.dataset_name}}"
+	     title="Link to information on dataset '{{data_item.dataset_fullname}}'"
+	     target="_blank">
+	    {{data_item.dataset_name}}
+	  </a>
+	</td>
+	<td>{{data_item.dataset_fullname}}</td>
+	<td>
+	  <form action="{{url_for('oauth2.resource.unlink_data_from_resource')}}"
+		method="POST">
+	    <input type="hidden" name="resource_id"
+		   value="{{resource.resource_id}}" />
+	    <input type="hidden" name="data_link_id"
+		   value="{{data_item.data_link_id}}" />
+	    <input type="submit" value="Unlink" class="btn btn-danger" />
+	  </form>
+	</td>
+      </tr>
+      {%else%}
+      <tr>
+	<td colspan="2">
+	  <span class="glyphicon glyphicon-info-sign text-danger">
+	  </span>
+	  &nbsp;
+	  <strong class="text-info">No linked data.</strong>
+	</td>
+      </tr>
+      {%endfor%}
+    </tbody>
+  </table>
+  <form action="{{url_for('oauth2.resource.view_resource', resource_id=resource.resource_id)}}"
+	method="GET"
+	style="width:100%;text-align:center;">
+    <input type="hidden" name="page" value="{{page}}" />
+    <input type="hidden" name="count_per_page" value="{{count_per_page}}" />
+
+    <input type="submit" name="submit" value="prev" class="btn btn-info"
+	   {%if page == 1 %}disabled="disabled"{%endif%} />
+    <input type="submit" name="submit" value="next" class="btn btn-info"
+	   {%if resource.resource_data | length < count_per_page %}
+	                                          disabled="disabled"
+	                                          {%endif%} />
+           </form>
+</div>
+
+<div class="row">
+  <h3>Unlinked Data</h3>
+  <table class="table">
+    <caption>Link Data</caption>
+    <thead>
+      <tr>
+	{%if resource.resource_category.resource_category_key == "phenotype"%}
+	<th>Trait</th>
+	<th>Description</th>
+	<th>Year</th>
+	{%endif%}
+	<th>Dataset Name</th>
+	<th>Dataset FullName</th>
+	<th>Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+      {%if unlinked_error is defined%}
+      {{display_error("Unlinked Data Error", unlinked_error)}}
+      {%else%}
+      {%for data_item in unlinked_data:%}
+      <tr>
+	{%if resource.resource_category.resource_category_key == "phenotype"%}
+	<td>
+	  <a href="/show_trait?trait_id={{data_item.PublishXRefId}}&dataset={{data_item.dataset_name}}"
+	     title="Trait Data and Analysis for {{data_item.PublishXRefId}}"
+	     target="_blank">
+	    {{data_item.PublishXRefId}}
+	  </a>
+	</td>
+	<td>{{data_item.description}}</td>
+	<td>
+	  {%if data_item.PubMed_ID%}
+	  <a href="https://pubmed.ncbi.nlm.nih.gov/{{data_item.PubMed_ID}}/"
+	     title="{{data_item.Title}}" target="_blank">
+	    {{data_item.Year}}
+	  </a>
 	  {%else%}
+	  {{data_item.Year}}
+	  {%endif%}
+	</td>
+	{%endif%}
+	<td>
+	  <a href="https://gn1.genenetwork.org/webqtl/main.py?FormID=sharinginfo&GN_AccessionId={{data_item.accession_id}}&InfoPageName={{data_item.dataset_name}}"
+	     title="Dataset Group: {{data_item.dataset_name}}"
+	     target="_blank">
+	    {{data_item.dataset_name}}
+	  </a>
+	</td>
+	<td>{{data_item.dataset_fullname}}</td>
+	<td>
+	  <form method="POST"
+		action="{{url_for('oauth2.resource.link_data_to_resource')}}">
+	    <input type="hidden" name="resource_id"
+		   value="{{resource.resource_id}}" />
+	    <input type="hidden" name="data_link_id"
+		   value="{{data_item.data_link_id}}" />
+	    <input type="hidden" name="dataset_type"
+		   value="{{resource.resource_category.resource_category_key | lower}}" />
+	    <input type="submit" value="Link" class="btn btn-info"
+		   {%if resource.resource_category.resource_category_description == "mRNA Dataset" and resource.resource_data | count != 0%}
+		   disabled="disabled"
+		   {%endif%} />
+	  </form>
+	</td>
+      </tr>
+      {%else%}
+      <span class="glyphicon glyphicon-info-sign text-info">
+      </span>
+      &nbsp;
+      <strong class="text-info">No data to link.</strong>
+      {%endfor%}
+      {%endif%}
+    </tbody>
+  </table>
+</div>
+
+<div class="row">
+  <h3>Available Resource Roles</h3>
+  <div class="resource_roles">
+    {%for role in resource_roles%}
+    <a class="pill"
+       href="{{url_for('oauth2.resource.view_resource_role',
+             resource_id=resource.resource_id,
+             role_id=role.role_id)}}"
+       title="Role page for role named '{{role.role_name}}'">
+      {{role.role_name}}
+    </a>
+    {%endfor%}
+  </div>
+  <hr />
+  <a title="create a new role for this resource"
+     href="{{url_for('oauth2.resource.create_resource_role',
+           resource_id=resource.resource_id)}}"
+     class="btn btn-info">New Role</a>
+</div>
+
+<div class="row">
+  <h3>Users: Assigned Roles</h3>
+  {%if users_n_roles_error is defined%}
+  {{display_error("Users and Roles", users_n_roles_error)}}
+  {%else%}
+  <table class="table">
+    <caption>User Roles</caption>
+    <thead>
+      <tr>
+	<th>User Email</th>
+	<th>User Name</th>
+	<th>User Group</th>
+	<th colspan="2">Assigned Roles</th>
+      </tr>
+    </thead>
+    <tbody>
+      {%for user_row in users_n_roles%}
+      <tr>
+	<td rowspan="{{user_row.roles | length + 1}}">{{user_row.user.email}}</td>
+	<td rowspan="{{user_row.roles | length + 1}}">{{user_row.user.name}}</td>
+	<td rowspan="{{user_row.roles | length + 1}}">
+	  {{user_row.user_group.group_name}}</td>
+	<th>Role</th>
+	<th>Action</th>
+      </tr>
+      {%for role in user_row.roles%}
+      <tr>
+	<td>
+	  <a href="{{url_for(
+		   'oauth2.role.role',
+		   role_id=role.role_id)}}"
+	     title="Details for '{{role.role_name}}' role">
+	    {{role.role_name}}
+	  </a>
+	</td>
+	<td>
+	  <form action="{{url_for('oauth2.resource.unassign_role',
+			resource_id=resource.resource_id)}}"
+		method="POST">
+	    <input type="hidden" name="user_id"
+		   value="{{user_row.user.user_id}}" />
+	    <input type="hidden" name="role_id"
+		   value="{{role.role_id}}">
+	    <input type="submit"
+		   value="Unassign"
+		   class="btn btn-danger"
+		   {%if user_row.user.user_id==this_user.user_id%}
+		   disabled="disabled"
+		   {%endif%}>
+	  </form>
+	</td>
+      </tr>
+      {%endfor%}
+      {%else%}
+      <tr>
+	<td colspan="5">
 	  <span class="glyphicon glyphicon-info-sign text-info">
 	  </span>
 	  &nbsp;
-	  <strong class="text-info">No data to link.</strong>
-	  {%endfor%}
-	  {%endif%}
-	</tbody>
-      </table>
-    </div>
-
-    <div class="row">
-      <h3>Available Resource Roles</h3>
-      <div class="resource_roles">
-        {%for role in resource_roles%}
-        <a class="pill"
-           href="{{url_for('oauth2.resource.view_resource_role',
-                 resource_id=resource.resource_id,
-                 role_id=role.role_id)}}"
-           title="Role page for role named '{{role.role_name}}'">
-          {{role.role_name}}
-        </a>
-        {%endfor%}
-      </div>
-      <hr />
-      <a title="create a new role for this resource"
-         href="{{url_for('oauth2.resource.create_resource_role',
-               resource_id=resource.resource_id)}}"
-         class="btn btn-info">New Role</a>
-    </div>
-
-    <div class="row">
-      <h3>Users: Assigned Roles</h3>
-      {%if users_n_roles_error is defined%}
-      {{display_error("Users and Roles", users_n_roles_error)}}
-      {%else%}
-      <table class="table">
-	<caption>User Roles</caption>
-	<thead>
-	  <tr>
-	    <th>User Email</th>
-	    <th>User Name</th>
-	    <th>User Group</th>
-	    <th colspan="2">Assigned Roles</th>
-	  </tr>
-	</thead>
-	<tbody>
-	  {%for user_row in users_n_roles%}
-	  <tr>
-	    <td rowspan="{{user_row.roles | length + 1}}">{{user_row.user.email}}</td>
-	    <td rowspan="{{user_row.roles | length + 1}}">{{user_row.user.name}}</td>
-	    <td rowspan="{{user_row.roles | length + 1}}">
-	      {{user_row.user_group.group_name}}</td>
-	    <th>Role</th>
-	    <th>Action</th>
-	  </tr>
-	  {%for role in user_row.roles%}
-	  <tr>
-	    <td>
-	      <a href="{{url_for(
-		       'oauth2.role.role',
-		       role_id=role.role_id)}}"
-		 title="Details for '{{role.role_name}}' role">
-		{{role.role_name}}
-	      </a>
-	    </td>
-	    <td>
-	      <form action="{{url_for('oauth2.resource.unassign_role',
-			    resource_id=resource.resource_id)}}"
-		    method="POST">
-		<input type="hidden" name="user_id"
-		       value="{{user_row.user.user_id}}" />
-		<input type="hidden" name="role_id"
-		       value="{{role.role_id}}">
-		<input type="submit"
-		       value="Unassign"
-		       class="btn btn-danger"
-		       {%if user_row.user.user_id==this_user.user_id%}
-		       disabled="disabled"
-		       {%endif%}>
-	      </form>
-	    </td>
-	  </tr>
-	  {%endfor%}
-	  {%else%}
-	  <tr>
-	    <td colspan="5">
-	      <span class="glyphicon glyphicon-info-sign text-info">
-	      </span>
-	      &nbsp;
-	      <span class="text-info">
-		There are no users assigned any role for this resource.
-	      </span>
-	    </td>
-	  </tr>
-	  {%endfor%}
-	</tbody>
-      </table>
-      {%endif%}
-    </div>
-
-    <div class="row">
-      <h3>Assign</h3>
-      {%if resource_roles_error is defined%}
-      {{display_error("Resource Roles", resource_roles_error)}}
-      {%elif users_error is defined%}
-      {{display_error("Users", users_error)}}
-      {%else%}
-      <form action="{{url_for(
-		    'oauth2.resource.assign_role',
-		    resource_id=resource.resource_id)}}"
-	    method="POST" autocomplete="off">
-	<input type="hidden" name="resource_id" value="{{resource_id}}" />
-	<div class="form-group">
-	  <label for="role_id" class="form-label">Role</label>
-	  <select class="form-control" name="role_id"
-		  id="role_id" required="required">
-	    <option value="">Select role</option>>
-	    {%for rrole in resource_roles%}
-	    <option value="{{rrole.role_id}}">
-	      {{rrole.role_name}}
-	    </option>
-	    {%endfor%}
-	  </select>
-	</div>
-	<div class="form-group">
-	  <label for="user-email" class="form-label">User Email</label>
-	  <input list="users-list" name="user_email" class="form-control"
-		 {%if users | length == 0%}
-		 disabled="disabled"
-		 {%endif%}
-		 required="required" />
-	  <datalist id="users-list">
-	    {%for user in users%}
-	    <option value="{{user.email}}">{{user.email}} - {{user.name}}</option>
-	    {%endfor%}
-	  </datalist>
-	</div>
-
-	<input type="submit" class="btn btn-primary" value="Assign"
-	       {%if users | length == 0%}
-	       disabled="disabled"
-	       {%endif%} />
-      </form>
-      {%endif%}
-    </div>
-    {%endif%}
-
-  </div>
-
+	  <span class="text-info">
+	    There are no users assigned any role for this resource.
+	  </span>
+	</td>
+      </tr>
+      {%endfor%}
+    </tbody>
+  </table>
+  {%endif%}
 </div>
+
+<div class="row">
+  <h3>Assign</h3>
+  {%if resource_roles_error is defined%}
+  {{display_error("Resource Roles", resource_roles_error)}}
+  {%elif users_error is defined%}
+  {{display_error("Users", users_error)}}
+  {%else%}
+  <form action="{{url_for(
+		'oauth2.resource.assign_role',
+		resource_id=resource.resource_id)}}"
+	method="POST" autocomplete="off">
+    <input type="hidden" name="resource_id" value="{{resource_id}}" />
+    <div class="form-group">
+      <label for="role_id" class="form-label">Role</label>
+      <select class="form-control" name="role_id"
+	      id="role_id" required="required">
+	<option value="">Select role</option>
+        {%for rrole in resource_roles%}
+        <option value="{{rrole.role_id}}">
+          {{rrole.role_name}}
+        </option>
+        {%endfor%}
+      </select>
+    </div>
+
+    <div class="form-group">
+      <label for="user-email" class="form-label">User Email</label>
+      <input list="users-list" name="user_email" class="form-control"
+	     {%if users | length == 0%}
+	     disabled="disabled"
+	     {%endif%}
+	     required="required" />
+      <datalist id="users-list">
+        {%for user in users%}
+        <option value="{{user.email}}">{{user.email}} - {{user.name}}</option>
+        {%endfor%}
+      </datalist>
+    </div>
+
+    <input type="submit" class="btn btn-primary" value="Assign"
+           {%if users | length == 0%}
+           disabled="disabled"
+           {%endif%} />
+  </form>
+  {%endif%}
+</div>
+{%endif%}
+
 {%endblock%}

@@ -1,58 +1,51 @@
-{% extends "index_page.html" %}
-{%from "oauth2/profile_nav.html" import profile_nav%}
+{% extends "oauth2/base.html" %}
 {%block title%}View User{%endblock%}
-{%block content%}
-<div class="container" style="min-width: 1250px;">
-  {{profile_nav("resources", user_privileges)}}
-  <h3>Resources</h3>
 
-  {{flash_me()}}
+{%block dash_page_header%}Resources{%endblock%}
 
-  <div class="container-fluid">
-    <div class="row">
-      <a href="{{url_for('oauth2.resource.create_resource')}}"
-	 class="btn btn-info" title="Create a new resource">
-	Create New Resource
-      </a>
-    </div>
+{%block dash_page_content%}
 
-    <div class="row">
-      <table class="table">
-	<caption>Resources</caption>
-	<thead>
-	  <tr>
-	    <th>Name</th>
-	    <th>Category</th>
-	  </tr>
-	</thead>
-	<tbody>
-	  {%for resource in resources %}
-	  <tr>
-	    <td>
-	      <a href="{{url_for(
-		       'oauth2.resource.view_resource',
-		       resource_id=resource.resource_id)}}"
-		 title="View resource {{resource.resource_name}}">
-		{{resource.resource_name}}
-	      </a>
-	    </td>
-	    <td>{{resource.resource_category.resource_category_key}}</td>
-	  </tr>
-	  {%else%}
-	  <tr>
-	    <td colspan="3">
-	      <span class="glyphicon glyphicon-warning-sign"></span>&nbsp;
-	      <span class="text-warning">
-		The user has no access to any resource.
-	      </span>
-	    </td>
-	  </tr>
-	  {%endfor%}
-	</tbody>
-      </table>
-    </div>
-
-  </div>
-
+<div class="row">
+  <a href="{{url_for('oauth2.resource.create_resource')}}"
+     class="btn btn-info" title="Create a new resource">
+    Create New Resource
+  </a>
 </div>
+
+<div class="row">
+  <table class="table">
+    <caption>Resources</caption>
+    <thead>
+      <tr>
+	<th>Name</th>
+	<th>Category</th>
+      </tr>
+    </thead>
+    <tbody>
+      {%for resource in resources %}
+      <tr>
+	<td>
+	  <a href="{{url_for(
+		   'oauth2.resource.view_resource',
+		   resource_id=resource.resource_id)}}"
+	     title="View resource {{resource.resource_name}}">
+	    {{resource.resource_name}}
+	  </a>
+	</td>
+	<td>{{resource.resource_category.resource_category_key}}</td>
+      </tr>
+      {%else%}
+      <tr>
+	<td colspan="3">
+	  <span class="glyphicon glyphicon-warning-sign"></span>&nbsp;
+	  <span class="text-warning">
+	    The user has no access to any resource.
+	  </span>
+	</td>
+      </tr>
+      {%endfor%}
+    </tbody>
+  </table>
+</div>
+
 {%endblock%}

@@ -1,80 +1,74 @@
-{% extends "index_page.html" %}
-{%from "oauth2/profile_nav.html" import profile_nav%}
+{% extends "oauth2/base.html" %}
 {%from "oauth2/display_error.html" import display_error%}
-{%block title%}View User{%endblock%}
-{%block content%}
-<div class="container" style="min-width: 1250px;">
-  {{profile_nav("roles", user_privileges)}}
-  <h3>Roles</h3>
 
-  {{flash_me()}}
+{%block title%}List Roles{%endblock%}
 
-  <div class="container-fluid">
-    <div class="row">
-      <h3>Your System-Level Roles</h3>
-      <ul>
-	{%for role in roles %}
-	<li>
-	  <a href="{{url_for('oauth2.role.role', role_id=role.role_id)}}"
-	     title="Link to role {{role.role_name}}">{{role.role_name}}</a>
-	</li>
-	{%else%}
-	<li>
-	  <span class="glyphicon glyphicon-warning-sign"></span>&nbsp;
-	  <span class="text-warning">No roles attached to this user</span>
-	</li>
-	{%endfor%}
-      </ul>
-    </div>
+{%block dash_page_header%}Roles{%endblock%}
 
-    <div class="row">
-      <h3>Group-Wide Roles</h3>
+{%block dash_page_content%}
 
-      {%if "group:role:create-role" in user_privileges%}
-      <a href="{{url_for('oauth2.role.create_role')}}"
-	 title="Link to create a new group role"
-	 class="btn btn-info">New Group Role</a>
-      {%endif%}
-
-      {%if group_roles_error is defined%}
-      {{display_error("Group Roles", group_role_error)}}
-      {%else%}
-      <table class="table">
-	<caption>Group Roles</caption>
-	<thead>
-	  <tr>
-	    <th>Role Name</th>
-	    <th colspan="100%">Actions</th>
-	  </tr>
-	</thead>
-	<tbody>
-	  {%for grole in group_roles%}
-	  <tr>
-	    <td>{{grole.role.role_name}}</td>
-	    <td>
-	      <a href="{{url_for('oauth2.group.group_role', group_role_id=grole.group_role_id)}}"
-		 title="Link to role {{grole.role.role_name}}"
-		 class="btn btn-info">
-		View
-	      </a>
-	    </td>
-	  </tr>
-	  {%else%}
-	  <tr>
-	    <td colspan="3">
-	      <span class="glyphicon glyphicon-exclamation-sign text-info">
-	      </span>
-	      &nbsp;
-	      <span class="text-info">No group roles found</span>
-	    </td>
-	  </tr>
-	  {%endfor%}
-	</tbody>
-      </table>
-      {%endif%}
-    </div>
-
-  </div>
-
+<div class="row">
+  <h3>Your System-Level Roles</h3>
+  <ul>
+    {%for role in roles %}
+    <li>
+      <a href="{{url_for('oauth2.role.role', role_id=role.role_id)}}"
+	 title="Link to role {{role.role_name}}">{{role.role_name}}</a>
+    </li>
+    {%else%}
+    <li>
+      <span class="glyphicon glyphicon-warning-sign"></span>&nbsp;
+      <span class="text-warning">No roles attached to this user</span>
+    </li>
+    {%endfor%}
+  </ul>
 </div>
+
+<div class="row">
+  <h3>Group-Wide Roles</h3>
+
+  {%if "group:role:create-role" in user_privileges%}
+  <a href="{{url_for('oauth2.role.create_role')}}"
+     title="Link to create a new group role"
+     class="btn btn-info">New Group Role</a>
+  {%endif%}
+
+  {%if group_roles_error is defined%}
+  {{display_error("Group Roles", group_role_error)}}
+  {%else%}
+  <table class="table">
+    <caption>Group Roles</caption>
+    <thead>
+      <tr>
+	<th>Role Name</th>
+	<th colspan="100%">Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+      {%for grole in group_roles%}
+      <tr>
+	<td>{{grole.role.role_name}}</td>
+	<td>
+	  <a href="{{url_for('oauth2.group.group_role', group_role_id=grole.group_role_id)}}"
+	     title="Link to role {{grole.role.role_name}}"
+	     class="btn btn-info">
+	    View
+	  </a>
+	</td>
+      </tr>
+      {%else%}
+      <tr>
+	<td colspan="3">
+	  <span class="glyphicon glyphicon-exclamation-sign text-info">
+	  </span>
+	  &nbsp;
+	  <span class="text-info">No group roles found</span>
+	</td>
+      </tr>
+      {%endfor%}
+    </tbody>
+  </table>
+  {%endif%}
+</div>
+
 {%endblock%}

@@ -1,53 +1,49 @@
-{% extends "index_page.html" %}
-{%from "oauth2/profile_nav.html" import profile_nav%}
+{% extends "oauth2/base.html" %}
 {%from "oauth2/display_error.html" import display_error%}
 {%block title%}Link Data{%endblock%}
-{%block content%}
-<div class="container" style="min-width: 1250px;">
-  {{profile_nav("data", user_privileges)}}
 
-  {{flash_me()}}
+{%block dash_page_content%}
 
-  <div class="row">
-    <form id="frm-select-datatype"
-	  action="{{url_for('oauth2.data.list_data')}}"
-	  method="POST">
-      <legend>Search</legend>
-      {%if species_error is defined%}
-      {{display_error("Species", species_error)}}
-      {%elif species | length == 0%}
-      <span class="glyphicon glyphicon-info-sign text-danger">
-      </span>
-      &nbsp;
-      <strong class="text-danger">No list of species to select from</strong>
-      {%else%}
-      <div class="form-group">
-	<label for="select-species">Species</label>
-	<select id="select-species" name="species_name" required="required"
-		class="form-control">
-	  <option value="">Select Species</option>
-	  {%for spc in species%}
-	  <option value="{{spc.Name}}">
-	    {{spc.MenuName}} ({{spc.FullName}})
-	  </option>
-	  {%endfor%}
-	</select>
-      </div>
+<div class="row">
+  <form id="frm-select-datatype"
+	action="{{url_for('oauth2.data.list_data')}}"
+	method="POST">
+    <legend>Search</legend>
+    {%if species_error is defined%}
+    {{display_error("Species", species_error)}}
+    {%elif species | length == 0%}
+    <span class="glyphicon glyphicon-info-sign text-danger">
+    </span>
+    &nbsp;
+    <strong class="text-danger">No list of species to select from</strong>
+    {%else%}
+    <div class="form-group">
+      <label for="select-species">Species</label>
+      <select id="select-species" name="species_name" required="required"
+	      class="form-control">
+	<option value="">Select Species</option>
+	{%for spc in species%}
+	<option value="{{spc.Name}}">
+	  {{spc.MenuName}} ({{spc.FullName}})
+	</option>
+	{%endfor%}
+      </select>
+    </div>
 
-      <div class="form-group">
-	<label for="select-dataset-type">Dataset/Trait Type</label>
-	<select id="select-dataset-type" name="dataset_type"
-		required="required" class="form-control">
-	  <option value="">Select dataset type</option>
-	  <option value="mrna">mRNA Assay (ProbeSet) Dataset</option>
-	  <option value="genotype">Genotype Dataset</option>
-	  <option value="phenotype">Phenotype (Publish) Dataset</option>
-	</select>
-      </div>
+    <div class="form-group">
+      <label for="select-dataset-type">Dataset/Trait Type</label>
+      <select id="select-dataset-type" name="dataset_type"
+	      required="required" class="form-control">
+	<option value="">Select dataset type</option>
+	<option value="mrna">mRNA Assay (ProbeSet) Dataset</option>
+	<option value="genotype">Genotype Dataset</option>
+	<option value="phenotype">Phenotype (Publish) Dataset</option>
+      </select>
+    </div>
 
-      <input type="submit" class="btn btn-primary" value="Search" />
-      {%endif%}
-    </form>
-  </div>
+    <input type="submit" class="btn btn-primary" value="Search" />
+    {%endif%}
+  </form>
 </div>
+
 {%endblock%}

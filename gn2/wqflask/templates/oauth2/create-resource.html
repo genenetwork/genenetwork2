@@ -1,89 +1,82 @@
-{% extends "index_page.html" %}
-{%from "oauth2/profile_nav.html" import profile_nav%}
+{% extends "oauth2/base.html" %}
 
 {%block title%}Create Resource{%endblock%}
+
 {%block css%}
 <link rel="stylesheet" type="text/css" href="/static/new/css/mytooltip.css" />
 {%endblock%}
 
-{%block content%}
-<div class="container" style="min-width: 1250px;">
-  {{profile_nav("resources", user_privileges)}}
+{%block dash_page_content%}
 
-  {{flash_me()}}
+<div class="row">
+  {%if resource_category_error%}
+  <p>
+    <span class="glyphicon glyphicon-exclamation-sign text-danger"></span>
+    &nbsp;
+    <span class="text-danger">{{resource_category_error.error}}</span>:
+    {{resource_category_error.error_message}}
+  </p>
+  {%else%}
+  <form method="POST"
+	action="{{url_for('oauth2.resource.create_resource')}}">
 
-  <div class="container-fluid">
-    <div class="row">
-      {%if resource_category_error%}
-      <p>
-	<span class="glyphicon glyphicon-exclamation-sign text-danger"></span>
-	&nbsp;
-	<span class="text-danger">{{resource_category_error.error}}</span>:
-	{{resource_category_error.error_message}}
-      </p>
-      {%else%}
-      <form method="POST"
-	    action="{{url_for('oauth2.resource.create_resource')}}">
-
-	<fieldset>
-	  <legend>Resource Category</legend>
-	  <div class="form-group">
-	    {%for category in resource_categories%}
-	    <div class="radio mytooltip">
-	      <label for="rdo:resource_category:{{category.resource_category_id}}"
-		     class="form-label"
-		     style="text-transform: capitalize;">
-		<input type="radio" name="resource_category" required="required"
-		       id="rdo:resource_category:{{category.resource_category_id}}"
-		       value="{{category.resource_category_id}}"
-		       {%if resource_category is defined%}
-		       {%if category.resource_category_id == resource_category%}
-		       checked="checked"
-		       {%endif%}
-		       {%endif%} />
-		{{category.resource_category_key}}
-	      </label>
-	      <span class="mytooltiptext">
-		{{category.resource_category_description}}
-	      </span>
-	    </div>
-	    {%endfor%}
-	  </div>
-	</fieldset>
-
-	<fieldset>
-	  <legend>Basic Resource Information</legend>
-	  <div class="form-group mytooltip">
-	    <label for="resource_name" class="form-label">Name</label>
-	    <input type="text" name="resource_name" class="form-control"
-		   {%if resource_name is defined and resource_name is not none%}
-		   value="{{resource_name}}"
+    <fieldset>
+      <legend>Resource Category</legend>
+      <div class="form-group">
+	{%for category in resource_categories%}
+	<div class="radio mytooltip">
+	  <label for="rdo:resource_category:{{category.resource_category_id}}"
+		 class="form-label"
+		 style="text-transform: capitalize;">
+	    <input type="radio" name="resource_category" required="required"
+		   id="rdo:resource_category:{{category.resource_category_id}}"
+		   value="{{category.resource_category_id}}"
+		   {%if resource_category is defined%}
+		   {%if category.resource_category_id == resource_category%}
+		   checked="checked"
 		   {%endif%}
-		   required="required" />
-	    <span class="mytooltiptext">
-	      The resource name, e.g. the experiment name.
-	    </span>
-	  </div>
-	</fieldset>
+		   {%endif%} />
+	    {{category.resource_category_key}}
+	  </label>
+	  <span class="mytooltiptext">
+	    {{category.resource_category_description}}
+	  </span>
+	</div>
+	{%endfor%}
+      </div>
+    </fieldset>
 
-	<fieldset>
-	  <legend>Access Control</legend>
-	  <div class="form-group mytooltip">
-	    <label for="chk-public">Publicly Viewable?</label>
-	    <input type="checkbox" name="public" id="chk-public"
-		   checked="checked" />
-	    <span class="mytooltiptext">
-	      Select whether data in this resource will be publicly viewable.
-	    </span>
-	  </div>
-	</fieldset>
+    <fieldset>
+      <legend>Basic Resource Information</legend>
+      <div class="form-group mytooltip">
+	<label for="resource_name" class="form-label">Name</label>
+	<input type="text" name="resource_name" class="form-control"
+	       {%if resource_name is defined and resource_name is not none%}
+	       value="{{resource_name}}"
+	       {%endif%}
+	       required="required" />
+	<span class="mytooltiptext">
+	  The resource name, e.g. the experiment name.
+	</span>
+      </div>
+    </fieldset>
 
-	<input class="btn btn-primary" type="submit" value="Create" />
+    <fieldset>
+      <legend>Access Control</legend>
+      <div class="form-group mytooltip">
+	<label for="chk-public">Publicly Viewable?</label>
+	<input type="checkbox" name="public" id="chk-public"
+	       checked="checked" />
+	<span class="mytooltiptext">
+	  Select whether data in this resource will be publicly viewable.
+	</span>
+      </div>
+    </fieldset>
 
-      </form>
-      {%endif%}
-    </div>
-  </div>
+    <input class="btn btn-primary" type="submit" value="Create" />
 
+  </form>
+  {%endif%}
 </div>
+
 {%endblock%}

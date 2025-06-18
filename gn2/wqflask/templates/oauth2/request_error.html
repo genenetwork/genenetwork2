@@ -1,32 +1,24 @@
-{% extends "index_page.html" %}
-{%from "oauth2/profile_nav.html" import profile_nav%}
+{% extends "oauth2/base.html" %}
 {%block title%}View User{%endblock%}
-{%block content%}
-<div class="container" style="min-width: 1250px;">
-  {{profile_nav("error", user_privileges)}}
-  <h3>ERROR</h3>
 
-  {{flash_me()}}
+{%block dash_page_header%}ERROR{%endblock%}
 
-  <div class="container-fluid">
+{%block dash_page_content%}
 
-    <div class="row">
-      <dl>
-	<dt>Error code</dt>
-	<dd>{{response.status}}[{{response.status_code}}]</dd>
+<div class="row">
+  <dl>
+    <dt>Error code</dt>
+    <dd>{{response.status}}[{{response.status_code}}]</dd>
 
-	<dt>URI</dt>
-	<dd>{{response.url}}</dd>
+    <dt>URI</dt>
+    <dd>{{response.url}}</dd>
 
-	<dt>Content Type</dt>
-	<dd>{{response.content_type or "-"}}</dd>
+    <dt>Content Type</dt>
+    <dd>{{response.content_type or "-"}}</dd>
 
-	<dt>{{response.content}}</dt>
-	<dd>{{response.content}}</dd>
-      </dl>
-    </div>
-
-  </div>
-
+    <dt>{{response.content}}</dt>
+    <dd>{{response.content}}</dd>
+  </dl>
 </div>
+
 {%endblock%}

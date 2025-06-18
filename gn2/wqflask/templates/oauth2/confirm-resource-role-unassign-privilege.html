@@ -1,12 +1,8 @@
-{% extends "index_page.html" %}
-{%from "oauth2/profile_nav.html" import profile_nav%}
-{%from "oauth2/display_error.html" import display_error%}
+{% extends "oauth2/base.html" %}
 {%block title%}View User{%endblock%}
-{%block content%}
-<div class="container">
-  {{profile_nav(uipages, user_privileges)}}
-  {{flash_me()}}
 
+{%block dash_page_content%}
+<div class="row">
   <form id="frm_confirm_resource_role_unassign_privilege"
         method="POST"
         action="{{url_for('oauth2.resource.unassign_privilege_from_resource_role',

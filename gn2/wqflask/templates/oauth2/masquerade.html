@@ -1,39 +1,33 @@
-{% extends "index_page.html" %}
-{%from "oauth2/profile_nav.html" import profile_nav%}
+{% extends "oauth2/base.html" %}
 {%from "oauth2/display_error.html" import display_error%}
+
 {%block title%}Masquerade As{%endblock%}
-{%block content%}
-<div class="container" style="min-width: 1250px;">
-  {{profile_nav("masquerade", user_privileges)}}
 
-  {{flash_me()}}
+{%block dash_page_content%}
 
-  {%if users_error is defined%}
-  {{display_error("Users", users_error)}}
-  {%else%}
-  <div class="container-fluid">
-    <div class="row">
-      <form method="POST"
-	    action="{{url_for('oauth2.user.masquerade')}}">
-	<legend>Masquerade As</legend>
-	<div class="form-group">
-	  <label for="select-masquerade" class="form-label">
-	    Masquerade as
-	  </label>
-	  <select id="select-masquerade" name="masquerade_as"
-		  required="required" class="form-control">
-	    <option value="">Select User</option>
-	    {%for user in users%}
-	    <option value="{{user.user_id}}">{{user.name}} ({{user.email}})</option>
-	    {%endfor%}
-	  </select>
-	</div>
-	<div class="form-group">
-	  <input type="submit" class="btn btn-primary" value="Masquerade" />
-	</div>
-      </form>
+{%if users_error is defined%}
+{{display_error("Users", users_error)}}
+{%else%}
+<div class="row">
+  <form method="POST"
+	action="{{url_for('oauth2.user.masquerade')}}">
+    <legend>Masquerade As</legend>
+    <div class="form-group">
+      <label for="select-masquerade" class="form-label">
+	Masquerade as
+      </label>
+      <select id="select-masquerade" name="masquerade_as"
+	      required="required" class="form-control">
+	<option value="">Select User</option>
+	{%for user in users%}
+	<option value="{{user.user_id}}">{{user.name}} ({{user.email}})</option>
+	{%endfor%}
+      </select>
     </div>
-  </div>
-  {%endif%}
+    <div class="form-group">
+      <input type="submit" class="btn btn-primary" value="Masquerade" />
+    </div>
+  </form>
 </div>
+{%endif%}
 {%endblock%}

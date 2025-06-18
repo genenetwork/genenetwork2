@@ -1,12 +1,13 @@
-{% extends "index_page.html" %}
-{%from "oauth2/profile_nav.html" import profile_nav%}
+{%extends "oauth2/base.html"%}
 {%from "oauth2/display_error.html" import display_error%}
-{%block title%}View User{%endblock%}
-{%block content%}
-<div class="container" style="min-width: 1250px;">
-  {{profile_nav("roles", user_privileges)}}
-  <h3>Create Role</h3>
 
+{%block title%}Create Role{%endblock%}
+
+{%block dash_page_header%}Create Role{%endblock%}
+
+{%block dash_page_content%}
+
+<div class="row">
   <p>Create a new role to act on resource "{{resource.resource_name}}"</p>
 
   {%if resource_role_error is defined%}
@@ -39,11 +40,11 @@
     {%for priv in user_privileges%}
     <div class="checkbox">
       <label for="chk-{{priv.privilege_id}}">
-	<input type="checkbox" id="chk-{{priv.privilege_id}}"
+        <input type="checkbox" id="chk-{{priv.privilege_id}}"
 	       name="privileges[]" value={{priv.privilege_id}} />
-	<span style="text-transform: capitalize;">
+        <span style="text-transform: capitalize;">
 	  {{priv.privilege_description}}
-	</span>
+        </span>
       </label>
     </div>
     {%endfor%}
