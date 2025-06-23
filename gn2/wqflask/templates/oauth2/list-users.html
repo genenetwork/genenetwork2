@@ -19,12 +19,16 @@
         class="form-inline">
     <div class="form-group">
       <label class="control-label">search</label>
-      <input type="text" class="form-control" />
+      <input id="txt-search-email-name"
+             name="search-email-name"
+             type="text" class="form-control" />
     </div>
 
     <div class="form-group">
       <label class="control-label">verified</label>
-      <select class="form-control">
+      <select id="select-search-verified"
+              name="search-verified"
+              class="form-control">
         <option value=""></option>
         <option value="yes">Yes</option>
         <option value="no">No</option>
@@ -33,19 +37,25 @@
 
     <div class="form-group">
       <label class="control-label">age</label>
-      <select class="form-control">
+      <select id="select-search-age-equivalence"
+              name="search-age-equivalence"
+              class="form-control">
         <option value=""></option>
-        <option value="older">older than</option>
-        <option value="younger">younger than</option>
+        <option value="older than">older than</option>
+        <option value="younger than">younger than</option>
         <option value="exactly">exactly</option>
       </select>
-      <select class="form-control">
+      <select id="select-search-age-count"
+              name="search-age-count"
+              class="form-control">
         <option value=""></option>
         {%for num in range(1, 31)%}
         <option value="{{num}}">{{num}}</option>
         {%endfor%}
       </select>
-      <select class="form-control">
+      <select id="select-search-age-period"
+              name="search-age-period"
+              class="form-control">
         <option value=""></option>
         <option value="days">days</option>
         <option value="months">months</option>
@@ -54,11 +64,10 @@
     </div>
 
     <div class="form-group">
-      <input type="submit"
-             id="btn-filter-users"
-             value="Filter"
-             class="btn btn-primary" />
-      <input type="reset" value="Reset" class="btn btn-warning" />
+      <input id="btn-reset-search"
+             type="reset"
+             value="Reset"
+             class="btn btn-warning" />
     </div>
   </form>
 </div>
