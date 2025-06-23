@@ -165,27 +165,34 @@
       var table_api = $("#tbl-adm-list-users").DataTable({
           columns: [
               {
+                  orderable: false,
+                  searchable: false,
                   data: function(user) {
                       return `<input type="checkbox" name="chk-selected-user" value="${user.user_id}" />`;
                   }
               },
               {
+                  orderable: true,
                   searchable: true,
                   data: "email"
               },
               {
+                  orderable: true,
                   searchable: true,
                   data: "name"
               },
               {
-                  searchable: false,
+                  orderable: true,
+                  searchable: true,
                   data: "created"
               },
               {
+                  orderable: true,
                   searchable: true,
                   data: "verified"
               },
               {
+                  orderable: false,
                   searchable: false,
                   data: function(user) {
                       return `<span class="btn btn-info">view</span>`;
