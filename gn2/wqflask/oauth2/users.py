@@ -4,7 +4,13 @@ from urllib.parse import urljoin, urlparse
 
 from authlib.integrations.base_client.errors import OAuthError
 from flask import (
-    flash, request, url_for, redirect, Response, Blueprint,
+    flash,
+    request,
+    url_for,
+    jsonify,
+    redirect,
+    Response,
+    Blueprint,
     current_app as app)
 
 from . import client
@@ -170,7 +176,25 @@ def list_users():
     return oauth2_get(
         "auth/user/list"
     ).then(
-        lambda users: render_ui("oauth2/list-users.html", users=users)
+        lambda users: render_ui("oauth2/list-users.html", users=[])
     ).either(
         lambda err: render_ui("oauth2/request_error.html", response=err),
         lambda resp: resp)
+
+
+@users.route("/fetch", methods=["GET"])
+@require_oauth2
+def fetch_users():
+    """Fetch list of users from the authorisation server."""
+    return oauth2_get(
+        "auth/user/list"
+    ).either(
+        lambda err: jsonify({
+            "error": {
+                "code": err.status,
+                "url": err.url,
+                "message": response.content
+            }}),
+        lambda users: jsonify({
+            "users": users
+        }))

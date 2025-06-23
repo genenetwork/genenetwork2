@@ -1,6 +1,12 @@
 {% extends "oauth2/base.html" %}
 {%block title%}List Users{%endblock%}
 
+{% block css %}
+    <link rel="stylesheet" type="text/css" href="{{ url_for('css', filename='DataTables/css/jquery.dataTables.css') }}" />
+    <link rel="stylesheet" type="text/css" href="{{ url_for('js', filename='DataTablesExtensions/buttonStyles/css/buttons.dataTables.min.css') }}">
+    <link rel="stylesheet" type="text/css" href="{{ url_for('css', filename='jquery-ui/jquery-ui.theme.css') }}"/>
+{% endblock %}
+
 {%block dash_page_header%}Manage Users{%endblock%}
 
 {%block dash_page_content%}
@@ -8,7 +14,9 @@
 {%if display is defined and display.list_users%}
 <div class="row">
   <legend>Filter users by</legend>
-  <form class="form-inline">
+  <form method="GET"
+        action="{{url_for('oauth2.user.fetch_users')}}"
+        class="form-inline">
     <div class="form-group">
       <label class="control-label">search</label>
       <input type="text" class="form-control" />
@@ -45,7 +53,13 @@
       </select>
     </div>
 
-    <div class="form-group"></div>
+    <div class="form-group">
+      <input type="submit"
+             id="btn-filter-users"
+             value="Filter"
+             class="btn btn-primary" />
+      <input type="reset" value="Reset" class="btn btn-warning" />
+    </div>
   </form>
 </div>
 
@@ -55,7 +69,7 @@
 </div>
 
 <div class="row">
-  <table class="table">
+  <table id="tbl-adm-list-users" class="table table-hover table-striped cell-border">
     <caption>Users</caption>
     <thead>
       <tr>
@@ -117,4 +131,71 @@
 </div>
 {%endif%}
 
+{%endblock%}
+
+
+{%block js%}
+<script language="javascript"
+        type="text/javascript"
+        src="{{ url_for('js', filename='DataTables/js/jquery.dataTables.min.js') }}"></script>
+<script language="javascript"
+        type="text/javascript"
+        src="{{ url_for('js', filename='DataTablesExtensions/scroller/js/dataTables.scroller.min.js') }}"></script>
+<script language="javascript"
+        type="text/javascript"
+        src="{{ url_for('js', filename='DataTablesExtensions/plugins/sorting/natural.js') }}"></script>
+<script language="javascript"
+        type="text/javascript"
+        src="{{ url_for('js', filename='DataTablesExtensions/buttons/js/dataTables.buttons.min.js') }}"></script>
+<script language="javascript"
+        type="text/javascript"
+        src="{{ url_for('js', filename='DataTablesExtensions/buttons/js/buttons.colVis.min.js') }}"></script>
+
+<script type="text/javascript">
+  $(function() {
+      var table_api = $("#tbl-adm-list-users").DataTable({
+          columns: [
+              {
+                  data: function(user) {
+                      return `<input type="checkbox" name="chk-selected-user" value="${user.user_id}" />`;
+                  }
+              },
+              {
+                  searchable: true,
+                  data: "email"
+              },
+              {
+                  searchable: true,
+                  data: "name"
+              },
+              {
+                  searchable: false,
+                  data: "created"
+              },
+              {
+                  searchable: true,
+                  data: "verified"
+              },
+              {
+                  searchable: false,
+                  data: function(user) {
+                      return `<span class="btn btn-info">view</span>`;
+                  }
+              }
+          ],
+          serverSide: true,
+          ajax: {
+              url: "/oauth2/user/fetch",
+              dataSrc: "users"
+          },
+          searching: false// Deactivate the default searching input element
+      });
+
+      $("#btn-filter-users").click(function(event) {
+          event.preventDefault();
+          alert("We would actually run search on the table...");
+      });
+  });
+
+</script>
 {%endblock%}
