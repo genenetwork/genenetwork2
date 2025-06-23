@@ -204,7 +204,13 @@
               url: "/oauth2/user/fetch",
               dataSrc: "users"
           },
-          searching: false// Deactivate the default searching input element
+          initComplete: function() {
+              /* ==== Hide the default search input element ==== */
+              $('#tbl-adm-list-users_wrapper .dataTables_filter input[type="search"]')
+                  .parent()
+                  .attr("style", "display: none;");
+              /* ==== END: Hide the default search input element ==== */
+          }
       });
 
       $("#btn-filter-users").click(function(event) {
