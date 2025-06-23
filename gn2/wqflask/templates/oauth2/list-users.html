@@ -213,9 +213,52 @@
           }
       });
 
-      $("#btn-filter-users").click(function(event) {
-          event.preventDefault();
-          alert("We would actually run search on the table...");
+
+      function _compute_age_filter_() {
+          let equivalence = $("#select-search-age-equivalence").val();
+          let count = $("#select-search-age-count").val();
+          let period = $("#select-search-age-period").val();
+
+          if(equivalence === "" || count === "" || period === "" ||
+             equivalence === undefined || count === undefined ||
+             period === undefined) {
+              return "";
+          }
+
+          return `${equivalence} ${count} ${period}`
+      }
+
+
+      function search_users(event) {
+          let email_or_name = $("#txt-search-email-name").val();
+          let verified = $("#select-search-verified").val();
+          table_api
+              .column(1).search(email_or_name)// Add email search
+              .column(2).search(email_or_name)// Add name search
+              .column(3).search(_compute_age_filter_())// Add age search
+              .column(4).search(verified)// Add verified search
+              .draw();//run the search!
+      }
+
+
+      $("#txt-search-email-name").keyup(function(event) {
+          let element = $(event.target);
+          if(element.val().length >= 4) {
+              search_users(event);
+          }
+      });
+      $("#select-search-verified").change(search_users);
+      $("#select-search-age-equivalence").change(search_users);
+      $("#select-search-age-count").change(search_users);
+      $("#select-search-age-period").change(search_users);
+      $("#btn-reset-search").click(function(event) {
+          event.preventDefault()
+          $("#txt-search-email-name").val("");
+          $("#select-search-verified").val("");
+          $("#select-search-age-equivalence").val("");
+          $("#select-search-age-count").val("");
+          $("#select-search-age-period").val("");
+          search_users(event);
       });
   });
 
