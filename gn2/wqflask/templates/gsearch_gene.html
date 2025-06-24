@@ -24,7 +24,9 @@
         {% else %}
         <div class="row" id="ai_result_info">
           <div class="col-sm-6">
-            <div class="alert alert-warning">Please login to view AI generated summary</div>
+            {% if llm_error_msg %}
+	    <div class="alert alert-warning"> {{ llm_error_msg }}</div>
+	    {% endif %}
           </div>
         </div>
         {% endif %}
