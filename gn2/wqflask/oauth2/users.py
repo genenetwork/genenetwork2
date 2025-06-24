@@ -173,28 +173,33 @@ def masquerade():
 @require_oauth2
 def list_users():
     """List all users in the system"""
-    return oauth2_get(
-        "auth/user/list"
-    ).then(
-        lambda users: render_ui("oauth2/list-users.html", users=[])
-    ).either(
-        lambda err: render_ui("oauth2/request_error.html", response=err),
-        lambda resp: resp)
+    return render_ui("oauth2/list-users.html", users=[])
 
 
 @users.route("/fetch", methods=["GET"])
 @require_oauth2
 def fetch_users():
     """Fetch list of users from the authorisation server."""
+    draw = request.args["draw"]
     return oauth2_get(
-        "auth/user/list"
+        "auth/user/list",
+        json={
+            "email": request.args["columns[1][search][value]"],
+            "name": request.args["columns[2][search][value]"],
+            "verified": request.args["columns[4][search][value]"],
+            "age": request.args["columns[3][search][value]"],
+            "start": request.args["start"],
+            "length": request.args["length"]
+        }
     ).either(
         lambda err: jsonify({
-            "error": {
-                "code": err.status,
-                "url": err.url,
-                "message": response.content
-            }}),
-        lambda users: jsonify({
-            "users": users
+            "draw": draw,
+            **process_error(err)
+        }),
+        lambda results: jsonify({
+            # https://datatables.net/manual/server-side
+            "draw": draw,
+            "users": results["users"],
+            "recordsTotal": results["total-users"],
+            "recordsFiltered": results["total-filtered"]
         }))
