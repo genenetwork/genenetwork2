@@ -203,3 +203,11 @@ def fetch_users():
             "recordsTotal": results["total-users"],
             "recordsFiltered": results["total-filtered"]
         }))
+
+
+@users.route("/perform-batch-action", methods=["POST"])
+@require_oauth2
+def perform_bulk_action():
+    """Perform a selected action on multiple users."""
+    app.logger.debug("THE FORM: %s", request.form)
+    return "Would perform selected action."

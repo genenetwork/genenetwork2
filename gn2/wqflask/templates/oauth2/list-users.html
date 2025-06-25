@@ -72,72 +72,80 @@
   </form>
 </div>
 
-<div class="row">
-  <legend>Batch actions</legend>
-  <span class="btn btn-danger">delete selected</span>
-</div>
+<form id="frm-bulk-actions"
+      method="POST"
+      action="{{url_for('oauth2.user.perform_bulk_action')}}">
 
-<div class="row">
-  <table id="tbl-adm-list-users" class="table table-hover table-striped cell-border">
-    <caption>Users</caption>
-    <thead>
-      <tr>
-        <th>select</th>
-        <th>email</th>
-        <th>name</th>
-        <th>created</th>
-        <th>verified</th>
-        <th></th>
-      </tr>
-    </thead>
+  <div class="row">
+    <legend>Batch actions</legend>
+    <input type="submit"
+           name="bulk-action"
+           class="btn btn-danger"
+           value="delete selected users" />
+  </div>
 
-    <tbody>
-      {%for user in users%}
-      <tr>
-        <td>
-          <input type="checkbox"
-                 name="chk-selected-user"
-                 value="{{user.user_id}}" />
-        </td>
-        <td>{{user.email}}</td>
-        <td>{{user.name}}</td>
-        <td>{{user.created}}</td>
-        <td style="text-align: center;font-weight: larger;">
-          {%if user.verified %}
-          <span class="glyphicon glyphicon-ok text-success"></span>
-          {%else%}
-          <span class="glyphicon glyphicon-remove text-danger"></span>
-          {%endif%}
-        </td>
-        <!--
-            "reset password", "masquerade", "edit", "make sys admin" features
-            are offered in "view user page" presented in the action button
-            below.
-          -->
-        <td><span class="btn btn-info">view</span></td>
-      </tr>
-      {%else%}
-      <tr>
-        <td colspan="5" class="text-info" style="text-align: center;">
-          <span class="glyphicon glyphicon-info-sign"></span>
-          There are no users to list
-        </td>
-      </tr>
-      {%endfor%}
-    </tbody>
-  </table>
+  <div class="row">
+    <table id="tbl-adm-list-users" class="table table-hover table-striped cell-border">
+      <caption>Users</caption>
+      <thead>
+        <tr>
+          <th>select</th>
+          <th>email</th>
+          <th>name</th>
+          <th>created</th>
+          <th>verified</th>
+          <th></th>
+        </tr>
+      </thead>
 
-</div>
+      <tbody>
+        {%for user in users%}
+        <tr>
+          <td>
+            <input type="checkbox"
+                   name="chk-selected-user"
+                   value="{{user.user_id}}" />
+          </td>
+          <td>{{user.email}}</td>
+          <td>{{user.name}}</td>
+          <td>{{user.created}}</td>
+          <td style="text-align: center;font-weight: larger;">
+            {%if user.verified %}
+            <span class="glyphicon glyphicon-ok text-success"></span>
+            {%else%}
+            <span class="glyphicon glyphicon-remove text-danger"></span>
+            {%endif%}
+          </td>
+          <!--
+              "reset password", "masquerade", "edit", "make sys admin" features
+              are offered in "view user page" presented in the action button
+              below.
+            -->
+          <td><span class="btn btn-info">view</span></td>
+        </tr>
+        {%else%}
+        <tr>
+          <td colspan="5" class="text-info" style="text-align: center;">
+            <span class="glyphicon glyphicon-info-sign"></span>
+            There are no users to list
+          </td>
+        </tr>
+        {%endfor%}
+      </tbody>
+    </table>
 
-{%else%}
-<div class="row">
-  <p class="text-danger">
-    <strong>
-      <span class="glyphicon glyphicon-exclamation-sign"></span>
-      You do not have the appropriate privileges to act this page.
-    </strong>
-  </p>
-</div>
+  </div>
+
+  {%else%}
+  <div class="row">
+    <p class="text-danger">
+      <strong>
+        <span class="glyphicon glyphicon-exclamation-sign"></span>
+        You do not have the appropriate privileges to act this page.
+      </strong>
+    </p>
+  </div>
+</form>
 {%endif%}
 
 {%endblock%}
@@ -199,6 +207,7 @@
                   }
               }
           ],
+          select: true,
           serverSide: true,
           ajax: {
               url: "/oauth2/user/fetch",
