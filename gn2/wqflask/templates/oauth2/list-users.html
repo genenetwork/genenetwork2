@@ -103,7 +103,7 @@
         <tr>
           <td>
             <input type="checkbox"
-                   name="chk-selected-user"
+                   name="selected-users"
                    value="{{user.user_id}}" />
           </td>
           <td>{{user.email}}</td>
@@ -176,7 +176,10 @@
                   orderable: false,
                   searchable: false,
                   data: function(user) {
-                      return `<input type="checkbox" name="chk-selected-user" value="${user.user_id}" />`;
+                      return `<input type="checkbox" ` +
+                          `id="chk-selected-users-${user.user_id}" ` +
+                          `name="selected-users" ` +
+                          `value="${user.user_id}" />`;
                   }
               },
               {
