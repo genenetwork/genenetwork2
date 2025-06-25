@@ -70,7 +70,7 @@ def process_error(error: Response,
                 potential_keys = [key for key in err.keys() if key.startswith("error")]
                 msg = f"{error.reason}"
                 if potential_keys:
-                    msg = " ; ".join([f"{k}: {err[k]}" for k in potential_keys])
+                    msg = " ; ".join([f"{err[k]}" for k in potential_keys])
         except simplejson.errors.JSONDecodeError as _jde:
             msg = message
         return {
