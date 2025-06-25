@@ -26,6 +26,8 @@ from .request_utils import (user_details,
                             request_error,
                             process_error,
                             with_flash_error,
+                            with_flash_error,
+                            with_flash_success,
                             authserver_authorise_uri)
 
 users = Blueprint("user", __name__)
@@ -209,5 +211,21 @@ def fetch_users():
 @require_oauth2
 def perform_bulk_action():
     """Perform a selected action on multiple users."""
-    app.logger.debug("THE FORM: %s", request.form)
-    return "Would perform selected action."
+    user_ids = request.form.getlist("selected-users")
+
+    match request.form["bulk-action"]:
+        case "delete selected users":
+            req = oauth2_post(
+                "auth/user/delete",
+                json={
+                    "user_ids": user_ids,
+                }
+            )
+
+        case _:
+            flash("Invalid bulk action selected!", "alert-danger")
+            return redirect(url_for("oauth2.user.list_users"))
+
+    _list_users_page = redirect(url_for("oauth2.user.list_users"))
+    return req.either(with_flash_error(_list_users_page),
+                      with_flash_success(_list_users_page))
