@@ -94,12 +94,16 @@
                     <input type="hidden" name="file_name" id="file_name" value="collection_table">
                     <input type="hidden" name="collection_name_export" value="{{ uc.name }}">
                     <input type="hidden" name="user_email_export" value="{% if g.user_session.user_email %}{{ g.user_session.user_email }}{% else %}N/A{% endif %}">
-                    <button class="btn btn-default" id="export_traits">Download</button>
                     <button class="btn btn-default" id="export_collection">Export Collection</button>
                     <input type="text" id="searchbox" class="form-control" style="width: 200px; display: inline; padding-bottom: 9px;" placeholder="Search Table For ...">
                     <input type="text" id="select_top" class="form-control" style="width: 200px; display: inline; padding-bottom: 9px;" placeholder="Select Top ...">
                     <button class="btn btn-default" id="deselect_all" type="button"><span class="glyphicon glyphicon-remove"></span> Deselect</button>
                     <button id="remove" class="btn btn-danger" data-url="/collections/remove" type="button" disabled><i class="icon-minus-sign"></i> Remove</button>
+                    <button class="btn btn-default" id="export_traits">Download</button>
+                    <select name="export_type" id="cars">
+                        <option value="full">Full</option>
+                        <option value="sample_data">Sample Data</option>
+                      </select>
                 </form>
             </div>
             <div style="margin-top: 10px; margin-bottom: 5px;" class="show-hide-container">
