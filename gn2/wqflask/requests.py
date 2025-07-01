@@ -3,7 +3,8 @@ import requests
 from pymonad.either import Left, Right, Either
 
 def __wrap_response__(resp) -> Either:
-    if resp.status_code == 200:
+    # Succesful responses are in the range of [200, 300)
+    if 200 <= resp.status_code < 300:
         return Right(resp)
     return Left(resp)
 
