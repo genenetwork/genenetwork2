@@ -1631,9 +1631,9 @@ def edit_case_attributes(inbredset_id: int) -> Response:
         from collections import defaultdict
         original, current = defaultdict(dict), defaultdict(dict)
         for key, new_value in request.form.items():
-            # KLUDGE: We use ASCII 30, Record Separator; \x1f since
-            # it's not visible in normal text and is good for machine
-            # only inter-change
+            # KLUDGE: We use ASCII 30, Record Separator; \x1f since it's not
+            # visible in normal text and is good for machine only
+            # inter-change
             strain, case_attr, orig_value = key.split('\x1f')
             if orig_value != new_value:
                 mods = payload.setdefault("Modifications", {})
