@@ -183,7 +183,7 @@ def get_dialect(file_text):
         return csv.excel_tab if '\t' in sample else csv.excel
 
 
-def calculate_diffs(conn, upload_file, group_name):
+def calculate_diffs(conn, upload_file, transposed, group_name):
 
     def is_number(value):
         try:
@@ -208,6 +208,9 @@ def calculate_diffs(conn, upload_file, group_name):
     file_text = upload_file.read().decode('utf-8') if hasattr(upload_file, 'read') else upload_file
     dialect = get_dialect(file_text)
     upload_reader = csv.reader(io.StringIO(file_text), dialect=dialect)
+
+    if transposed:
+        upload_reader = list(zip(*list(upload_reader)))
 
     trait_name = "" # This gets set every 3 lines, since there are 3 lines per trait
     edited_sample_data = {} # Also set every 3 lines
@@ -274,7 +277,8 @@ def batch_edit_page() -> Response:
         with database_connection(get_setting("SQL_URI")) as conn:
             if 'traits_file' in request.files: # Review page
                 upload_file = request.files['traits_file'].read().decode('utf-8')
-                all_diffs, sample_list = calculate_diffs(conn, upload_file, group_name=request.form['group'])
+                transposed = True if 'transpose_file' in request.form else False
+                all_diffs, sample_list = calculate_diffs(conn, upload_file, transposed, group_name=request.form['group'])
                 return render_template("batch_edit_review.html", diffs = all_diffs, diffs_str = json.dumps(all_diffs), sample_list = sample_list)
             elif 'diffs' in request.form: # Actual DB update
                 diff_data = batch_update_sample_data(conn, json.loads(request.form['diffs']))

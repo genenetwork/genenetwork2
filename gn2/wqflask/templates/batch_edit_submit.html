@@ -4,7 +4,7 @@
 <div class="container">
     {% if 'system:data:batch-edit' in system_privileges() %}
     <form id="edit-form" class="form-horizontal" method="post" action="/datasets/batch_edit" enctype="multipart/form-data">
-        <div style="max-width: 700px;">
+        <div style="max-width: 800px;">
             <div class="page-header">
                 <h2>Batch Edit</h2>
             </div>
@@ -33,9 +33,14 @@
                     <div style="margin-bottom: 15px;">
                         <label class="col-xs-1 control-label" style="display: block; margin-bottom: 5px;">File:</label>
                         <div class="col-xs-10 controls input-append" style="margin-left: 20px;">
-                            <input type="file" name="traits_file" />
+                            <div style="display: inline-block;">
+                                <input type="file" name="traits_file" style="display: inline-block;"/>
+                            </div>
+                            <div style="display: inline-block; margin-left: 15px;">
+                                <input type="checkbox" id="transpose_file" name="transpose_file" value="true">
+                                <label for="transpose_file" title="Traits as column, samples as rows">Transposed File</label>
+                            </div>
                         </div>
-                    </div>
                 </div>
                 <div class="form-group">
                     <div style="margin-bottom: 15px;">
