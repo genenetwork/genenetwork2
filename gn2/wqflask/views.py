@@ -1625,7 +1625,22 @@ def edit_case_attributes(inbredset_id: int) -> Response:
     Edit the case-attributes for InbredSet group identified by `inbredset_id`.
     """
     if request.method == "POST":
-        data = request.json
+        payload = {
+            "inbredset_id": inbredset_id,
+        }
+        from collections import defaultdict
+        original, current = defaultdict(dict), defaultdict(dict)
+        for key, new_value in request.form.items():
+            # KLUDGE: We use ASCII 30, Record Separator; \x1f since
+            # it's not visible in normal text and is good for machine
+            # only inter-change
+            strain, case_attr, orig_value = key.split('\x1f')
+            if orig_value != new_value:
+                mods = payload.setdefault("Modifications", {})
+                original = mods.setdefault("Original", {}).setdefault(strain, {})
+                current = mods.setdefault("Current", {}).setdefault(strain, {})
+                original[case_attr] = orig_value
+                current[case_attr] = new_value
         edit_case_attributes_page = redirect(url_for(
             "edit_case_attributes", inbredset_id=inbredset_id))
         token = session_info()["user"]["token"].either(
@@ -1633,6 +1648,8 @@ def edit_case_attributes(inbredset_id: int) -> Response:
 
         def flash_success(resp):
             def __succ__(remote_resp):
+                flash(
+                    f"Success: {remote_resp.json()['message']}", "alert-success")
                 return redirect(url_for("edit_case_attributes", inbredset_id=inbredset_id))
             return __succ__
         return monad_requests.post(
@@ -1640,7 +1657,7 @@ def edit_case_attributes(inbredset_id: int) -> Response:
                 current_app.config["GN_SERVER_URL"],
                 f"case-attribute/{inbredset_id}/edit"),
             json={
-                "edit-data": request.json,
+                "edit-data": payload,
                 "user-id": g.user_session.user_id,
             },
             headers={
