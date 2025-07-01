@@ -159,7 +159,7 @@ def export_traitlist(targs):
 
             for sample in samplelist:
                 if sample in trait.data:
-                    trait_val = trait.data[sample].value if trait.data[sample].value else "x"
+                    trait_val = trait.data[sample].value if (trait.data[sample].value or trait.data[sample].value == 0) else "x"
                     trait_var = trait.data[sample].variance if trait.data[sample].variance else "x"
                     row_contents += [trait_val,
                                      trait_var]
@@ -216,7 +216,7 @@ def export_sample_data(targs):
 
         for sample in samplelist:
             if sample in trait.data:
-                trait_val = trait.data[sample].value if trait.data[sample].value else "x"
+                trait_val = trait.data[sample].value if (trait.data[sample].value or trait.data[sample].value == 0) else "x"
                 trait_var = trait.data[sample].variance if trait.data[sample].variance else "x"
                 trait_n = trait.data[sample].num_cases if trait.data[sample].num_cases else "x"
                 val_row += [trait_val]
