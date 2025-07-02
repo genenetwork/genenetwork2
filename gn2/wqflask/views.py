@@ -1715,12 +1715,12 @@ def edit_case_attributes(inbredset_id: int) -> Response:
                             "edit_case_attributes.html", inbredset_id=inbredset_id, **values))
 
 
-@app.route("/case-attribute/<int:inbredset_id>/list-diffs", methods=["GET"])
-def list_case_attribute_diffs(inbredset_id: int) -> Response:
+@app.route("/case-attribute/<int:inbredset_id>/diffs/<string:change_type>", methods=["GET"])
+def list_case_attribute_diffs(inbredset_id: int, change_type: str) -> Response:
     """List any diffs awaiting review."""
     return monad_requests.get(urljoin(
         current_app.config["GN_SERVER_URL"],
-        f"/api/case-attribute/{inbredset_id}/diff/list")).then(
+        f"case-attribute/{inbredset_id}/diffs/{change_type}/list")).then(
             lambda resp: resp.json()).either(
                 lambda err: render_template(
                     "list_case_attribute_diffs_error.html",
@@ -1729,7 +1729,9 @@ def list_case_attribute_diffs(inbredset_id: int) -> Response:
                 lambda diffs: render_template(
                     "list_case_attribute_diffs.html",
                     inbredset_id=inbredset_id,
-                    diffs=diffs))
+                    change_type=change_type,
+                    count=diffs.get("count", {}),
+                    diffs=diffs.get("data", {})))
 
 
 @app.route("/case-attribute/diff/approve-reject", methods=["POST"])
