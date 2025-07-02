@@ -1556,6 +1556,9 @@ def edit_case_attributes(inbredset_id: int) -> Response:
     if request.method == "POST":
         payload = {
             "inbredset_id": inbredset_id,
+            # KLUDGE: FIXME: It's unclear how to get this from gn3 for
+            # now; or for the matter fetch this from here.
+            "user": session_info()["user"]["name"],
         }
         from collections import defaultdict
         original, current = defaultdict(dict), defaultdict(dict)
@@ -1572,14 +1575,24 @@ def edit_case_attributes(inbredset_id: int) -> Response:
                 current[case_attr] = new_value
         edit_case_attributes_page = redirect(url_for(
             "edit_case_attributes", inbredset_id=inbredset_id))
+        list_case_attributes_page = redirect(url_for(
+            "list_case_attribute_diffs", inbredset_id=inbredset_id,
+            change_type="review"))
         token = session_info()["user"]["token"].either(
             lambda err: err, lambda tok: tok["access_token"])
 
         def flash_success(resp):
             def __succ__(remote_resp):
+                user_name = session_info()["user"]["name"]
+                # KLUDGE: Consider emailing people who have edit
+                # access, in addition to the user for a better UX.
                 flash(
-                    f"Success: {remote_resp.json()['message']}", "alert-success")
-                return redirect(url_for("edit_case_attributes", inbredset_id=inbredset_id))
+                    ("Your changes are submitted for review. "
+                     f"Thank you, {user_name}! 📝"),
+                    "alert-success")
+                return redirect(url_for("list_case_attribute_diffs",
+                                        inbredset_id=inbredset_id,
+                                        change_type="review"))
             return __succ__
         return monad_requests.post(
             urljoin(
@@ -1592,7 +1605,7 @@ def edit_case_attributes(inbredset_id: int) -> Response:
             headers={
                 "Authorization": f"Bearer {token}"}).either(
             with_flash_error(edit_case_attributes_page),
-            flash_success(edit_case_attributes_page))
+            flash_success(list_case_attributes_page))
 
     def __remove_none_vals__(a_dict):
         return dict([(k,v) if v else (k,"") for k,v in a_dict.items()])
