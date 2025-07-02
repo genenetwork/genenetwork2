@@ -1648,22 +1648,6 @@ def list_case_attribute_diffs(inbredset_id: int) -> Response:
                     diffs=diffs))
 
 
-@app.route("/case-attribute/<int:inbredset_id>/diff/<int:diff_id>/view", methods=["GET"])
-def view_diff(inbredset_id: int, diff_id: int) -> Response:
-    """View the pending diff."""
-    token = session_info()["user"]["token"].either(
-        lambda err: err, lambda tok: tok["access_token"])
-    return monad_requests.get(
-        urljoin(current_app.config["GN_SERVER_URL"],
-                f"/api/case-attribute/{inbredset_id}/diff/{diff_id}/view"),
-        headers={"Authorization": f"Bearer {token}"}).then(
-            lambda resp: resp.json()).either(
-                lambda err: render_template(
-                    "view_case_attribute_diff_error.html", error=err.json()),
-                lambda diff: render_template(
-                    "view_case_attribute_diff.html", diff=diff))
-
-
 @app.route("/case-attribute/diff/approve-reject", methods=["POST"])
 def approve_reject_diff() -> Response:
     """Approve/Reject the diff."""
