@@ -1,59 +1,362 @@
 {% extends "index_page.html" %}
-{%block title%}List Case Attribute Diffs{%endblock%}
+{%block title%}Review Case Attribute Changes{%endblock%}
 
 {%block css%}
-<link rel="stylesheet" type="text/css"
-      href="/css/DataTables/css/jquery.dataTables.css" />
-<link rel="stylesheet" type="text/css"
-      href="{{ url_for('css', filename='jquery-ui/jquery-ui.theme.css') }}" />
+<link rel="stylesheet" type="text/css" href="{{ url_for('css', filename='jquery-ui/jquery-ui.theme.css') }}" />
 <link rel="stylesheet" type="text/css" href="/static/new/css/show_trait.css" />
 
 <style>
-  .table-fixed-head {overflow-y: auto; height: 32em;}
-  .table-fixed-head thead th {position: sticky; top: 0;}
+ .diff-container {
+     background: #fafafa;
+     padding: 1.5rem;
+     border-radius: 8px;
+     box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+ }
+
+ /* Header styling */
+ .diff-container h3 {
+     color: #2c3e50;
+     border-bottom: 3px solid #3498db;
+     padding-bottom: 0.5rem;
+     margin-bottom: 1rem;
+     font-weight: 600;
+ }
+
+ /* Status bar */
+ .status-bar {
+     background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+     border: 1px solid #dee2e6;
+     border-radius: 6px;
+     padding: 0.75rem 1rem;
+     margin-bottom: 1.5rem;
+     box-shadow: inset 0 1px 2px rgba(0,0,0,0.05);
+ }
+
+ .status-bar .status-item {
+     display: inline-block;
+     margin-right: 1.5rem;
+     font-weight: 500;
+ }
+
+ .status-pending { color: #f39c12; }
+ .status-approved { color: #27ae60; }
+ .status-rejected { color: #e74c3c; }
+
+ /* Grid layout - more compact */
+ .reviews-grid {
+     display: grid;
+     grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+     gap: 1rem;
+     margin-bottom: 1rem;
+ }
+
+ /* Review blocks - enhanced but clean */
+ .review-block {
+     background: #E3DAC9;
+     border: 1px solid #d1d5db;
+     border-radius: 8px;
+     box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+     overflow: hidden;
+     transition: all 0.2s ease;
+ }
+
+ .review-block:hover {
+     box-shadow: 0 4px 12px rgba(0,0,0,0.12);
+     transform: translateY(-1px);
+ }
+
+ /* Header with better visual hierarchy */
+ .review-header {
+     background: linear-gradient(135deg, #34495e 0%, #2c3e50 100%);
+     color: white;
+     padding: 0.75rem 1rem;
+     font-weight: 600;
+     border-bottom: none;
+ }
+
+ .review-header .diff-id {
+     font-weight: 700;
+ }
+
+ .review-header .meta-info {
+     opacity: 0.9;
+     margin-top: 0.25rem;
+ }
+
+ /* Content area - more compact */
+ .review-content {
+     padding: 1rem;
+ }
+
+ .strain-section {
+     margin-bottom: 1rem;
+ }
+
+ .strain-section:last-child {
+     margin-bottom: 0;
+ }
+
+ .strain-name {
+     font-weight: 700;
+     color: #2980b9;
+     margin-bottom: 0.5rem;
+     padding-bottom: 0.25rem;
+     border-bottom: 2px solid #ecf0f1;
+ }
+
+ /* Compact table styling */
+ .changes-table-container {
+     overflow-x: auto;
+     border-radius: 4px;
+     border: 1px solid #e1e5e9;
+ }
+
+ .changes-table {
+     width: 100%;
+     border-collapse: collapse;
+     margin: 0;
+ }
+
+ .changes-table th {
+     background: linear-gradient(135deg, #ecf0f1 0%, #d5dbdb 100%);
+     color: #2c3e50;
+     font-weight: 600;
+     padding: 0.5rem 0.75rem;
+     text-align: left;
+     border-bottom: 2px solid #bdc3c7;
+ }
+
+ .changes-table td {
+     padding: 0.5rem 0.75rem;
+     border-bottom: 1px solid #ecf0f1;
+     vertical-align: top;
+ }
+
+ .changes-table tr:hover {
+     background-color: #f8f9fa;
+ }
+
+ /* Value highlighting */
+ .old-val {
+     background: linear-gradient(135deg, #ffeaa7 0%, #fdcb6e 20%, #ffeaa7 100%);
+     border-left: 3px solid #f39c12;
+ }
+
+ .new-val {
+     background: linear-gradient(135deg, #a8e6cf 0%, #7ed3b2 20%, #a8e6cf 100%);
+     border-left: 3px solid #27ae60;
+ }
+
+ .empty {
+     color: #7f8c8d;
+     font-style: italic;
+ }
+
+ .actions {
+     padding: 0.75rem 1rem;
+     background: #f8f9fa;
+     border-top: 1px solid #e9ecef;
+     text-align: right;
+ }
+
+ .actions .btn {
+     font-weight: 600;
+     padding: 0.6rem 1.2rem;
+     margin-left: 0.5rem;
+     border-radius: 4px;
+     border: none;
+     cursor: pointer;
+     transition: all 0.2s ease;
+     text-transform: uppercase;
+     letter-spacing: 0.5px;
+     min-width: 100px;
+     line-height: 1.5;
+     box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+     outline: none;
+ }
+
+ .btn-success {
+     background: linear-gradient(135deg, #27ae60 0%, #2ecc71 100%);
+     color: white;
+ }
+
+ .btn-success:hover {
+     background: linear-gradient(135deg, #229954 0%, #27ae60 100%);
+     transform: translateY(-1px);
+     box-shadow: 0 4px 8px rgba(39, 174, 96, 0.3);
+ }
+
+ .btn-danger {
+     background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%);
+     color: white;
+ }
+
+ .btn-danger:hover {
+     background: linear-gradient(135deg, #c0392b 0%, #a93226 100%);
+     transform: translateY(-1px);
+     box-shadow: 0 4px 8px rgba(231, 76, 60, 0.3);
+ }
+
+ /* Empty state styling */
+ .empty-state {
+     text-align: center;
+     padding: 3rem 1rem;
+     color: #7f8c8d;
+ }
+
+ .empty-state i {
+     margin-bottom: 1rem;
+     display: block;
+     opacity: 0.5;
+ }
+
+ /* Responsive adjustments */
+ @media (max-width: 768px) {
+     .reviews-grid {
+         grid-template-columns: 1fr;
+     }
+
+     .diff-container {
+         padding: 1rem;
+     }
+
+     .status-bar {
+         padding: 0.5rem 0.75rem;
+     }
+
+     .status-bar .status-item {
+         display: block;
+         margin-bottom: 0.25rem;
+         margin-right: 0;
+     }
+
+
+     .changes-table th,
+     .changes-table td {
+         padding: 0.375rem 0.5rem;
+     }
+ }
+
+ @media (max-width: 480px) {
+     .review-header {
+         padding: 0.5rem 0.75rem;
+     }
+
+     .review-content {
+         padding: 0.75rem;
+     }
+
+     .actions .btn {
+         padding: 0.375rem 0.75rem;
+     }
+ }
 </style>
 {%endblock%}
 
 {%block content%}
-<div class="container">
-  <h1>List Diffs</h1>
+<div class="container diff-container" style="max-width: 1200px; width: 100%; padding: 0 1rem;">
 
-  {{flash_me()}}
+    <h3>
+        {% if change_type == "review" %}
+        📋 Review Changes
+        {% elif change_type == "approved" %}
+        ✅ Approved Changes
+        {% else %}
+        ❌ Rejected Changes
+        {% endif %}
+    </h3>
 
-  <table class="table-hover table-striped cell-border dataTable no-footer">
-    <thead>
-      <tr>
-	<th>Edit on</th>
-	<th>Filename</th>
-      </tr>
-    </thead>
+    {{flash_me()}}
 
-    <tbody>
-      {%for diff in diffs%}
-      <tr>
-	<td>{{diff.time_stamp}}</td>
-	<td>
-	  <a href="{{url_for('view_diff', inbredset_id=diff.json_diff_data.inbredset_id, diff_id=diff.id)}}"
-	     title="View the diff">
-	    {{diff.filename}}
-	  </a>
-	</td>
-      </tr>
-      {%else%}
-      <tr>
-	<td colspan="5" class="text-info" style="text-align: center;line-height: 2em;">
-	  <span class="glyphicon glyphicon-exclamation-sign">
-	  </span>
-	  There are no diffs pending review
-	</td>
-      </tr>
-      {%endfor%}
-    </tbody>
-  </table>
-{%endblock%}
+    <div class="status-bar">
+        <span class="status-item status-pending">⏳ Pending: <strong>{{ count.reviews }}</strong></span>
+        <span class="status-item status-approved">✅ Approved: <strong>{{ count.approvals }}</strong></span>
+        <span class="status-item status-rejected">❌ Rejected: <strong>{{ count.rejections }}</strong></span>
+    </div>
 
-{%block js%}
-<script language="javascript"
-	type="text/javascript"
-	src="{{url_for('js', filename='DataTables/js/jquery.js')}}"></script>
+    {% if diffs %}
+    <div class="reviews-grid">
+        {% for diff_id, diff in diffs.items() %}
+        <div class="review-block">
+            <div class="review-header">
+                <div class="diff-id">#{{ diff_id }}</div>
+                <div class="meta-info">
+                    👤
+		    {% if diff.json_diff_data.user %}
+		    {{ diff.json_diff_data.user }}
+		    {% else %}
+		    {{ diff.editor[:8] }}
+		    {% endif %}
+		    <br/>
+		    🕒 <small>{{ diff.time_stamp }}</small>
+                </div>
+            </div>
+
+            <div class="review-content">
+                {% for strain_name, changes in diff.json_diff_data.Modifications.Current.items() %}
+                <div class="strain-section">
+                    <div class="strain-name">🧬 {{ strain_name }}</div>
+                    <div class="changes-table-container">
+                        <table class="changes-table">
+                            <thead>
+                                <tr>
+                                    <th>Attribute</th>
+                                    <th>Original</th>
+                                    <th>Modified</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for attribute, current_value in changes.items() %}
+                                <tr>
+                                    <td><strong>{{ attribute }}</strong></td>
+                                    <td class="old-val">
+                                        {% set original_value = diff.json_diff_data.Modifications.Original.get(strain_name, {}).get(attribute, '') %}
+                                        {% if original_value %}
+                                        {{ original_value }}
+                                        {% else %}
+                                        <span class="empty">(empty)</span>
+                                        {% endif %}
+                                    </td>
+                                    <td class="new-val">
+                                        {% if current_value %}
+                                        {{ current_value }}
+                                        {% else %}
+                                        <span class="empty">(empty)</span>
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+
+            {% if change_type == "review" %}
+            <div class="actions">
+		<form action="{{ url_for('approve_reject_diff') }}" method="POST" style="display: inline;">
+		    <input type="hidden" name="action" value="approve">
+		    <input type="hidden" name="diff_id" value="{{ diff_id }}">
+		    <input type="hidden" name="diff_data" value="{{ diff | tojson | safe }}">
+		    <button type="submit" class="btn btn-success" aria-label="Approve change #{{ diff_id }}">Approve</button>
+		</form>
+		<form action="{{ url_for('approve_reject_diff') }}" method="POST" style="display: inline;">
+		    <input type="hidden" name="action" value="reject">
+		    <input type="hidden" name="diff_id" value="{{ diff_id }}">
+		    <input type="hidden" name="diff_data" value="{{ diff | tojson | safe }}">
+		    <button type="submit" class="btn btn-danger" aria-label="Reject change #{{ diff_id }}">Reject</button>
+		</form>
+            </div>
+            {% endif %}
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div class="empty-state">
+        <i>📭</i>
+        <div>No pending changes to review.</div>
+    </div>
+    {% endif %}
+</div>
 {%endblock%}
