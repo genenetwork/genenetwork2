@@ -269,9 +269,25 @@
     {{flash_me()}}
 
     <div class="status-bar">
-        <span class="status-item status-pending">⏳ Pending: <strong>{{ count.reviews }}</strong></span>
-        <span class="status-item status-approved">✅ Approved: <strong>{{ count.approvals }}</strong></span>
-        <span class="status-item status-rejected">❌ Rejected: <strong>{{ count.rejections }}</strong></span>
+        <span class="status-item status-pending">
+	    <a href="{{ url_for('list_case_attribute_diffs', inbredset_id=inbredset_id, change_type='review') }}">
+		⏳ Pending:
+		<strong>{{ count.reviews }}
+	    </a>
+
+	    </strong>
+	</span>
+        <span class="status-item status-approved">
+	    <a href="{{ url_for('list_case_attribute_diffs', inbredset_id=inbredset_id, change_type='approved') }}">
+		✅ Approved:
+		<strong>{{ count.approvals }}</strong>
+	    </a>
+	</span>
+        <span class="status-item status-rejected">
+	    <a href="{{ url_for('list_case_attribute_diffs', inbredset_id=inbredset_id, change_type='rejected') }}">
+		❌ Rejected: <strong>{{ count.rejections }}</strong>
+	    </a>
+	</span>
     </div>
 
     {% if diffs %}
