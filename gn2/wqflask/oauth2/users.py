@@ -183,13 +183,15 @@ def list_users():
 def fetch_users():
     """Fetch list of users from the authorisation server."""
     draw = request.args["draw"]
+    email_search = (request.args.get("search[value]")
+                    or request.args["columns[1][search][value]"])
+    name_search = (request.args.get("search[value]")
+                   or request.args["columns[2][search][value]"])
     return oauth2_get(
         "auth/user/list",
         json={
-            "email": request.args["columns[1][search][value]"],
-            "name": request.args["columns[2][search][value]"],
-            "verified": request.args["columns[4][search][value]"],
-            "age": request.args["columns[3][search][value]"],
+            "email": email_search,
+            "name": name_search,
             "verified": request.args.get("columns[4][search][value]") or "",
             "age": request.args.get("columns[3][search][value]") or "",
             "start": request.args["start"],
