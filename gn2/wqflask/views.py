@@ -97,12 +97,12 @@ from gn2.utility.helper_functions import clean_xapian_query
 from gn2.utility.redis_tools import get_redis_conn
 
 import gn2.utility.hmac as hmac
-
 from gn2.base.webqtlConfig import TMPDIR, GENERATED_IMAGE_DIR
 from gn2.base.webqtlConfig import GENE_CUP_URL
 
 import gn2.jobs.jobs as jobs
 
+from gn2.wqflask.decorators import login_required
 from gn2.wqflask.oauth2.session import session_info
 from gn2.wqflask.oauth2.client import user_logged_in
 
@@ -1621,6 +1621,7 @@ def get_genotype(name, dataset=None):
 
 
 @app.route("/case-attribute/<int:inbredset_id>/edit", methods=["GET", "POST"])
+@login_required()
 def edit_case_attributes(inbredset_id: int) -> Response:
     """
     Edit the case-attributes for InbredSet group identified by `inbredset_id`.
