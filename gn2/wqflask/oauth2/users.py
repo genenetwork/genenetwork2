@@ -140,14 +140,7 @@ def register_user():
 def masquerade():
     """Masquerade as a particular user."""
     if request.method == "GET":
-        this_user = session.session_info()["user"]
-        return client.get("auth/user/list").either(
-            lambda err: render_ui(
-                "oauth2/masquerade.html", users_error=process_error(err)),
-            lambda usrs: render_ui(
-                "oauth2/masquerade.html", users=tuple(
-                    usr for usr in usrs
-                    if UUID(usr["user_id"]) != this_user["user_id"])))
+        return render_ui("oauth2/masquerade.html", users=tuple())
 
     def __masq_success__(masq_details):
         session.set_masquerading(masq_details)
