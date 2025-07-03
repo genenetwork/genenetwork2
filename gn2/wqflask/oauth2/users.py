@@ -190,6 +190,8 @@ def fetch_users():
             "name": request.args["columns[2][search][value]"],
             "verified": request.args["columns[4][search][value]"],
             "age": request.args["columns[3][search][value]"],
+            "verified": request.args.get("columns[4][search][value]") or "",
+            "age": request.args.get("columns[3][search][value]") or "",
             "start": request.args["start"],
             "length": request.args["length"]
         }
