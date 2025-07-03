@@ -347,9 +347,9 @@
                     </div>
                 </div>
                 {% endfor %}
-            </div>
+	    </div>
 
-            {% if change_type == "review" %}
+            {% if change_type == "review" and "system:inbredset:apply-case-attribute-edit" in privs %}
             <div class="actions">
 		<form action="{{ url_for('approve_reject_diff') }}" method="POST" style="display: inline;">
 		    <input type="hidden" name="action" value="approve">

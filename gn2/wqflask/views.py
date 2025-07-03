@@ -108,6 +108,7 @@ from gn2.wqflask.oauth2.client import user_logged_in
 from gn2.wqflask import requests as monad_requests
 
 from gn2.wqflask.oauth2.checks import require_oauth2
+from gn2.wqflask.oauth2.checks import fetch_case_attribute_privs
 
 
 Redis = get_redis_conn()
@@ -1657,6 +1658,12 @@ def edit_case_attributes(inbredset_id: int) -> Response:
 @app.route("/case-attribute/<int:inbredset_id>/diffs/<string:change_type>", methods=["GET"])
 def list_case_attribute_diffs(inbredset_id: int, change_type: str) -> Response:
     """List any diffs awaiting review."""
+    privs = fetch_case_attribute_privs(
+        token=session_info()["user"]["token"].either(
+            lambda err: err, lambda tok: tok["access_token"]),
+        sql_uri=get_setting("SQL_URI"),
+        inbredset_id=inbredset_id
+    )
     return monad_requests.get(urljoin(
         current_app.config["GN_SERVER_URL"],
         f"case-attribute/{inbredset_id}/diffs/{change_type}/list")).then(
@@ -1669,6 +1676,7 @@ def list_case_attribute_diffs(inbredset_id: int, change_type: str) -> Response:
                     "list_case_attribute_diffs.html",
                     inbredset_id=inbredset_id,
                     change_type=change_type,
+                    privs=privs,
                     count=diffs.get("count", {}),
                     diffs=diffs.get("data", {})))
 
