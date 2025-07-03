@@ -809,8 +809,10 @@ def show_trait_page():
                 # this is for debugging purposes;
                 # TODO Update the mapping methid in IbredSet Database
                 template_vars.dataset.group.mapping_names.append("R/qtl")
+            is_user_logged_in = session_info().get("user", {}).get("logged_in", False)
             return render_template(
                 "show_trait.html",
+                is_user_logged_in=is_user_logged_in,
                 **{
                     **template_vars.__dict__,
                     "user": privileges_data["user"],
