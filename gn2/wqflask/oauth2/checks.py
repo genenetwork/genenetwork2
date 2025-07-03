@@ -5,15 +5,51 @@ from urllib.parse import urljoin
 from flask import flash, request, redirect, url_for
 from authlib.integrations.requests_client import OAuth2Session
 from werkzeug.routing import BuildError
+from gn_libs.mysqldb import database_connection
 
 from . import session
 from .client import (
     oauth2_get,
+    oauth2_post,
     oauth2_client,
     authserver_uri,
     oauth2_clientid,
     oauth2_clientsecret)
 from .request_utils import authserver_authorise_uri
+
+
+def fetch_case_attribute_privs(token: dict, sql_uri: str, inbredset_id: int) -> list:
+    with database_connection(sql_uri) as conn, conn.cursor() as cursor:
+        cursor.execute(
+                "SELECT SpeciesId FROM InbredSet WHERE InbredSetId=%s",
+                (inbredset_id,))
+        species_id = cursor.fetchone()
+        if not species_id:
+            return []
+        species_id = species_id[0]
+        resource_id = oauth2_get(
+            f"auth/resource/populations/resource-id/{species_id}/{inbredset_id}"
+        ).either(
+            lambda _: False,
+            lambda val: val["resource-id"]
+        )
+        if not resource_id:
+            return []
+        return oauth2_post(
+            f"auth/resource/authorisation",
+            json={
+                "resource-ids": [resource_id],
+            },
+            headers={
+                "Authorization": f"Bearer {token}"},
+            timeout=300
+        ).either(
+            lambda _: [],
+            lambda resp: [
+                priv["privilege_id"]
+                for role in resp.get(resource_id, {}).get("roles", [])
+                for priv in role.get("privileges", [])]
+        )
 
 
 def require_oauth2(func):
