@@ -1744,47 +1744,34 @@ def list_case_attribute_diffs(inbredset_id: int, change_type: str) -> Response:
 @app.route("/case-attribute/diff/approve-reject", methods=["POST"])
 def approve_reject_diff() -> Response:
     """Approve/Reject the diff."""
-    try:
-        form = request.form
-        action = form["action"]
-        assert action in ("approve", "reject")
-        diff_data = json.loads(form["diff_data"])
-        diff_data = {
-            **diff_data,
-            "created": datetime.datetime.fromisoformat(diff_data["created"])}
-        inbredset_id = diff_data["inbredset_id"]
-        filename = (
-            f"{inbredset_id}:::{diff_data['user_id']}:::"
-            f"{diff_data['created'].isoformat()}.json")
-
-        list_diffs_page = url_for("list_case_attribute_diffs",
-                                  inbredset_id=inbredset_id)
-        token = session_info()["user"]["token"].either(
-            lambda err: err, lambda tok: tok["access_token"])
-
-        def __error__(resp):
-            error = resp.json()
-            flash((f"{resp.status_code} {error['error']}: "
-                   f"{error['error_description']}"),
-                  "alert-danger")
-            return redirect(list_diffs_page)
-
-        def __success__(results):
-            flash(results["message"], "alert-success")
-            return redirect(list_diffs_page)
-        return monad_requests.post(
-            urljoin(current_app.config["GN_SERVER_URL"],
-                    f"/api/case-attribute/{action}/{filename}"),
-            headers={"Authorization": f"Bearer {token}"}).then(
-                lambda resp: resp.json()
-        ).either(
-                __error__, __success__)
-    except AssertionError as _ae:
-        flash("Invalid action! Expected either 'approve' or 'reject'.",
+    form = request.form
+    action = form.get("action")
+    inbredset_id = form.get("inbredset_id")
+    _id = form.get("diff_id")
+    list_case_attributes_page = url_for(
+        "list_case_attribute_diffs", inbredset_id=inbredset_id,
+        change_type="review")
+    token = session_info()["user"]["token"].either(
+        lambda err: err, lambda tok: tok["access_token"])
+    username = session_info()["user"]["name"]
+    def __error__(resp):
+        error = resp.json()
+        # KLUDGE: Consider emailing people who have edit
+        # access, in addition to the user for a better UX.
+        flash(f"Hey {username}, something went wrong.",
               "alert-danger")
-        return redirect(url_for("view_diff",
-                                inbredset_id=inbredset_id,
-                                diff_id=form["diff_id"]))
+        return redirect(list_case_attributes_page)
+
+    def __success__(results):
+        return redirect(list_case_attributes_page)
+
+    return monad_requests.post(
+                urljoin(current_app.config["GN_SERVER_URL"],
+                        f"case-attribute/{inbredset_id}/{action}/{_id}"),
+                headers={"Authorization": f"Bearer {token}"}).then(
+                    lambda resp: resp.json()
+                ).either(
+                    __error__, __success__)
 
 
 @app.route("/genewiki/edit", methods=["GET", "POST"], defaults={'comment_id': None})
