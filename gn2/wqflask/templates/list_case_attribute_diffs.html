@@ -354,13 +354,13 @@
 		<form action="{{ url_for('approve_reject_diff') }}" method="POST" style="display: inline;">
 		    <input type="hidden" name="action" value="approve">
 		    <input type="hidden" name="diff_id" value="{{ diff_id }}">
-		    <input type="hidden" name="diff_data" value="{{ diff | tojson | safe }}">
+		    <input type="hidden" name="inbredset_id" value="{{ diff.json_diff_data.inbredset_id }}">
 		    <button type="submit" class="btn btn-success" aria-label="Approve change #{{ diff_id }}">Approve</button>
 		</form>
 		<form action="{{ url_for('approve_reject_diff') }}" method="POST" style="display: inline;">
 		    <input type="hidden" name="action" value="reject">
 		    <input type="hidden" name="diff_id" value="{{ diff_id }}">
-		    <input type="hidden" name="diff_data" value="{{ diff | tojson | safe }}">
+		    <input type="hidden" name="inbredset_id" value="{{ diff.json_diff_data.inbredset_id }}">
 		    <button type="submit" class="btn btn-danger" aria-label="Reject change #{{ diff_id }}">Reject</button>
 		</form>
             </div>
