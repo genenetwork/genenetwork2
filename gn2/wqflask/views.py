@@ -18,6 +18,7 @@ import uuid
 import urllib.parse
 
 from functools import reduce
+from collections import defaultdict
 
 from zipfile import ZipFile
 from zipfile import ZIP_DEFLATED
@@ -1632,7 +1633,6 @@ def edit_case_attributes(inbredset_id: int) -> Response:
             # now; or for the matter fetch this from here.
             "user": user_name,
         }
-        from collections import defaultdict
         original, current = defaultdict(dict), defaultdict(dict)
         for key, new_value in request.form.items():
             # KLUDGE: We use ASCII 30, Record Separator; \x1f since it's not
