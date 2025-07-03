@@ -3,6 +3,21 @@
 
 {%block title%}Masquerade As{%endblock%}
 
+{%block css%}
+<link rel="stylesheet" type="text/css" href="/static/new/css/show_trait.css" />
+<link rel="stylesheet"
+      type="text/css"
+      href="{{ url_for('css', filename='DataTables/css/jquery.dataTables.css') }}" />
+<link rel="stylesheet"
+      type="text/css"
+      href="{{ url_for('js', filename='DataTablesExtensions/buttonStyles/css/buttons.dataTables.min.css') }}">
+<link rel="stylesheet"
+      type="text/css"
+      href="{{ url_for('css', filename='jquery-ui/jquery-ui.theme.css') }}"/>
+{%endblock%}
+
+{%block dash_page_header%}Masquerade as{%endblock%}
+
 {%block dash_page_content%}
 
 {%if users_error is defined%}
@@ -12,22 +27,83 @@
   <form method="POST"
 	action="{{url_for('oauth2.user.masquerade')}}">
     <legend>Masquerade As</legend>
-    <div class="form-group">
-      <label for="select-masquerade" class="form-label">
-	Masquerade as
-      </label>
-      <select id="select-masquerade" name="masquerade_as"
-	      required="required" class="form-control">
-	<option value="">Select User</option>
-	{%for user in users%}
-	<option value="{{user.user_id}}">{{user.name}} ({{user.email}})</option>
-	{%endfor%}
-      </select>
-    </div>
+    <table id="tbl-masquerade-as" class="table table-hover table-striped cell-border">
+      <thead>
+        <tr>
+          <th>Select</th>
+          <th>email</th>
+          <th>Name</th>
+        </tr>
+      </thead>
+
+      <tbody>
+        <tr>
+          <td></td>
+          <td></td>
+          <td></td>
+        </tr>
+      </tbody>
+    </table>
+
     <div class="form-group">
       <input type="submit" class="btn btn-primary" value="Masquerade" />
     </div>
   </form>
 </div>
 {%endif%}
+{%endblock%}
+
+
+{%block js%}
+<script language="javascript"
+        type="text/javascript"
+        src="{{ url_for('js', filename='DataTables/js/jquery.dataTables.min.js') }}"></script>
+<script language="javascript"
+        type="text/javascript"
+        src="{{ url_for('js', filename='DataTablesExtensions/scroller/js/dataTables.scroller.min.js') }}"></script>
+<script language="javascript"
+        type="text/javascript"
+        src="{{ url_for('js', filename='DataTablesExtensions/plugins/sorting/natural.js') }}"></script>
+<script language="javascript"
+        type="text/javascript"
+        src="{{ url_for('js', filename='DataTablesExtensions/buttons/js/dataTables.buttons.min.js') }}"></script>
+<script language="javascript"
+        type="text/javascript"
+        src="{{ url_for('js', filename='DataTablesExtensions/buttons/js/buttons.colVis.min.js') }}"></script>
+
+<script type="text/javascript">
+  $(function() {
+      var table_api = $("#tbl-masquerade-as").DataTable({
+          columns: [
+              {
+                  orderable: false,
+                  searchable: false,
+                  data: function(user) {
+                      return `<input type="radio" ` +
+                          `id="rdo-masquerade-as-${user.user_id}" ` +
+                          `name="masquerade_as" ` +
+                          `value="${user.user_id}" />`;
+                  }
+              },
+              {
+                  orderable: true,
+                  searchable: true,
+                  data: "email"
+              },
+              {
+                  orderable: true,
+                  searchable: true,
+                  data: "name"
+              }
+          ],
+          select: "single",
+          serverSide: true,
+          ajax: {
+              url: "/oauth2/user/fetch",
+              dataSrc: "users"
+          }
+      });
+  });
+
+</script>
 {%endblock%}
