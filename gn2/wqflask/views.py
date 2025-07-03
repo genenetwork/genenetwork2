@@ -1554,11 +1554,12 @@ def edit_case_attributes(inbredset_id: int) -> Response:
     Edit the case-attributes for InbredSet group identified by `inbredset_id`.
     """
     if request.method == "POST":
+        user_name = session_info()["user"]["name"]
         payload = {
             "inbredset_id": inbredset_id,
             # KLUDGE: FIXME: It's unclear how to get this from gn3 for
             # now; or for the matter fetch this from here.
-            "user": session_info()["user"]["name"],
+            "user": user_name,
         }
         from collections import defaultdict
         original, current = defaultdict(dict), defaultdict(dict)
@@ -1583,7 +1584,6 @@ def edit_case_attributes(inbredset_id: int) -> Response:
 
         def flash_success(resp):
             def __succ__(remote_resp):
-                user_name = session_info()["user"]["name"]
                 # KLUDGE: Consider emailing people who have edit
                 # access, in addition to the user for a better UX.
                 flash(
