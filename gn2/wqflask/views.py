@@ -1562,6 +1562,8 @@ def edit_case_attributes(inbredset_id: int) -> Response:
             # now; or for the matter fetch this from here.
             "user": user_name,
         }
+        form_filled = False
+
         original, current = defaultdict(dict), defaultdict(dict)
         for key, new_value in request.form.items():
             # KLUDGE: We use ASCII 30, Record Separator; \x1f since it's not
@@ -1569,6 +1571,7 @@ def edit_case_attributes(inbredset_id: int) -> Response:
             # inter-change
             strain, case_attr, orig_value = key.split('\x1f')
             if orig_value != new_value:
+                form_filled = True
                 mods = payload.setdefault("Modifications", {})
                 original = mods.setdefault("Original", {}).setdefault(strain, {})
                 current = mods.setdefault("Current", {}).setdefault(strain, {})
@@ -1581,6 +1584,10 @@ def edit_case_attributes(inbredset_id: int) -> Response:
             change_type="review"))
         token = session_info()["user"]["token"].either(
             lambda err: err, lambda tok: tok["access_token"])
+
+        if not form_filled:
+            flash("Please make edits to the form before submitting.", "alert-warning")
+            return edit_case_attributes_page
 
         def flash_success(resp):
             def __succ__(remote_resp):
