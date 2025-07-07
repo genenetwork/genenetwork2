@@ -40,6 +40,12 @@ def user_group():
     return oauth2_get("auth/user/group").either(
         __group_error__, __success__)
 
+@groups.route("/list", methods=["GET"])
+@require_oauth2
+def list_groups():
+    """List user groups on the system."""
+    return render_ui("oauth2/list-groups.html")
+
 @groups.route("/create", methods=["POST"])
 @require_oauth2
 def create_group():

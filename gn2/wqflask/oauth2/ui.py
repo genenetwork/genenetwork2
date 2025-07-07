@@ -15,6 +15,16 @@ def __display_list_users__(privileges):
                        "system:user:assign-group-leader"))
 
 
+def __display_list_groups__(privileges):
+    return all((priv in privileges)
+               for priv in (
+                       "system:group:edit-group",
+                       "system:group:view-group",
+                       "system:group:create-group",
+                       "system:group:delete-group",
+                       "system:group:transfer-group-leader"))
+
+
 def render_ui(templatepath: str, **kwargs):
     """Handle repetitive UI rendering stuff."""
     roles = kwargs.get("roles", tuple()) # Get roles
@@ -31,6 +41,7 @@ def render_ui(templatepath: str, **kwargs):
             "roles": roles,
             "user_privileges": user_privileges,
             "display": {
-                "list_users": __display_list_users__(_privilege_ids)
+                "list_users": __display_list_users__(_privilege_ids),
+                "list_groups": __display_list_groups__(_privilege_ids)
             }
         })

@@ -25,6 +25,15 @@
   </li>
   {%endif%}
 
+  {%if display is defined and display.list_groups is sameas true %}
+  <li role="presentation"
+      {%if calling_page == "groups"%}
+      class="active"
+      {%endif%}>
+    <a href="{{url_for('oauth2.group.list_groups')}}">Groups</a>
+  </li>
+  {%endif%}
+
   <li role="presentation"
       {%if calling_page == "resources"%}
       class="active"
