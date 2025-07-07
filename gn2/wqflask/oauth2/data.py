@@ -157,9 +157,9 @@ def list_data_by_species_and_dataset(
         "genotype": __search_genotypes__,
         "phenotype": __search_phenotypes__
     }
-    groups = oauth2_get("auth/group/list").either(
+    groups = oauth2_get("auth/group/list", json={}).either(
         lambda err: {"groups_error": process_error(err)},
-        lambda grps: {"groups": grps})
+        lambda grps: {"groups": grps["groups"]})
     query = request.args.get("query", "")
     return search_fns[dataset_type](
         query, templates[dataset_type], **groups, species_name=species_name,
@@ -181,9 +181,9 @@ def list_data():
             **{key:val for key,val in kwargs.items()
                if key not in ("groups", "data_items", "user_privileges")})
 
-    groups = oauth2_get("auth/group/list").either(
+    groups = oauth2_get("auth/group/list", json={}).either(
         lambda err: {"groups_error": process_error(err)},
-        lambda grp: {"groups": grp})
+        lambda grp: {"groups": grp["groups"]})
     roles = oauth2_get("auth/system/roles").either(
         lambda err: {"roles_error": process_error(err)},
         lambda roles: {"roles": roles})
