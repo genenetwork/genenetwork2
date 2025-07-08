@@ -3,7 +3,7 @@ import datetime
 from functools import partial
 
 from flask import (
-    flash, request, url_for, redirect, Response, Blueprint)
+    flash, jsonify, request, url_for, redirect, Response, Blueprint)
 
 from .ui import render_ui
 from .checks import require_oauth2
@@ -193,3 +193,28 @@ def add_privilege_to_role(group_role_id: uuid.UUID):
 def delete_privilege_from_role(group_role_id: uuid.UUID):
     """Delete a privilege from a group role."""
     return add_delete_privilege_to_role(group_role_id, "DELETE")
+
+
+@groups.route("/fetch", methods=["GET", "POST"])
+@require_oauth2
+def fetch_groups():
+    draw = request.args["draw"]
+    search = request.args.get("search[value]")
+    return jsonify(oauth2_get(
+        "auth/group/list",
+        json={
+            "search": search,
+            "start": request.args.get("start") or "0",
+            "length": request.args.get("length") or "0"
+        }
+    ).either(
+        lambda err: {
+            "draw": draw,
+            **process_error(err)
+        },
+        lambda results: {
+            "draw": draw,
+            "groups": results["groups"],
+            "recordsTotal": results["total-groups"],
+            "recordsFiltered": results["total-filtered"]
+        }))
