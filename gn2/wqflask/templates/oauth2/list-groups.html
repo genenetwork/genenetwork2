@@ -145,6 +145,14 @@
                           `</table>`;
                   },
                   name: "group_metadata"
+              },
+              {
+                  orderable: false,
+                  searchable: false,
+                  data: function(row) {
+                      return `<a href="/oauth2/group/view/${row.group_id}" ` +
+                          `class="btn btn-info">view</a>`;
+                  }
               }
           ],
           select: true,
