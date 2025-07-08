@@ -1,5 +1,5 @@
 {% extends "oauth2/base.html" %}
-{%block title%}List Users{%endblock%}
+{%block title%}List Groups{%endblock%}
 
 {% block css %}
 <link rel="stylesheet" type="text/css" href="/static/new/css/show_trait.css" />
@@ -8,11 +8,77 @@
 <link rel="stylesheet" type="text/css" href="{{ url_for('css', filename='jquery-ui/jquery-ui.theme.css') }}"/>
 {% endblock %}
 
-{%block dash_page_header%}Manage Users{%endblock%}
+{%block dash_page_header%}Manage Groups{%endblock%}
 
 {%block dash_page_content%}
 
 {%if display is defined and display.list_groups%}
+<form id="frm-bulk-actions"
+      method="POST"
+      action="#"> <!-- 'oauth2.group.perform_bulk_action' -->
+
+  <div class="row">
+    <legend>Batch actions</legend>
+    <input type="submit"
+           name="bulk-action"
+           class="btn btn-danger"
+           value="delete selected" />
+  </div>
+
+  <div class="row">
+    <table id="tbl-adm-list-groups" class="table table-hover table-striped cell-border">
+      <caption>Groups</caption>
+      <thead>
+        <tr>
+          <th>select</th>
+          <th>name</th>
+          <th>metadata</th>
+          <th>action</th>
+        </tr>
+      </thead>
+
+      <tbody>
+        {%for group in groups%}
+        <tr>
+          <td>
+            <input type="checkbox"
+                   name="selected-groups"
+                   value="{{group.group_id}}" />
+          </td>
+          <td>{{group.name}}</td>
+          <td>{{group.metadata}}</td>
+          <td style="text-align: center;font-weight: larger;">
+            {%if group.verified %}
+            <span class="glyphicon glyphicon-ok text-success"></span>
+            {%else%}
+            <span class="glyphicon glyphicon-remove text-danger"></span>
+            {%endif%}
+          </td>
+          <td><span class="btn btn-info">view</span></td>
+        </tr>
+        {%else%}
+        <tr>
+          <td colspan="5" class="text-info" style="text-align: center;">
+            <span class="glyphicon glyphicon-info-sign"></span>
+            There are no groups to list
+          </td>
+        </tr>
+        {%endfor%}
+      </tbody>
+    </table>
+
+  </div>
+
+  {%else%}
+  <div class="row">
+    <p class="text-danger">
+      <strong>
+        <span class="glyphicon glyphicon-exclamation-sign"></span>
+        You do not have the appropriate privileges to act this page.
+      </strong>
+    </p>
+  </div>
+</form>
 {%endif%}
 
 {%endblock%}
@@ -37,7 +103,58 @@
 
 <script type="text/javascript">
   $(function() {
-      /*** setup DataTables table here… ***/
+      var table_api = $("#tbl-adm-list-groups").DataTable({
+          columns: [
+              {
+                  orderable: false,
+                  searchable: false,
+                  data: function(group) {
+                      return `<input type="checkbox" ` +
+                          `id="chk-selected-groups-${group.group_id}" ` +
+                          `name="selected-groups" ` +
+                          `value="${group.group_id}" />`;
+                  }
+              },
+              {
+                  orderable: true,
+                  searchable: true,
+                  data: "group_name",
+                  name: "group_name"
+              },
+              {
+                  orderable: true,
+                  searchable: true,
+                  data: function(row) {
+                      console.debug("THE ROW: ", row)
+                      return `<table>` +
+                          `<thead>` +
+                          `</thead>` +
+                          `<tbody>` +
+                          Object.entries(
+                              row.group_metadata
+                          ).reduce(
+                              function(accumulator, currentValue) {
+                                  return `<tr>` +
+                                      `<td>${currentValue[0]}</td>` +
+                                      `<td>${currentValue[1]}</td>` +
+                                      `</tr>`;
+                              },
+                              ""
+                          ) +
+                          `</tbody>` +
+                          `</table>`;
+                  },
+                  name: "group_metadata"
+              }
+          ],
+          select: true,
+          serverSide: true,
+          ajax: {
+              url: "/oauth2/group/fetch",
+              dataSrc: "groups"
+          }
+      });
+
   });
 </script>
 {%endblock%}
