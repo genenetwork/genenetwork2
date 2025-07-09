@@ -348,19 +348,6 @@ def gnqna():
     token = session_info()["user"]["token"].either(
         lambda err: err, lambda tok: tok["access_token"]
     )
-    from pymonad.either import Left, Right
-    token_monad = session_info()["user"]["token"]
-    if token_monad.is_left():
-        token = token_monad.value
-        anonymous_headers = {
-            "Anonymous-Id": str(uuid.uuid4()),
-            "Anonymous-Status" : "verified",
-            "Anony-Metadata" : ""  # to verify metadata integrity
-        }
-    else:
-        token = token_monad.value
-        anonymous_headers = {}
-    headers = {"Authorization": f"Bearer {token}", **anonymous_headers}
     if request.method == "GET":
         query = request.args.get("query")
         query_type = request.args.get("type")
@@ -368,10 +355,9 @@ def gnqna():
             query = clean_xapian_query(query)
             # todo; check if is empty
         safe_query = urllib.parse.urlencode({"query": query})
-
         search_result = requests.get(
             urljoin(GN3_LOCAL_URL, f"/api/llm/search?{safe_query}"),
-            headers=headers,
+            headers={"Authorization": f"Bearer {token}"},
         )
         search_result.raise_for_status()
         search_result = search_result.json()
@@ -389,7 +375,7 @@ def gnqna():
             {"query": request.form.get("querygnqa")})
         return monad_requests.get(
             urljoin(GN3_LOCAL_URL, f"/api/llm/search?{safe_query}"),
-            headers=headers,
+            headers={"Authorization": f"Bearer {token}"},
         ).either(_error_, _success_)
 
 
