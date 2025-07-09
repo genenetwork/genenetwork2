@@ -61,8 +61,10 @@ def process_error(error: Response,
                                 "server.")
                   ) -> dict:
     if error.status_code in range(400, 500):
+        error_trace = "<No stack trace>"
         try:
             err = error.json()
+            error_trace = err.get("error-trace", error_trace)
             # Handle the specific NotFoundError for group membership
             if "error-trace" in err and "User is not a member of any group" in err["error-trace"]:
                 msg = "You are not currently a member of any group. Please contact an administrator."
@@ -77,7 +79,8 @@ def process_error(error: Response,
             "error": error.reason,
             "error_message": msg,
             "error_description": msg,
-            "status_code": error.status_code
+            "status_code": error.status_code,
+            "error-trace": error_trace
         }
     try:
         return {**error.json(), "status_code": error.status_code}
