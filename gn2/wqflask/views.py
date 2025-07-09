@@ -164,7 +164,8 @@ def index_page():
     anon_id = session_info()["anon_id"]
 
     def __render__(colls):
-        return render_template("index_page.html", version=current_app.config.get("GN_VERSION"),
+        return render_template("index_page.html",
+                               version=current_app.config.get("GN_VERSION"),
                                gn_server_url=GN_SERVER_URL,
                                anon_collections=(
                                    colls if user_logged_in() else []),
