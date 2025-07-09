@@ -27,7 +27,6 @@ from uuid import UUID
 
 from urllib.parse import urljoin
 from urllib.parse import urlparse
-from urllib.parse import parse_qs
 import xlsxwriter
 import requests
 import numpy as np
@@ -237,7 +236,7 @@ def is_valid_gnqna_user(session_info, request) -> bool:
     Determine if the request is from a valid GNQNA user — either logged in or a safe anonymous visitor.
     Applies honeypot field logic, blocks headless bots, and validates referrer.
     """
-    user_info = session_info.get("user", {})
+    user_info = session_info().get("user", {})
     if user_info.get("logged_in", False):
         return True
     #  Honeypot trap
@@ -262,17 +261,11 @@ def is_valid_gnqna_user(session_info, request) -> bool:
     hostname = parsed.hostname or ""
     path = parsed.path
     valid_host = (
-        (hostname.startswith("localhost") and current_app.config.get('TEST_FEATURE_SWITCH')) or
+        hostname.startswith("localhost:") or
         hostname == "genenetwork.org" or
         hostname.endswith(".genenetwork.org")
     ) # ???cors origin  handles  this anyways
-    query_params = parse_qs(parsed.query)
-    if path == "/gnqna":
-        has_query = "query" in query_params and any(query_params["query"]) # allow if referrer was gnqna had a  query 
-        return valid_host and has_query
-    elif path == "/":
-        return False
-    return valid_host
+    return (valid_host and path not in ["/", "/gnqna"])
 
 @app.route("/search_table", methods=('GET',))
 def search_page_table():
@@ -295,16 +288,12 @@ def gsearchact():
 
     ai_search_enabled = current_app.config.get("AI_SEARCH_ENABLED")
     search_count = result.get("trait_count", 0)
-    is_valid_user = is_valid_gnqna_user(session_info(), request)
-    do_ai_search = ai_search_enabled and is_valid_user and (search_count >= 30)
-
+    # get the search count of traits and perform ai search if count >=30
+    do_ai_search = ai_search_enabled and is_user_logged_in and (search_count >= 30)
     if search_type == "gene":
         return render_template("gsearch_gene.html", **result,
                                ai_search_enabled=ai_search_enabled,
                                do_ai_search=do_ai_search,
-                               llm_error_msg = ("Please login to View AI generated summary."
-                                                    if not
-                                                   is_valid_user else  ""),
                                result=result)
     elif search_type == "phenotype":
         return render_template("gsearch_pheno.html", **result)
@@ -324,8 +313,10 @@ def gsearchtable():
 
 
 @app.route("/gnqna", methods=["POST", "GET"])
+@require_oauth2
 def gnqna():
     """Main endpoint to call gn3 gnqna Api endpoint"""
+
     def _error_(resp):
         return render_template(
             "gnqa_errors.html", **{"status_code": resp.status_code, **resp.json()}
@@ -334,42 +325,34 @@ def gnqna():
     def _success_(resp):
         return render_template("gnqa_answer.html", **resp.json())
 
-
-    if request.method == "GET" and not request.args.get("query"):
-        return render_template("gnqa.html")
-    if  not is_valid_gnqna_user(session_info(), request):
-        return render_template(
-            "gnqa_errors.html",
-            status_code=500,
-            error="Login/Verification required to make this request",
-            query= ""
-        )
     content_type = request.headers.get("Content-Type")
     token = session_info()["user"]["token"].either(
         lambda err: err, lambda tok: tok["access_token"]
     )
     if request.method == "GET":
-        query = request.args.get("query")
-        query_type = request.args.get("type")
-        if query_type == "xapian":
-            query = clean_xapian_query(query)
-            # todo; check if is empty
-        safe_query = urllib.parse.urlencode({"query": query})
-        search_result = requests.get(
-            urljoin(GN3_LOCAL_URL, f"/api/llm/search?{safe_query}"),
-            headers={"Authorization": f"Bearer {token}"},
-        )
-        search_result.raise_for_status()
-        search_result = search_result.json()
-        if content_type == "application/json":
-            ai_result = {
-                "search_term": query,
-                "search_result": search_result["answer"],
-                "search_url": f"/gnqna?{safe_query}",
-            }
-            return jsonify(ai_result)
-        return render_template("gnqa.html", **search_result)
-
+        if request.args.get("query"):
+            query = request.args.get("query")
+            query_type = request.args.get("type")
+            if query_type == "xapian":
+                query = clean_xapian_query(query)
+                # todo; check if is empty
+            safe_query = urllib.parse.urlencode({"query": query})
+            search_result = requests.get(
+                urljoin(GN3_LOCAL_URL, f"/api/llm/search?{safe_query}"),
+                headers={"Authorization": f"Bearer {token}"},
+            )
+            search_result.raise_for_status()
+            search_result = search_result.json()
+            if content_type == "application/json":
+                ai_result = {
+                    "search_term": query,
+                    "search_result": search_result["answer"],
+                    "search_url": f"/gnqna?{safe_query}",
+                }
+                return jsonify(ai_result)
+            return render_template("gnqa.html", **search_result)
+        else:
+            return render_template("gnqa.html")
     if request.method == "POST":
         safe_query = urllib.parse.urlencode(
             {"query": request.form.get("querygnqa")})
