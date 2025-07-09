@@ -85,10 +85,15 @@ def process_error(error: Response,
     try:
         return {**error.json(), "status_code": error.status_code}
     except JSONDecodeError as exc:
-        raise ExternalRequestError(
-            error.url,
-            exc,
-            f"Could not parse error record into JSON:\n\n{error.content}")
+        msg = f"Could not parse error record into JSON:\n\n{error.content}"
+        return {
+            "error": "ExternalRequestError",
+            "error-url": error.url,
+            "error_message": msg,
+            "error_description": msg,
+            "status_code": error.status_code,
+            "error-trace": error.content
+        }
 
 def request_error(response):
     app.logger.error(f"{response}: {response.url} [{response.status_code}]")
