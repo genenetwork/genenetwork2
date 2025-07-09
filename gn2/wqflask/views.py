@@ -242,13 +242,12 @@ def is_valid_gnqna_user(session_info, request) -> bool:
         return True
     #  Honeypot trap
     honeypot = None
+    # todo add field 
     if request.is_json: 
         data = request.get_json(silent=True) or {}
-        honeypot = data.get("gnqna_username", "").strip()
+        honeypot = data.get("gnqna_username")
     elif request.form:
-        honeypot = request.form.get("gnqna_username", "").strip()
-    if not honeypot:
-        honeypot = request.args.get("gnqna_username", "").strip()
+        honeypot = request.form.get("gnqna_username")
     if honeypot:
         return False
     #  Reject known headless browser user agents
