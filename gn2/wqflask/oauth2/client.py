@@ -145,7 +145,7 @@ def oauth2_client():
         return client
 
     __update_auth_server_jwks__()
-    return session.user_token().either(lambda _notok: requests,
+    return session.user_token().either(lambda _notok: __client__(None),
                                        lambda token: __client__(token))
 
 def __no_token__(_err) -> Left:
