@@ -8,6 +8,8 @@ from flask import (
     flash, request, url_for, redirect, Response, render_template,
     current_app as app)
 
+from authlib.integrations.base_client.errors import MissingTokenError
+
 from gn2.wqflask.external_errors import ExternalRequestError
 
 from . import session
@@ -36,9 +38,15 @@ def system_privileges():
         return tuple(
             privilege['privilege_id'] for role in sys_roles for privilege in role["privileges"])
 
-    return oauth2_get("auth/system/roles").either(
-        __handle_error__,
-        lambda sys_roles: __fetch_privilege_ids__(sys_roles))
+    try:
+        return oauth2_get("auth/system/roles").either(
+            __handle_error__,
+            lambda sys_roles: __fetch_privilege_ids__(sys_roles))
+    except MissingTokenError as _mte:
+        return tuple()
+    except Exception as _exc:
+        app.logger.error("General, unhandled exception.", exc_info=True)
+        raise _exc from None
 
 
 def user_details(fetch_remote: bool = False):
