@@ -169,7 +169,8 @@ def oauth2_get(
         urljoin(authserver_uri(), uri_path),
         data=data,
         headers=headers,
-        **kwargs)
+        timeout=kwargs.get("timeout", (9.13, 20)),
+        **{key: val for key,val in kwargs in key != "timeout"})
     if resp.status_code == 200:
         if jsonify_p:
             return Right(resp)
@@ -189,7 +190,8 @@ def oauth2_post(
         data=data,
         json=json,
         headers=headers,
-        **kwargs)
+        timeout=kwargs.get("timeout", (9.13, 20)),
+        **{key: val for key,val in kwargs in key != "timeout"})
     if resp.status_code == 200:
         return Right(resp.json())
 
