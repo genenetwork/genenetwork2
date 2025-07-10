@@ -143,3 +143,26 @@ SESSION_FILESYSTEM_CACHE_HASH_METHOD = hashlib.md5
 JWKS_ROTATION_AGE_DAYS = 7 # Days (from creation) to keep a JWK in use.
 JWKS_DELETION_AGE_DAYS = 14 # Days (from creation) to keep a JWK around before deleting it.
 # END: JSON WEB KEYS #####
+
+
+## ----- PROFILING ----- ##
+## To troubleshoot performance issues, we need to be able to run the application
+## under a profiler.
+## The following settings are provided to help toggle the profiler on or off.
+##
+## **DO NOT CHANGE THESE VALUES HERE!!!** — rather, override the settings in
+## environment-specific settings file(s).
+RUN_UNDER_PROFILER = False
+PROFILER_SETTINGS = {
+    # Allowed keys are:
+    #
+    # - stream: A stream, such as sys.stdout, where statistics are written
+    # - sort_by: ...
+    # - restrictions: ...
+    # - profile_dir: path where profiler saves data files
+    # - filename_format: ...
+    #
+    # See https://werkzeug.palletsprojects.com/en/stable/middleware/profiler/
+    # for more information on the profiler.
+}
+## ----- END: PROFILING ----- ##
