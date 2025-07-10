@@ -74,83 +74,100 @@ def view_resource(resource_id: UUID):
     page = __compute_page__(request.args.get("submit"),
                             int(request.args.get("page", "1"), base=10))
     count_per_page = int(request.args.get("count_per_page", "100"), base=10)
-    def __users_success__(
-            resource, unlinked_data, users_n_roles, this_user, resource_roles,
-            users):
-        return render_ui(
-            "oauth2/view-resource.html", resource=resource,
-            unlinked_data=unlinked_data, users_n_roles=users_n_roles,
-            this_user=this_user, resource_roles=resource_roles, users=users,
-            page=page, count_per_page=count_per_page)
 
-    def __resource_roles_success__(
-            resource, unlinked_data, users_n_roles, this_user, resource_roles):
-        return oauth2_get("auth/user/list").either(
-            lambda err: render_ui(
-                "oauth2/view-resource.html", resource=resource,
-                unlinked_data=unlinked_data, users_n_roles=users_n_roles,
-                this_user=this_user, resource_roles=resource_roles,
-                users_error=process_error(err), count_per_page=count_per_page),
-            lambda users: __users_success__(
-                resource, unlinked_data, users_n_roles, this_user, resource_roles,
-                users))
+    def __fetch_resource_users__(data):
+        """Fetch all users. This might be one cause of slow-down."""
+        resource_id = data["resource"]["resource_id"]
+        return oauth2_get(
+            f"auth/user/list",
+            json={}
+        ).then(
+            lambda resource_users_list: {
+                **data,
+                "users": resource_users_list
+            }
+        )
 
-    def __this_user_success__(resource, unlinked_data, users_n_roles, this_user):
-        return oauth2_get(f"auth/resource/{resource_id}/roles").either(
-            lambda err: render_ui(
-                "oauth2/view-resource.html", resource=resource,
-                unlinked_data=unlinked_data, users_n_roles=users_n_roles,
-                this_user=this_user, resource_roles_error=process_error(err),
-                count_per_page=count_per_page),
-            lambda rroles: __resource_roles_success__(
-                resource, unlinked_data, users_n_roles, this_user, rroles))
+    def __fetch_roles_for_resource__(data):
+        """Fetch all roles relating to this resource."""
+        return oauth2_get(
+            f"auth/resource/{resource_id}/roles"
+        ).then(
+            lambda roles: {
+                **data,
+                "resource_roles": roles
+            }
+        )
 
-    def __users_n_roles_success__(resource, unlinked_data, users_n_roles):
-        return oauth2_get("auth/user/").either(
-            lambda err: render_ui(
-                "oauth2/view-resource.html",
-                this_user_error=process_error(err)),
-            lambda usr_dets: __this_user_success__(
-                resource, unlinked_data, users_n_roles, usr_dets))
+    def __fetch_user_details__(data):
+        """Fetch details for the currently logged in user."""
+        return oauth2_get("auth/user/").then(
+            lambda user_details: {
+                **data,
+                "this_user": user_details
+            })
 
-    def __unlinked_success__(resource, unlinked_data):
-        return oauth2_get(f"auth/resource/{resource_id}/user/list").either(
-            lambda err: render_ui(
-                "oauth2/view-resource.html",
-                resource=resource,
-                unlinked_data=unlinked_data,
-                users_n_roles_error=process_error(err),
-                page=page,
-                count_per_page=count_per_page),
-            lambda users_n_roles: __users_n_roles_success__(
-                resource, unlinked_data, users_n_roles))
+    def __fetch_users_n_roles__(data):
+        """Fetch all users with access to this role.."""
+        return oauth2_get(
+            f"auth/resource/{resource_id}/user/list"
+        ).then(
+            lambda user_list: {
+                **data,
+                "users_n_roles": user_list
+            }
+        )
 
-    def __resource_success__(resource):
+    def __fetch_unlinked_data__(resource):
+        """Fetch any data linked to the user-group but not to any resource."""
         dataset_type = resource["resource_category"]["resource_category_key"]
-        return oauth2_get(f"auth/group/{dataset_type}/unlinked-data").either(
-            lambda err: render_ui(
-                "oauth2/view-resource.html",
-                resource=resource,
-                unlinked_error=process_error(err),
-                count_per_page=count_per_page),
-            lambda unlinked: __unlinked_success__(resource, unlinked))
+        return oauth2_get(
+            f"auth/group/{dataset_type}/unlinked-data"
+        ).then(lambda unlinked: {
+            "resource": resource, "unlinked_data": unlinked
+        })
 
     def __fetch_resource_data__(resource):
-        """Fetch the resource's data."""
+        """Fetch the resource's data items."""
         return client.get(
             f"auth/resource/view/{resource['resource_id']}/data?page={page}"
-            f"&count_per_page={count_per_page}").either(
-                lambda err: {
-                    **resource, "resource_data_error": process_error(err)
-                },
-                lambda resdata: {**resource, "resource_data": resdata})
+            f"&count_per_page={count_per_page}"
+        ).then(
+            lambda resdata: {**resource, "resource_data": resdata})
 
-    return oauth2_get(f"auth/resource/view/{resource_id}").map(
-        __fetch_resource_data__).either(
-            lambda err: render_ui(
-                "oauth2/view-resource.html",
-                resource=None, resource_error=process_error(err)),
-            __resource_success__)
+    def __render_error__(err):
+        """Process and render any error encountered."""
+        # Maybe what the error was by the URI in the error.
+        # Acceptable kwargs are:
+        # - resource_error
+        # - ... all other errors are wrapped below the resource error above
+        #   this might not be good - what was I thinking?
+        return render_ui(
+            "oauth2/view-resource.html",
+            resource_error=process_error(err))
+
+    # This is extremely sequential. How can we make it more concurrent?
+    # Maybe also, split some tasks out to other pages, perhaps?
+    return oauth2_get(
+        f"auth/resource/view/{resource_id}"
+    ).then(
+        __fetch_resource_data__
+    ).then(
+        __fetch_unlinked_data__
+    ).then(
+        __fetch_users_n_roles__
+    ).then(
+        __fetch_user_details__
+    ).then(
+        __fetch_roles_for_resource__
+    ).then(
+        __fetch_resource_users__
+    ).either(
+        __render_error__,
+        lambda data: render_ui("oauth2/view-resource.html",
+                               **data,
+                               page=page,
+                               count_per_page=count_per_page))
 
 @resources.route("/data/link", methods=["POST"])
 @require_oauth2
