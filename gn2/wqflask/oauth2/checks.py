@@ -70,13 +70,7 @@ def require_oauth2(func):
             return redirect(authserver_authorise_uri())
 
         def __with_token__(token):
-            resp = oauth2_client().get(
-                urljoin(authserver_uri(), "auth/user/"))
-            user_details = resp.json()
-            if not user_details.get("error", False):
-                return func(*args, **kwargs)
-
-            return __redirect_to_login__(token)
+            return func(*args, **kwargs)
 
         return session.user_token().either(__redirect_to_login__, __with_token__)
 
