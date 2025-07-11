@@ -357,7 +357,7 @@ def gnqna():
         anonymous_headers = {
             "Anonymous-Id": str(uuid.uuid4()),
             "Anonymous-Status" : "verified",
-            "Anony-Metadata" : ""  # to verify metadata integrity
+            "Anony-Metadata" : json.dumps({"ip_address" : request.remote_addr})
         }
     else:
         token = token_monad.value
