@@ -489,6 +489,12 @@
                      timeToLoad.innerHTML = "It took your browser " + ((Date.now() - pageLoadStart) / 1000) + " second(s) to render this page";
                      document.querySelector("footer .row .col-xs-6").appendChild(timeToLoad);
 		 });
+          $(function() {
+              $(".not-implemented").click(function(event) {
+                  event.preventDefault();
+                  alert("This feature is not yet implemented. Do bear with us.");
+              });
+          });
         </script>
     </body>
 </html>
