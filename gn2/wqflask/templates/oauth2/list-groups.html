@@ -32,7 +32,7 @@
         <tr>
           <th>select</th>
           <th>name</th>
-          <th>metadata</th>
+          <th>description</th>
           <th>action</th>
         </tr>
       </thead>
@@ -125,24 +125,7 @@
                   orderable: true,
                   searchable: true,
                   data: function(row) {
-                      console.debug("THE ROW: ", row)
-                      return `<table>` +
-                          `<thead>` +
-                          `</thead>` +
-                          `<tbody>` +
-                          Object.entries(
-                              row.group_metadata
-                          ).reduce(
-                              function(accumulator, currentValue) {
-                                  return `<tr>` +
-                                      `<td>${currentValue[0]}</td>` +
-                                      `<td>${currentValue[1]}</td>` +
-                                      `</tr>`;
-                              },
-                              ""
-                          ) +
-                          `</tbody>` +
-                          `</table>`;
+                      return row.group_metadata.group_description;
                   },
                   name: "group_metadata"
               },
