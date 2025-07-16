@@ -223,20 +223,34 @@ def fetch_groups():
 @groups.route("/view/<uuid:group_id>", methods=["GET"])
 def view_group(group_id: uuid.UUID):
     """View a specific group's details."""
-    def __fetch_users__(group):
+    def __fetch_members__(group):
         return oauth2_get(f"auth/group/members/{group_id}").then(
             lambda users: {"group": group, "members": users})
 
+    def __fetch_leaders__(data):
+        return oauth2_get(f"auth/group/{group_id}/leaders").then(
+            lambda leaders: {**data, "group_leaders": leaders})
+
     def __fetch_resources__(group_details):
-        return oauth2_get(f"auth/group/data-resources/{group_id}").then(
+        return oauth2_get(f"auth/group/{group_id}/data-resources").then(
             lambda resources: {**group_details, "resources": resources})
 
-    return oauth2_get(f"auth/group/{group_id}").then(
-        __fetch_users__
+    return oauth2_get(f"auth/group/{group_id}", json={}).then(
+        __fetch_members__
+    ).then(
+        __fetch_leaders__
     ).then(
         __fetch_resources__
     ).then(
-        lambda _dets: render_ui("oauth2/group.html", **_dets)
+        lambda data: {
+            **data,
+            "session_user_id": str(session.session_info().get(
+                "user", {}).get("user_id", uuid.uuid4())),
+            "session_users_group": session.session_info().get(
+                "user", {}).get("group", {})
+        }
+    ).then(
+        lambda _dets: render_ui("oauth2/view-group.html", **_dets)
     ).either(
         lambda err: render_ui("oauth2/request_error.html",
                               response=err),

@@ -1,0 +1,169 @@
+{% extends "oauth2/base.html" %}
+{%from "oauth2/display_error.html" import display_error%}
+{%block title%}View User{%endblock%}
+
+{%block dash_page_content%}
+{%if group_error is defined%}
+<div class="row" style="text-align:left;line-height:5em;">
+  {{display_error("Group", group_error)}}
+</div>
+{%else%}
+
+<div class="row">
+  <table class="table">
+    <caption>Group Information</caption>
+    <thead>
+      <tr>
+	<th rowspan="2">group name</th>
+        <th rowspan="2">is my group?</th>
+	<th colspan="2" style="text-align: center;">Metadata</th>
+	<th rowspan="2" colspan="2" style="text-align: center;">Actions</th>
+      </tr>
+      <tr>
+	<th>key</th>
+	<th>value</th>
+      </tr>
+    </thead>
+
+    <tbody>
+      {%for key,val in group.group_metadata.items()%}
+      <tr>
+        {%if loop.index0 == 0:%}
+        <td rowspan="{{group.group_metadata | count}}">
+          {{group.group_name}}</td>
+        {%endif%}
+        <td>
+          {%if group.group_id == session_users_group.get("group_id", "")%}
+          <strong class="text-success">
+            <span class="glyphicon glyphicon-ok"></span></strong>
+          {%else:%}
+          <strong class="text-warning">
+            <span class="glyphicon glyphicon-remove"></span></strong>
+          {%endif%}
+        </td>
+        <td>{{key}}</td>
+        <td>{{val}}</td>
+        {%if loop.index0 == 0:%}
+        <td rowspan="{{group.group_metadata | count}}">
+          <a href="{{url_for('oauth2.group.edit_group', group_id=group.group_id)}}"
+	     class="btn btn-info not-implemented"
+             title="Edit group information">Edit</a></td>
+        <td rowspan="{{group.group_metadata | count}}">
+          <a href="{{url_for('oauth2.group.edit_group', group_id=group.group_id)}}"
+	     class="btn btn-danger not-implemented"
+             title="Delete this group">Delete</a></td>
+        {%endif%}
+      </tr>
+      {%endfor%}
+    </tbody>
+  </table>
+</div>
+</div>
+
+<div class="container-fluid">
+
+  <table class="table">
+    <caption>Group Users</caption>
+    <thead>
+      <tr>
+	<th rowspan="2">Name</th>
+	<th rowspan="2">Email</th>
+	<th rowspan="2">Group Leader?</th>
+	<th colspan="2">Actions</th>
+      </tr>
+      <tr>
+	<th>Membership</th>
+	<th>Leadership</th>
+      </tr>
+    </thead>
+
+    <tbody>
+      {%for user in members%}
+      <tr>
+	<td>{{user.name}}</td>
+	<td>{{user.email}}</td>
+	<td>
+          <strong>
+            {%if user in group_leaders%}
+            <span class="glyphicon glyphicon-ok text-success"></span>
+            {%else%}
+            <span class="glyphicon glyphicon-remove text-warning"></span>
+            {%endif%}
+          </strong>
+        </td>
+	<td>
+	  <a href="url_for('oauth2.group.remove_user', user_id=user.user_id)"
+	     title="Remove this user from being a member of this group."
+	     class="btn btn-danger not-implemented">Remove</a>
+	</td>
+	<td>
+          {%if user in group_leaders%}
+	  <a href="#"
+	     title="Demote this user from the group-leader role."
+	     class="btn btn-danger not-implemented">Demote</a>
+          {%else:%}
+	  <a href="#"
+	     title="Promote this user to the group-leader role."
+	     class="btn btn-success not-implemented">Promote</a>
+          {%endif%}
+	</td>
+      </tr>
+      {%else%}
+      <tr>
+	<td colspan="3">
+	  {%if user_error is defined%}
+	  <span class="glyphicon glyphicon-exclamation-sign text-danger">
+	  </span>
+	  &nbsp;
+	  <strong class="text-danger">{{user_error.error}}</strong>
+	  {{user_error.error_description}}
+	  {%else%}
+	  No users found for this group
+	  {%endif%}
+	</td>
+      </tr>
+      {%endfor%}
+    </tbody>
+  </table>
+
+</div>
+
+<div class="row">
+  <table class="table">
+    <caption>Group's Resources</caption>
+
+    <thead>
+      <tr>
+        <th>resource name</th>
+        <th>category</th>
+        <th>publicly viewable?</th>
+      </tr>
+    </thead>
+
+    <tbody>
+      {%for resource in resources:%}
+      <tr>
+        <td>{{resource.resource_name}}</td>
+        <td>{{resource.resource_category.resource_category_description}}</td>
+        <td>
+          {%if resource.public%}
+          <span class="glyphicon glyphicon-ok text-success"></span>
+          {%else:%}
+          <span class="glyphicon glyphicon-remove text-warning"></span>
+          {%endif%}
+        </td>
+      </tr>
+      {%else:%}
+      <tr>
+        <td colspan="3">
+          <span class="glyphicon glyphicon-flag text-info"></span>
+          This group owns no resources.
+        </td>
+      </tr>
+      {%endfor%}
+    </tbody>
+  </table>
+</div>
+{%endif%}
+
+{%endblock%}
