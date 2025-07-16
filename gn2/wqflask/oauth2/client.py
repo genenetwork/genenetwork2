@@ -204,7 +204,11 @@ def no_token_get(
 ) -> Either:
     uri = urljoin(authserver_uri(), uri_path)
     try:
-        resp = requests.get(uri, headers=headers, **kwargs)
+        resp = requests.get(
+            uri,
+            headers=headers,
+            timeout=kwargs.get("timeout", (9.13, 20)),
+            **{key: val for key,val in kwargs.items() if key != "timeout"})
         if resp.status_code == 200:
             return Right(resp.json())
         return Left(resp)
@@ -228,8 +232,10 @@ def no_token_post(uri_path: str, **kwargs) -> Either:
         ("data" if bool(data) else "json"): request_data
     }
     try:
-        resp = requests.post(urljoin(authserver_uri(), uri_path),
-                             **new_kwargs)
+        resp = requests.post(
+            urljoin(authserver_uri(), uri_path),
+            timeout=kwargs.get("timeout", (9.13, 20)),
+            **{key: val for key,val in new_kwargs.items() if key != "timeout"})
         if resp.status_code == 200:
             return Right(resp.json())
         return Left(resp)
