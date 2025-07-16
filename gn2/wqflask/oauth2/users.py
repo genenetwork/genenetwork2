@@ -11,6 +11,7 @@ from flask import (
     redirect,
     Response,
     Blueprint,
+    render_template,
     current_app as app)
 
 from . import client
@@ -111,7 +112,9 @@ def register_user():
         return redirect(next_endpoint)
 
     if request.method == "GET":
-        return render_ui("oauth2/register_user.html")
+        # user `render_template` rather than `render_ui` here to avoid
+        # issues with missing token.
+        return render_template("oauth2/register_user.html")
 
     form = request.form
     response = requests.post(
