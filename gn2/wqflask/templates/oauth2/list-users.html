@@ -13,6 +13,62 @@
 {%block dash_page_content%}
 
 {%if display is defined and display.list_users%}
+
+
+{%if reasons is defined and reasons:%}
+<div class="row">
+  <div id="reasons-accordion"
+       class="panel-group"
+       role="tablist"
+       aria-multiselectable="true"
+       style="border:solid 1px;border-radius:5px;border-color:#ebccd1;">
+    <div style="margin: 0 1em 0 1em">
+      <p class="text-danger">
+        The sections below show the reasons why deletions for the selected
+        users failed. Click each section to expand.</p>
+      <p>
+        <a href="{{url_for('oauth2.user.list_users')}}"
+           class="btn btn-danger"
+           title="Click here to clear these errors">clear errors</a>
+      </p>
+    </div>
+    {%for row in reasons%}
+    <div class="panel panel-danger"
+         style="margin-left: 1em;margin-right: 1em;">
+      <div class="panel-heading"
+           role="tab"
+           id="heading-{{row.user.user_id}}">
+        <h4 class="panel-title">
+          <a role="button"
+             data-toggle="collapse"
+             data-parent="#reasons-accordion"
+             href="#collapse-{{row.user.user_id}}"
+             aria-expanded="true"
+             aria-controls="collapse-{{row.user.user_id}}">
+            {{row.user.name}} ({{row.user.email}})</a></h4>
+      </div>
+      <div id="collapse-{{row.user.user_id}}"
+           {%if loop.index0 == 0%}
+           class="panel-collapse collapse in"
+           {%else%}
+           class="panel-collapse collapse"
+           {%endif%}
+           role="tabpanel"
+           aria-labelledby="heading-{{row.user.user_id}}">
+        <div class="panel-body">
+          <ul>
+            {%for areason in row.reasons:%}
+            <li class="text-danger">{{areason}}</li>
+            {%endfor%}
+          </ul>
+        </div>
+      </div>
+    </div>
+    {%endfor%}
+  </div>
+</div>
+{%endif%}
+
 <div class="row">
   <legend>Filter users by</legend>
   <form method="GET"
