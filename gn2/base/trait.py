@@ -153,12 +153,13 @@ class GeneralTrait:
 
         alias = 'Not available'
         if self.symbol:
+            # note hard coded path should become GN_GUILE_SERVER_URL
             human_response = requests.get(
-                GN2_BASE_URL + "gn3/gene/aliases/" + self.symbol.upper())
+                GN2_BASE_URL + "http://localhost:8091/gene/aliases/" + self.symbol.upper())
             mouse_response = requests.get(
-                GN2_BASE_URL + "gn3/gene/aliases/" + self.symbol.capitalize())
+                GN2_BASE_URL + "http://localhost:8091/gene/aliases/" + self.symbol.capitalize())
             other_response = requests.get(
-                GN2_BASE_URL + "gn3/gene/aliases/" + self.symbol.lower())
+                GN2_BASE_URL + "http://localhost:8091/gene/aliases/" + self.symbol.lower())
 
             if human_response and mouse_response and other_response:
                 alias_list = json.loads(human_response.content) + json.loads(
