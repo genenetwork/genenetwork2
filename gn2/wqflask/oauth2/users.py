@@ -1,3 +1,5 @@
+import json
+import base64
 import requests
 from uuid import UUID
 from urllib.parse import urljoin, urlparse
@@ -171,7 +173,17 @@ def masquerade():
 @require_oauth2
 def list_users():
     """List all users in the system"""
-    return render_ui("oauth2/list-users.html", users=[])
+    return render_ui(
+        "oauth2/list-users.html",
+        users=[],
+        **(
+            {
+                "reasons": json.loads(base64.b64decode(
+                    request.args["reasons"]
+                ).decode("utf8"))
+            }
+            if request.args.get("reasons")
+            else {}))
 
 
 @users.route("/fetch", methods=["GET"])
@@ -226,6 +238,26 @@ def perform_bulk_action():
             flash("Invalid bulk action selected!", "alert-danger")
             return redirect(url_for("oauth2.user.list_users"))
 
-    _list_users_page = redirect(url_for("oauth2.user.list_users"))
-    return req.either(with_flash_error(_list_users_page),
-                      with_flash_success(_list_users_page))
+    def __handle_reasons__(resp_dict):
+        if resp_dict.get("not-deleted"):
+            return {
+                "reasons": base64.b64encode(
+                    json.dumps(resp_dict["not-deleted"]).encode("utf8")
+                ).decode("utf8")
+            }
+        return {}
+
+    def __handle_error__(err):
+        error = err.json()
+        flash(f"{err.status_code} {error['error']}: "
+              f"{error['error_description']}",
+              "alert-danger")
+        return redirect(url_for(
+            "oauth2.user.list_users", **__handle_reasons__(error)))
+
+    def __handle_success__(resp):
+        flash(f"Success: {msg['message']}", "alert-success")
+        return redirect(url_for(
+            "oauth2.user.list_users", **__handle_reasons__(error)))
+
+    return req.either(__handle_error__, __handle_success__)
