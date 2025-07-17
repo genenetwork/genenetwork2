@@ -258,6 +258,6 @@ def perform_bulk_action():
     def __handle_success__(resp):
         flash(f"Success: {resp['message']}", "alert-success")
         return redirect(url_for(
-            "oauth2.user.list_users", **__handle_reasons__(error)))
+            "oauth2.user.list_users", **__handle_reasons__(resp)))
 
     return req.either(__handle_error__, __handle_success__)
