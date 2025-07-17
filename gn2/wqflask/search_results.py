@@ -468,7 +468,8 @@ def get_alias_terms(symbol, species):
 
     filtered_aliases = []
     response = requests.get(
-        GN2_BASE_URL + "/gn3/gene/aliases/" + symbol_string)
+        # note hard coded path should become GN_GUILE_SERVER_URL
+        "http://localhost:8091/gene/aliases/" + symbol_string)
     if response:
         alias_list = json.loads(response.content)
 

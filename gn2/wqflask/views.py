@@ -243,7 +243,7 @@ def is_valid_gnqna_user(session_info, request) -> bool:
         return True
     #  Honeypot trap
     honeypot = None
-    if request.is_json: 
+    if request.is_json:
         data = request.get_json(silent=True) or {}
         honeypot = data.get("gnqna_username", "").strip()
     elif request.form:
@@ -270,7 +270,7 @@ def is_valid_gnqna_user(session_info, request) -> bool:
     ) # ???cors origin  handles  this anyways
     query_params = parse_qs(parsed.query)
     if path == "/gnqna":
-        has_query = "query" in query_params and any(query_params["query"]) # allow if referrer was gnqna had a  query 
+        has_query = "query" in query_params and any(query_params["query"]) # allow if referrer was gnqna had a  query
         return valid_host and has_query
     elif path == "/":
         return False
@@ -400,6 +400,7 @@ def gnqna():
 def edit_gn_doc_file():
     file_path = urllib.parse.urlencode(
         {"file_path": request.args.get("file-path", "")})
+    # note hard coded path should become GN_GUILE_SERVER_URL
     response = requests.get(f"http://localhost:8091/edit?{file_path}")
     response.raise_for_status()
     return render_template("gn_editor.html", **response.json())
@@ -417,6 +418,7 @@ def commit_gn_doc():
     # TODO add env variable for gn-guile web server
     if request.method == "GET":
         return render_template("gn_editor_commit.html")
+    # note hard coded path should become GN_GUILE_SERVER_URL
     results = requests.post("http://localhost:8091/commit", json={
         "content":  request.form.get("content"),
         "filename": request.form.get("file_path"),
@@ -1048,7 +1050,7 @@ def mapping_results_page(hash_of_inputs=None):
     if not RUN_ID:
         RUN_ID = request.form.get("run_id")
     if hash_of_inputs:
-        input_results  =  Redis.get(hash_of_inputs) # can be none 
+        input_results  =  Redis.get(hash_of_inputs) # can be none
     else:
         input_results = None
     if input_results :
@@ -1186,7 +1188,7 @@ def mapping_results_page(hash_of_inputs=None):
         else:
             gn1_template_vars = display_mapping_results.DisplayMappingResults(result).__dict__
             return render_template(
-                "mapping_results.html", 
+                "mapping_results.html",
                 mapping_run_time=total_time,
                 **gn1_template_vars)
 

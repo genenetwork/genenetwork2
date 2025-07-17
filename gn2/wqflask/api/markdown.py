@@ -38,6 +38,7 @@ def fetch_raw_markdown(file_path):
     """
     # todo remove hardcoded file path
     safe_query = urllib.parse.urlencode({"file_path": file_path})
+    # note hard coded path should become GN_GUILE_SERVER_URL
     response = requests.get(
         f"http://localhost:8091/edit?{safe_query}")
     response.raise_for_status()
@@ -133,7 +134,7 @@ def glossary():
 def references():
 
     file_data = fetch_raw_markdown(
-        file_path="general/references/references.md")    
+        file_path="general/references/references.md")
     return render_template(
         "generic_gn_docs.html",
         rendered_markdown=render_markdown_as_html(file_data["content"]),
