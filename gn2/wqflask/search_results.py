@@ -21,7 +21,7 @@ from gn2.wqflask import parser
 from gn2.wqflask import do_search
 
 from gn2.utility.hmac import hmac_creation
-from gn2.utility.tools import get_setting, GN2_BASE_URL, GN3_LOCAL_URL
+from gn2.utility.tools import get_setting, GN3_LOCAL_URL, GN_GUILE_SERVER_URL
 from gn2.utility.type_checking import is_str
 
 MAX_SEARCH_RESULTS = 50000 # Max number of search results, passed to Xapian search (this needs to match the value in GN3!)
@@ -468,8 +468,7 @@ def get_alias_terms(symbol, species):
 
     filtered_aliases = []
     response = requests.get(
-        # note hard coded path should become GN_GUILE_SERVER_URL
-        "http://localhost:8091/gene/aliases/" + symbol_string)
+        GN_GUILE_SERVER_URL + "gene/aliases/" + symbol_string)
     if response:
         alias_list = json.loads(response.content)
 
