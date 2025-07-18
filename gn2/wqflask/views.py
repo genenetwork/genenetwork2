@@ -161,9 +161,12 @@ def no_access_page():
 
 @app.route("/")
 def index_page():
+    start_time = time.monotonic()
     anon_id = session_info()["anon_id"]
 
     def __render__(colls):
+        duration = time.monotonic() - start_time
+        current_app.logger.info("Landing page rendered in %.2f seconds", duration)
         return render_template("index_page.html",
                                version=current_app.config.get("GN_VERSION"),
                                gn_server_url=GN_SERVER_URL,
