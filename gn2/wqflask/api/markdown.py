@@ -40,7 +40,7 @@ def fetch_raw_markdown(file_path):
     safe_query = urllib.parse.urlencode({"file_path": file_path})
     # note hard coded path should become GN_GUILE_SERVER_URL
     response = requests.get(
-        f"http://localhost:8091/edit?{safe_query}")
+        GN_GUILE_SERVER_URL + f"edit?{safe_query}")
     response.raise_for_status()
     return response.json()
 
