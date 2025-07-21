@@ -12,7 +12,7 @@ from gn2.utility.redis_tools import get_redis_conn
 from flask import g, request, url_for
 
 from gn_libs.mysqldb import database_connection
-
+from gn2.utility.tools import GN_GUILE_SERVER_URL
 
 Redis = get_redis_conn()
 
@@ -153,12 +153,9 @@ class GeneralTrait:
 
         alias = 'Not available'
         if self.symbol:
-            human_response = requests.get(
-                GN_GUILE_SERVER_URL + "gene/aliases/" + self.symbol.upper())
-            mouse_response = requests.get(
-                GN_GUILE_SERVER_URL + "gene/aliases/" + self.symbol.capitalize())
-            other_response = requests.get(
-                GN_GUILE_SERVER_URL + "gene/aliases/" + self.symbol.lower())
+            human_response = requests.get(GN_GUILE_SERVER_URL + "gene/aliases/" + self.symbol.upper())
+            mouse_response = requests.get(GN_GUILE_SERVER_URL + "gene/aliases/" + self.symbol.capitalize())
+            other_response = requests.get(GN_GUILE_SERVER_URL + "gene/aliases/" + self.symbol.lower())
 
             if human_response and mouse_response and other_response:
                 alias_list = json.loads(human_response.content) + json.loads(
