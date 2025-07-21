@@ -4,25 +4,25 @@ from flask import render_template
 from .client import oauth2_get
 
 
-def __display_list_users__(privileges):
-    return all((priv in privileges)
-               for priv in (
-                       # "system:user:edit",
-                       "system:user:list",
-                       "system:user:masquerade",
-                       "system:user:delete-user",
-                       "system:user:reset-password",
-                       "system:user:assign-group-leader"))
+_USER_ADMIN_PRIVILEGES_ = (
+    "system:user:edit",
+    "system:user:list",
+    "system:user:masquerade",
+    "system:user:delete-user",
+    "system:user:reset-password",
+    "system:user:assign-group-leader")
+
+_GROUP_ADMIN_PRIVILEGES_ = (
+    "system:group:edit-group",
+    "system:group:view-group",
+    "system:group:create-group",
+    "system:group:delete-group",
+    "system:group:transfer-group-leader")
 
 
-def __display_list_groups__(privileges):
-    return all((priv in privileges)
-               for priv in (
-                       "system:group:edit-group",
-                       "system:group:view-group",
-                       "system:group:create-group",
-                       "system:group:delete-group",
-                       "system:group:transfer-group-leader"))
+def __display_p__(actual: tuple[str, ...], check_for: tuple[str, ...]) -> bool:
+    """Check that all elements in `check_for` exist in `actual`."""
+    return all((priv in actual) for priv in check_for)
 
 
 def render_ui(templatepath: str, **kwargs):
@@ -41,7 +41,9 @@ def render_ui(templatepath: str, **kwargs):
             "roles": roles,
             "user_privileges": user_privileges,
             "display": {
-                "list_users": __display_list_users__(_privilege_ids),
-                "list_groups": __display_list_groups__(_privilege_ids)
+                "list_users": __display_p__(
+                    _privilege_ids, _USER_ADMIN_PRIVILEGES_),
+                "list_groups": __display_p__(
+                    _privilege_ids, _GROUP_ADMIN_PRIVILEGES_)
             }
         })
