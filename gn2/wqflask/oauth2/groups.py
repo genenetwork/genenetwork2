@@ -1,9 +1,17 @@
 import uuid
+import asyncio
 import datetime
-from functools import partial
+from functools import reduce, partial
 
-from flask import (
-    flash, jsonify, request, url_for, redirect, Response, Blueprint)
+from pymonad.promise import Promise
+from flask import (flash,
+                   jsonify,
+                   request,
+                   url_for,
+                   redirect,
+                   Response,
+                   Blueprint,
+                   current_app as app)
 
 from .ui import render_ui
 from .checks import require_oauth2
@@ -220,38 +228,70 @@ def fetch_groups():
         }))
 
 
-@groups.route("/view/<uuid:group_id>", methods=["GET"])
+def make_unwrapper(key: str):
+    def __unwrap__(eith):
+        return eith.either(
+            lambda err: {f"{key}_error": process_error(err)},
+            lambda res: {key: res})
+
+    return __unwrap__
+
+
+async def async_fetch_group(group_id: uuid.UUID) -> dict:
+    """Fetch a group's details."""
+
+    return await Promise.insert(
+        oauth2_get(f"auth/group/{group_id}", json={})
+    ).then(
+        make_unwrapper("group")
+    )
+
+
+async def async_fetch_group_members(group_id: uuid.UUID) -> dict:
+    """Fetch a group's member users from the auth server."""
+    return await Promise.insert(
+        oauth2_get(f"auth/group/members/{group_id}", json={})
+    ).then(
+        make_unwrapper("members")
+    )
+
+
+async def async_fetch_group_leaders(group_id: uuid.UUID) -> dict:
+    """Fetch a group's leader(s)."""
+    return await Promise.insert(
+        oauth2_get(f"auth/group/{group_id}/leaders", json={})
+    ).then(
+        make_unwrapper("group_leaders")
+    )
+
+
+async def async_fetch_group_resources(group_id: uuid.UUID) -> dict:
+    return await Promise.insert(
+        oauth2_get(f"auth/group/{group_id}/data-resources", json={})
+    ).then(
+        make_unwrapper("resources")
+    )
+
+
+async def async_fetch_group_details(group_id: uuid.UUID):
+    return await asyncio.gather(
+        async_fetch_group(group_id),
+        async_fetch_group_members(group_id),
+        async_fetch_group_leaders(group_id),
+        async_fetch_group_resources(group_id))
+
+
+@groups.route("/view2/<uuid:group_id>", methods=["GET"])
 def view_group(group_id: uuid.UUID):
     """View a specific group's details."""
-    def __fetch_members__(group):
-        return oauth2_get(f"auth/group/members/{group_id}").then(
-            lambda users: {"group": group, "members": users})
-
-    def __fetch_leaders__(data):
-        return oauth2_get(f"auth/group/{group_id}/leaders").then(
-            lambda leaders: {**data, "group_leaders": leaders})
-
-    def __fetch_resources__(group_details):
-        return oauth2_get(f"auth/group/{group_id}/data-resources").then(
-            lambda resources: {**group_details, "resources": resources})
-
-    return oauth2_get(f"auth/group/{group_id}", json={}).then(
-        __fetch_members__
-    ).then(
-        __fetch_leaders__
-    ).then(
-        __fetch_resources__
-    ).then(
-        lambda data: {
-            **data,
-            "session_user_id": str(session.session_info().get(
-                "user", {}).get("user_id", uuid.uuid4())),
-            "session_users_group": session.session_info().get(
-                "user", {}).get("group", {})
-        }
-    ).then(
-        lambda _dets: render_ui("oauth2/view-group.html", **_dets)
-    ).either(
-        lambda err: render_ui("oauth2/request_error.html",
-                              response=err),
-        lambda response: response)
+    results = asyncio.run(async_fetch_group_details(group_id))
+    group_details = reduce(lambda acc, curr: {**acc, **curr},
+                           results,
+                           {})
+    return render_ui("oauth2/view-group.html", **{
+        **group_details,
+        "session_user_id": str(session.session_info().get(
+            "user", {}).get("user_id", uuid.uuid4())),
+        "session_users_group": session.session_info().get(
+            "user", {}).get("group", {})
+    })

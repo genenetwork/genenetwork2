@@ -3,11 +3,6 @@
 {%block title%}View User{%endblock%}
 
 {%block dash_page_content%}
-{%if group_error is defined%}
-<div class="row" style="text-align:left;line-height:5em;">
-  {{display_error("Group", group_error)}}
-</div>
-{%else%}
 
 <div class="row">
   <table class="table">
@@ -25,6 +20,7 @@
       </tr>
     </thead>
 
+    {%if group is defined%}
     <tbody>
       {%for key,val in group.group_metadata.items()%}
       <tr>
@@ -56,11 +52,19 @@
       </tr>
       {%endfor%}
     </tbody>
+    {%else%}
+    <tbody>
+      <tr>
+        <td colspan="5">
+          {{display_error("Error fetching group", group_error)}}
+        </td>
+      </tr>
+    </tbody>
+    {%endif%}
   </table>
 </div>
-</div>
 
-<div class="container-fluid">
+<div class="row">
 
   <table class="table">
     <caption>Group Users</caption>
@@ -69,7 +73,7 @@
 	<th rowspan="2">Name</th>
 	<th rowspan="2">Email</th>
 	<th rowspan="2">Group Leader?</th>
-	<th colspan="2">Actions</th>
+	<th colspan="2" style="text-align: center;">Actions</th>
       </tr>
       <tr>
 	<th>Membership</th>
@@ -77,7 +81,18 @@
       </tr>
     </thead>
 
+    {%if members is defined%}
     <tbody>
+      {%if group_leaders_error is defined%}
+      <tr>
+        <td></td>
+        <td colspan="3">
+          {{display_error("Error retrieving group's leaders", group_leaders_error)}}
+        </td>
+        <td></td>
+      </tr>
+      {%endif%}
+
       {%for user in members%}
       <tr>
 	<td>{{user.name}}</td>
@@ -100,11 +115,11 @@
           {%if user in group_leaders%}
 	  <a href="#"
 	     title="Demote this user from the group-leader role."
-	     class="btn btn-danger not-implemented">Demote</a>
+	     class="btn btn-info not-implemented">Demote</a>
           {%else:%}
 	  <a href="#"
 	     title="Promote this user to the group-leader role."
-	     class="btn btn-success not-implemented">Promote</a>
+	     class="btn btn-warning not-implemented">Promote</a>
           {%endif%}
 	</td>
       </tr>
@@ -124,6 +139,15 @@
       </tr>
       {%endfor%}
     </tbody>
+    {%else%}
+    <tbody>
+      <tr>
+        <td colspan="5">
+          {{display_error("Could not fetch group member details", members_error)}}
+        </td>
+      </tr>
+    </tbody>
+    {%endif%}
   </table>
 
 </div>
@@ -140,6 +164,7 @@
       </tr>
     </thead>
 
+    {%if resources is defined%}
     <tbody>
       {%for resource in resources:%}
       <tr>
@@ -162,8 +187,16 @@
       </tr>
       {%endfor%}
     </tbody>
+    {%else%}
+    <tbody>
+      <tr>
+        <td colspan="3">
+          {{display_error("Could not fetch group's resources", resources_error)}}
+        </td>
+      </tr>
+    </tbody>
+    {%endif%}
   </table>
 </div>
-{%endif%}
 
 {%endblock%}
