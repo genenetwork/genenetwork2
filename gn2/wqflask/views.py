@@ -401,7 +401,7 @@ def gnqna():
 def edit_gn_doc_file():
     file_path = urllib.parse.urlencode(
         {"file_path": request.args.get("file-path", "")})
-    response = requests.get(GN_GUILE_SERVER_URL + f"edit?{file_path}")
+    response = requests.get(urljoin(GN_GUILE_SERVER_URL, f"/edit?{file_path}"))
     response.raise_for_status()
     return render_template("gn_editor.html", **response.json())
 
@@ -418,7 +418,7 @@ def commit_gn_doc():
     # TODO add env variable for gn-guile web server
     if request.method == "GET":
         return render_template("gn_editor_commit.html")
-    results = requests.post(GN_GUILE_SERVER_URL + "commit", json={
+    results = requests.post(urljoin(GN_GUILE_SERVER_URL, "commit"), json={
         "content":  request.form.get("content"),
         "filename": request.form.get("file_path"),
         "username": session_info()["user"]["name"],
