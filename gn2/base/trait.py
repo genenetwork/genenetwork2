@@ -1,6 +1,7 @@
 import requests
 import simplejson as json
 from gn2.wqflask import app
+from urllib.parse import urljoin
 
 import gn2.utility.hmac as hmac
 from gn2.base import webqtlConfig
@@ -153,9 +154,9 @@ class GeneralTrait:
 
         alias = 'Not available'
         if self.symbol:
-            human_response = requests.get(GN_GUILE_SERVER_URL + "gene/aliases/" + self.symbol.upper())
-            mouse_response = requests.get(GN_GUILE_SERVER_URL + "gene/aliases/" + self.symbol.capitalize())
-            other_response = requests.get(GN_GUILE_SERVER_URL + "gene/aliases/" + self.symbol.lower())
+            human_response = requests.get(url_join(GN_GUILE_SERVER_URL, f"gene/aliases/{self.symbol.upper()}"))
+            mouse_response = requests.get(url_join(GN_GUILE_SERVER_URL, f"gene/aliases/{self.symbol.capitalize()}"))
+            other_response = requests.get(url_join(GN_GUILE_SERVER_URL, f"gene/aliases/{self.symbol.lower()}"))
 
             if human_response and mouse_response and other_response:
                 alias_list = json.loads(human_response.content) + json.loads(

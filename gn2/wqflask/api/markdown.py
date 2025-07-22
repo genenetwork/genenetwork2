@@ -8,6 +8,7 @@ import markdown
 import os
 import sys
 import urllib.parse
+from urllib.parse import urljoin
 from pathlib import Path
 
 from bs4 import BeautifulSoup  # type: ignore
@@ -40,7 +41,7 @@ def fetch_raw_markdown(file_path):
     safe_query = urllib.parse.urlencode({"file_path": file_path})
     # note hard coded path should become GN_GUILE_SERVER_URL
     response = requests.get(
-        GN_GUILE_SERVER_URL + f"edit?{safe_query}")
+        urljoin(GN_GUILE_SERVER_URL, f"edit?{safe_query}"))
     response.raise_for_status()
     return response.json()
 
