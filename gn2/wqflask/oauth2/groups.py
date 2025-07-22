@@ -229,6 +229,13 @@ def fetch_groups():
 
 
 def make_unwrapper(key: str):
+    """KLUDGE: Unwaps `Either` objects within `Promise` objects.
+
+    The reason this is considered a kludge is the fact that it bridges the
+    divide between the way I (frederick) had written the code for sending
+    requests to remote services, and the way the `Promise` monad seems to
+    work. It is entirely possible that I am missing something, hence the
+    kludge."""
     def __unwrap__(eith):
         return eith.either(
             lambda err: {f"{key}_error": process_error(err)},
