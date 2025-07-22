@@ -8,6 +8,7 @@ import datetime
 from typing import Tuple
 from pathlib import Path
 from urllib.parse import urljoin, urlparse
+from werkzeug.middleware.profiler import ProfilerMiddleware
 
 import redis
 import jinja2
@@ -85,6 +86,13 @@ def setup_logging(appl: Flask) -> None:
 
 
 app = Flask(__name__)
+app.config["PROFILE"] = True
+app.wsgi_app = ProfilerMiddleware(
+    app.wsgi_app,
+    restrictions=[40, "main"],
+    profile_dir="/tmpprofiler_dump",
+    filename_format="{time:.0f}-{method}-{path}-{elapsed:.0f}ms.prof",
+)
 ## BEGIN: Setup configurations ##
 # See http://flask.pocoo.org/docs/config/#configuring-from-files
 # Note no longer use the badly named WQFLASK_OVERRIDES (nyi)
