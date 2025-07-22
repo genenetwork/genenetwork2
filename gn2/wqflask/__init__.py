@@ -90,7 +90,7 @@ app.config["PROFILE"] = True
 app.wsgi_app = ProfilerMiddleware(
     app.wsgi_app,
     restrictions=[40, "main"],
-    profile_dir="/tmpprofiler_dump",
+    profile_dir="/tmp",
     filename_format="{time:.0f}-{method}-{path}-{elapsed:.0f}ms.prof",
 )
 ## BEGIN: Setup configurations ##
