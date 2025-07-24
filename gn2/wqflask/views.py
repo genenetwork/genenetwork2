@@ -163,14 +163,19 @@ def no_access_page():
 @app.route("/test-network")
 def test_network():
     start = time.time()
-    results =  requests.get(
-        urljoin(
+    http_url = urljoin(
             current_app.config["GN_SERVER_URL"],
             "version"
         )
-    )
+    result =  requests.get(http_url)
     duration = time.time() - start
-    app.logger.error(f"Took: {duration} to complete")
+    app.logger.error(f"http_url: {duration:.4f}s")
+
+    start = time.time()
+    local_url = "http://localhost:9093/api/version"
+    result =  requests.get(http_url)
+    duration = time.time() - start
+    app.logger.error(f"{local_url}: {duration:.4f}s")
     return result
 
 
