@@ -160,6 +160,20 @@ def no_access_page():
     return render_template("new_security/not_authenticated.html")
 
 
+@app.route("/test-network")
+def test_network():
+    start = time.time()
+    results =  requests.get(
+        urljoin(
+            current_app.config["GN_SERVER_URL"],
+            "version"
+        )
+    )
+    duration = time.time() - start
+    app.logger.error(f"Took: {duration} to complete")
+    return result
+
+
 @app.route("/")
 def index_page():
     anon_id = session_info()["anon_id"]
