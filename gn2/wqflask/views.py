@@ -170,12 +170,15 @@ def test_network():
     result =  requests.get(http_url)
     duration = time.time() - start
     app.logger.error(f"{http_url}: {duration:.4f}s")
+    # Verify that we get the right thing.
+    app.logger.error(f"result: {result.json()}")
 
     start = time.time()
     local_url = "http://localhost:9093/api/version"
     result =  requests.get(local_url)
     duration = time.time() - start
     app.logger.error(f"{local_url}: {duration:.4f}s")
+    app.logger.error(f"result: {result.json()}")
     return result.json()
 
 
