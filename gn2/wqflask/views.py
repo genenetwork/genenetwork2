@@ -173,7 +173,7 @@ def test_network():
 
     start = time.time()
     local_url = "http://localhost:9093/api/version"
-    result =  requests.get(http_url)
+    result =  requests.get(local_url)
     duration = time.time() - start
     app.logger.error(f"{local_url}: {duration:.4f}s")
     return result
