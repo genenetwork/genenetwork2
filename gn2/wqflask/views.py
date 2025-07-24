@@ -176,7 +176,7 @@ def test_network():
     result =  requests.get(local_url)
     duration = time.time() - start
     app.logger.error(f"{local_url}: {duration:.4f}s")
-    return jsonify(result)
+    return result.json()
 
 
 @app.route("/")
