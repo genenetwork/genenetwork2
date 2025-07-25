@@ -189,54 +189,62 @@ def export_sample_data(targs):
             trait_ob, trait_ob.dataset, get_qtl_info=True)
         trait_list.append(trait_ob)
 
-    samplelist = trait_list[0].dataset.group.all_samples_ordered()
+    traits_by_group = sort_traits_by_group(trait_list)
 
-    buff = io.StringIO()
-    writer = csv.writer(buff)
-    csv_rows = []
+    file_list = []
+    for group in traits_by_group:
 
-    table_headers = ['Id', 'Symbol']
+        group_traits = traits_by_group[group]
+        samplelist = group_traits[0].dataset.group.all_samples_ordered()
+        if not samplelist:
+            continue
 
-    sample_headers = []
-    for sample in samplelist:
-        sample_headers.append(sample)
+        buff = io.StringIO()
+        writer = csv.writer(buff)
+        csv_rows = []
 
-    full_headers = table_headers + sample_headers
-    csv_rows.append(full_headers)
+        table_headers = ['Id', 'Symbol']
 
-    for trait in trait_list:
-        if getattr(trait, "symbol", None):
-            trait_symbol = getattr(trait, "symbol")
-        elif getattr(trait, "abbreviation", None):
-            trait_symbol = getattr(trait, "abbreviation")
-
-        val_row = [trait.name, trait_symbol]
-        se_row = ["", "SE"]
-        n_row = ["", "N"]
-
+        sample_headers = []
         for sample in samplelist:
-            if sample in trait.data:
-                trait_val = trait.data[sample].value if (trait.data[sample].value or trait.data[sample].value == 0) else "x"
-                trait_var = trait.data[sample].variance if trait.data[sample].variance else "x"
-                trait_n = trait.data[sample].num_cases if trait.data[sample].num_cases else "x"
-                val_row += [trait_val]
-                se_row += [trait_var]
-                n_row += [trait_n]
-            else:
-                val_row += "x"
-                se_row += "x"
-                n_row += "x"
+            sample_headers.append(sample)
 
-        csv_rows += [val_row, se_row]
-        if trait.dataset.type == "Publish":
-            csv_rows += [n_row]
+        full_headers = table_headers + sample_headers
+        csv_rows.append(full_headers)
 
-    writer.writerows(csv_rows)
-    csv_data = buff.getvalue()
-    buff.close()
+        for trait in trait_list:
+            if getattr(trait, "symbol", None):
+                trait_symbol = getattr(trait, "symbol")
+            elif getattr(trait, "abbreviation", None):
+                trait_symbol = getattr(trait, "abbreviation")
 
-    file_name = trait_list[0].dataset.group.name + "_sample_data.csv"
-    file_list = [[file_name, csv_data]]
+            val_row = [trait.name, trait_symbol]
+            se_row = ["", "SE"]
+            n_row = ["", "N"]
+
+            for sample in samplelist:
+                if sample in trait.data:
+                    trait_val = trait.data[sample].value if (trait.data[sample].value or trait.data[sample].value == 0) else "x"
+                    trait_var = trait.data[sample].variance if trait.data[sample].variance else "x"
+                    trait_n = trait.data[sample].num_cases if trait.data[sample].num_cases else "x"
+                    val_row += [trait_val]
+                    se_row += [trait_var]
+                    n_row += [trait_n]
+                else:
+                    val_row += "x"
+                    se_row += "x"
+                    n_row += "x"
+
+            csv_rows += [val_row, se_row]
+            if trait.dataset.type == "Publish":
+                csv_rows += [n_row]
+
+        writer.writerows(csv_rows)
+        csv_data = buff.getvalue()
+        buff.close()
+
+        file_name = group + "_traits.csv"
+        file_list.append([file_name, csv_data])
 
     return file_list
 
