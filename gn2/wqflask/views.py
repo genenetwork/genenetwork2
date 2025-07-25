@@ -736,7 +736,7 @@ def export_traits_csv():
 
         memory_file.seek(0)
 
-        return send_file(memory_file, attachment_filename=filename + ".zip", as_attachment=True)
+        return send_file(memory_file, download_name=filename + ".zip", as_attachment=True)
     else:
         return Response(file_list[0][1],
                         mimetype='text/csv',
