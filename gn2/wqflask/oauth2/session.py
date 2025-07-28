@@ -96,7 +96,10 @@ def set_masquerading(masq_info):
             "name": masq_info["masquerade_as"]["user"]["name"],
             "email": masq_info["masquerade_as"]["user"]["email"],
             "token": Right(masq_info["masquerade_as"]["token"]),
-            "logged_in": True
+            "logged_in": True,
+            **({"group": masq_info["masquerade_as"]["group"]}
+               if masq_info["masquerade_as"].get("group")
+               else {})
         },
         "masquerading": orig_user
     })
