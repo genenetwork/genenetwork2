@@ -300,5 +300,5 @@ def view_group(group_id: uuid.UUID):
         "session_user_id": str(session.session_info().get(
             "user", {}).get("user_id", uuid.uuid4())),
         "session_users_group": session.session_info().get(
-            "user", {}).get("group", {})
+            "user", {}).get("group", {}) or {}
     })
