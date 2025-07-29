@@ -168,7 +168,11 @@
     <tbody>
       {%for resource in resources:%}
       <tr>
-        <td>{{resource.resource_name}}</td>
+        <td>
+          <a href="{{url_for('oauth2.resource.view_resource', resource_id=resource.resource_id)}}">
+            {{resource.resource_name}}
+          </a>
+        </td>
         <td>{{resource.resource_category.resource_category_description}}</td>
         <td>
           {%if resource.public%}
