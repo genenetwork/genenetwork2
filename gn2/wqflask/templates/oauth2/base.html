@@ -18,4 +18,9 @@
 
 {%block js%}
 <!-- empty block to suppress the index_page.html javascript from running -->
+<script type="text/javascript">
+  var displayTooltip = function(css_target) {
+      alert($(css_target).attr("title"));
+  };
+</script>
 {%endblock%}

@@ -167,7 +167,13 @@ def view_resource(resource_id: UUID):
         lambda data: render_ui("oauth2/view-resource.html",
                                **data,
                                page=page,
-                               count_per_page=count_per_page))
+                               count_per_page=count_per_page,
+                               return_to={
+                                   "return_to": (
+                                       request.args.get("return_to") or
+                                       "oauth2.resource.user_resources"),
+                                   **request.args
+                               }))
 
 @resources.route("/data/link", methods=["POST"])
 @require_oauth2
@@ -319,7 +325,28 @@ def edit_resource(resource_id: UUID):
 @require_oauth2
 def delete_resource(resource_id: UUID):
     """Delete the given resource."""
-    return "WOULD DELETE THE GIVEN RESOURCE"
+    return_to = redirect(url_for(
+        request.args.get("return_to") or "/",
+        **{
+            key: val for key,val
+            in dict(request.args).items()
+            if key != "return_to"
+        }))
+
+    def __handle_error__(err):
+        flash_error(process_error(err))
+        return return_to
+
+    def __handle_success__(success):
+        flash_success(success)
+        return return_to
+
+    return oauth2_post(
+        f"auth/resource/delete",
+        json={"resource_id": str(resource_id)}
+    ).either(
+        lambda err: __handle_error__(err),
+        lambda suc: __handle_success__(suc))
 
 @resources.route("/<uuid:resource_id>/roles/<uuid:role_id>", methods=["GET"])
 @require_oauth2

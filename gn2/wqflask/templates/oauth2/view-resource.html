@@ -55,11 +55,22 @@
 	     class="btn btn-warning">Edit</a>
 	</td>
 	<td>
+          {%if resource.resource_data | length != 0%}
+          <span
+            id="delete-resource-disabled"
+            class="btn btn-danger"
+            title="You cannot delete this resource because it has data linked to it."
+            onclick="displayTooltip('#delete-resource-disabled')">
+            Delete
+          </span>
+          {%else%}
 	  <a href="{{url_for(
 		   'oauth2.resource.delete_resource',
-		   resource_id=resource.resource_id)}}"
-	     title="Edit resource"
+		   resource_id=resource.resource_id,
+                   **return_to)}}"
+             title="Delete this resource"
 	     class="btn btn-danger">Delete</a>
+          {%endif%}
 	</td>
       </tr>
     </tbody>
