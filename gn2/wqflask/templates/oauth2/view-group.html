@@ -107,9 +107,15 @@
           </strong>
         </td>
 	<td>
-	  <a href="url_for('oauth2.group.remove_user', user_id=user.user_id)"
-	     title="Remove this user from being a member of this group."
-	     class="btn btn-danger not-implemented">Remove</a>
+          <form id="frm-remove-group-member-{{user.user_id}}"
+                method="POST"
+                action="{{url_for('oauth2.group.remove_group_member', group_id=group.group_id)}}">
+            <input type="hidden" name="user_id" value="{{user.user_id}}" />
+	    <input type="submit"
+	           title="Remove this user from being a member of this group."
+	           class="btn btn-danger"
+                   value="Remove" />
+          </form>
 	</td>
 	<td>
           {%if user in group_leaders%}

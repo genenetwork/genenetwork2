@@ -17,7 +17,8 @@ from .ui import render_ui
 from .checks import require_oauth2
 from .client import oauth2_get, oauth2_post
 from .request_utils import (
-    user_details, handle_error, process_error, handle_success)
+    user_details, handle_error, process_error, handle_success,
+    with_flash_error, with_flash_success)
 
 from . import session
 
@@ -306,3 +307,14 @@ def view_group(group_id: uuid.UUID):
         "return_to": "oauth2.group.view_group",
         "group_id": group_id
     })
+
+
+@groups.route("/<uuid:group_id>/remove-member", methods=["POST"])
+def remove_group_member(group_id: uuid.UUID):
+    """Remove a group's member."""
+    form = request.form
+    grp_page = redirect(url_for("oauth2.group.view_group", group_id=group_id))
+
+    return oauth2_post(
+        f"auth/group/{group_id}/remove-member", json={}
+    ).either(with_flash_error(grp_page), with_flash_success(grp_page))
