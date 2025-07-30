@@ -290,6 +290,7 @@ async def async_fetch_group_details(group_id: uuid.UUID):
 
 
 @groups.route("/view/<uuid:group_id>", methods=["GET"])
+@groups.route("/<uuid:group_id>/view", methods=["GET"])
 def view_group(group_id: uuid.UUID):
     """View a specific group's details."""
     results = asyncio.run(async_fetch_group_details(group_id))
