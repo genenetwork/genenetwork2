@@ -144,14 +144,18 @@ def flash_success(success):
 def with_flash_error(response) -> Callable:
     def __err__(err) -> Response:
         error = process_error(err)
+        error_description = (error.get("error_description")
+                             or error.get("error-description")
+                             or "Error!")
         flash(f"{error['status_code']} {error['error']}: "
-              f"{error['error_description']}",
+              f"{error_description}",
               "alert-danger")
         return response
     return __err__
 
 def with_flash_success(response) -> Callable:
     def __succ__(msg) -> Response:
-        flash(f"Success: {msg['message']}", "alert-success")
+        message = msg.get("message") or msg.get("description") or "Success!"
+        flash(f"Success: {message}", "alert-success")
         return response
     return __succ__
