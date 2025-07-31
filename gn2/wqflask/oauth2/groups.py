@@ -15,7 +15,7 @@ from flask import (flash,
 
 from .ui import render_ui
 from .checks import require_oauth2
-from .client import oauth2_get, oauth2_post
+from .client import oauth2_get, oauth2_post, oauth2_delete
 from .request_utils import (
     user_details, handle_error, process_error, handle_success,
     with_flash_error, with_flash_success)
@@ -95,11 +95,22 @@ def join_or_create():
     return oauth2_get("auth/group/list").either(
         __group_error__, __group_success__)
 
-@groups.route("/delete/<uuid:group_id>", methods=["GET", "POST"])
+@groups.route("/<uuid:group_id>/delete", methods=["POST"])
 @require_oauth2
 def delete_group(group_id):
     """Delete the user's group."""
-    return "WOULD DELETE GROUP."
+    def __handle_success__(success):
+        flash("Deleted the group successfully.", "alert-success")
+        return redirect(url_for("oauth2.group.list_groups"))
+
+    return oauth2_delete(
+        f"auth/group/{group_id}/delete",
+        json={}
+    ).either(
+        with_flash_error(redirect(url_for(
+            "oauth2.group.view_group",
+            group_id=group_id))),
+        __handle_success__)
 
 @groups.route("/edit/<uuid:group_id>", methods=["GET", "POST"])
 @require_oauth2

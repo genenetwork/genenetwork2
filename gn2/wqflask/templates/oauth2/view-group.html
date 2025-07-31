@@ -45,9 +45,24 @@
 	     class="btn btn-info not-implemented"
              title="Edit group information">Edit</a></td>
         <td rowspan="{{group.group_metadata | count}}">
-          <a href="{{url_for('oauth2.group.edit_group', group_id=group.group_id)}}"
-	     class="btn btn-danger not-implemented"
-             title="Delete this group">Delete</a></td>
+          {%if members|length != 0 or resources|length != 0%}
+          <a href="#"
+             id="delete-group"
+	     class="btn btn-danger"
+             title="You cannot delete a group with members, or linked resources."
+             onclick="displayTooltip('#delete-group')">Delete</a>
+          {%else%}
+          <form id="frm-delete-group"
+                method="POST"
+                action="{{url_for('oauth2.group.delete_group', group_id=group.group_id)}}">
+            <input type="hidden" name="group_id" value="{{group_id}}" />
+            <input type="submit"
+                   class="btn btn-danger"
+                   title="Delete this group."
+                   value="Delete" />
+          </form>
+          {%endif%}
+        </td>
         {%endif%}
       </tr>
       {%endfor%}
