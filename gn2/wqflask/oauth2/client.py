@@ -4,6 +4,7 @@ import time
 import random
 import requests
 from typing import Optional
+from functools import partial
 from urllib.parse import urljoin
 from datetime import datetime, timedelta
 
@@ -158,44 +159,38 @@ def __no_token__(_err) -> Left:
     resp.status_code = 400
     return Left(resp)
 
-def oauth2_get(
+def oauth2_request(
+        method: str,
         uri_path: str,
         data: dict = {},
         jsonify_p: bool = False,
         headers: dict = {"Content-Type": "application/json"},
         **kwargs
 ) -> Either:
-    resp = oauth2_client().get(
+    """Perform a HTTP request to the authorisation server."""
+    assert method.lower() in (# 'connect' and 'trace' methods are not supported by requests.
+        "get", "head", "post", "put", "delete", "options", "patch"), (
+            "HTTP method '{method.upper()}' is not supported")
+    resp = getattr(oauth2_client(), method.lower())(
         urljoin(authserver_uri(), uri_path),
         data=data,
         headers=headers,
         timeout=kwargs.get("timeout", (9.13, 20)),
-        **{key: val for key,val in kwargs.items() if key != "timeout"})
-    if resp.status_code == 200:
-        if jsonify_p:
-            return Right(resp)
-        return Right(resp.json())
+        **{key: val for key,val in kwargs.items() if key != "timeout"}
+    )
+    if resp.status_code in range(200, 300):# mathematically [200, 299]
+        return Right(resp.json() if resp.status_code != 204 else {})
 
     return Left(resp)
 
-def oauth2_post(
-        uri_path: str,
-        data: Optional[dict] = None,
-        json: Optional[dict] = None,
-        headers: dict = {"Content-Type": "application/json"},
-        **kwargs
-) -> Either:
-    resp = oauth2_client().post(
-        urljoin(authserver_uri(), uri_path),
-        data=data,
-        json=json,
-        headers=headers,
-        timeout=kwargs.get("timeout", (9.13, 20)),
-        **{key: val for key,val in kwargs.items() if key != "timeout"})
-    if resp.status_code == 200:
-        return Right(resp.json())
-
-    return Left(resp)
+## Define utility function to avoid using `oauth2_request` function directly
+oauth2_get = partial(oauth2_request, "get")
+oauth2_head = partial(oauth2_request, "head")
+oauth2_post = partial(oauth2_request, "post")
+oauth2_put = partial(oauth2_request, "put")
+oauth2_delete = partial(oauth2_request, "delete")
+oauth2_options = partial(oauth2_request, "options")
+oauth2_patch = partial(oauth2_request, "patch")
 
 def no_token_get(
         uri_path: str,
