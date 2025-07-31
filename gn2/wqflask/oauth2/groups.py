@@ -317,5 +317,6 @@ def remove_group_member(group_id: uuid.UUID):
     grp_page = redirect(url_for("oauth2.group.view_group", group_id=group_id))
 
     return oauth2_post(
-        f"auth/group/{group_id}/remove-member", json={}
+        f"auth/group/{group_id}/remove-member",
+        json=dict(form)
     ).either(with_flash_error(grp_page), with_flash_success(grp_page))
