@@ -46,6 +46,8 @@
                     {% endif %}
                     {% elif word.key|lower == "position" or word.key|lower == "mb" %}
                     with <u>target genes</u> on chromosome <strong>{% if (word.search_term[0]|lower).split('chr')|length > 1 %}{{ (word.search_term[0]|lower).split('chr')[1] }}{% else %}{{ word.search_term[0] }}{% endif %}</strong> between <strong>{{ word.search_term[1] }}</strong> and <strong>{{ word.search_term[2] }}</strong> Mb{% if loop.last %}{% else %} and {% endif %}
+                    {% elif word.key|lower == "count" %}
+                    with {% if word.search_term|length == 2 %}between <strong>{{ word.search_term[0] }}</strong> and <strong>{{ word.search_term[1] }}</strong>{% else %}{% if word.separator == ">" %}more than{% elif word.separator == "<" %}fewer than{% endif %} <strong>{{ word.search_term[0] }}</strong>{% endif %} samples{% if loop.last %}{% else %} and {% endif %}
                     {% else %}
                     {% if word.search_term[0] == "*" %} in the dataset.{% else %}{% if loop.first %}that match: {% endif %}<b>{{ word.search_term[0] }}</b>{% if loop.last %}{% else %} and {% endif %}{% endif %}
                     {% endif %}
@@ -358,11 +360,18 @@
               'targets': 5
             },
             {
+              'title': "N",
+              'type': "natural",
+              'width': "60px",
+              'data': "n_samples",
+              'targets': 6
+            },
+            {
               'title': "<div style='text-align: right;'>Year</div>",
               'type': "natural-minus-na",
               'data': null,
               'width': "50px",
-              'targets': 6,
+              'targets': 7,
               'render': function(data) {
                 if (data.pubmed_id != "N/A"){
                   return '<a href="' + data.pubmed_link + '">' + data.pubmed_text + '</a>'
@@ -376,7 +385,7 @@
               'title': "<div style='text-align: right; padding-right: 10px;'>Peak</div> <div style='text-align: right;'>-logP <a href=\"{{ url_for('gn_docs_blueprint.glossary') }}#LRS\" target=\"_blank\" style=\"color: white;\"><sup style='color: #FF0000;'><i>?</i></sup></a></div>",
               'type': "natural-minus-na",
               'data': "lod_score",
-              'targets': 7,
+              'targets': 8,
               'width': "60px",
               'orderSequence': [ "desc", "asc"]
             },
@@ -384,7 +393,7 @@
               'title': "<div style='text-align: right;'>Peak Location</div>",
               'type': "natural-minus-na",
               'width': "125px",
-              'targets': 8,
+              'targets': 9,
               'data': "lrs_location"
             },
             {
@@ -392,7 +401,7 @@
               'type': "natural-minus-na",
               'width': "60px",
               'data': "additive",
-              'targets': 9,
+              'targets': 10,
               'orderSequence': [ "desc", "asc"]
             }{% elif dataset.type == 'Geno' %},
             {

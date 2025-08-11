@@ -215,6 +215,7 @@ class PhenotypeSearch(DoSearch):
                 PublishXRef.`LRS`,
                 PublishXRef.`additive`,
                 PublishXRef.`Locus`,
+                PublishXRef.`NSamples`,
                 InbredSet.`InbredSetCode`,
                 Geno.`Chr`,
                 Geno.`Mb`
@@ -947,6 +948,38 @@ class PvalueSearch(MrnaAssaySearch):
                 self.search_term[0])
 
         self.query = self.compile_final_query(where_clause=self.where_clause)
+        return self.execute(self.query)
+
+
+class NSearch(PhenotypeSearch):
+    """Searches for phenotype traits N of Samples in a specified range"""
+
+    DoSearch.search_types["Publish_COUNT"] = "NSearch"
+
+    def get_where_clause(self):
+        if self.search_operator == "=":
+            assert isinstance(self.search_term, (list, tuple))
+            if len(self.search_term) > 1:
+                self.n_min, self.n_max = self.search_term[:2]
+                where_clause = """ PublishXRef.NSamples >= %s AND
+                                PublishXRef.NSamples <= %s
+                            """ % self.mescape(min(self.n_min, self.n_max),
+                                                max(self.n_min, self.n_max))
+            else:
+                where_clause = """ PublishXRef.NSamples = %s
+                            """ % self.mescape(self.search_term[0])
+        else:
+            # Deal with >, <, >=, and <=
+            where_clause = """ PublishXRef.NSamples %s %s """ % self.mescape(self.search_operator,
+                                                                self.search_term[0])
+
+        return where_clause
+
+    def run(self):
+        self.where_clause = self.get_where_clause()
+
+        self.query = self.compile_final_query(where_clause=self.where_clause)
+
         return self.execute(self.query)
 
 

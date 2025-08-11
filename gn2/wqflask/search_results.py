@@ -187,13 +187,14 @@ class SearchResultPage:
                     trait_dict['hmac'] = f"{trait_dict['display_name']}:{trait_dict['dataset']}:{hmac_creation('{}:{}'.format(trait_dict['display_name'], trait_dict['dataset']))}"
 
                     if result[10]:
-                        trait_dict['display_name'] = str(result[10]) + "_" + str(result[0])
+                        trait_dict['display_name'] = str(result[11]) + "_" + str(result[0])
                     trait_dict['description'] = "N/A"
                     trait_dict['pubmed_id'] = "N/A"
                     trait_dict['pubmed_link'] = "N/A"
                     trait_dict['pubmed_text'] = "N/A"
                     trait_dict['mean'] = "N/A"
                     trait_dict['additive'] = "N/A"
+                    trait_dict['n_samples'] = "N/A"
                     pre_pub_description = "N/A" if result[1] is None else result[1].strip()
                     post_pub_description = "N/A" if result[2] is None else result[2].strip()
                     if result[5] != "NULL" and result[5] != None:
@@ -221,11 +222,12 @@ class SearchResultPage:
                         trait_dict['lod_score'] = "N/A"
 
                     try:
-                        trait_dict['lrs_location'] = f"Chr{result[11]}: {float(result[12]):.6f}"
+                        trait_dict['lrs_location'] = f"Chr{result[12]}: {float(result[12]):.6f}"
                     except:
                         trait_dict['lrs_location'] = "N/A"
 
                     trait_dict['additive'] = "N/A" if not result[8] else f"{result[8]:.3f}"
+                    trait_dict['n_samples'] = "N/A" if not result[10] else f"{result[10]}"
 
                 trait_dict['trait_info_str'] = trait_info_str(trait_dict, self.dataset.type)
 
