@@ -419,7 +419,8 @@ class DisplayMappingResults:
         else:
             self.LRS_LOD = start_vars['score_type']
         self.intervalAnalystChecked = True
-        self.draw2X = False
+        self.draw2X = True
+        self.png_filename = None
         if 'additiveCheck' in list(start_vars.keys()):
             self.additiveChecked = start_vars['additiveCheck']
         else:
@@ -622,11 +623,10 @@ class DisplayMappingResults:
                 self.graphWidth * 2, self.graphHeight * 2))
             gifmapX2 = self.plotIntMapping(
                 intCanvasX2, startMb=self.startMb, endMb=self.endMb, showLocusForm=showLocusForm, zoom=2)
-            intCanvasX2.save(
-                "{}.png".format(
-                    os.path.join(webqtlConfig.GENERATED_IMAGE_DIR,
-                                 self.filename + "X2")),
-                format='png')
+            self.png_filename = "{}.png".format(
+                os.path.join(webqtlConfig.GENERATED_IMAGE_DIR,
+                self.filename + "X2"))
+            intCanvasX2.save(self.png_filename, format='png')
 
         ################################################################
         # Outputs goes here
@@ -1110,7 +1110,7 @@ class DisplayMappingResults:
         if zoom == 2:
             fontZoom = 1.5
 
-        labelFont = ImageFont.truetype(font=TREBUC_FILE, size=12 * fontZoom)
+        labelFont = ImageFont.truetype(font=TREBUC_FILE, size=int(round((12 * fontZoom))))
         startPosY = 15
         stepPosY = 12 * fontZoom
 
@@ -1119,7 +1119,7 @@ class DisplayMappingResults:
             startPosY = 15
             nCol = 2
             smallLabelFont = ImageFont.truetype(
-                font=TREBUC_FILE, size=12 * fontZoom)
+                font=TREBUC_FILE, size=int(round((12 * fontZoom))))
 
             leftOffset = canvas.size[0] - xRightOffset - 190
             draw_open_polygon(
@@ -1208,7 +1208,7 @@ class DisplayMappingResults:
                 xy=(thisStartX + 40, startPosY + TEXT_Y_DISPLACEMENT + stepPosY), font=labelFont,
                 fill=BLACK)
 
-        labelFont = ImageFont.truetype(font=VERDANA_FILE, size=12 * fontZoom)
+        labelFont = ImageFont.truetype(font=VERDANA_FILE, size=int(round((12 * fontZoom))))
         labelColor = BLACK
 
         if self.dataset.type == "Publish" or self.dataset.type == "Geno":
