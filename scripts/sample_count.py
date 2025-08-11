@@ -1,17 +1,31 @@
 """
-To run script:
-python3 sample_count.py {SQL_URI} {filepath/name}
+Script to count rows in PublishData table corresponding to each PublishXRef entry
+and update the NSamples field in PublishXRef.
 
+Usage:
+python3 sample_count.py {SQL_URI} {filepath/name}
 """
 
-import csv
 import argparse
 from urllib.parse import urlparse
 import MySQLdb
+from MySQLdb import Error as MySQLdbError
+from typing import Dict, Any
 
-def parse_mysql_uri(uri):
-    """Parse a MySQL URI into connection components"""
+
+def parse_mysql_uri(uri: str) -> Dict[str, Any]:
+    """Parse a MySQL URI into connection components.
+
+    Args:
+        uri: MySQL connection URI (e.g. mysql://user:pass@host/dbname)
+
+    Returns:
+        Dictionary with connection parameters
+    """
     parsed_uri = urlparse(uri)
+
+    if not parsed_uri.path or len(parsed_uri.path) < 2:
+        raise ValueError("Database name is missing from URI")
 
     return {
         'host': parsed_uri.hostname or 'localhost',
@@ -21,13 +35,18 @@ def parse_mysql_uri(uri):
         'port': parsed_uri.port or 3306
     }
 
+
 def main():
     # Set up command-line argument parsing
     parser = argparse.ArgumentParser(
-        description='Execute SQL query and export results to CSV'
+        description='Count PublishData rows for each PublishXRef entry and update NSamples'
     )
     parser.add_argument('uri', help='MySQL URI (e.g. mysql://user:pass@host/dbname)')
-    parser.add_argument('output', help='File to output results to')
+    parser.add_argument(
+        '--output',
+        help='Optional file to output results to',
+        required=False
+    )
     args = parser.parse_args()
 
     # Parse URI and connect to MySQL
@@ -38,37 +57,65 @@ def main():
             user=db_config['user'],
             passwd=db_config['password'],
             db=db_config['database'],
-            port=db_config['port']
+            port=db_config['port'],
+            autocommit=False
         )
-    except Exception as e:
-        print(f"Connection failed: {str(e)}")
+    except ValueError as e:
+        print(f"Invalid URI: {str(e)}")
+        return
+    except MySQLdbError as e:
+        print(f"Database connection failed: {str(e)}")
         return
 
     # Query that selects count of samples (with data) for each phenotype trait
     pheno_data_query = """
-    SELECT px.Id, px.InbredSetId, COUNT(pd.Id)
+    SELECT px.Id, px.InbredSetId, COUNT(pd.Id) as sample_count
     FROM PublishXRef as px
-        LEFT OUTER JOIN PublishData AS pd ON px.DataId = pd.Id
+    LEFT OUTER JOIN PublishData AS pd ON px.DataId = pd.Id
     GROUP BY px.Id, px.InbredSetId;
     """
 
-    # Execute query and write results
-    output_file = args.output
+    # Execute query and update PublishXRef table with sample counts
     try:
         with conn.cursor() as cursor:
+            # Execute the count query
             cursor.execute(pheno_data_query)
-            rows = cursor.fetchall()
-            column_names = [desc[0] for desc in cursor.description]
+            results = cursor.fetchall()
 
-            with open(output_file, 'w', newline='') as csv_file:
-                writer = csv.writer(csv_file)
-                writer.writerow(column_names)
-                writer.writerows(rows)
-                
-        print(f"Successfully wrote {len(rows)} rows to {output_file}")
-        
+            if args.output:
+                # Write results to CSV if output file is specified
+                try:
+                    with open(args.output, 'w', newline='') as csvfile:
+                        writer = csv.writer(csvfile)
+                        writer.writerow(['Id', 'InbredSetId', 'NSamples'])  # header
+                        writer.writerows(results)
+                    print(f"Results written to {args.output}")
+                except IOError as e:
+                    print(f"Failed to write output file: {str(e)}")
+
+            # Prepare and execute updates
+            update_n_query = """
+            UPDATE PublishXRef
+            SET NSamples = %s
+            WHERE Id = %s AND InbredSetId = %s;
+            """
+
+            updated_rows = 0
+            for row in results:
+                cursor.execute(update_n_query, (row[2], row[0], row[1]))
+                updated_rows += cursor.rowcount
+
+            # Commit the transaction
+            conn.commit()
+            print(f"Successfully updated {updated_rows} records in PublishXRef")
+
+    except MySQLdbError as e:
+        conn.rollback()
+        print(f"Database operation failed: {str(e)}")
     finally:
-        conn.close()
+        if conn:
+            conn.close()
+
 
 if __name__ == "__main__":
     main()
