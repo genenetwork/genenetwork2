@@ -20,6 +20,8 @@ from flask import render_template
 from typing import Dict
 from typing import List
 
+from gn2.utility.tools import GN_GUILE_SERVER_URL
+
 glossary_blueprint = Blueprint('glossary_blueprint', __name__)
 references_blueprint = Blueprint("references_blueprint", __name__)
 environments_blueprint = Blueprint("environments_blueprint", __name__)
