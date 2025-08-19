@@ -20,7 +20,7 @@ from flask import render_template
 from typing import Dict
 from typing import List
 
-from gn2.utility.tools import GN_GUILE_SERVER_URL
+
 
 glossary_blueprint = Blueprint('glossary_blueprint', __name__)
 references_blueprint = Blueprint("references_blueprint", __name__)
@@ -39,7 +39,7 @@ def fetch_raw_markdown(file_path):
     """
     This method fetches files from genenetwork:gn docs repo
     """
-    # todo remove hardcoded file path
+    from gn2.utility.tools import GN_GUILE_SERVER_URL # NOTE imported this here  to prevent cirular import error
     safe_query = urllib.parse.urlencode({"file_path": file_path})
     # note hard coded path should become GN_GUILE_SERVER_URL
     response = requests.get(
