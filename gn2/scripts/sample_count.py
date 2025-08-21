@@ -12,28 +12,8 @@ import MySQLdb
 from MySQLdb import Error as MySQLdbError
 from typing import Dict, Any
 
+from gn_libs.mysqldb import parse_db_url
 
-def parse_mysql_uri(uri: str) -> Dict[str, Any]:
-    """Parse a MySQL URI into connection components.
-
-    Args:
-        uri: MySQL connection URI (e.g. mysql://user:pass@host/dbname)
-
-    Returns:
-        Dictionary with connection parameters
-    """
-    parsed_uri = urlparse(uri)
-
-    if not parsed_uri.path or len(parsed_uri.path) < 2:
-        raise ValueError("Database name is missing from URI")
-
-    return {
-        'host': parsed_uri.hostname or 'localhost',
-        'user': parsed_uri.username,
-        'password': parsed_uri.password,
-        'database': parsed_uri.path.lstrip('/'),
-        'port': parsed_uri.port or 3306
-    }
 
 
 def main():
@@ -51,15 +31,10 @@ def main():
 
     # Parse URI and connect to MySQL
     try:
-        db_config = parse_mysql_uri(args.uri)
-        conn = MySQLdb.connect(
-            host=db_config['host'],
-            user=db_config['user'],
-            passwd=db_config['password'],
-            db=db_config['database'],
-            port=db_config['port'],
-            autocommit=False
-        )
+        conn = MySQLdb.connect(**{
+            **parse_db_url(args.uri),
+            "autocommit": False
+        })
     except ValueError as e:
         print(f"Invalid URI: {str(e)}")
         return
