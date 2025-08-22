@@ -53,6 +53,9 @@
 #   env GN2_PROFILE=~/opt/gn-latest-guix ./bin/genenetwork2 ./gn2/default_settings.py -gunicorn "--bind 0.0.0.0:5003 --workers=1 wsgi"
 
 SCRIPT=$(realpath "$0")
+PYTHONVERSION_MAJOR=$(python3 -c "import sys;print(sys.version_info.major)")
+PYTHONVERSION_MINOR=$(python3 -c "import sys;print(sys.version_info.minor)")
+PYTHONVERSION_PATCH=$(python3 -c "import sys;print(sys.version_info.micro)")
 echo SCRIPT="${SCRIPT}"
 echo GN2_PROFILE="${GN2_PROFILE}"
 GN2_BASE_DIR=$(dirname "$(dirname "${SCRIPT}")")
@@ -60,7 +63,7 @@ GN2_ID=$(cat /etc/hostname):$(basename "${GN2_BASE_DIR}")
 
 echo GN2_BASE_DIR="${GN2_BASE_DIR}"
 
-GUIX_SITE=$GN2_BASE_DIR/lib/python3.8/site-packages
+GUIX_SITE="${GN2_BASE_DIR}/lib/python${PYTHONVERSION_MAJOR}.${PYTHONVERSION_MINOR}/site-packages"
 if [ -d "${GUIX_SITE}" ]; then
     echo INFO: GN2 is running from GNU Guix
     GN2_BASE_DIR=$GUIX_SITE
@@ -114,7 +117,7 @@ if [ -z "${GN2_PROFILE}" ]; then
     read -p "PRESS [ENTER] TO CONTINUE..."
 else
     export PATH=$GN2_PROFILE/bin:$PATH
-    export PYTHONPATH="$GN2_PROFILE/lib/python3.10/site-packages" # never inject another PYTHONPATH!!
+    export PYTHONPATH="${GN2_PROFILE}/lib/python${PYTHONVERSION_MAJOR}.${PYTHONVERSION_MINOR}/site-packages" # never inject another PYTHONPATH!!
     export R_LIBS_SITE=$GN2_PROFILE/site-library
     export JS_GUIX_PATH=$GN2_PROFILE/share/genenetwork2/javascript
     export GUIX_GTK3_PATH="$GN2_PROFILE/lib/gtk-3.0"
