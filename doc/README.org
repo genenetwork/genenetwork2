@@ -1,4 +1,4 @@
 #+TITLE: Installing GeneNetwork services
 
-This information has moved to https://issues.genenetwork.org/topics/deployment
-and https://issues.genenetwork.org/topics/installation.
+This information has moved to https://issues.genenetwork.org/topics/deploy/deployment
+and https://issues.genenetwork.org/topics/deploy/installation.
