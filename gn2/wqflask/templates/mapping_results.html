@@ -2,6 +2,7 @@
 {% block title %}Mapping Results{% endblock %}
 {% block css %}
     <link rel="stylesheet" type="text/css" href="{{ url_for('css', filename='DataTables/css/jquery.dataTables.css') }}" />
+    <link rel="stylesheet" type="text/css" href="{{ url_for('css', filename='DataTables/css/buttons.dataTables.css') }}" />
     <link rel="stylesheet" type="text/css" href="{{ url_for('css', filename='purescript-genome-browser/css/purescript-genetics-browser.css') }}" />
     <link rel="stylesheet" type="text/css" href="/static/new/css/marker_regression.css" />
     <link rel="stylesheet" type="text/css" href="static/new/css/show_trait.css" />
@@ -275,9 +276,16 @@
           </div>
         </div>
         {% elif selectedChr != -1 and plotScale =="physic" and (dataset.group.species == 'mouse' or dataset.group.species == 'rat') %}
-        <div style="width: 100%;">
+        <div class="container" style="padding-left: 30px; margin-top: 50px; position: relative; float: left;">
           <h2>Interval Analyst</h2>
-          <div id="table_container">
+          <br />
+          <div class="btn-toolbar" role="toolbar" style="margin-bottom: 20px;">
+            <div class="btn-group">
+              <button class="btn btn-default dt-button buttons-excel buttons-html5">Export to Excel</button>
+              <button class="btn btn-default dt-button buttons-csv buttons-html5">Export to CSV</button>
+            </div>
+          </div>
+          <div id="table_container" style="width: 1000px;">
           <table id="trait_table" class="table-hover table-striped cell-border dataTable" style="float: left; width:100%;">
             <thead>
               <tr>
@@ -324,6 +332,9 @@
 
     <script language="javascript" type="text/javascript" src="{{ url_for('js', filename='DataTables/js/jquery.dataTables.min.js') }}"></script>
     <script language="javascript" type="text/javascript" src="{{ url_for('js', filename='DataTablesExtensions/buttons/js/dataTables.buttons.min.js') }}"></script>
+    <script language="javascript" type="text/javascript" src="{{ url_for('js', filename='DataTablesExtensions/buttons/js/buttons.html5.min.js') }}"></script>
+    <script language="javascript" type="text/javascript" src="{{ url_for('js', filename='DataTablesExtensions/buttons/js/buttons.print.min.js') }}"></script>
+    <script language="javascript" type="text/javascript" src="{{ url_for('js', filename='jszip/jszip.min.js') }}"></script>
     <script language="javascript" type="text/javascript" src="{{ url_for('js', filename='DataTablesExtensions/scroller/js/dataTables.scroller.min.js') }}"></script>
 
     <script language="javascript" type="text/javascript" src="{{ url_for('js', filename='DataTablesExtensions/plugins/sorting/scientific.js') }}"></script>
@@ -344,6 +355,24 @@
 
     <script type="text/javascript" charset="utf-8">
         $(document).ready( function () {
+            // Set up event handlers for custom export buttons
+            $('.dt-buttons').hide();
+
+            $('.buttons-excel.btn').click(function() {
+                var table = $('#trait_table').DataTable();
+                var excelButton = table.buttons('.buttons-excel:first');
+                if (excelButton.length > 0) {
+                    excelButton.trigger();
+                }
+            });
+
+            $('.buttons-csv.btn').click(function() {
+                var table = $('#trait_table').DataTable();
+                var csvButton = table.buttons('.buttons-csv:first');
+                if (csvButton.length > 0) {
+                    csvButton.trigger();
+                }
+            });
             {% if selectedChr == -1 %}
             tableId = "trait_table"
 
@@ -546,13 +575,34 @@
               },
               "order": [[1, "asc" ]],
               "scrollY": "1000px",
-              "scroller": true
+              "scroller": true,
+              "dom": 'Bfrtip',
+              "buttons": [
+                {
+                  extend: 'excel',
+                  text: 'Export to Excel',
+                  title: 'Interval Analyst Data - ' + js_data.trait_id,
+                  className: 'btn btn-default',
+                  exportOptions: {
+                    columns: ':visible'
+                  }
+                },
+                {
+                  extend: 'csv',
+                  text: 'Export to CSV',
+                  title: 'Interval Analyst Data - ' + js_data.trait_id,
+                  className: 'btn btn-default',
+                  exportOptions: {
+                    columns: ':visible'
+                  }
+                }
+              ]
             }
 
             create_table(tableId, markersJson, columnDefs, tableSettings)
 
             {% elif selectedChr != -1 and plotScale =="physic" and (dataset.group.species == 'mouse' or dataset.group.species == 'rat') %}
-            $('#trait_table').dataTable( {
+            var table = $('#trait_table').DataTable({
               "drawCallback": function( settings ) {
                   $('#trait_table tr').off().on("click", function(event) {
                     if (event.target.type !== 'checkbox' && event.target.tagName.toLowerCase() !== 'a') {
@@ -594,10 +644,32 @@
                     "sortable": false
                 }],
                 "order": [[3, "asc" ]],
-                "sDom": "RZtir",
+                "dom": 'rtip',
                 "iDisplayLength": -1,
                 "autoWidth": false,
                 "deferRender": true,
+                "buttons": {
+                  buttons: [
+                    {
+                      extend: 'excel',
+                      text: 'Export to Excel',
+                      title: 'Interval Analyst Data - {{ this_trait.name }}',
+                      className: 'hidden',
+                      exportOptions: {
+                        columns: ':visible'
+                      }
+                    },
+                    {
+                      extend: 'csv',
+                      text: 'Export to CSV',
+                      title: 'Interval Analyst Data - {{ this_trait.name }}',
+                      className: 'hidden',
+                      exportOptions: {
+                        columns: ':visible'
+                      }
+                    }
+                  ]
+                },
                 "bSortClasses": false,
                 "scrollCollapse": false,
                 "paging": false
