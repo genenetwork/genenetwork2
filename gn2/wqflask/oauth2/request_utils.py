@@ -77,7 +77,9 @@ def process_error(error: Response,
             if "error-trace" in err and "User is not a member of any group" in err["error-trace"]:
                 msg = "You are not currently a member of any group. Please contact an administrator."
             else:
-                potential_keys = [key for key in err.keys() if key.startswith("error")]
+                potential_keys = [
+                    key for key in err.keys() if key.startswith("error") and
+                    key not in ("error-trace",)]
                 msg = f"{error.reason}"
                 if potential_keys:
                     msg = " ; ".join([f"{err[k]}" for k in potential_keys])
