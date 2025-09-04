@@ -1,5 +1,6 @@
 import uuid
 import asyncio
+import logging
 import datetime
 from functools import reduce, partial
 
@@ -13,6 +14,8 @@ from flask import (flash,
                    Blueprint,
                    current_app as app)
 
+from gn_libs.debug import make_peeker
+
 from .ui import render_ui
 from .checks import require_oauth2
 from .client import oauth2_get, oauth2_post, oauth2_delete
@@ -22,7 +25,9 @@ from .request_utils import (
 
 from . import session
 
+logger = logging.getLogger(__name__)
 groups = Blueprint("group", __name__)
+__pk__ = make_peeker(logger)
 
 @groups.route("/", methods=["GET"])
 def user_group():
@@ -31,7 +36,8 @@ def user_group():
         return oauth2_get("auth/group/requests/join/list").either(
             lambda error: render_ui(
                 "oauth2/group.html", group=group, users=users,
-                group_join_requests_error=process_error(error)),
+                group_join_requests_error=__pk__(
+                    "Group join request", process_error(error))),
             lambda gjr: render_ui(
                 "oauth2/group.html", group=group, users=users,
                 group_join_requests=gjr))
