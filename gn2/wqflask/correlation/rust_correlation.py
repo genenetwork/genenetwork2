@@ -268,7 +268,7 @@ def __compute_sample_corr__(
                 return run_correlation(target_data, sample_vals,
                                        method, ",", corr_type, n_top)
 
-            write_db_to_textfile(target_dataset.name, conn)
+            write_db_to_textfile(target_dataset.name, this_dataset.group.samplelist, conn)
             file_path = fetch_text_file(target_dataset.name, conn)
             if file_path:
                 (sample_vals, target_data) = read_text_file(

@@ -84,8 +84,6 @@ def generate_filename(*args, suffix="", file_ext="json"):
     return f"{hashlib.md5(string_unicode).hexdigest()}_{suffix}.{file_ext}"
 
 
-
-
 def fetch_text_file(dataset_name, conn, text_dir=CACHEDIR):
     """fetch textfiles with strain vals if exists"""
 
@@ -126,7 +124,7 @@ def read_text_file(sample_dict, file_path):
         return (sample_vals, [[line[i] for i in _posit] for line in csv_reader])
 
 
-def write_db_to_textfile(db_name, conn, text_dir=CACHEDIR):
+def write_db_to_textfile(db_name, sample_list, conn, text_dir=CACHEDIR):
 
     def __sanitise_filename__(filename):
         ttable = str.maketrans({" ": "_", "/": "_", "\\": "_"})
@@ -142,23 +140,34 @@ def write_db_to_textfile(db_name, conn, text_dir=CACHEDIR):
                 return __sanitise_filename__(
                     f"ProbeSetFreezeId_{results[0]}_{results[1]}")
 
-    def __parse_to_dict__(results):
-        ids = ["ID"]
+    def __parse_to_dict__(results, sample_list):
         data = {}
-        for (trait, strain, val) in results:
-            if strain not in ids:
-                ids.append(strain)
-            if trait in data:
-                data[trait].append(val)
-            else:
-                data[trait] = [trait, val]
-        return (data, ids)
+        # Create a set for faster lookups
+        valid_samples = set(sample_list)
 
-    def __write_to_file__(file_path, data, col_names):
+        # Initialize traits with "X" for all samples
+        for (trait, strain, val) in results:
+            if trait not in data:
+                data[trait] = {sample: "X" for sample in sample_list}
+                data[trait]['ID'] = trait
+
+            # Only update value if strain is in our sample_list
+            if strain in valid_samples:
+                data[trait][strain] = val
+
+        return data
+
+    def __write_to_file__(file_path, data, sample_list):
         with open(file_path, 'w+', encoding='UTF8') as file_handler:
             writer = csv.writer(file_handler)
-            writer.writerow(col_names)
-            writer.writerows(data.values())
+            # Write header - ID column followed by all samples
+            header = ['ID'] + sample_list
+            writer.writerow(header)
+
+            # Write data rows
+            for trait in data:
+                row = [data[trait]['ID']] + [data[trait][sample] for sample in sample_list]
+                writer.writerow(row)
 
     with conn.cursor() as cursor:
         cursor.execute(
@@ -174,5 +183,6 @@ def write_db_to_textfile(db_name, conn, text_dir=CACHEDIR):
         results = cursor.fetchall()
         file_name = __generate_file_name__(db_name)
         if (results and file_name):
+            parsed_data = __parse_to_dict__(results, sample_list)
             __write_to_file__(os.path.join(text_dir, file_name),
-                              *__parse_to_dict__(results))
+                            parsed_data, sample_list)
