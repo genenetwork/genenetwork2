@@ -237,6 +237,17 @@ initialize_show_trait_tables = function(new_data = []) {
   $('button.submit_special').html('<span class="glyphicon glyphicon-play-circle"></span> Compute');
   $('button.submit_special').prop('disabled', false);
 
+  // Handle Select All functionality
+  $('.select-all-samples').on('click', function() {
+    const tableType = $(this).data('target');
+    const table = $('#samples_' + tableType).DataTable();
+    const checkboxes = table.$('input[type="checkbox"]');
+    const isAllChecked = checkboxes.length === table.$('input[type="checkbox"]:checked').length;
+
+    checkboxes.prop('checked', !isAllChecked);
+    table.$('tr').toggleClass('selected', !isAllChecked);
+  });
+
   primary_table = $('#samples_primary').DataTable();
   $('#primary_searchbox').on( 'keyup', function () {
     primary_table.search($(this).val()).draw();
