@@ -227,28 +227,40 @@ class ShowTrait:
 
         self.has_num_cases = has_num_cases(self.this_trait)
 
-        # ZS: Needed to know whether to display bar chart + get max
+        # Needed to know whether to display bar chart + get max
         # sample name length in order to set table column width
         self.num_values = 0
-        # ZS: So it knows whether to display the Binary R/qtl mapping
+        # So it knows whether to display the Binary R/qtl mapping
         # method, which doesn't work unless all values are 0 or 1
         self.binary = "true"
-        # ZS: Since we don't want to show log2 transform option for
+        # Since we don't want to show log2 transform option for
         # situations where it doesn't make sense
         self.negative_vals_exist = "false"
+        # List of samples that have values, to be compared against
+        # the samples in each genotype file (if multiple files exist)
+        samples_with_vals = []
         max_samplename_width = 1
         for group in self.sample_groups:
             for sample in group.sample_list:
                 if len(sample.name) > max_samplename_width:
                     max_samplename_width = len(sample.name)
                 if sample.display_value != "x":
+                    samples_with_vals.append(sample.name)
                     self.num_values += 1
                     if sample.display_value != 0 or sample.display_value != 1:
                         self.binary = "false"
                     if sample.value < 0:
                         self.negative_vals_exist = "true"
 
-        # ZS: Check whether any attributes have few enough distinct
+        if self.genofiles:
+            for genofile in self.genofiles:
+                shared_samples = list(set(genofile['sample_list']) & set(samples_with_vals))
+                if len(shared_samples) < 5:
+                    genofile['shares_enough_samples'] = False
+                else:
+                    genofile['shares_enough_samples'] = True
+
+        # Check whether any attributes have few enough distinct
         # values to show the "Block samples by group" option
         self.categorical_attr_exists = "false"
         for attribute in self.sample_groups[0].attributes:
