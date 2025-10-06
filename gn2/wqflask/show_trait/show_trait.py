@@ -254,9 +254,12 @@ class ShowTrait:
 
         if self.genofiles:
             for genofile in self.genofiles:
-                shared_samples = list(set(genofile['sample_list']) & set(samples_with_vals))
-                if len(shared_samples) < 5:
-                    genofile['shares_enough_samples'] = False
+                if 'sample_list' in genofile:
+                    shared_samples = list(set(genofile['sample_list']) & set(samples_with_vals))
+                    if len(shared_samples) < 5:
+                        genofile['shares_enough_samples'] = False
+                    else:
+                        genofile['shares_enough_samples'] = True
                 else:
                     genofile['shares_enough_samples'] = True
 

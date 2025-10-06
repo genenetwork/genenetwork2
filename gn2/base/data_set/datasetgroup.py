@@ -127,6 +127,7 @@ class DatasetGroup:
         return study_samples
 
     def get_genofiles(self):
+        jsondata = {}
         jsonfile = "%s/%s.json" % (webqtlConfig.GENODIR, self.name)
         try:
             f = open(jsonfile)

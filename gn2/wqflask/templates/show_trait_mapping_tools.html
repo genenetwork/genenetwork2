@@ -1,5 +1,5 @@
 <div class="main">
-    {% if dataset.group.mapping_names|length > 0 and genofiles|selectattr("shares_enough_samples")|list|length > 0 %}
+    {% if dataset.group.mapping_names|length > 0 and (genofiles|selectattr("shares_enough_samples")|list|length > 0 or not genofiles) %}
         <div class="options">
             <div class="tabbable">
                 <!-- Only required for left/right tabs -->
