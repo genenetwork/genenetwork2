@@ -10,7 +10,6 @@ setup(name='genenetwork2',
       description = 'Website and tools for genetics.',
       include_package_data=True,
       packages=find_packages(),
-      scripts=['bin/genenetwork2'],
       # package_data = {
       #   'etc': ['*.py']
       # }
