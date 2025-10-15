@@ -68,6 +68,13 @@
     </section>
 {% endblock %}
 {% block js %}
+    <script type="importmap">
+      {
+          "imports": {
+              "markedHighlight": "{{request.host_url[0:-1]}}{{url_for('js', filename='marked/marked-highlight.js')}}"
+          }
+      }
+    </script>
     <script src="{{ url_for('js', filename='jquery/jquery.min.js') }}"
             type="text/javascript"></script>
     <script language="javascript"
@@ -97,13 +104,6 @@
     <script language="javascript"
             type="text/javascript"
             src="{{ url_for('js', filename='ckeditor/ckeditor.js') }}"></script>
-    <script type="importmap">
-      {
-          "imports": {
-              "markedHighlight": "{{url_for('js', filename='marked/marked-highlight.js')}}"
-          }
-      }
-    </script>
     <script type="module">
     import {markedHighlight} from "markedHighlight";
   document.addEventListener('DOMContentLoaded', function() {
