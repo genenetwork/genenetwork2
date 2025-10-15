@@ -215,7 +215,7 @@
               pedantic: false,
               gfm: true,
           });
-          previewContent = document.querySelector("#output");
+          var previewContent = document.querySelector("#output");
           var markdownContent = editor.getValue();
           var htmlContent = new_marked.parse(markdownContent)    //work on error handling for invalid markdown
           previewContent.innerHTML = htmlContent;
