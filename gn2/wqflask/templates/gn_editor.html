@@ -89,7 +89,7 @@
             type="text/javascript"
             src="{{ url_for('js', filename='marked/marked.min.js') }}"></script>
     <script language="javascript"
-            type="text/javascript"
+            type="module"
             src="{{ url_for('js', filename='marked/marked-highlight.js') }}"></script>
     <script language="javascript"
             type="text/javascript"
@@ -97,7 +97,15 @@
     <script language="javascript"
             type="text/javascript"
             src="{{ url_for('js', filename='ckeditor/ckeditor.js') }}"></script>
-    <script type="text/javascript">
+    <script type="importmap">
+      {
+          "imports": {
+              "markedHighlight": "{{url_for('js', filename='marked/marked-highlight.js')}}"
+          }
+      }
+    </script>
+    <script type="module">
+    import {markedHighlight} from "markedHighlight";
   document.addEventListener('DOMContentLoaded', function() {
       $('footer').hide()
       var editor_configurations = {
@@ -196,8 +204,6 @@
       );
       })
       function updatePreview(){
-          const {markedHighlight} = globalThis.markedHighlight;
-
           let new_marked = new marked.Marked(
               markedHighlight({
                   langPrefix: 'hljs language-',
