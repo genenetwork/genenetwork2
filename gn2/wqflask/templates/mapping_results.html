@@ -581,19 +581,30 @@
                 {
                   extend: 'excel',
                   text: 'Export to Excel',
-                  title: 'Interval Analyst Data - ' + js_data.trait_id,
+                  title: 'Interval Analyst Data - {{ this_trait.name }}',
                   className: 'btn btn-default',
                   exportOptions: {
-                    columns: ':visible'
+                    columns: ':visible',
+                    rows: function ( idx, data, rowNode ) {
+                      // If any checkboxes are checked, export only checked rows; otherwise export all rows
+                      var anyChecked = $('#trait_table').find('input[name="selectCheck"]:checked').length > 0;
+                      if (!anyChecked) return true;
+                      return $(rowNode).find('input[name="selectCheck"]').is(':checked');
+                    }
                   }
                 },
                 {
                   extend: 'csv',
                   text: 'Export to CSV',
-                  title: 'Interval Analyst Data - ' + js_data.trait_id,
+                  title: 'Interval Analyst Data - {{ this_trait.name }}',
                   className: 'btn btn-default',
                   exportOptions: {
-                    columns: ':visible'
+                    columns: ':visible',
+                    rows: function ( idx, data, rowNode ) {
+                      var anyChecked = $('#trait_table').find('input[name="selectCheck"]:checked').length > 0;
+                      if (!anyChecked) return true;
+                      return $(rowNode).find('input[name="selectCheck"]').is(':checked');
+                    }
                   }
                 }
               ]
@@ -648,28 +659,37 @@
                 "iDisplayLength": -1,
                 "autoWidth": false,
                 "deferRender": true,
-                "buttons": {
-                  buttons: [
-                    {
-                      extend: 'excel',
-                      text: 'Export to Excel',
-                      title: 'Interval Analyst Data - {{ this_trait.name }}',
-                      className: 'hidden',
-                      exportOptions: {
-                        columns: ':visible'
-                      }
-                    },
-                    {
-                      extend: 'csv',
-                      text: 'Export to CSV',
-                      title: 'Interval Analyst Data - {{ this_trait.name }}',
-                      className: 'hidden',
-                      exportOptions: {
-                        columns: ':visible'
+                "buttons": [
+                  {
+                    extend: 'excel',
+                    text: 'Export to Excel',
+                    title: 'Interval Analyst Data - {{ this_trait.name }}',
+                    className: 'btn btn-default',
+                    exportOptions: {
+                      columns: ':visible',
+                      rows: function ( idx, data, rowNode ) {
+                        // If any checkboxes are checked, export only checked rows; otherwise export all rows
+                        var anyChecked = $('#trait_table').find('input[name="selectCheck"]:checked').length > 0;
+                        if (!anyChecked) return true;
+                        return $(rowNode).find('input[name="selectCheck"]').is(':checked');
                       }
                     }
-                  ]
-                },
+                  },
+                  {
+                    extend: 'csv',
+                    text: 'Export to CSV',
+                    title: 'Interval Analyst Data - {{ this_trait.name }}',
+                    className: 'btn btn-default',
+                    exportOptions: {
+                      columns: ':visible',
+                      rows: function ( idx, data, rowNode ) {
+                        var anyChecked = $('#trait_table').find('input[name="selectCheck"]:checked').length > 0;
+                        if (!anyChecked) return true;
+                        return $(rowNode).find('input[name="selectCheck"]').is(':checked');
+                      }
+                    }
+                  }
+                ],
                 "bSortClasses": false,
                 "scrollCollapse": false,
                 "paging": false
