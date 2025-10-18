@@ -576,38 +576,7 @@
               "order": [[1, "asc" ]],
               "scrollY": "1000px",
               "scroller": true,
-              "dom": 'Bfrtip',
-              "buttons": [
-                {
-                  extend: 'excel',
-                  text: 'Export to Excel',
-                  title: 'Interval Analyst Data - {{ this_trait.name }}',
-                  className: 'btn btn-default',
-                  exportOptions: {
-                    columns: ':visible',
-                    rows: function ( idx, data, rowNode ) {
-                      // If any checkboxes are checked, export only checked rows; otherwise export all rows
-                      var anyChecked = $('#trait_table').find('input[name="selectCheck"]:checked').length > 0;
-                      if (!anyChecked) return true;
-                      return $(rowNode).find('input[name="selectCheck"]').is(':checked');
-                    }
-                  }
-                },
-                {
-                  extend: 'csv',
-                  text: 'Export to CSV',
-                  title: 'Interval Analyst Data - {{ this_trait.name }}',
-                  className: 'btn btn-default',
-                  exportOptions: {
-                    columns: ':visible',
-                    rows: function ( idx, data, rowNode ) {
-                      var anyChecked = $('#trait_table').find('input[name="selectCheck"]:checked').length > 0;
-                      if (!anyChecked) return true;
-                      return $(rowNode).find('input[name="selectCheck"]').is(':checked');
-                    }
-                  }
-                }
-              ]
+              "dom": 'frtip',
             }
 
             create_table(tableId, markersJson, columnDefs, tableSettings)
