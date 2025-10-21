@@ -260,11 +260,21 @@
         <div class="container" style="padding-left: 30px; margin-top: 50px; position: relative; float: left;">
           <h2>Mapping Statistics</h2>
         <br />
-        <button class="btn btn-default" id="select_all"><span class="glyphicon glyphicon-ok"></span> Select All</button>
-        <button class="btn btn-default" id="deselect_all"><span class="glyphicon glyphicon-remove"></span> Deselect All</button>
-        <button class="btn btn-default" id="invert"><span class="glyphicon glyphicon-resize-vertical"></span> Invert</button>
-        {% if geno_db_exists == "True" %}<button class="btn btn-success" id="add" disabled><span class="glyphicon glyphicon-plus-sign"></span> Add</button>{% endif %}
-        <button class="btn btn-default export_mapping_results" ><span class="glyphicon glyphicon-download"></span> Download</span></button>
+        <div class="btn-toolbar" role="toolbar">
+          <div class="btn-group">
+            <button class="btn btn-default" id="select_all"><span class="glyphicon glyphicon-ok"></span> Select All</button>
+            <button class="btn btn-default" id="deselect_all"><span class="glyphicon glyphicon-remove"></span> Deselect All</button>
+            <button class="btn btn-default" id="invert"><span class="glyphicon glyphicon-resize-vertical"></span> Invert</button>
+          </div>
+          {% if geno_db_exists == "True" %}
+          <div class="btn-group" style="margin-left: 10px;">
+            <button class="btn btn-success" id="add" disabled><span class="glyphicon glyphicon-plus-sign"></span> Add</button>
+          </div>
+          {% endif %}
+          <div class="btn-group" style="margin-left: 10px;">
+            <button class="btn btn-default export_mapping_results" ><span class="glyphicon glyphicon-download"></span> Download</span></button>
+          </div>
+        </div>
         <br />
         <br />
           <div id="trait_table_container" style="width:{% if 'additive' in trimmed_markers[0] %}600{% elif 'mean1' in trimmed_markers[0] %}1000{% else %}550{% endif %}px;">
@@ -281,6 +291,11 @@
           <br />
           <div class="btn-toolbar" role="toolbar" style="margin-bottom: 20px;">
             <div class="btn-group">
+              <button class="btn btn-default" id="select_all"><span class="glyphicon glyphicon-ok"></span> Select All</button>
+              <button class="btn btn-default" id="deselect_all"><span class="glyphicon glyphicon-remove"></span> Deselect All</button>
+              <button class="btn btn-default" id="invert"><span class="glyphicon glyphicon-resize-vertical"></span> Invert</button>
+            </div>
+            <div class="btn-group" style="margin-left: 10px;">
               <button class="btn btn-default dt-button buttons-excel buttons-html5">Export to Excel</button>
               <button class="btn btn-default dt-button buttons-csv buttons-html5">Export to CSV</button>
             </div>
@@ -849,7 +864,6 @@
                 }
             });
         })
-
     </script>
 
 {% endblock %}
