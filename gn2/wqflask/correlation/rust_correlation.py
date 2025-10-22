@@ -119,7 +119,7 @@ def chunk_dataset(dataset, steps, name):
     return results
 
 
-def compute_top_n_sample(start_vars, dataset, trait_list):
+def compute_top_n_sample(start_vars, dataset, trait_list, tmpdir):
     """check if dataset is of type probeset"""
 
     if dataset.type.lower() != "probeset":
@@ -172,10 +172,10 @@ def compute_top_n_sample(start_vars, dataset, trait_list):
                 list(curr.fetchall()), len(sample_ids.values()), dataset.name)
 
         return run_correlation(
-            corr_data, list(sample_data.values()), "pearson", ",")
+            corr_data, list(sample_data.values()), "pearson", ",", tmpdir)
 
 
-def compute_top_n_lit(corr_results, target_dataset, this_trait) -> dict:
+def compute_top_n_lit(corr_results, target_dataset, this_trait, tmpdir) -> dict:
     if not __datasets_compatible_p__(this_trait.dataset, target_dataset, "lit"):
         return {}
 
@@ -196,7 +196,7 @@ def compute_top_n_lit(corr_results, target_dataset, this_trait) -> dict:
     return {}
 
 
-def compute_top_n_tissue(target_dataset, this_trait, traits, method):
+def compute_top_n_tissue(target_dataset, this_trait, traits, method, tmpdir):
     # refactor lots of rpt
     if not __datasets_compatible_p__(this_trait.dataset, target_dataset, "tissue"):
         return {}
@@ -218,7 +218,7 @@ def compute_top_n_tissue(target_dataset, this_trait, traits, method):
 
     if data and data[0]:
         return run_correlation(
-            data[1], data[0], method, ",", "tissue")
+            data[1], data[0], method, ",", tmpdir, corr_type="tissue")
 
     return {}
 
@@ -239,8 +239,13 @@ def merge_results(dict_a: dict, dict_b: dict, dict_c: dict) -> list[dict]:
 
 
 def __compute_sample_corr__(
-        start_vars: dict, corr_type: str, method: str, n_top: int,
-        target_trait_info: tuple):
+        start_vars: dict,
+        corr_type: str,
+        method: str,
+        n_top: int,
+        target_trait_info: tuple,
+        tmpdir
+):
     """Compute the sample correlations"""
     (this_dataset, this_trait, target_dataset, sample_data) = target_trait_info
 
@@ -265,8 +270,13 @@ def __compute_sample_corr__(
                 (sample_vals, target_data) = read_text_file(
                     sample_data, file_path)
 
-                return run_correlation(target_data, sample_vals,
-                                       method, ",", corr_type, n_top)
+                return run_correlation(target_data,
+                                       sample_vals,
+                                       method,
+                                       ",",
+                                       tmpdir,
+                                       corr_type=corr_type,
+                                       top_n=n_top)
 
             write_db_to_textfile(target_dataset.name, this_dataset.group.samplelist, conn)
             file_path = fetch_text_file(target_dataset.name, conn)
@@ -274,8 +284,14 @@ def __compute_sample_corr__(
                 (sample_vals, target_data) = read_text_file(
                     sample_data, file_path)
 
-                return run_correlation(target_data, sample_vals,
-                                       method, ",", corr_type, n_top)
+                return run_correlation(
+                    target_data,
+                    sample_vals,
+                    method,
+                    ",",
+                    tmpdir,
+                    corr_type=corr_type,
+                    top_n=n_top)
 
     target_dataset.get_trait_data(list(sample_data.keys()))
 
@@ -292,8 +308,13 @@ def __compute_sample_corr__(
         return {}
 
     return run_correlation(
-        target_data, list(sample_data.values()), method, ",", corr_type,
-        n_top)
+        target_data,
+        list(sample_data.values()),
+        method,
+        ",",
+        tmpdir,
+        corr_type=corr_type,
+        top_n=n_top)
 
 
 def __datasets_compatible_p__(trait_dataset, target_dataset, corr_method):
@@ -304,8 +325,13 @@ def __datasets_compatible_p__(trait_dataset, target_dataset, corr_method):
 
 
 def __compute_tissue_corr__(
-        start_vars: dict, corr_type: str, method: str, n_top: int,
-        target_trait_info: tuple):
+        start_vars: dict,
+        corr_type: str,
+        method: str,
+        n_top: int,
+        target_trait_info: tuple,
+        tmpdir: str
+):
     """Compute the tissue correlations"""
     (this_dataset, this_trait, target_dataset, sample_data) = target_trait_info
     if not __datasets_compatible_p__(this_dataset, target_dataset, corr_type):
@@ -323,13 +349,24 @@ def __compute_tissue_corr__(
         dataset_vals=corr_result_tissue_vals_dict)
 
     if data:
-        return run_correlation(data[1], data[0], method, ",", "tissue")
+        return run_correlation(
+            data[1],
+            data[0],
+            method,
+            ",",
+            tmpdir,
+            corr_type="tissue")
     return {}
 
 
 def __compute_lit_corr__(
-        start_vars: dict, corr_type: str, method: str, n_top: int,
-        target_trait_info: tuple):
+        start_vars: dict,
+        corr_type: str,
+        method: str,
+        n_top: int,
+        target_trait_info: tuple,
+        tmpdir: str
+):
     """Compute the literature correlations"""
     (this_dataset, this_trait, target_dataset, sample_data) = target_trait_info
     if not __datasets_compatible_p__(this_dataset, target_dataset, corr_type):
@@ -351,8 +388,12 @@ def __compute_lit_corr__(
 
 
 def compute_correlation_rust(
-        start_vars: dict, corr_type: str, method: str = "pearson",
-        n_top: int = 500, should_compute_all: bool = False):
+        start_vars: dict,
+        corr_type: str,
+        tmpdir: str,
+        method: str = "pearson",
+        n_top: int = 500,
+        should_compute_all: bool = False):
     """function to compute correlation"""
     target_trait_info = create_target_this_trait(start_vars)
     (this_dataset, this_trait, target_dataset, sample_data) = (
@@ -368,7 +409,7 @@ def compute_correlation_rust(
     }
 
     results = corr_type_fns[corr_type](
-        start_vars, corr_type, method, n_top, target_trait_info)
+        start_vars, corr_type, method, n_top, target_trait_info, tmpdir)
 
     # END: Replace this with `match ...` once we hit Python 3.10
 
@@ -379,9 +420,9 @@ def compute_correlation_rust(
         if corr_type == "sample":
             if this_dataset.type == "ProbeSet":
                 top_a = compute_top_n_tissue(
-                    target_dataset, this_trait, results, method)
+                    target_dataset, this_trait, results, method, tmpdir)
 
-                top_b = compute_top_n_lit(results, target_dataset, this_trait)
+                top_b = compute_top_n_lit(results, target_dataset, this_trait, tmpdir)
             else:
                 pass
 
@@ -390,14 +431,14 @@ def compute_correlation_rust(
             # currently fails for lit
 
             top_a = compute_top_n_sample(
-                start_vars, target_dataset, list(results.keys()))
+                start_vars, target_dataset, list(results.keys()), tmpdir)
             top_b = compute_top_n_tissue(
-                target_dataset, this_trait, results, method)
+                target_dataset, this_trait, results, method, tmpdir)
 
         else:
 
             top_a = compute_top_n_sample(
-                start_vars, target_dataset, list(results.keys()))
+                start_vars, target_dataset, list(results.keys()), tmpdir)
 
     return {
         "correlation_results": merge_results(

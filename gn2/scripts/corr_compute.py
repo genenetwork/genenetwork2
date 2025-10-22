@@ -26,10 +26,11 @@ class UserSessionSimulator():
 def e_time():
     return datetime.datetime.utcnow().isoformat()
 
-def compute(form):
+def compute(form, tmpdir):
     import subprocess
     try:
-        correlation_results = compute_correlation(form, compute_all=True)
+        correlation_results = compute_correlation(
+            form, tmpdir, compute_all=True)
     except Exception as exc:
         return {
             "error-type": type(exc).__name__,
@@ -61,7 +62,7 @@ if __name__ == "__main__":
 
     with app.app_context():
         g.user_session = UserSessionSimulator(sys.argv[2])
-        results = compute(form)
+        results = compute(form, app.config["TMPDIR"])
 
     print(json.dumps(results), file=sys.stdout)
 

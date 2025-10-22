@@ -182,7 +182,7 @@ def fetch_sample_data(start_vars, this_trait, this_dataset, target_dataset):
     return (this_trait_data, results)
 
 
-def compute_correlation(start_vars, method="pearson", compute_all=False):
+def compute_correlation(start_vars, tmpdir, method="pearson", compute_all=False):
     """Compute correlations using GN3 API
 
     Keyword arguments:
@@ -196,7 +196,12 @@ def compute_correlation(start_vars, method="pearson", compute_all=False):
     method = start_vars['corr_sample_method']
     corr_return_results = int(start_vars.get("corr_return_results", 100))
     return compute_correlation_rust(
-        start_vars, corr_type, method, corr_return_results, compute_all)
+        start_vars,
+        corr_type,
+        tmpdir,
+        method=method,
+        n_top=corr_return_results,
+        should_compute_all=compute_all)
 
 
 def compute_corr_for_top_results(start_vars,
