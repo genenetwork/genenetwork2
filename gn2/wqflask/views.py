@@ -370,20 +370,19 @@ def gnqna():
             query= ""
         )
     content_type = request.headers.get("Content-Type")
-    token = session_info()["user"]["token"].either(
-        lambda err: err, lambda tok: tok["access_token"]
-    )
     from pymonad.either import Left, Right
     token_monad = session_info()["user"]["token"]
     if token_monad.is_left():
+         # example for this is : Left(INVALID-TOKEN)
         token = token_monad.value
+        # add this extra metadata to allow verified anonymous  make request
         anonymous_headers = {
             "Anonymous-Id": str(uuid.uuid4()),
             "Anonymous-Status" : "verified",
             "Anony-Metadata" : json.dumps({"ip_address" : request.remote_addr})
         }
     else:
-        token = token_monad.value
+        token = token_monad.value["access_token"]
         anonymous_headers = {}
     headers = {"Authorization": f"Bearer {token}", **anonymous_headers}
     if request.method == "GET":
