@@ -31,11 +31,74 @@ def check_partial_correlations_entry_page(baseurl: str):
     print("OK")
 
 
+def __select_primary_controls_targets__(traits: tuple[dict, ...], primary: int, controls: tuple[int, ...], targets: tuple[int, ...]) -> dict:
+    return {
+        f"trait_{traits[primary]['trait_id']}": f"primary_{traits[primary]['trait_id']}",
+        **{
+            f"trait_{traits[control]['trait_id']}": f"controls_{traits[control]['trait_id']}"
+            for control in controls
+        },
+        **{
+            f"trait_{traits[target]['trait_id']}": f"targets_{traits[target]['trait_id']}"
+            for target in targets
+        }
+    }
+
+
+def do_request(uri, postdata):
+    """Run request and poll until we get a result."""
+    result = requests.post(uri, postdata)
+
+    while True:
+        doc = etree.HTML(result.text)
+        meta_tags = doc.xpath("//meta[@http-equiv='refresh']")
+        assert 0 <= len(meta_tags) < 2, "Too many refresh meta tags."
+        if len(meta_tags) == 0:
+            return result
+
+        new_uri = urljoin(
+            uri,
+            meta_tags[0].attrib['content'][
+                meta_tags[0].attrib['content'].index("URL=")+4:])
+        result = requests.get(new_uri)
+
+
 def check_pc_against_specific_traits_pearsons(baseurl):
-    print(f"\tERROR — Non fatal: Please implement this test:", end="\t")
-    # TODO: Change prompt above
-    # TODO: Implement test below, exit with sys.exit(1) on error
+    """Check partial correlations against specific traits using Pearson's r."""
+    print(f"\tPearson's R partial correlations against select target traits:", end="\t")
+    traits = start_traits(True)
+    result = do_request(urljoin(baseurl, "/partial_correlations"),
+                        postdata={
+                            "trait_list": start_traits(False),
+                            **__select_primary_controls_targets__(
+                                traits, 0, (1, 2), (3, 4)),
+                            "method": "pearson's r",
+                            "criteria": 500,
+                            "submit": "with_target_pearsons"
+                        })
+    assert result.status_code == 200, (
+        f"Status code was not 200, it was {result.status_code}")
+
+    doc = etree.HTML(result.text)
+    table_rows = doc.xpath("//table[@id='part-corr-results-publish']/tbody/tr")
+    assert len(table_rows) == 2, (
+        f"Expected exactly 2 rows of results. Got {len(row)}")
+
+    rtraits = traits[3:]
+    rtraits_names = tuple(trait["trait_id"] for trait in rtraits)
+    for idx, row in enumerate(table_rows):
+        cells = row.xpath(".//td")
+        assert len(cells) == 12, "Expected exactly 12 table cells."
+        assert cells[2].text == traits[idx]["dataset"], (
+            f"Expected dataset '{traits[idx]['dataset']}': "
+            f"got '{cells[2].text}'.")
+
+        link = cells[3].xpath(".//a")[0]
+        assert link.text.strip() in rtraits_names, (
+            f"Expected trait ID '{rtraits[idx]['trait_id']}': "
+            f"got '{link.text}'")
     print("OK")
+
 
 def check_pc_against_specific_traits_spearmans(baseurl):
     print(f"\tERROR — Non fatal: Please implement this test:", end="\t")
@@ -43,11 +106,13 @@ def check_pc_against_specific_traits_spearmans(baseurl):
     # TODO: Implement test below, exit with sys.exit(1) on error
     print("OK")
 
+
 def check_pc_against_entire_dataset_pearsons(baseurl):
     print(f"\tERROR — Non fatal: Please implement this test:", end="\t")
     # TODO: Change prompt above
     # TODO: Implement test below, exit with sys.exit(1) on error
     print("OK")
+
 
 def check_pc_against_entire_dataset_spearmans(baseurl):
     print(f"\tERROR — Non fatal: Please implement this test:", end="\t")
