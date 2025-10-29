@@ -13,6 +13,7 @@ from mapping_tests import check_mapping
 from navigation_tests import check_navigation
 from link_checker import check_packaged_js_files
 from main_web_functionality import check_main_web_functionality
+from partial_correlations_tests import check_all_partial_correlations
 from correlation_tests import check_correlations, check_correlations_correctness
 
 # Imports for integration tests
@@ -157,6 +158,16 @@ parser.add_argument(
     const=check_user_features,
     default=print_help,
     help="Check for regressions in user-related features"
+)
+
+parser.add_argument(
+    "-p",
+    "--partial-correlations",
+    dest="accumulate",
+    action="store_const",
+    const=check_all_partial_correlations,
+    default=print_help,
+    help="Check for regressions in partial correlations features"
 )
 
 
