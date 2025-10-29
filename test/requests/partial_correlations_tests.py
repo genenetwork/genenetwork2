@@ -101,6 +101,7 @@ def check_pc_against_specific_traits_pearsons(baseurl):
 
 
 def check_pc_against_specific_traits_spearmans(baseurl):
+    """Check partial correlations against specific traits using Spearman's rho."""
     print(f"\tERROR — Non fatal: Please implement this test:", end="\t")
     # TODO: Change prompt above
     # TODO: Implement test below, exit with sys.exit(1) on error
@@ -108,6 +109,7 @@ def check_pc_against_specific_traits_spearmans(baseurl):
 
 
 def check_pc_against_entire_dataset_pearsons(baseurl):
+    """Check partial correlations against entire dataset using Pearson's r."""
     print(f"\tERROR — Non fatal: Please implement this test:", end="\t")
     # TODO: Change prompt above
     # TODO: Implement test below, exit with sys.exit(1) on error
@@ -115,6 +117,7 @@ def check_pc_against_entire_dataset_pearsons(baseurl):
 
 
 def check_pc_against_entire_dataset_spearmans(baseurl):
+    """Check partial correlations against entire dataset using Spearman's rho."""
     print(f"\tERROR — Non fatal: Please implement this test:", end="\t")
     # TODO: Change prompt above
     # TODO: Implement test below, exit with sys.exit(1) on error
