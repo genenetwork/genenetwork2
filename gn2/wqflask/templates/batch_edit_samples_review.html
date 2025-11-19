@@ -7,6 +7,7 @@
 <div class="container">
     <form id="edit-form" class="form-horizontal" method="post" action="/datasets/batch_edit" enctype="multipart/form-data">
         <input type="hidden" name="diffs" value="{{ diffs_str }}">
+        <input type="hidden" name="data_type" value="samples">
         <div>
             <h2>Review Your Changes</h2>
             <p>

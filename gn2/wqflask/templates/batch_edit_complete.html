@@ -13,15 +13,28 @@
         <table class="table-hover table-striped cell-border" id='diffs_summary' style="float: left; width: 300px;">
             <thead>
                 <th>Trait</th>
+                {% if data_type == 'descriptions' %}
+                <th>Group</th>
+                {% else %}
                 <th>Dataset</th>
+                {% endif %}
             </thead>
             <tbody>
+                {% if data_type == 'descriptions' %}
+                {% for group_trait in diffs %}
+                <tr>
+                    <td>{{ group_trait.split(":")[1] }}</td>
+                    <td>{{ group_trait.split(":")[0] }}</td>
+                </tr>
+                {% endfor %}
+                {% else %}
                 {% for sample in diffs %}
                 <tr>
                     <td>{{ sample.split(":")[0] }}</td>
                     <td>{{ sample.split(":")[1] }}</td>
                 </tr>
                 {% endfor %}
+                {% endif %}
             </tbody>
         </table>
     </div>

@@ -13,41 +13,48 @@
             </p>
             <hr>
             <div style="padding-left: 20px; padding-right: 20px" class="form-horizontal">
-                <div class="form-group">
-                    <div style="margin-bottom: 10px;">
-                        <label class="col-xs-1 control-label" for="species" style="display: block; margin-bottom: 5px;">Species:</label>
-                        <div class="col-xs-10 controls input-append" style="margin-left: 20px;">
-                            <select class="form-control" name="species" id="species" style="width: 340px;"></select>
+                <div class="form-group" style="margin-bottom: 10px;">
+                    <label class="col-xs-2 control-label" for="species">Species:</label>
+                    <div class="col-xs-9">
+                        <select class="form-control" name="species" id="species" style="width: 340px;"></select>
+                    </div>
+                </div>
+                <div class="form-group" style="margin-bottom: 10px;">
+                    <label class="col-xs-2 control-label" for="group">Group:</label>
+                    <div class="col-xs-9">
+                        <select class="form-control" name="group" id="group" style="width: 340px;"></select>
+                    </div>
+                </div>
+                <div class="form-group" style="margin-bottom: 15px;">
+                    <label class="col-xs-2 control-label">File:</label>
+                    <div class="col-xs-9">
+                        <div style="display: inline-block;">
+                            <input type="file" name="traits_file" style="display: inline-block;"/>
+                        </div>
+                        <div style="display: inline-block; margin-left: 15px;">
+                            <input type="checkbox" id="transpose_file" name="transpose_file" value="true">
+                            <label for="transpose_file" title="Traits as column, samples as rows">Transposed File</label>
                         </div>
                     </div>
                 </div>
-                <div class="form-group">
-                    <div style="margin-bottom: 10px;">
-                        <label class="col-xs-1 control-label" for="group" style="display: block; margin-bottom: 5px;">Group:</label>
-                        <div class="col-xs-10 controls input-append" style="margin-left: 20px;">
-                            <select class="form-control" name="group" id="group" style="width: 340px;"></select>
+                <div class="form-group" style="margin-bottom: 15px;">
+                    <label class="col-xs-2 control-label">Data Type:</label>
+                    <div class="col-xs-9">
+                        <div>
+                            <div style="margin-bottom: 6px;">
+                                <input type="radio" id="samples" name="data_type" value="samples" checked />
+                                <label for="sample" style="margin-left: 8px;">Sample Data</label>
+                            </div>
+                            <div>
+                                <input type="radio" id="descriptions" name="data_type" value="descriptions" />
+                                <label for="meta" style="margin-left: 8px;">Descriptions</label>
+                            </div>
                         </div>
                     </div>
                 </div>
-                <div class="form-group">
-                    <div style="margin-bottom: 15px;">
-                        <label class="col-xs-1 control-label" style="display: block; margin-bottom: 5px;">File:</label>
-                        <div class="col-xs-10 controls input-append" style="margin-left: 20px;">
-                            <div style="display: inline-block;">
-                                <input type="file" name="traits_file" style="display: inline-block;"/>
-                            </div>
-                            <div style="display: inline-block; margin-left: 15px;">
-                                <input type="checkbox" id="transpose_file" name="transpose_file" value="true">
-                                <label for="transpose_file" title="Traits as column, samples as rows">Transposed File</label>
-                            </div>
-                        </div>
-                </div>
-                <div class="form-group">
-                    <div style="margin-bottom: 15px;">
-                        <label class="col-xs-1 control-label" style="display: block; margin-bottom: 5px;"></label>
-                        <div class="col-xs-10 controls input-append" style="margin-left: 20px;">
-                            <input type="submit" style="width: 125px;" class="btn btn-primary" value="Submit Edits">
-                        </div>
+                <div class="form-group" style="margin-bottom: 15px;">
+                    <div class="col-xs-offset-3 col-xs-9">
+                        <input type="submit" style="width: 125px;" class="btn btn-primary" value="Submit Edits">
                     </div>
                 </div>
             </div>

@@ -1,0 +1,51 @@
+{% extends "index_page.html" %}
+{% block title %}Batch Edit{% endblock %}
+{% block css %}
+    <link rel="stylesheet" type="text/css" href="{{ url_for('css', filename='DataTables/css/jquery.dataTables.css') }}" />
+{% endblock %}
+{% block content %}
+<div class="container">
+    <form id="edit-form" class="form-horizontal" method="post" action="/datasets/batch_edit" enctype="multipart/form-data">
+        <input type="hidden" name="diffs" value="{{ diffs_str }}">
+        <input type="hidden" name="data_type" value="descriptions">
+        <div>
+            <h2>Review Your Changes</h2>
+            <p>
+                Please carefully check that the changes listed below are the ones you intend to make. 
+            </p>
+            <h3>Modifications</h3>
+            <table class="table-hover table-striped cell-border" id='modifications' style="float: left;">
+                <thead>
+                    <tr>
+                        <th>Group</th>
+                        <th>Trait</th>
+                        <th>Original Description</th>
+                        <th>New Description</th>
+                    </tr>
+                </thead>
+                <tbody>
+                {% for group_trait in diffs %}
+                <tr>
+                    <td>{{ group_trait.split(":")[0] }}</td>
+                    <td>{{ group_trait.split(":")[1] }}</td>
+                    <td>{{ diffs[group_trait]['Original'] }}</td>
+                    <td>{{ diffs[group_trait]['Current'] }}</td>
+                </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+
+            <input type="submit" style="width: 125px; margin-right: 25px;" class="btn btn-success form-control changed" value="Confirm Edits">
+        </div>
+    </form>
+</div>
+{% endblock %}
+{% block js %}
+<script language="javascript" type="text/javascript" src="{{ url_for('js', filename='DataTables/js/jquery.dataTables.min.js') }}"></script>
+<script type="text/javascript" src="/static/new/javascript/table_functions.js"></script>
+<script type="text/javascript" src="/static/new/javascript/create_datatable.js"></script>
+<script>
+    columnDefs = new Array(4);
+    create_table("modifications", [], columnDefs, {}, hasIndex=false);
+</script>
+{% endblock %}

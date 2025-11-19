@@ -53,6 +53,7 @@ from gn3.db.probesets import (
     update_probeset as _update_probeset,
     fetch_probeset_metadata_by_name)
 from gn3.db.phenotypes import (
+    batch_update_descriptions,
     fetch_trait,
     fetch_metadata,
     update_publication,
@@ -183,7 +184,7 @@ def get_dialect(file_text):
         return csv.excel_tab if '\t' in sample else csv.excel
 
 
-def calculate_diffs(conn, upload_file, transposed, group_name):
+def calculate_sample_diffs(conn, upload_file, transposed, group_name):
 
     def is_number(value):
         try:
@@ -269,6 +270,51 @@ def calculate_diffs(conn, upload_file, transposed, group_name):
 
     return all_diffs, all_diff_samples
 
+def calculate_desc_diffs(conn, upload_file, group_name):
+    all_diffs = {}
+
+    file_text = upload_file.read().decode('utf-8') if hasattr(upload_file, 'read') else upload_file
+    dialect = get_dialect(file_text)
+    upload_reader = csv.reader(io.StringIO(file_text), dialect=dialect)
+
+    group_id = retrieve_group_id(conn, group_name)
+
+    # Choose Post_publication_description when a PubMed ID exists for the
+    # cross-referenced publication, otherwise fall back to
+    # Pre_publication_description.
+    desc_query = """
+            SELECT
+                CASE
+                    WHEN pub.PubMed_ID IS NOT NULL AND pub.PubMed_ID <> ''
+                        THEN p.Post_publication_description
+                    ELSE p.Pre_publication_description
+                END AS chosen_description,
+                p.*, pub.PubMed_ID
+            FROM PublishXRef px
+            JOIN Phenotype p ON px.PhenotypeId = p.Id
+            LEFT JOIN Publication pub ON px.PublicationId = pub.Id
+            WHERE px.InbredSetId = %(dataset_id)s
+                AND px.Id = %(trait_id)s
+    """
+
+    for line in upload_reader:
+        # Skip header if it exists (Record IDs will always either be integers or have underscores)
+        if "_" not in line[0] and not line[0].isdigit():
+            continue
+
+        trait_id, new_desc = line[0], line[1]
+        with conn.cursor() as cursor:
+            cursor.execute(desc_query, {"dataset_id": group_id, "trait_id": trait_id})
+            result = cursor.fetchone()
+            if result:
+                current_desc = result[0]
+                if current_desc != new_desc:
+                    all_diffs[group_name + ":" + trait_id] = {
+                        "Original": current_desc,
+                        "Current": new_desc
+                    }
+
+    return all_diffs
 
 @metadata_edit.route("/batch_edit", methods=["GET", "POST"])
 def batch_edit_page() -> Response:
@@ -276,13 +322,22 @@ def batch_edit_page() -> Response:
         from gn2.utility.tools import get_setting
         with database_connection(get_setting("SQL_URI")) as conn:
             if 'traits_file' in request.files: # Review page
+                data_type = request.form['data_type']
                 upload_file = request.files['traits_file'].read().decode('utf-8')
-                transposed = True if 'transpose_file' in request.form else False
-                all_diffs, sample_list = calculate_diffs(conn, upload_file, transposed, group_name=request.form['group'])
-                return render_template("batch_edit_review.html", diffs = all_diffs, diffs_str = json.dumps(all_diffs), sample_list = sample_list)
+                if data_type == 'samples':
+                    transposed = True if 'transpose_file' in request.form else False
+                    all_diffs, sample_list = calculate_sample_diffs(conn, upload_file, transposed, group_name=request.form['group'])
+                    return render_template("batch_edit_samples_review.html", diffs = all_diffs, diffs_str = json.dumps(all_diffs), sample_list = sample_list)
+                elif data_type == 'descriptions': # Description updates
+                    all_diffs = calculate_desc_diffs(conn, upload_file, group_name=request.form['group'])
+                    return render_template("batch_edit_desc_review.html", diffs=all_diffs, diffs_str=json.dumps(all_diffs))
             elif 'diffs' in request.form: # Actual DB update
-                diff_data = batch_update_sample_data(conn, json.loads(request.form['diffs']))
-                return render_template("batch_edit_complete.html", diffs=diff_data)
+                data_type = request.form['data_type']
+                if data_type == 'samples':
+                    diff_data = batch_update_sample_data(conn, json.loads(request.form['diffs']))
+                elif data_type == 'descriptions':
+                    diff_data = batch_update_descriptions(conn, json.loads(request.form['diffs']))
+                return render_template("batch_edit_complete.html", diffs=diff_data, data_type=data_type)
     else:
         return render_template("batch_edit_submit.html", gn_server_url=current_app.config["GN_SERVER_URL"])
 
