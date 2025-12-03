@@ -73,16 +73,23 @@ from gn3.db.sample_data import (
 
 metadata_edit = Blueprint("metadata_edit", __name__)
 
-def _get_diffs(diff_dir: str, redis_conn: redis.Redis):
+def _get_user_name_by_id(user_id: str) -> str:
+    """Fetch user full name from gn-auth API by user ID."""
+    try:
+        from gn2.wqflask.oauth2 import client
+        response = client.get(f"auth/user/{user_id}")
+        if response.is_right():
+            user_data = response.value
+            return user_data.get("name") or user_id
+    except Exception:
+        pass
+    return user_id
+
+def _get_diffs(diff_dir: str, redis_conn: redis.Redis, db_conn=None):
     """Get all the diff details."""
     def __get_file_metadata(file_name: str) -> Dict:
         author, resource_id, time_stamp, *_ = file_name.split(".")
-        try:
-            author = json.loads(redis_conn.hget("users", author)).get(
-               "full_name"
-            )
-        except (AttributeError, TypeError):
-            author = author
+        author = _get_user_name_by_id(author)
         return {
             "resource_id": resource_id,
             "file_name": file_name,
