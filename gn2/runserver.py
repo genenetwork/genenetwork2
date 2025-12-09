@@ -10,6 +10,7 @@
 from gn2.gn2_main import app
 from gn2.utility.startup_config import app_config
 from gn2.utility.tools import WEBSERVER_MODE, SERVER_PORT
+from gn_libs.http_logging import SilentHTTPHandler
 
 import logging
 
@@ -21,6 +22,14 @@ ENDC = '\033[0m'
 app_config()
 
 werkzeug_logger = logging.getLogger('werkzeug')
+node = "CD" if WEBSERVER_MODE in ("DEBUG", "DEV") else "Production"
+sheepdog_port = app.config.get("SHEEPDOG_PORT", 5050)
+
+http_handler = SilentHTTPHandler(
+    endpoint = f"http://localhost:{sheepdog_port}/emit/{node}/genenetwork2"
+)
+app.logger.addHandler(http_handler)
+werkzeug_logger.addHandler(http_handler)
 
 if WEBSERVER_MODE == 'DEBUG':
     app.debug = True
