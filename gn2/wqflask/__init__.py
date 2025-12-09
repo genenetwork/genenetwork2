@@ -41,6 +41,7 @@ from gn2.wqflask.oauth2.collections import num_collections
 from gn2.wqflask.oauth2.request_utils import user_details, system_privileges, authserver_authorise_uri
 
 from gn2.wqflask.jupyter_notebooks import jupyter_notebooks
+from gn_libs.http_logging import SilentHTTPHandler
 
 from gn2.wqflask.startup import (
     StartupError,
@@ -74,7 +75,13 @@ def dev_loggers(appl: Flask) -> None:
 def gunicorn_loggers(appl: Flask) -> None:
     """Logging with gunicorn WSGI server."""
     logger = logging.getLogger("gunicorn.error")
+    node = "CD" if "auth-cd" in app.config.get("AUTH_SERVER_URL", "") else "Production"
+    sheepdog_port = app.config.get("SHEEPDOG_PORT", 5050)
+    http_handler = SilentHTTPHandler(
+        endpoint = f"http://localhost:{sheepdog_port}/emit/{node}/genenetwork2"
+    )
     appl.logger.handlers = logger.handlers
+    appl.logger.addHandler(http_handler)
     appl.logger.setLevel(logger.level)
 
 def setup_logging(appl: Flask) -> None:
