@@ -90,11 +90,18 @@ def _get_diffs(diff_dir: str, redis_conn: redis.Redis, db_conn=None):
     def __get_file_metadata(file_name: str) -> Dict:
         author, resource_id, time_stamp, *_ = file_name.split(".")
         author = _get_user_name_by_id(author)
+        # Parse timestamp and convert to human-readable format
+        try:
+            dt = datetime.datetime.fromisoformat(time_stamp)
+            formatted_time = dt.strftime("%Y-%m-%d %H:%M:%S")
+        except (ValueError, AttributeError):
+            # Fallback to raw timestamp if parsing fails
+            formatted_time = time_stamp
         return {
             "resource_id": resource_id,
             "file_name": file_name,
             "author": author,
-            "time_stamp": time_stamp
+            "time_stamp": formatted_time
         }
 
     def __get_diff__(diff_dir: str, diff_file_name: str) -> dict:
