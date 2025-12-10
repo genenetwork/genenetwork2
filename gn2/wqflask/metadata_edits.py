@@ -109,10 +109,19 @@ def _get_diffs(diff_dir: str, redis_conn: redis.Redis, db_conn=None):
         with open(Path(diff_dir, diff_file_name), encoding="utf8") as dfile:
             return json.loads(dfile.read().strip())
 
+    def __get_diff_summary__(diff_data: dict) -> Dict:
+        """Create a summary of diff counts."""
+        return {
+            "additions": len(diff_data.get("Additions", {})),
+            "modifications": len(diff_data.get("Modifications", {})),
+            "deletions": len(diff_data.get("Deletions", {}))
+        }
+
     return tuple({
         "filepath": Path(diff_dir, dname).absolute(),
         "meta": __get_file_metadata(file_name=dname),
-        "diff": __get_diff__(diff_dir, dname)
+        "diff": __get_diff__(diff_dir, dname),
+        "summary": __get_diff_summary__(__get_diff__(diff_dir, dname))
     } for dname in os.listdir(diff_dir))
 
 def edit_phenotype(conn, name, dataset_id):
@@ -141,38 +150,42 @@ def get_sample_data_diff(dict1, dict2):
 
     all_keys = set(dict1.keys()) | set(dict2.keys())
     for key in all_keys:
-        # Check if sample exists in both sets of data
-        in_dict1 = key in dict1
-        in_dict2 = key in dict2
+        # Check presence in each dict
+        in1 = key in dict1
+        in2 = key in dict2
 
-        if not in_dict1:
+        if not in1:
             diff_samples['Additions'].append(key)
             diff["Additions"][key] = dict2[key]
             continue
-        if not in_dict2:
+        if not in2:
             diff_samples['Deletions'].append(key)
             diff["Deletions"][key] = dict1[key]
             continue
 
-        # Remove 'n_cases' if present, since it's not included in the upload file
-        sub1 = {k: v for k, v in dict1[key].items()}
-        sub2 = {k: v for k, v in dict2[key].items()}
+        sub1 = dict1[key].copy()
+        sub2 = dict2[key].copy()
 
-        # Compare sample data
         if sub1 != sub2:
             sub_diff = {}
-            for k in sub1.keys() | sub2.keys():
+            for k in set(sub1.keys()) | set(sub2.keys()):
+                v1_raw = sub1.get(k, None)
+                v2_raw = sub2.get(k, None)
                 try:
-                    v1 = float(sub1.get(k, None))
-                    v2 = float(sub2.get(k, None))
-
-                    if v1 != v2 and not math.isclose(v1, v2, abs_tol = 0.02):
-                        diff_samples['Modifications'].append(key)
+                    v1 = float(v1_raw)
+                    v2 = float(v2_raw)
+                    if not math.isclose(v1, v2, abs_tol=0.02):
                         sub_diff[k] = {"Original": v1, "Current": v2}
-                except:
-                    continue
+                except Exception:
+                    # Fallback to string comparison if not numeric
+                    # Normalize None to 'x' for missing values to avoid showing 'None' in templates
+                    v1_disp = v1_raw if v1_raw is not None else 'x'
+                    v2_disp = v2_raw if v2_raw is not None else 'x'
+                    if v1_disp != v2_disp:
+                        sub_diff[k] = {"Original": v1_disp, "Current": v2_disp}
 
             if sub_diff:
+                diff_samples['Modifications'].append(key)
                 diff["Modifications"][key] = sub_diff
 
     return diff, diff_samples
@@ -367,9 +380,11 @@ def display_phenotype_metadata(dataset_id: str, name: str):
 
         group_name = retrieve_phenotype_group_name(conn, dataset_id)
         sample_list = retrieve_sample_list(group_name)
-        sample_data = []
-        if len(sample_list) < 2000:
-            sample_data = get_pheno_sample_data(conn, name, _d["publish_xref"]["phenotype_id"])
+        sample_data = {}
+        if len(sample_list) < 5000:
+            pheno_data = get_pheno_sample_data(conn, name, _d["publish_xref"]["phenotype_id"])
+            # Ensure sample_data is a dict (some datasets may return a list or None)
+            sample_data = pheno_data if isinstance(pheno_data, dict) else {}
 
         return render_template(
             "edit_phenotype.html",

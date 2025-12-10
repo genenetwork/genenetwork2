@@ -31,6 +31,7 @@
             <table class="table table-hover table-striped cell-border">
                 <thead>
                     <th scope="col">Resource Id</</th>
+                    <th scope="col">Changes</th>
                     <th scope="col">Author</th>
                     <th scope="col">TimeStamp</th>
                     <th scope="col"></th>
@@ -41,6 +42,11 @@
                     <tr>
                       {% set file_url = url_for('metadata_edit.show_diff', name=data.filepath.name) %}
                         <td><a href="{{ file_url }}" target="_blank">{{ data.diff.get("dataset_name") }}:{{ data.diff.get("trait_name") }}</a></td>
+                        <td>
+                            {% if data.summary.additions > 0 %}+{{ data.summary.additions }}{% endif %}
+                            {% if data.summary.modifications > 0 %}<span style="margin-left: 5px;">~{{ data.summary.modifications }}</span>{% endif %}
+                            {% if data.summary.deletions > 0 %}<span style="margin-left: 5px;">-{{ data.summary.deletions }}</span>{% endif %}
+                        </td>
                         <td>{{ data.meta.get("author")}}</td>
                         <td>{{ data.meta.get("time_stamp")}}</td>
                         {% set reject_url = url_for('metadata_edit.reject_data', resource_id=data.meta.get('resource_id'), file_name=data.filepath.name, dataset_name=data.diff.dataset_name, trait_name=data.diff.trait_name) %}
@@ -72,6 +78,7 @@
             <table class="table-responsive table-hover table-striped cell-border" id="table-approved">
                 <thead>
                     <th scope="col">Resource Id</</th>
+                    <th scope="col">Changes</th>
                     <th scope="col">Author</th>
                     <th scope="col">TimeStamp</th>
                 </thead>
@@ -80,6 +87,11 @@
                     <tr>
                         {% set file_url = url_for('metadata_edit.show_diff', name=data.filepath.name) %}
                         <td><a href="{{ file_url }}" target="_blank">{{ data.diff.get("dataset_name") }}:{{ data.diff.get("trait_name") }}</a></td>
+                        <td>
+                            {% if data.summary.additions > 0 %}+{{ data.summary.additions }}{% endif %}
+                            {% if data.summary.modifications > 0 %}<span style="margin-left: 5px;">~{{ data.summary.modifications }}</span>{% endif %}
+                            {% if data.summary.deletions > 0 %}<span style="margin-left: 5px;">-{{ data.summary.deletions }}</span>{% endif %}
+                        </td>
                         <td>{{ data.meta.get("author")}}</td>
                         <td>{{ data.meta.get("time_stamp")}}</td>
                     </tr>
@@ -97,6 +109,7 @@
             <table class="table-responsive table-hover table-striped cell-border" id="table-rejected">
                 <thead>
                     <th scope="col">Resource Id</</th>
+                    <th scope="col">Changes</th>
                     <th scope="col">Author</th>
                     <th scope="col">TimeStamp</th>
                 </thead>
@@ -105,6 +118,11 @@
                     <tr>
                         {% set file_url = url_for('metadata_edit.show_diff', name=data.filepath.name) %}
                         <td><a href="{{ file_url }}" target="_blank">{{ data.diff.get("dataset_name") }}:{{ data.diff.get("trait_name") }}</a></td>
+                        <td>
+                            {% if data.summary.additions > 0 %}+{{ data.summary.additions }}{% endif %}
+                            {% if data.summary.modifications > 0 %}<span style="margin-left: 5px;">~{{ data.summary.modifications }}</span>{% endif %}
+                            {% if data.summary.deletions > 0 %}<span style="margin-left: 5px;">-{{ data.summary.deletions }}</span>{% endif %}
+                        </td>
                         <td>{{ data.meta.get("author")}}</td>
                         <td>{{ data.meta.get("time_stamp")}}</td>
                     </tr>
