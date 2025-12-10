@@ -437,16 +437,14 @@ def update_phenotype(dataset_id: str, name: str):
     TMPDIR = current_app.config.get("TMPDIR")
     author = session.session_info()["user"]["user_id"]
     phenotype_id = str(data_.get("phenotype-id"))
-    if not (file_ := request.files.get("file")) and data_.get('edited') == "false":
+    file_ = request.files.get("file")
+    if not file_ and data_.get('edited') == "false":
         pass
     else:
-        create_dirs_if_not_exists(
-            [
-                SAMPLE_DATADIR := os.path.join(TMPDIR, "sample-data"),
-                DIFF_DATADIR := os.path.join(SAMPLE_DATADIR, "diffs"),
-                UPLOAD_DATADIR := os.path.join(SAMPLE_DATADIR, "updated"),
-            ]
-        )
+        SAMPLE_DATADIR = os.path.join(TMPDIR, "sample-data")
+        DIFF_DATADIR = os.path.join(SAMPLE_DATADIR, "diffs")
+        UPLOAD_DATADIR = os.path.join(SAMPLE_DATADIR, "updated")
+        create_dirs_if_not_exists([SAMPLE_DATADIR, DIFF_DATADIR, UPLOAD_DATADIR])
 
         current_time = str(datetime.datetime.now().isoformat())
         _file_name = (
@@ -463,7 +461,7 @@ def update_phenotype(dataset_id: str, name: str):
                     group_id=dataset_id,
                     sample_list=sample_list,
             )
-            if not (file_) and data_.get('edited') == "true":
+            if not file_ and data_.get('edited') == "true":
                 delta_csv = create_delta_csv(base_csv, data_, sample_list)
                 diff_data = remove_insignificant_edits(
                     diff_data=csv_diff(
@@ -474,10 +472,11 @@ def update_phenotype(dataset_id: str, name: str):
                     epsilon=0.001,
                 )
             else:
+                delta_csv = file_.read().decode()
                 diff_data = remove_insignificant_edits(
                     diff_data=csv_diff(
                         base_csv=base_csv,
-                        delta_csv=(delta_csv := file_.read().decode()),
+                        delta_csv=delta_csv,
                         tmp_dir=TMPDIR,
                     ),
                     epsilon=0.001,
@@ -659,16 +658,14 @@ def update_probeset(name: str):
     trait_name = str(data_.get("probeset_name"))
     dataset_name = str(data_.get("dataset_name"))
 
-    if not (file_ := request.files.get("file")) and data_.get('edited') == "false":
+    file_ = request.files.get("file")
+    if not file_ and data_.get('edited') == "false":
         pass
     else:
-        create_dirs_if_not_exists(
-            [
-                SAMPLE_DATADIR := os.path.join(TMPDIR, "sample-data"),
-                DIFF_DATADIR := os.path.join(SAMPLE_DATADIR, "diffs"),
-                UPLOAD_DATADIR := os.path.join(SAMPLE_DATADIR, "updated"),
-            ]
-        )
+        SAMPLE_DATADIR = os.path.join(TMPDIR, "sample-data")
+        DIFF_DATADIR = os.path.join(SAMPLE_DATADIR, "diffs")
+        UPLOAD_DATADIR = os.path.join(SAMPLE_DATADIR, "updated")
+        create_dirs_if_not_exists([SAMPLE_DATADIR, DIFF_DATADIR, UPLOAD_DATADIR])
 
         current_time = str(datetime.datetime.now().isoformat())
         _file_name = (
@@ -686,7 +683,7 @@ def update_probeset(name: str):
                 dataset_name=dataset_name,
                 sample_list=retrieve_sample_list(group_name)
             )
-            if not (file_) and data_.get('edited') == "true":
+            if not file_ and data_.get('edited') == "true":
                 delta_csv = create_delta_csv(base_csv, data_, sample_list)
                 diff_data = remove_insignificant_edits(
                     diff_data=csv_diff(
@@ -697,10 +694,11 @@ def update_probeset(name: str):
                     epsilon=0.001,
                 )
             else:
+                delta_csv = file_.read().decode()
                 diff_data = remove_insignificant_edits(
                     diff_data=csv_diff(
                         base_csv=base_csv,
-                        delta_csv=(delta_csv := file_.read().decode()),
+                        delta_csv=delta_csv,
                         tmp_dir=TMPDIR,
                     ),
                     epsilon=0.001,
@@ -717,7 +715,7 @@ def update_probeset(name: str):
                     "warning",
                 )
                 return redirect(
-                    f"/datasets/{dataset_id}/traits/{name}"
+                    f"/datasets/{dataset_name}/traits/{name}"
                     f"?resource-id={request.args.get('resource-id')}"
                     f"&dataset_name={request.args['dataset_name']}"
                 )
@@ -727,7 +725,7 @@ def update_probeset(name: str):
                 "You have not modified the csv file you downloaded!", "warning"
             )
             return redirect(
-                f"/datasets/{dataset_id}/traits/{name}"
+                f"/datasets/{dataset_name}/traits/{name}"
                 f"?resource-id={request.args.get('resource-id')}"
                 f"&dataset_name={request.args['dataset_name']}"
             )
@@ -1092,29 +1090,29 @@ def approve_data(resource_id: str, file_name: str):
 
     n_deletions = 0
     n_insertions = 0
-    with (open(diffpath, "r") as myfile,
-          database_connection(get_setting("SQL_URI")) as conn):
+    with open(diffpath, "r") as myfile:
         sample_data = json.load(myfile)
 
-        if not __authorised_p__(sample_data["dataset_name"],
-                                sample_data["trait_name"]):
-            flash("You are not authorised to edit that trait.", "alert-danger")
-            return redirect(url_for("metadata_edit.list_diffs"))
+    if not __authorised_p__(sample_data["dataset_name"],
+                            sample_data["trait_name"]):
+        flash("You are not authorised to edit that trait.", "alert-danger")
+        return redirect(url_for("metadata_edit.list_diffs"))
 
-        # Define the trait_info that is passed into the update functions, by data type
-        if sample_data.get("probeset_id"): # if trait is ProbeSet
-            trait_info = {
-                'probeset_id': int(sample_data.get("probeset_id")),
-                'dataset_name': sample_data.get("dataset_name")
-            }
-        else: # if trait is Publish
-            trait_info = {
-                'trait_name': sample_data.get("trait_name"),
-                'phenotype_id': int(sample_data.get("phenotype_id"))
-            }
+    # Define the trait_info that is passed into the update functions, by data type
+    if sample_data.get("probeset_id"):  # if trait is ProbeSet
+        trait_info = {
+            'probeset_id': int(sample_data.get("probeset_id")),
+            'dataset_name': sample_data.get("dataset_name")
+        }
+    else:  # if trait is Publish
+        trait_info = {
+            'trait_name': sample_data.get("trait_name"),
+            'phenotype_id': int(sample_data.get("phenotype_id"))
+        }
 
-        for modification in (
-                modifications := [d for d in sample_data.get("Modifications")]):
+    with database_connection(get_setting("SQL_URI")) as conn:
+        modifications = [d for d in sample_data.get("Modifications")]
+        for modification in modifications:
             if modification.get("Current"):
                 update_sample_data(
                     conn=conn,
@@ -1123,7 +1121,7 @@ def approve_data(resource_id: str, file_name: str):
                     csv_header=sample_data.get(
                         "Columns", "Strain Name,Value,SE,Count"
                     ),
-                    trait_info=trait_info
+                    trait_info=trait_info,
                 )
 
         # Deletions
