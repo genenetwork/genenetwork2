@@ -436,7 +436,7 @@
                   $('td', row).eq(3).text($('td', row).eq(3).text().substring(0, 20));
                   $('td', row).eq(3).text($('td', row).eq(3).text() + '...')
                 }
-                $('td', row).eq(4).attr('title', $('td', row).eq(4).text());
+                $('td', row).eq(4).attr('title', data.description);
                 $('td', row).eq(4).attr('data-export', $('td', row).eq(4).text());
                 if ($('td', row).eq(4).text().length > 500) {
                   $('td', row).eq(4).text($('td', row).eq(4).text().substring(0, 500));
@@ -452,7 +452,7 @@
                 $('td', row).eq(10).attr('data-export', $('td', row).eq(10).text());
                 {% endif %}
                 {% elif dataset.type == 'Publish' %}
-                $('td', row).eq(3).attr('title', $('td', row).eq(3).text());
+                $('td', row).eq(3).attr('title', data.description);
                 $('td', row).eq(3).attr('data-export', $('td', row).eq(3).text());
                 if ($('td', row).eq(3).text().length > 500) {
                   $('td', row).eq(3).text($('td', row).eq(3).text().substring(0, 500));
@@ -461,8 +461,9 @@
                 $('td', row).eq(4).attr('title', $('td', row).eq(4).text());
                 $('td', row).eq(4).attr('data-export', $('td', row).eq(4).text());
                 $('td', row).eq(4).attr('align', 'right');
-                $('td', row).slice(6,10).attr("align", "right");
+                $('td', row).eq(5).attr('title', data.authors);
                 $('td', row).eq(5).attr('data-export', $('td', row).eq(5).text());
+                $('td', row).slice(6,10).attr("align", "right");
                 $('td', row).eq(6).attr('data-export', $('td', row).eq(6).text());
                 $('td', row).eq(7).attr('data-export', $('td', row).eq(7).text());
                 $('td', row).eq(8).attr('data-export', $('td', row).eq(8).text());

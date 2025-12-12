@@ -146,9 +146,9 @@ class SearchResultPage:
 
                     trait["hmac"] = (Maybe.apply(hmac)
                                     .to_arguments(trait['name'], trait['dataset'], Just(hmac_creation(f"{trait.data['name']}:{trait.data['dataset']}"))))
-                    trait["authors"] = trait["authors_display"] = (trait.pop("authors").map(
-                        lambda authors:
-                        ", ".join(authors[:2] + ["et al."] if len(authors) >=2 else authors)))
+                    authors_list = trait.pop("authors")
+                    trait["authors"] = authors_list.map(lambda authors: ", ".join(authors))
+                    trait["authors_display"] = authors_list.map(lambda authors: ", ".join(authors[:2] + ["et al."] if len(authors) >=2 else authors))
                     trait["pubmed_text"] = trait["year"].map(str)
                 trait_list.append(trait.data)
             else:
@@ -194,7 +194,8 @@ class SearchResultPage:
                     authors = result['Authors']
                     if authors:
                         authors_list = authors.split(',')
-                        trait_dict['authors'] = trait_dict['authors_display'] = ", ".join(authors_list[:2] + ["et al."] if len(authors_list) >= 2 else authors_list)
+                        trait_dict['authors'] = authors
+                        trait_dict['authors_display'] = ", ".join(authors_list[:2] + ["et al."] if len(authors_list) >= 2 else authors_list)
                     else:
                         trait_dict['authors'] = trait_dict['authors_display'] = ""
 
