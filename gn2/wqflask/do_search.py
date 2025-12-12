@@ -118,6 +118,24 @@ class MrnaAssaySearch(DoSearch):
                      'Max LRS Location',
                      'Additive Effect']
 
+    field_names = [
+        'ProbeSetFreeze_Name',
+        'ProbeSetFreeze_FullName',
+        'ProbeSet_Name',
+        'Symbol',
+        'description',
+        'Probe_Target_Description',
+        'Chr',
+        'Mb',
+        'Mean',
+        'LRS',
+        'Locus',
+        'pValue',
+        'additive',
+        'geno_chr',
+        'geno_mb'
+    ]
+
     def get_alias_where_clause(self):
         search_string = self.sescape(self.search_term[0])
 
@@ -248,6 +266,23 @@ class PhenotypeSearch(DoSearch):
                      'Max LRS Location',
                      'Additive Effect']
 
+    field_names = [
+        'Id',
+        'Pre_publication_description',
+        'Post_publication_description',
+        'Authors',
+        'Year',
+        'PubMed_ID',
+        'mean',
+        'LRS',
+        'additive',
+        'Locus',
+        'NSamples',
+        'InbredSetCode',
+        'Chr',
+        'Mb'
+    ]
+
     def get_where_clause(self):
         """Generate clause for WHERE portion of query"""
 
@@ -338,7 +373,7 @@ class GenotypeSearch(DoSearch):
     DoSearch.search_types['Geno'] = "GenotypeSearch"
 
     base_query = """SELECT Geno.Name,
-                GenoFreeze.createtime as thistable,
+                GenoFreeze.createtime as createtime,
                 Geno.Name as Geno_Name,
                 Geno.Source2 as Geno_Source2,
                 Geno.Chr as Geno_Chr,
@@ -350,6 +385,15 @@ class GenotypeSearch(DoSearch):
     header_fields = ['Index',
                      'Record',
                      'Location']
+
+    field_names = [
+        'Name',
+        'createtime',
+        'Geno_Name',
+        'Geno_Source2',
+        'Geno_Chr',
+        'Geno_Mb'
+    ]
 
     def get_where_clause(self):
         """Generate clause for part of the WHERE portion of query"""

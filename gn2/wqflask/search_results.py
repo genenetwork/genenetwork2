@@ -156,78 +156,55 @@ class SearchResultPage:
                 trait_dict['index'] = index + 1
                 trait_dict['dataset'] = self.dataset.name
                 if self.dataset.type == "ProbeSet":
-                    trait_dict['display_name'] = result[2]
+                    trait_dict['display_name'] = result['ProbeSet_Name']
                     trait_dict['hmac'] = f"{trait_dict['display_name']}:{trait_dict['dataset']}:{hmac_creation('{}:{}'.format(trait_dict['display_name'], trait_dict['dataset']))}"
-                    trait_dict['symbol'] = "N/A" if result[3] is None else result[3].strip()
+                    trait_dict['symbol'] = "N/A" if result['Symbol'] is None else result['Symbol'].strip()
                     description_text = ""
-                    if result[4] is not None and str(result[4]) != "":
-                        description_text = unicodedata.normalize("NFKD", result[4].decode('latin1'))
+                    if result['description'] is not None and str(result['description']) != "":
+                        description_text = unicodedata.normalize("NFKD", result['description'].decode('latin1'))
 
-                    target_string = result[5].decode('utf-8') if result[5] else ""
+                    target_string = result['Probe_Target_Description'].decode('utf-8') if result['Probe_Target_Description'] else ""
                     description_display = description_text if target_string is None or str(target_string) == "" else description_text + "; " + str(target_string).strip()
                     trait_dict['description'] = description_display
 
                     trait_dict['location'] = "N/A"
-                    if (result[6] is not None) and (result[6] != "") and (result[6] != "Un") and (result[7] is not None) and (result[7] != 0):
-                        trait_dict['location'] = f"Chr{result[6]}: {float(result[7]):.6f}"
+                    if (result['Chr'] is not None) and (result['Chr'] != "") and (result['Chr'] != "Un") and (result['Mb'] is not None) and (result['Mb'] != 0):
+                        trait_dict['location'] = f"Chr{result['Chr']}: {float(result['Mb']):.6f}"
 
-                    trait_dict['mean'] = "N/A" if result[8] is None or result[8] == "" else f"{result[8]:.3f}"
-                    trait_dict['additive'] = "N/A" if result[12] is None or result[12] == "" else f"{result[12]:.3f}"
-                    trait_dict['lod_score'] = "N/A" if result[9] is None or result[9] == "" else f"{float(result[9]) / 4.61:.1f}"
-                    trait_dict['lrs_location'] = "N/A" if result[13] is None or result[13] == "" or result[14] is None else f"Chr{result[13]}: {float(result[14]):.6f}"
+                    trait_dict['mean'] = "N/A" if result['Mean'] is None or result['Mean'] == "" else f"{result['Mean']:.3f}"
+                    trait_dict['additive'] = "N/A" if result['additive'] is None or result['additive'] == "" else f"{result['additive']:.3f}"
+                    trait_dict['lod_score'] = "N/A" if result['LRS'] is None or result['LRS'] == "" else f"{float(result['LRS']) / 4.61:.1f}"
+                    trait_dict['lrs_location'] = "N/A" if result['geno_chr'] is None or result['geno_chr'] == "" or result['geno_mb'] is None else f"Chr{result['geno_chr']}: {float(result['geno_mb']):.6f}"
                 elif self.dataset.type == "Geno":
-                    trait_dict['display_name'] = str(result[0])
+                    trait_dict['display_name'] = str(result['Name'])
                     trait_dict['hmac'] = f"{trait_dict['display_name']}:{trait_dict['dataset']}:{hmac_creation('{}:{}'.format(trait_dict['display_name'], trait_dict['dataset']))}"
                     trait_dict['location'] = "N/A"
-                    if (result[4] != "NULL" and result[4] != "") and (result[5] != 0):
-                        trait_dict['location'] = f"Chr{result[4]}: {float(result[5]):.6f}"
+                    if (result['Geno_Chr'] is not None and result['Geno_Chr'] != "" and result['Geno_Chr'] != "NULL") and (result['Geno_Mb'] is not None and result['Geno_Mb'] != 0):
+                        trait_dict['location'] = f"Chr{result['Geno_Chr']}: {float(result['Geno_Mb']):.6f}"
                 elif self.dataset.type == "Publish":
                     # Check permissions on a trait-by-trait basis for phenotype traits
-                    trait_dict['name'] = trait_dict['display_name'] = str(result[0])
-                    trait_dict['hmac'] = f"{trait_dict['display_name']}:{trait_dict['dataset']}:{hmac_creation('{}:{}'.format(trait_dict['display_name'], trait_dict['dataset']))}"
+                    trait_dict['display_name'] = result['Id']
+                    inbredsetcode = result['InbredSetCode']
+                    if inbredsetcode and len(inbredsetcode) == 3:
+                        trait_dict['display_name'] = f"{inbredsetcode}_{trait_dict['display_name']}"
+                    trait_dict['hmac'] = hmac_creation(f"{trait_dict['display_name']}:{trait_dict['dataset']}")
 
-                    if result[11]:
-                        trait_dict['display_name'] = str(result[11]) + "_" + str(result[0])
-                    trait_dict['description'] = "N/A"
-                    trait_dict['pubmed_id'] = "N/A"
-                    trait_dict['pubmed_link'] = "N/A"
-                    trait_dict['pubmed_text'] = "N/A"
-                    trait_dict['mean'] = "N/A"
-                    trait_dict['additive'] = "N/A"
-                    trait_dict['n_samples'] = "N/A"
-                    pre_pub_description = "N/A" if result[1] is None else result[1].strip()
-                    post_pub_description = "N/A" if result[2] is None else result[2].strip()
-                    if result[5] != "NULL" and result[5] != None:
-                        trait_dict['pubmed_id'] = result[5]
-                        trait_dict['pubmed_link'] = PUBMEDLINK_URL % trait_dict['pubmed_id']
-                        trait_dict['description'] = post_pub_description
+                    trait_dict['description'] = result['Pre_publication_description'].decode('latin1') if result['Pre_publication_description'] else ""
+
+                    authors = result['Authors']
+                    if authors:
+                        authors_list = authors.split(',')
+                        trait_dict['authors'] = trait_dict['authors_display'] = ", ".join(authors_list[:2] + ["et al."] if len(authors_list) >= 2 else authors_list)
                     else:
-                        trait_dict['description'] = pre_pub_description
+                        trait_dict['authors'] = trait_dict['authors_display'] = ""
 
-                    if result[4].isdigit():
-                        trait_dict['pubmed_text'] = result[4]
+                    trait_dict['pubmed_text'] = str(result['Year']) if result['Year'] else ""
 
-                    trait_dict['authors'] = result[3]
-                    trait_dict['authors_display'] = trait_dict['authors']
-                    author_list = trait_dict['authors'].split(",")
-                    if len(author_list) >= 2:
-                        trait_dict['authors_display'] = (",").join(author_list[:2]) + ", et al."
-
-                    if result[6] != "" and result[6] != None:
-                        trait_dict['mean'] = f"{result[6]:.3f}"
-
-                    try:
-                        trait_dict['lod_score'] = f"{float(result[7]) / 4.61:.1f}"
-                    except:
-                        trait_dict['lod_score'] = "N/A"
-
-                    try:
-                        trait_dict['lrs_location'] = f"Chr{result[12]}: {float(result[12]):.6f}"
-                    except:
-                        trait_dict['lrs_location'] = "N/A"
-
-                    trait_dict['additive'] = "N/A" if not result[8] else f"{result[8]:.3f}"
-                    trait_dict['n_samples'] = "N/A" if not result[10] else f"{result[10]}"
+                    trait_dict['mean'] = "N/A" if result['mean'] is None or result['mean'] == "" else f"{result['mean']:.3f}"
+                    trait_dict['lod_score'] = "N/A" if result['LRS'] is None or result['LRS'] == "" else f"{float(result['LRS']) / 4.61:.1f}"
+                    trait_dict['additive'] = "N/A" if result['additive'] is None or result['additive'] == "" else f"{result['additive']:.3f}"
+                    trait_dict['lrs_location'] = "N/A" if result['Chr'] is None or result['Chr'] == "" or result['Mb'] is None else f"Chr{result['Chr']}: {float(result['Mb']):.6f}"
+                    trait_dict['n_samples'] = "N/A" if result['NSamples'] is None or result['NSamples'] == "" else str(result['NSamples'])
 
                 trait_dict['trait_info_str'] = trait_info_str(trait_dict, self.dataset.type)
 
@@ -387,7 +364,7 @@ class SearchResultPage:
                 combined_from_clause, combined_where_clause)
 
             results = the_search.execute(final_query)
-            self.results.extend(results)
+            self.results.extend([dict(zip(the_search.field_names, row)) for row in results])
 
         if self.search_term_exists:
             if the_search != None:
