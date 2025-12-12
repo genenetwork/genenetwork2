@@ -150,6 +150,7 @@ class SearchResultPage:
                     trait["authors"] = authors_list.map(lambda authors: ", ".join(authors))
                     trait["authors_display"] = authors_list.map(lambda authors: ", ".join(authors[:2] + ["et al."] if len(authors) >=2 else authors))
                     trait["pubmed_text"] = trait["year"].map(str)
+                    trait["pubmed_link"] = trait.get("pubmed_id", Just("N/A")).map(lambda pid: PUBMEDLINK_URL % pid if pid != "N/A" else "N/A")
                 trait_list.append(trait.data)
             else:
                 trait_dict = {}
@@ -190,6 +191,8 @@ class SearchResultPage:
                     trait_dict['hmac'] = hmac_creation(f"{trait_dict['display_name']}:{trait_dict['dataset']}")
 
                     trait_dict['description'] = result['Pre_publication_description'].decode('latin1') if result['Pre_publication_description'] else ""
+                    if result['PubMed_ID'] and result['PubMed_ID'] != "NULL":
+                        trait_dict['description'] = result['Post_publication_description'].decode('latin1') if result['Post_publication_description'] else ""
 
                     authors = result['Authors']
                     if authors:
@@ -200,6 +203,13 @@ class SearchResultPage:
                         trait_dict['authors'] = trait_dict['authors_display'] = ""
 
                     trait_dict['pubmed_text'] = str(result['Year']) if result['Year'] else ""
+
+                    if result['PubMed_ID'] and result['PubMed_ID'] != "NULL":
+                        trait_dict['pubmed_id'] = result['PubMed_ID']
+                        trait_dict['pubmed_link'] = PUBMEDLINK_URL % result['PubMed_ID']
+                    else:
+                        trait_dict['pubmed_id'] = "N/A"
+                        trait_dict['pubmed_link'] = "N/A"
 
                     trait_dict['mean'] = "N/A" if result['mean'] is None or result['mean'] == "" else f"{result['mean']:.3f}"
                     trait_dict['lod_score'] = "N/A" if result['LRS'] is None or result['LRS'] == "" else f"{float(result['LRS']) / 4.61:.1f}"
