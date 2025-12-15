@@ -11,7 +11,7 @@
 ;; guix shell -C -Df guix.scm
 
 (define-module (genenetwork2)
-  #:use-module ((gn packages genenetwork)
+  #:use-module ((gn-machines genenetwork)
                 #:select (genenetwork2) #:prefix gn:)
   #:use-module (guix gexp)
   #:use-module (guix utils)
