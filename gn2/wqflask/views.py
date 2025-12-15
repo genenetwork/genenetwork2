@@ -120,19 +120,14 @@ Redis = get_redis_conn()
 def handle_generic_exceptions(e):
     import werkzeug
     err_msg = str(e)
-    now = datetime.datetime.utcnow()
-    time_str = now.strftime('%l:%M%p UTC %b %d, %Y')
     # get the stack trace and send it to the logger
     exc_type, exc_value, exc_traceback = sys.exc_info()
-    formatted_lines = (f"{request.url} ({time_str}) \n"
+    formatted_lines = (f"{request.url} \n"
                        f"{traceback.format_exc()}")
     _message_templates = {
-        werkzeug.exceptions.NotFound: ("404: Not Found: "
-                                       f"{time_str}: {request.url}"),
-        werkzeug.exceptions.BadRequest: ("400: Bad Request: "
-                                         f"{time_str}: {request.url}"),
-        werkzeug.exceptions.RequestTimeout: ("408: Request Timeout: "
-                                             f"{time_str}: {request.url}")}
+        werkzeug.exceptions.NotFound: (f"404: Not Found: {request.url}"),
+        werkzeug.exceptions.BadRequest: (f"400: Bad Request: {request.url}"),
+        werkzeug.exceptions.RequestTimeout: (f"408: Request Timeout: {request.url}")}
     # Default to the lengthy stack trace!
     app.logger.error(_message_templates.get(exc_type,
                                             formatted_lines))
