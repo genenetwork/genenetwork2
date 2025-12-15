@@ -130,8 +130,6 @@ class SearchResultPage:
                                         .to_arguments(trait.pop("geno_chr"), trait.pop("geno_mb")))
 
                 description_text = trait['description'].maybe("N/A", lambda a: a)
-                if len(description_text) > 200:
-                    description_text = description_text[:200] + "..."
                 trait['description'] = Just(description_text)
 
                 if self.dataset.type == "ProbeSet":
