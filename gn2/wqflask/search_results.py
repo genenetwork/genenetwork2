@@ -185,7 +185,7 @@ class SearchResultPage:
                         trait_dict['location'] = f"Chr{result['Geno_Chr']}: {float(result['Geno_Mb']):.6f}"
                 elif self.dataset.type == "Publish":
                     # Check permissions on a trait-by-trait basis for phenotype traits
-                    trait_dict['display_name'] = result['Id']
+                    trait_dict['display_name'] = trait_dict['name'] = result['Id']
                     inbredsetcode = result['InbredSetCode']
                     if inbredsetcode and len(inbredsetcode) == 3:
                         trait_dict['display_name'] = f"{inbredsetcode}_{trait_dict['display_name']}"
