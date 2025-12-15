@@ -357,7 +357,8 @@
               'width': "500px",
               {% endif %}
               'data': "authors_display",
-              'targets': 5
+              'targets': 5,
+              'defaultContent': "N/A"
             },
             {
               'title': "<div style='text-align: right;'>N</div>",
@@ -374,12 +375,13 @@
               'width': "50px",
               'targets': 7,
               'render': function(data) {
-                if (data.pubmed_id != "N/A"){
+                if (data.pubmed_id && data.pubmed_id != "N/A" && data.pubmed_id != "undefined"){
                   return '<a href="' + data.pubmed_link + '">' + data.pubmed_text + '</a>'
                 } else {
                   return data.pubmed_text
                 }
               },
+              'defaultContent': "N/A",
               'orderSequence': [ "desc", "asc"]
             },
             {
@@ -388,14 +390,16 @@
               'data': "lod_score",
               'targets': 8,
               'width': "60px",
-              'orderSequence': [ "desc", "asc"]
+              'orderSequence': [ "desc", "asc"],
+              'defaultContent': "N/A"
             },
             {
               'title': "<div style='text-align: right;'>Peak Location</div>",
               'type': "natural-minus-na",
               'width': "125px",
               'targets': 9,
-              'data': "lrs_location"
+              'data': "lrs_location",
+              'defaultContent': "N/A"
             },
             {
               'title': "<div style='text-align: right; padding-right: 10px;'>Effect</div> <div style='text-align: right;'>Size <a href=\"{{ url_for('gn_docs_blueprint.glossary') }}#A\" target=\"_blank\" style=\"color: white;\"><sup style='color: #FF0000;'><i>?</i></sup></a></div>",
@@ -403,7 +407,8 @@
               'width': "60px",
               'data': "additive",
               'targets': 10,
-              'orderSequence': [ "desc", "asc"]
+              'orderSequence': [ "desc", "asc"],
+              'defaultContent': "N/A"
             }{% elif dataset.type == 'Geno' %},
             {
               'title': "Record",

@@ -149,7 +149,7 @@ class SearchResultPage:
                     authors_list = trait.pop("authors")
                     trait["authors"] = authors_list.map(lambda authors: ", ".join(authors))
                     trait["authors_display"] = authors_list.map(lambda authors: ", ".join(authors[:2] + ["et al."] if len(authors) >=2 else authors))
-                    trait["pubmed_text"] = trait["year"].map(str)
+                    trait["pubmed_text"] = trait.get("year", Just("N/A")).map(str)
                     trait["pubmed_link"] = trait.get("pubmed_id", Just("N/A")).map(lambda pid: PUBMEDLINK_URL % pid if pid != "N/A" else "N/A")
                     trait["n_samples"] = trait.get("nsamples", Just("N/A")).map(str)
                 trait_list.append(trait.data)
