@@ -113,9 +113,8 @@ class SearchResultPage:
 
             if self.search_type == "xapian":
                 # These four lines are borrowed from gsearch.py; probably need to put them somewhere else to avoid duplicated code
-                chr_mb = curry(2, lambda chr, mb: f"Chr{chr}: {mb:.6f}")
+                chr_mb = curry(2, lambda chromosome, mb: f"Chr{chromosome}: {mb:.6f}")
                 format3f = lambda x: f"{x:.3f}"
-                hmac = curry(3, lambda trait_name, dataset, data_hmac: f"{trait_name}:{dataset}:{data_hmac}")
                 convert_lod = lambda x: x / 4.61
 
                 trait = MonadicDict(result)
@@ -133,8 +132,8 @@ class SearchResultPage:
                 trait['description'] = Just(description_text)
 
                 if self.dataset.type == "ProbeSet":
-                    trait["hmac"] = (Maybe.apply(hmac)
-                                    .to_arguments(trait['name'], trait['dataset'], Just(hmac_creation(f"{trait.data['name']}:{trait.data['dataset']}"))))
+                    key = f"{trait.data['name']}:{trait.data['dataset']}"
+                    trait["hmac"] = Just(f"{key}:{hmac_creation(key)}")
                 elif self.dataset.type == "Publish":
                     inbredsetcode = trait.pop("inbredsetcode")
                     if inbredsetcode.map(len) == Just(3):
@@ -142,8 +141,8 @@ class SearchResultPage:
                             curry(2, lambda inbredsetcode, name: f"{inbredsetcode}_{name}"))
                                                 .to_arguments(inbredsetcode, trait["name"]))
 
-                    trait["hmac"] = (Maybe.apply(hmac)
-                                    .to_arguments(trait['name'], trait['dataset'], Just(hmac_creation(f"{trait.data['name']}:{trait.data['dataset']}"))))
+                    key = f"{trait.data['name']}:{trait.data['dataset']}"
+                    trait["hmac"] = Just(f"{key}:{hmac_creation(key)}")
                     authors_list = trait.pop("authors")
                     trait["authors"] = authors_list.map(lambda authors: ", ".join(authors))
                     trait["authors_display"] = authors_list.map(lambda authors: ", ".join(authors[:2] + ["et al."] if len(authors) >=2 else authors))
@@ -177,7 +176,7 @@ class SearchResultPage:
                     trait_dict['lrs_location'] = "N/A" if result['geno_chr'] is None or result['geno_chr'] == "" or result['geno_mb'] is None else f"Chr{result['geno_chr']}: {float(result['geno_mb']):.6f}"
                 elif self.dataset.type == "Geno":
                     trait_dict['display_name'] = str(result['Name'])
-                    trait_dict['hmac'] = f"{trait_dict['display_name']}:{trait_dict['dataset']}:{hmac_creation('{}:{}'.format(trait_dict['display_name'], trait_dict['dataset']))}"
+                    trait_dict['hmac'] = f"{trait_dict['name']}:{trait_dict['dataset']}:{hmac_creation('{}:{}'.format(trait_dict['name'], trait_dict['dataset']))}"
                     trait_dict['location'] = "N/A"
                     if (result['Geno_Chr'] is not None and result['Geno_Chr'] != "" and result['Geno_Chr'] != "NULL") and (result['Geno_Mb'] is not None and result['Geno_Mb'] != 0):
                         trait_dict['location'] = f"Chr{result['Geno_Chr']}: {float(result['Geno_Mb']):.6f}"
@@ -187,7 +186,8 @@ class SearchResultPage:
                     inbredsetcode = result['InbredSetCode']
                     if inbredsetcode and len(inbredsetcode) == 3:
                         trait_dict['display_name'] = f"{inbredsetcode}_{trait_dict['display_name']}"
-                    trait_dict['hmac'] = hmac_creation(f"{trait_dict['display_name']}:{trait_dict['dataset']}")
+                    key = f"{trait_dict['name']}:{trait_dict['dataset']}"
+                    trait_dict['hmac'] = f"{key}:{hmac_creation(key)}"
 
                     trait_dict['description'] = result['Pre_publication_description'].decode('latin1') if result['Pre_publication_description'] else ""
                     if result['PubMed_ID'] and result['PubMed_ID'] != "NULL":
