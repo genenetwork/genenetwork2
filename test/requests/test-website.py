@@ -48,6 +48,7 @@ def run_all(args_obj, parser):
     check_correlations(args_obj, parser)
     # check_correlations_correctness(args_obj, parser)
     check_user_features(args_obj, parser)
+    check_all_partial_correlations(args_obj, parser)
     # TODO: Add other functions as they are created.
 
 
