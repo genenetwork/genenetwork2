@@ -6,10 +6,8 @@ import requests
 import traceback
 from lxml import etree
 from pathlib import Path
-from lxml.html import parse
 from functools import reduce
 from urllib.parse import urljoin
-from link_checker import check_page
 
 def corrs_base_data():
     return [
