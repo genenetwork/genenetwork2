@@ -102,9 +102,38 @@ def check_pc_against_specific_traits_pearsons(baseurl):
 
 def check_pc_against_specific_traits_spearmans(baseurl):
     """Check partial correlations against specific traits using Spearman's rho."""
-    print(f"\tERROR — Non fatal: Please implement this test:", end="\t")
-    # TODO: Change prompt above
-    # TODO: Implement test below, exit with sys.exit(1) on error
+    print(f"\tSpearman's Rho partial correlations against select target traits:", end="\t")
+    traits = start_traits(True)
+    result = do_request(urljoin(baseurl, "/partial_correlations"),
+                        postdata={
+                            "trait_list": start_traits(False),
+                            **__select_primary_controls_targets__(
+                                traits, 0, (1, 2), (3, 4)),
+                            "method": "Spearman's rho",
+                            "criteria": 500,
+                            "submit": "with_target_pearsons"
+                        })
+    assert result.status_code == 200, (
+        f"Status code was not 200, it was {result.status_code}")
+
+    doc = etree.HTML(result.text)
+    table_rows = doc.xpath("//table[@id='part-corr-results-publish']/tbody/tr")
+    assert len(table_rows) == 2, (
+        f"Expected exactly 2 rows of results. Got {len(row)}")
+
+    rtraits = traits[3:]
+    rtraits_names = tuple(trait["trait_id"] for trait in rtraits)
+    for idx, row in enumerate(table_rows):
+        cells = row.xpath(".//td")
+        assert len(cells) == 12, "Expected exactly 12 table cells."
+        assert cells[2].text == traits[idx]["dataset"], (
+            f"Expected dataset '{traits[idx]['dataset']}': "
+            f"got '{cells[2].text}'.")
+
+        link = cells[3].xpath(".//a")[0]
+        assert link.text.strip() in rtraits_names, (
+            f"Expected trait ID '{rtraits[idx]['trait_id']}': "
+            f"got '{link.text}'")
     print("OK")
 
 
