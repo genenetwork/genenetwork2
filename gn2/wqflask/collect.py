@@ -78,10 +78,13 @@ def collections_add():
     traits = request.args.get("traits", request.form.get("traits"))
     the_hash = request.args.get("hash", request.form.get("hash"))
     collections = g.user_session.user_collections
-    collections = oauth2_get("auth/user/collections/list").either(
-        lambda _err: tuple(), lambda colls: tuple(colls)) + no_token_get(
-            f"auth/user/collections/{anon_id}/list").either(
-                lambda _err: tuple(), lambda colls: tuple(colls))
+    collections = (
+        oauth2_get("auth/user/collections/list").either(
+            lambda _err: tuple(), lambda colls: tuple(colls))
+        if user_logged_in()
+        else tuple()) + no_token_get(
+                f"auth/user/collections/{anon_id}/list").either(
+                    lambda _err: tuple(), lambda colls: tuple(colls))
 
     def __create_new_coll_error__(error):
         err = process_error(error)
