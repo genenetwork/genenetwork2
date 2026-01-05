@@ -139,9 +139,25 @@ def check_pc_against_specific_traits_spearmans(baseurl):
 
 def check_pc_against_entire_dataset_pearsons(baseurl):
     """Check partial correlations against entire dataset using Pearson's r."""
-    print(f"\tERROR — Non fatal (Pearsons - whole dataset): Please implement this test:", end="\t")
-    # TODO: Change prompt above
-    # TODO: Implement test below, exit with sys.exit(1) on error
+    print(f"\t(Pearsons - whole dataset): ", end="\t")
+    traits = start_traits(True)
+    result = do_request(urljoin(baseurl, "/partial_correlations"),
+                        postdata={
+                            "trait_list": start_traits(False),
+                            **__select_primary_controls_targets__(
+                                traits, 0, (1, 2), (3, 4)),
+                            "method": "Pearson's R",
+                            "criteria": 500,
+                            "submit": "Run Partial Correlations",
+                            "target_db": "BXDPublish"
+                        })
+    assert result.status_code == 200, (
+        f"Status code was not 200, it was {result.status_code}")
+
+    doc = etree.HTML(result.text)
+    table_rows = doc.xpath("//table[@id='part-corr-results-publish']/tbody/tr")
+    assert len(table_rows) >= 5, (
+        f"Expected at least 5 rows of results. Got {len(row)}")
     print("OK")
 
 
