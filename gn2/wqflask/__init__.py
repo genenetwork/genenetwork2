@@ -42,6 +42,7 @@ from gn2.wqflask.oauth2.request_utils import user_details, system_privileges, au
 
 from gn2.wqflask.jupyter_notebooks import jupyter_notebooks
 from gn_libs.http_logging import SilentHTTPHandler
+from gn_libs.logging import setup_logging, setup_modules_logging
 
 from gn2.wqflask.startup import (
     StartupError,
@@ -59,26 +60,6 @@ def numcoll():
         return "ERROR"
 
 
-def dev_loggers(appl: Flask) -> None:
-    """Default development logging."""
-    formatter = logging.Formatter(
-        fmt="[%(asctime)s] %(levelname)s [%(thread)d -- %(threadName)s] in %(module)s: %(message)s")
-    stderr_handler = logging.StreamHandler(stream=sys.stderr)
-    stderr_handler.setFormatter(formatter)
-    appl.logger.addHandler(stderr_handler)
-
-    root_logger = logging.getLogger()
-    root_logger.addHandler(stderr_handler)
-    root_logger.setLevel(appl.config.get("LOG_LEVEL", "WARNING"))
-
-
-def gunicorn_loggers(appl: Flask) -> None:
-    """Logging with gunicorn WSGI server."""
-    logger = logging.getLogger("gunicorn.error")
-    appl.logger.handlers = logger.handlers
-    appl.logger.setLevel(logger.level)
-
-
 def setup_http_logger(appl: Flask) -> None:
     """Setup HTTP handler for logging."""
     node = "CD" if "auth-cd" in appl.config.get("AUTH_SERVER_URL", "") else "Production"
@@ -87,12 +68,6 @@ def setup_http_logger(appl: Flask) -> None:
         endpoint = f"http://localhost:{sheepdog_port}/emit/{node}/genenetwork2"
     )
     appl.logger.addHandler(http_handler)
-
-def setup_logging(appl: Flask) -> None:
-    """Setup appropriate logging"""
-    software, *_version_and_comments = os.environ.get(
-        "SERVER_SOFTWARE", "").split('/')
-    gunicorn_loggers(app) if software == "gunicorn" else dev_loggers(app)
 
 
 app = Flask(__name__)
@@ -115,6 +90,8 @@ app.config['TEMPLATES_AUTO_RELOAD'] = True
 ## END: Setup configurations ##
 setup_logging(app)
 setup_http_logger(app)
+setup_modules_logging(
+    app.logger, tuple(app.config.get("LOGGABLE_MODULES", tuple())))
 ### DO NOT USE logging BEFORE THIS POINT!!!! ###
 
 app.jinja_env.globals.update(
