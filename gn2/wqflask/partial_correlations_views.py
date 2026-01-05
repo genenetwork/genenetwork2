@@ -354,7 +354,7 @@ def poll_partial_correlation_results(command_id):
         data = response.json()
         raw_result = data["result"]
         current_app.logger.debug(
-            "Partial correlations polling, raw results: ", raw_result)
+            "Partial correlations polling, raw results: %s", raw_result)
         result = {"status": "computing"}
         if raw_result:
             result = json.loads(raw_result)
