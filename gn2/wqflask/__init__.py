@@ -75,14 +75,18 @@ def dev_loggers(appl: Flask) -> None:
 def gunicorn_loggers(appl: Flask) -> None:
     """Logging with gunicorn WSGI server."""
     logger = logging.getLogger("gunicorn.error")
-    node = "CD" if "auth-cd" in app.config.get("AUTH_SERVER_URL", "") else "Production"
-    sheepdog_port = app.config.get("SHEEPDOG_PORT", 5050)
+    appl.logger.handlers = logger.handlers
+    appl.logger.setLevel(logger.level)
+
+
+def setup_http_logger(appl: Flask) -> None:
+    """Setup HTTP handler for logging."""
+    node = "CD" if "auth-cd" in appl.config.get("AUTH_SERVER_URL", "") else "Production"
+    sheepdog_port = appl.config.get("SHEEPDOG_PORT", 5050)
     http_handler = SilentHTTPHandler(
         endpoint = f"http://localhost:{sheepdog_port}/emit/{node}/genenetwork2"
     )
-    appl.logger.handlers = logger.handlers
     appl.logger.addHandler(http_handler)
-    appl.logger.setLevel(logger.level)
 
 def setup_logging(appl: Flask) -> None:
     """Setup appropriate logging"""
@@ -110,6 +114,7 @@ app.config["SESSION_CACHELIB"] = FileSystemCache(
 app.config['TEMPLATES_AUTO_RELOAD'] = True
 ## END: Setup configurations ##
 setup_logging(app)
+setup_http_logger(app)
 ### DO NOT USE logging BEFORE THIS POINT!!!! ###
 
 app.jinja_env.globals.update(
