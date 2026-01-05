@@ -1,5 +1,6 @@
 import json
 import math
+import logging
 import requests
 from functools import reduce
 from typing import Union, Tuple
@@ -11,12 +12,13 @@ from flask import (
     request,
     url_for,
     redirect,
-    current_app,
     render_template)
 
 from gn2.wqflask import app
 from gn2.utility.tools import get_setting, GN_SERVER_URL
 from gn3.db.partial_correlations import traits_info
+
+logger = logging.getLogger(__name__)
 
 def publish_target_databases(conn, groups, threshold):
     query = (
@@ -353,7 +355,7 @@ def poll_partial_correlation_results(command_id):
     if response.status_code == 200:
         data = response.json()
         raw_result = data["result"]
-        current_app.logger.debug(
+        logger.debug(
             "Partial correlations polling, raw results: %s", raw_result)
         result = {"status": "computing"}
         if raw_result:
