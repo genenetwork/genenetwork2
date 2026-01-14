@@ -1155,7 +1155,7 @@ def mapping_results_page(hash_of_inputs=None):
     dhash = hashlib.md5()
     dhash.update(start_vars['sample_vals'].encode())
     samples_hash = dhash.hexdigest()
-    Redis.set(samples_hash, start_vars['sample_vals'], ex=7*24*60*60)
+    Redis.set(samples_hash, start_vars['sample_vals'])
     start_vars['dataid'] = samples_hash
 
     version = "v3"

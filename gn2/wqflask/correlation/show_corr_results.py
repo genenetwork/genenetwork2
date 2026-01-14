@@ -46,7 +46,7 @@ def set_template_vars(start_vars, correlation_data):
     dhash = hashlib.md5()
     dhash.update(start_vars['sample_vals'].encode())
     samples_hash = dhash.hexdigest()
-    Redis.set(samples_hash, start_vars['sample_vals'], ex=7*24*60*60)
+    Redis.set(samples_hash, start_vars['sample_vals'])
     correlation_data['dataid'] = samples_hash
 
     correlation_data['this_trait'] = jsonable(this_trait, this_dataset_ob)
