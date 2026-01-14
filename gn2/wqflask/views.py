@@ -12,6 +12,7 @@ import os
 import pickle as pickle
 import random
 import sys
+import tempfile
 import traceback
 import math
 import uuid
@@ -679,20 +680,50 @@ def export_trait_excel():
     """Excel file consisting of the sample data from the trait data and analysis page"""
     trait_name, sample_data = export_trait_data.export_sample_table(
         request.form)
-    app.logger.info(request.url)
-    buff = io.BytesIO()
-    workbook = xlsxwriter.Workbook(buff, {'in_memory': True})
-    worksheet = workbook.add_worksheet()
-    for i, row in enumerate(sample_data):
-        for j, column in enumerate(row):
-            worksheet.write(i, j, row[j])
-    workbook.close()
-    excel_data = buff.getvalue()
-    buff.close()
 
-    return Response(excel_data,
-                    mimetype='application/vnd.ms-excel',
-                    headers={"Content-Disposition": "attachment;filename=" + trait_name + ".xlsx"})
+    # Use a temporary file for streaming with xlsxwriter's constant_memory mode
+    temp_file = tempfile.NamedTemporaryFile(delete=False, suffix='.xlsx')
+    temp_path = temp_file.name
+    temp_file.close()
+
+    try:
+        # Write Excel file with constant_memory mode for better performance
+        workbook = xlsxwriter.Workbook(temp_path, {'constant_memory': True})
+        worksheet = workbook.add_worksheet()
+        for i, row in enumerate(sample_data):
+            for j, column in enumerate(row):
+                worksheet.write(i, j, row[j])
+        workbook.close()
+
+        # Stream the file in chunks
+        def generate():
+            with open(temp_path, 'rb') as f:
+                while True:
+                    chunk = f.read(8192)
+                    if not chunk:
+                        break
+                    yield chunk
+
+        response = Response(generate(),
+                          mimetype='application/vnd.ms-excel',
+                          headers={"Content-Disposition": "attachment;filename=" + trait_name + ".xlsx"})
+
+        # Clean up the temp file after response is sent
+        @response.call_on_close
+        def cleanup():
+            try:
+                os.unlink(temp_path)
+            except OSError:
+                pass
+
+        return response
+    except Exception:
+        # Clean up on error
+        try:
+            os.unlink(temp_path)
+        except OSError:
+            pass
+        raise
 
 
 @app.route('/export_trait_csv', methods=('POST',))
@@ -701,14 +732,19 @@ def export_trait_csv():
     trait_name, sample_data = export_trait_data.export_sample_table(
         request.form)
 
-    buff = io.StringIO()
-    writer = csv.writer(buff)
-    for row in sample_data:
-        writer.writerow(row)
-    csv_data = buff.getvalue()
-    buff.close()
+    def generate():
+        buff = io.StringIO()
+        writer = csv.writer(buff)
+        for row in sample_data:
+            writer.writerow(row)
+            buff.seek(0)
+            data = buff.read()
+            buff.seek(0)
+            buff.truncate(0)
+            if data:
+                yield data
 
-    return Response(csv_data,
+    return Response(generate(),
                     mimetype='text/csv',
                     headers={"Content-Disposition": "attachment;filename=" + trait_name + ".csv"})
 
@@ -716,23 +752,36 @@ def export_trait_csv():
 @app.route('/export_traits_csv', methods=('POST',))
 def export_traits_csv():
     """CSV file consisting of the traits from the search result page"""
-
     file_list = export_traits(request.form, request.form['export_type'])
 
     if len(file_list) > 1:
         now = datetime.datetime.now()
         time_str = now.strftime('%H:%M_%d%B%Y')
         filename = "export_{}".format(time_str)
-        memory_file = io.BytesIO()
-        with ZipFile(memory_file, mode='w', compression=ZIP_DEFLATED) as zf:
-            for the_file in file_list:
-                zf.writestr(the_file[0], the_file[1])
 
-        memory_file.seek(0)
+        def generate_zip():
+            memory_file = io.BytesIO()
+            with ZipFile(memory_file, mode='w', compression=ZIP_DEFLATED) as zf:
+                for the_file in file_list:
+                    zf.writestr(the_file[0], the_file[1])
+            memory_file.seek(0)
+            while True:
+                chunk = memory_file.read(8192)
+                if not chunk:
+                    break
+                yield chunk
 
-        return send_file(memory_file, download_name=filename + ".zip", as_attachment=True)
+        return Response(generate_zip(),
+                        mimetype='application/zip',
+                        headers={"Content-Disposition": f"attachment;filename={filename}.zip"})
     else:
-        return Response(file_list[0][1],
+        def generate_csv():
+            data = file_list[0][1]
+            chunk_size = 8192
+            for i in range(0, len(data), chunk_size):
+                yield data[i:i+chunk_size]
+
+        return Response(generate_csv(),
                         mimetype='text/csv',
                         headers={"Content-Disposition": "attachment;filename=" + file_list[0][0]})
 
@@ -741,7 +790,14 @@ def export_traits_csv():
 def export_collection_csv():
     """CSV file consisting of trait list so collections can be exported/shared"""
     out_file = export_traits(request.form, "collection")
-    return Response(out_file[1],
+
+    def generate():
+        data = out_file[1]
+        chunk_size = 8192
+        for i in range(0, len(data), chunk_size):
+            yield data[i:i+chunk_size]
+
+    return Response(generate(),
                     mimetype='text/csv',
                     headers={"Content-Disposition": "attachment;filename=" + out_file[0] + ".csv"})
 
@@ -780,15 +836,30 @@ def export_perm_data():
         ["#Comment: Results sorted from low to high peak linkage"]
     ]
 
-    buff = io.StringIO()
-    writer = csv.writer(buff)
-    writer.writerows(the_rows)
-    for item in perm_info['perm_data']:
-        writer.writerow([item])
-    csv_data = buff.getvalue()
-    buff.close()
+    def generate():
+        buff = io.StringIO()
+        writer = csv.writer(buff)
+        # Write header rows
+        writer.writerows(the_rows)
+        buff.seek(0)
+        yield buff.read()
+        buff.seek(0)
+        buff.truncate(0)
 
-    return Response(csv_data,
+        # Stream permutation data in chunks
+        chunk_size = 1000
+        for i in range(0, len(perm_info['perm_data']), chunk_size):
+            chunk = perm_info['perm_data'][i:i+chunk_size]
+            for item in chunk:
+                writer.writerow([item])
+            buff.seek(0)
+            data = buff.read()
+            buff.seek(0)
+            buff.truncate(0)
+            if data:
+                yield data
+
+    return Response(generate(),
                     mimetype='text/csv',
                     headers={"Content-Disposition": "attachment;filename=" + file_name + ".csv"})
 
