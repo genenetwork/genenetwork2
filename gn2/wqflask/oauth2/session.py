@@ -22,8 +22,6 @@ class SessionInfo(TypedDict):
     session_id: UUID
     user: UserDetails
     anon_id: UUID
-    user_agent: str
-    ip_addr: str
     masquerade: Optional[UserDetails]
     refreshing_token: bool
     auth_server_jwks: Optional[dict[str, Any]]
@@ -65,9 +63,6 @@ def session_info() -> SessionInfo:
                 "logged_in": False
             },
             "anon_id": anon_id,
-            "user_agent": request.headers.get("User-Agent"),
-            "ip_addr": request.environ.get("HTTP_X_FORWARDED_FOR",
-                                           request.remote_addr),
             "masquerading": None,
             "token_refreshing": False
         }))
