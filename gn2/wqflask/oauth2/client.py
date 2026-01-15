@@ -2,6 +2,7 @@
 import json
 import time
 import random
+import logging
 import requests
 from typing import Optional
 from functools import partial
@@ -18,6 +19,8 @@ from authlib.integrations.requests_client import OAuth2Session
 from gn2.debug import __pk__
 from gn2.wqflask.oauth2 import session
 from gn2.wqflask.external_errors import ExternalRequestError
+
+logger = logging.getLogger(__name__)
 
 SCOPE = ("profile group role resource user masquerade introspect")
 
@@ -99,7 +102,7 @@ def is_token_expired(token) -> bool:
     __update_auth_server_jwks__()
     jwks = auth_server_jwks()
     if bool(jwks):
-        app.logger.debug("Got the keys from the auth server.")
+        logger.debug("Got the keys from the auth server.")
         for jwk in jwks["jwks"].keys:
             try:
                 jwt = JsonWebToken(["RS256"]).decode(
@@ -108,7 +111,7 @@ def is_token_expired(token) -> bool:
             except BadSignatureError as _bse:
                 pass
 
-    app.logger.debug("Did not get keys from the auth server.")
+    logger.debug("Did not get keys from the auth server.")
     return True
 
 
