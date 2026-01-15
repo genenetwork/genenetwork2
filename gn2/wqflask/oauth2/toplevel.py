@@ -1,5 +1,6 @@
 """Authentication endpoints."""
 import uuid
+import logging
 import datetime
 from urllib.parse import urljoin, urlparse, urlunparse
 
@@ -17,10 +18,16 @@ from . import jwks
 from . import session
 from .checks import require_oauth2
 from .request_utils import user_details, process_error
-from .client import (
-    SCOPE, no_token_post, user_logged_in, authserver_uri, oauth2_clientid)
+from .client import (SCOPE,
+                     oauth2_get,
+                     oauth2_post,
+                     no_token_post,
+                     user_logged_in,
+                     authserver_uri,
+                     oauth2_clientid)
 
 toplevel = Blueprint("toplevel", __name__)
+logger = logging.getLogger(__name__)
 
 @toplevel.route("/register-client", methods=["GET", "POST"])
 @require_oauth2
@@ -66,9 +73,9 @@ def authorisation_code():
         def __error__(error):
             flash(f"{error['error']}: {error['error_description']}",
                   "alert-danger")
-            app.logger.debug("Request error (%s) %s: %s",
-                             error["status_code"], error["error_description"],
-                             request_data)
+            logger.debug("Request error (%s) %s: %s",
+                         error["status_code"], error["error_description"],
+                         request_data)
             return redirect("/")
 
         def __success__(token):
@@ -98,3 +105,49 @@ def public_jwks():
         "jwks": KeySet(jwks.list_jwks(
             jwks.jwks_directory(app, "GN2_SECRETS"))).as_dict().get("keys")
     })
+
+
+@toplevel.route("/authserver-passthrough", methods=["GET", "POST"])
+def passthrough():
+    """Pass any requests on to the auth server.
+
+    We do not provide the token to javascript, so we need a way to pass the
+    requests from javascript to the auth server, attaching the token in the
+    process."""
+    if request.method == "GET":
+        _data = dict(request.args)
+
+    if request.method == "POST":
+        match request.headers.get("Content-Type"):
+            case "application/json":
+                _data = request.json
+            case "multipart/form-data":
+                _data = dict(request.form)
+            case _:
+                return 400, {
+                    "error": "invalid-request",
+                    "description": (
+                        "Expected the 'Content-Type' to be one of "
+                        "'application/json' and 'multipart/form-data'.")
+                }
+
+    if not bool(_data.get("passthrough_endpoint", "").strip()):
+        _resp = jsonify({
+            "error": "mandatory-argument-missing",
+            "description": (
+                "The mandatory argument 'passthrough_endpoint' was not "
+                "provided.")
+        })
+        _resp.status_code = 400
+        return _resp
+
+    return (oauth2_get if request.method == "GET" else oauth2_post)(
+        _data["passthrough_endpoint"],
+        json={
+            key: value
+        for key, value in _data.items()
+        if key != "passthrough_endpoint"
+        },
+        headers={
+            "Content-Type": "application/json"
+        }).either(lambda _err: process_error(_err), lambda _res: _res)
