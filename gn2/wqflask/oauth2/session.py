@@ -48,6 +48,7 @@ def save_session_info(sess_info: SessionInfo) -> SessionInfo:
     #     return verify_session(sess_info)
     # New session
     session[__SESSION_KEY__] = sess_info
+    session.modified = True
     return sess_info
 
 def session_info() -> SessionInfo:
