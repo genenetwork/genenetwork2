@@ -5,6 +5,12 @@
 {%block css%}
 <link rel="stylesheet" href="/static/new/css/pills.css" />
 <link rel="stylesheet" href="/static/new/css/resource-roles.css" />
+<link rel="stylesheet" type="text/css"
+      href="{{ url_for('css', filename='DataTables/css/jquery.dataTables.css') }}" />
+<link rel="stylesheet" type="text/css"
+      href="{{ url_for('js', filename='DataTablesExtensions/buttonStyles/css/buttons.dataTables.min.css') }}">
+<link rel="stylesheet" type="text/css"
+      href="{{ url_for('css', filename='jquery-ui/jquery-ui.theme.css') }}"/>
 {%endblock%}
 
 {%block dash_page_header%}Resources{%endblock%}
@@ -79,74 +85,15 @@
 
 <div class="row">
   <h3>Resource Data</h3>
-  <table class="table">
+  <table class="table table-hover table-striped cell-border no-footer"
+         id="tbl-resource-data"
+         data-resource-id='{{resource.resource_id}}'
+         data-resource-data='{{resource.resource_data | tojson}}'
+         data-unlink-uri="{{url_for('oauth2.resource.unlink_data_from_resource')}}"
+         data-resource-type="{{resource.resource_category.resource_category_key}}">
     <caption>Resource Data</caption>
-    <thead>
-      <tr>
-	{%if resource.resource_category.resource_category_key == "phenotype"%}
-	<th>Trait</th>
-	<th>Description</th>
-	<th>Year</th>
-	{%endif%}
-	<th>Dataset Name</th>
-	<th>Full Name</th>
-	<th>Actions</th>
-      </tr>
-    </thead>
-
-    <tbody>
-      {%for data_item in resource.resource_data:%}
-      <tr>
-	{%if resource.resource_category.resource_category_key == "phenotype"%}
-	<td>
-	  <a href="/show_trait?trait_id={{data_item.PublishXRefId}}&dataset={{data_item.dataset_name}}"
-	     title="Trait Data and Analysis for {{data_item.PublishXRefId}}"
-	     target="_blank">
-	    {{data_item.PublishXRefId}}
-	  </a>
-	</td>
-	<td>{{data_item.description}}</td>
-	<td>
-	  {%if data_item.PubMed_ID%}
-	  <a href="https://pubmed.ncbi.nlm.nih.gov/{{data_item.PubMed_ID}}/"
-	     title="{{data_item.Title}}" target="_blank">
-	    {{data_item.Year}}
-	  </a>
-	  {%else%}
-	  {{data_item.Year}}
-	  {%endif%}
-	</td>
-	{%endif%}
-	<td>
-	  <a href="https://gn1.genenetwork.org/webqtl/main.py?FormID=sharinginfo&GN_AccessionId={{data_item.accession_id}}&InfoPageName={{data_item.dataset_name}}"
-	     title="Link to information on dataset '{{data_item.dataset_fullname}}'"
-	     target="_blank">
-	    {{data_item.dataset_name}}
-	  </a>
-	</td>
-	<td>{{data_item.dataset_fullname}}</td>
-	<td>
-	  <form action="{{url_for('oauth2.resource.unlink_data_from_resource')}}"
-		method="POST">
-	    <input type="hidden" name="resource_id"
-		   value="{{resource.resource_id}}" />
-	    <input type="hidden" name="data_link_id"
-		   value="{{data_item.data_link_id}}" />
-	    <input type="submit" value="Unlink" class="btn btn-danger" />
-	  </form>
-	</td>
-      </tr>
-      {%else%}
-      <tr>
-	<td colspan="2">
-	  <span class="glyphicon glyphicon-info-sign text-danger">
-	  </span>
-	  &nbsp;
-	  <strong class="text-info">No linked data.</strong>
-	</td>
-      </tr>
-      {%endfor%}
-    </tbody>
+    <thead></thead>
+    <tbody></tbody>
   </table>
   <form action="{{url_for('oauth2.resource.view_resource', resource_id=resource.resource_id)}}"
 	method="GET"
@@ -378,4 +325,100 @@
 </div>
 {%endif%}
 
+{%endblock%}
+
+
+{%block js%}
+{{super()}}
+<script language="javascript"
+        type="text/javascript"
+        src="{{ url_for('js', filename='DataTables/js/jquery.dataTables.min.js') }}"></script>
+<script language="javascript"
+        type="text/javascript"
+        src="{{ url_for('js', filename='DataTablesExtensions/scroller/js/dataTables.scroller.min.js') }}"></script>
+<script language="javascript"
+        type="text/javascript"
+        src="/static/new/javascript/search_results.js"></script>
+<script language="javascript"
+        type="text/javascript"
+        src="/static/new/javascript/create_datatable.js"></script>
+<script language="javascript" type="text/javascript">
+  $(() => {
+      var resourceData = JSON.parse($("#tbl-resource-data").attr("data-resource-data"));
+
+      var buildCols = (tableData, datasetType) => {
+          colDefs = [];
+          if(datasetType === "phenotype") {
+              colDefs.push({
+                  title: "Trait",
+                  type: "natural",
+                  searchable: true,
+                  orderable: true,
+                  data: (row) => {
+                      return (
+                          `<a href="/show_trait?trait_id=${row.PublishXRefId}`
+                              + `&dataset=${row.dataset_name}" target="_blank">`
+                              + `${row.PublishXRefId}</a>`);
+                  }
+              });
+          }
+          if(tableData[0].description !== undefined) {
+              colDefs.push({
+                  title: "Description",
+                  searchable: true,
+                  orderable: true,
+                  data: "description"
+              });
+          }
+          if(tableData[0].year !== undefined) {
+              colDefs.push({
+                  title: "Year",
+                  searchable: true,
+                  orderable: true,
+                  data: "year"
+              });
+          }
+
+          return colDefs.concat([{
+              title: "Dataset Name",
+              searchable: true,
+              orderable: true,
+              data: "dataset_name"
+          }, {
+              title: "Full Name",
+              searchable: true,
+              orderable: true,
+              data: "dataset_fullname"
+          }]);
+      };
+
+      var resourceID = $("#tbl-resource-data").attr("data-resource-id");
+      var unlinkURI = $("#tbl-resource-data").attr("data-unlink-uri");
+      create_table(
+          tableId="tbl-resource-data",
+          tableData=resourceData,
+          columnDefs=buildCols(
+              resourceData,
+              $("#tbl-resource-data").attr("data-resource-type")).concat([{
+                  title: "Actions",
+                  searchable: false,
+                  orderable: false,
+                  data: (row) => {
+                      return (
+                          `<form action=${unlinkURI} method="POST">`
+                              + `<input type="hidden" name="resource_id" `
+                              + `value="${resourceID}" />`
+                              + `<input type="hidden" name="data_link_id" `
+                              + `value="${row.data_link_id}" />`
+                              + `<input type="submit" value="Unlink" `
+                              + `class="btn btn-danger" />`
+                              + `</form>`)
+                  }
+              }]),
+          customSettings={
+              sDom: "iftip"/* https://legacy.datatables.net/release-datatables/examples/basic_init/dom.html */
+          },
+          hasIndex=false);
+  });
+</script>
 {%endblock%}
