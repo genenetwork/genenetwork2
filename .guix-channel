@@ -5,7 +5,56 @@
   (directory ".guix/modules")
   (url "https://github.com/genenetwork/genenetwork2.git") ;the primary URL
   (dependencies
-   (channel
-    (name guix-bioinformatics)
-    (url "https://git.genenetwork.org/guix-bioinformatics/guix-bioinformatics")
-    (branch "master"))))
+  (channel
+   (name gn-machines)
+   (url "https://git.genenetwork.org/gn-machines")
+   (branch "main"))
+  ;; Until https://issues.guix.gnu.org/68797 is resolved, we need to
+  ;; explicitly list guix-bioinformatics, guix-forge, guix-past and
+  ;; guix-rust-past-crates—the dependencies of the gn-machines channel—here.
+  (channel
+   (name guix)
+   (url "https://codeberg.org/guix/guix")
+   (branch "master")
+   (commit "0a4740705090acc4c8a10d4f53afc58c9f62e980")
+   (introduction
+    (channel-introduction
+     (version 0)
+     (commit "9edb3f66fd807b096b48283debdcddccfea34bad")
+     (signer
+      "BBB0 2DDF 2CEA F6A8 0D1D  E643 A2A0 6DF2 A33A 54FA"))))
+  (channel
+   (name guix-forge)
+   (url "https://git.systemreboot.net/guix-forge/")
+   (branch "main")
+   (commit "e43fd9a4d73654d3876e2c698af7da89f3408f89")
+   (introduction
+    (channel-introduction
+     (version 0)
+     (commit "0432e37b20dd678a02efee21adf0b9525a670310")
+     (signer
+      "7F73 0343 F2F0 9F3C 77BF  79D3 2E25 EE8B 6180 2BB3"))))
+  (channel
+   (name guix-bioinformatics)
+   (url "https://git.genenetwork.org/guix-bioinformatics")
+   (commit "9b0955f14ec725990abb1f6af3b9f171e4943f77"))
+  (channel
+   (name guix-past)
+   (url "https://codeberg.org/guix-science/guix-past")
+   (branch "master")
+   (introduction
+    (channel-introduction
+     (version 0)
+     (commit "c3bc94ee752ec545e39c1b8a29f739405767b51c")
+     (signer
+      "3CE4 6455 8A84 FDC6 9DB4  0CFB 090B 1199 3D9A EBB5"))))
+  (channel
+   (name guix-rust-past-crates)
+   (url "https://codeberg.org/guix/guix-rust-past-crates.git")
+   (branch "trunk")
+   (introduction
+    (channel-introduction
+     (version 0)
+     (commit "1db24ca92c28255b28076792b93d533eabb3dc6a")
+     (signer
+      "F4C2 D1DF 3FDE EA63 D1D3 0776 ACC6 6D09 CA52 8292"))))))
