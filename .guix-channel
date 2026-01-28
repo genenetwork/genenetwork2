@@ -37,7 +37,7 @@
   (channel
    (name guix-bioinformatics)
    (url "https://git.genenetwork.org/guix-bioinformatics")
-   (commit "903465c85c9b2ae28480b236c3364da873ca8f51"))
+   (commit "9b0955f14ec725990abb1f6af3b9f171e4943f77"))
   (channel
    (name guix-past)
    (url "https://codeberg.org/guix-science/guix-past")
