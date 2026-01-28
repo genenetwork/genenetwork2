@@ -42,6 +42,7 @@
    (name guix-past)
    (url "https://codeberg.org/guix-science/guix-past")
    (branch "master")
+   (commit "473c942b509ab3ead35159d27dfbf2031a36cd4d")
    (introduction
     (channel-introduction
      (version 0)
@@ -52,6 +53,7 @@
    (name guix-rust-past-crates)
    (url "https://codeberg.org/guix/guix-rust-past-crates.git")
    (branch "trunk")
+   (commit "b8b7ffbd1cec9f56f93fae4da3a74163bbc9c570")
    (introduction
     (channel-introduction
      (version 0)
