@@ -176,7 +176,7 @@ class SearchResultPage:
                     trait_dict['lrs_location'] = "N/A" if result['geno_chr'] is None or result['geno_chr'] == "" or result['geno_mb'] is None else f"Chr{result['geno_chr']}: {float(result['geno_mb']):.6f}"
                 elif self.dataset.type == "Geno":
                     trait_dict['display_name'] = str(result['Name'])
-                    trait_dict['hmac'] = f"{trait_dict['name']}:{trait_dict['dataset']}:{hmac_creation('{}:{}'.format(trait_dict['name'], trait_dict['dataset']))}"
+                    trait_dict['hmac'] = f"{trait_dict['display_name']}:{trait_dict['dataset']}:{hmac_creation('{}:{}'.format(trait_dict['display_name'], trait_dict['dataset']))}"
                     trait_dict['location'] = "N/A"
                     if (result['Geno_Chr'] is not None and result['Geno_Chr'] != "" and result['Geno_Chr'] != "NULL") and (result['Geno_Mb'] is not None and result['Geno_Mb'] != 0):
                         trait_dict['location'] = f"Chr{result['Geno_Chr']}: {float(result['Geno_Mb']):.6f}"
