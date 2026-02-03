@@ -43,7 +43,6 @@ from flask import Response
 from flask import request
 from flask import make_response
 from flask import render_template
-from flask import send_from_directory
 from flask import redirect
 from flask import send_file
 from flask import url_for
@@ -97,6 +96,7 @@ from gn2.utility.tools import JS_GUIX_PATH
 from gn2.utility.helper_functions import get_species_groups
 from gn2.utility.helper_functions import clean_xapian_query
 from gn2.utility.redis_tools import get_redis_conn
+from gn2.utility.responses import send_from_directory
 
 import gn2.utility.hmac as hmac
 from gn2.base.webqtlConfig import TMPDIR, GENERATED_IMAGE_DIR

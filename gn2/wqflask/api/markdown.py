@@ -13,12 +13,13 @@ from pathlib import Path
 
 from bs4 import BeautifulSoup  # type: ignore
 
-from flask import send_from_directory
 from flask import Blueprint
 from flask import render_template
 
 from typing import Dict
 from typing import List
+
+from gn2.utility.responses import send_from_directory
 
 
 

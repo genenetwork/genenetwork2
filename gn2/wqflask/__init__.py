@@ -14,7 +14,7 @@ import jinja2
 from flask_session import Session
 from authlib.jose import JsonWebKey
 from cachelib import FileSystemCache
-from flask import g, Flask, flash, session, url_for, redirect, current_app, request
+from flask import g, Flask, flash, session, url_for, Response, redirect, current_app, request
 
 
 from gn2.utility import formatting
@@ -138,10 +138,19 @@ except StartupError as serr:
 
 server_session = Session(app)
 
+from gn2.utility.responses import enforce_utf8_charset
+
 @app.before_request
 def before_request():
     g.request_start_time = time.time()
     g.request_time = lambda: "%.5fs" % (time.time() - g.request_start_time)
+
+
+@app.after_request
+def after_request(response: Response) -> Response:
+    """Act on the response before sending it back."""
+    return enforce_utf8_charset(response)
+
 
 @app.context_processor
 def inject_banner_cookie():
