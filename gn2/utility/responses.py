@@ -6,7 +6,7 @@ def enforce_utf8_charset(resp: Response) -> Response:
     """Enforce utf-8 character set for responses"""
     resp.headers["Content-Type"] = "; ".join(tuple(
         part.strip() for part in resp.headers["Content-Type"].split(";")
-        if not part.strip().startswith("charset=")) + ("charset=utf-8"))
+        if not part.strip().startswith("charset=")) + ("charset=utf-8",))
     return resp
 
 
