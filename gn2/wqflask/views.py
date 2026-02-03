@@ -1153,7 +1153,7 @@ def mapping_results_page(hash_of_inputs=None):
 
         # Just store for one hour on initial load; will be stored for longer if user clicks Share
         Redis.set(hash_of_inputs, inputs_json, ex=60*60*24*30)
-    temp_uuid = initial_start_vars['temp_uuid']
+    temp_uuid = initial_start_vars.get('temp_uuid')
     wanted = (
         'trait_id',
         'dataset',
