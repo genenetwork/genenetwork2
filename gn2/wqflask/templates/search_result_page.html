@@ -105,9 +105,10 @@
               <button class="btn btn-default" id="invert" type="button"><span class="glyphicon glyphicon-adjust"></span> Invert</button>
               <button class="btn btn-default" id="deselect_all" type="button"><span class="glyphicon glyphicon-remove"></span> Deselect</button>
               <button class="btn btn-default" id="export_traits"><span class="glyphicon glyphicon-download-alt"></span> Download</button>
-              <select name="export_type" id="cars">
-                <option value="full">Full</option>
-                <option value="sample_data">Sample Data</option>
+              <select name="export_type" id="export_type">
+                <option value="table_only">Table Contents Only</option>
+                <option value="sample_data">Sample Data Only</option>
+                <option value="full">Full Metadata + Sample Data</option>
               </select>
             </div>
             <div id="select_samples_invalid" class="alert alert-error" style="display:none;">
@@ -174,6 +175,8 @@
 
     <script type='text/javascript'>
         var traitsJson = {{ trait_list|safe }};
+        var datasetGroup = "{{ dataset.group.name }}";
+        var datasetName = "{{ dataset.shortname }}";
     </script>
 
     <script type="text/javascript" charset="utf-8">

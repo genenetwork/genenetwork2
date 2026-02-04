@@ -203,8 +203,90 @@ $(function() {
     trait_data = submitTraits("trait_table", "submit_bnw")
   }
 
-  exportTraits = function() {
-    trait_data = submitTraits("trait_table", "export_traits_csv")
+  exportTraits = function(event) {
+    export_type = $('#export_type').val();
+    if (export_type === 'table_only') {
+      event.preventDefault();
+      exportTableContentsOnly();
+    } else {
+      trait_data = submitTraits("trait_table", "export_traits_csv")
+    }
+  };
+
+  exportTableContentsOnly = function() {
+    table_api = $('#trait_table').DataTable();
+
+    // Get headers (skip checkbox column at index 0)
+    headers = [];
+    $('#trait_table thead th').each(function(index) {
+      if (index > 0) { // Skip checkbox column
+        // Clean up header text: remove newlines, extra spaces, and trailing question marks (glossary links)
+        let headerText = $(this).text().trim().replace(/[\n\r]+/g, ' ').replace(/\s+/g, ' ').replace(/\s*\?\s*$/, '');
+        headers.push(headerText);
+      }
+    });
+
+    // Determine which rows to export (selected or all filtered)
+    selected_rows = [];
+    all_rows = [];
+
+    // Get filtered/searched rows only
+    table_api.rows({ search: 'applied' }).every(function(rowIdx) {
+      let row_data = [];
+      let row_node = this.node();
+      let checkbox = $(row_node).find('input[type="checkbox"]');
+
+      // Get cell data (skip checkbox column)
+      $(row_node).find('td').each(function(cellIdx) {
+        if (cellIdx > 0) { // Skip checkbox column
+          let cell_text = $(this).attr('data-export') || $(this).text().trim();
+          row_data.push(cell_text);
+        }
+      });
+
+      all_rows.push(row_data);
+      if (checkbox.is(':checked')) {
+        selected_rows.push(row_data);
+      }
+    });
+
+    // Use selected rows if any, otherwise all rows
+    let rows_to_export = selected_rows.length > 0 ? selected_rows : all_rows;
+
+    // Build CSV content
+    let csv_content = headers.map(h => '"' + h.replace(/"/g, '""') + '"').join(',') + '\n';
+    rows_to_export.forEach(function(row) {
+      csv_content += row.map(cell => '"' + String(cell).replace(/"/g, '""') + '"').join(',') + '\n';
+    });
+
+    // Create and trigger download
+    let blob = new Blob([csv_content], { type: 'text/csv;charset=utf-8;' });
+    let link = document.createElement('a');
+    let url = URL.createObjectURL(blob);
+    link.setAttribute('href', url);
+
+    // Build descriptive filename using group and dataset name, or timestamp for global search
+    let filename = 'search_results_table.csv';
+    if (typeof datasetGroup !== 'undefined' && typeof datasetName !== 'undefined') {
+      // Sanitize names for filename (remove special characters)
+      let safeName = (datasetGroup + '_' + datasetName).replace(/[^a-zA-Z0-9_-]/g, '_');
+      filename = safeName + '_table.csv';
+    } else {
+      // For global search pages, use timestamp-based filename
+      let now = new Date();
+      let timestamp = now.getFullYear() +
+        String(now.getMonth() + 1).padStart(2, '0') +
+        String(now.getDate()).padStart(2, '0') + '_' +
+        String(now.getHours()).padStart(2, '0') +
+        String(now.getMinutes()).padStart(2, '0') +
+        String(now.getSeconds()).padStart(2, '0');
+      filename = 'global_search_' + timestamp + '_table.csv';
+    }
+    link.setAttribute('download', filename);
+    link.style.visibility = 'hidden';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
   };
 
   exportCollection = function() {
