@@ -44,7 +44,7 @@ def do_request(url, data):
             "location_type": "gene",
             **data,
         })
-    if response.headers["Content-Type"] == "application/json":
+    if "application/json" in response.headers["Content-Type"]:
         response = requests.get(urljoin(url, response.json()["redirect_url"]))
 
     while response.text.find('<meta http-equiv="refresh" content="5">') >= 0:
