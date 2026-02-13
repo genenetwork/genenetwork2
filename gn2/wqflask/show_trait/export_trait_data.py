@@ -7,6 +7,33 @@ from gn2.base.trait import create_trait
 from gn2.base import data_set
 
 
+def convert_to_numeric(value):
+    """Convert string values to numeric types when possible.
+
+    Strips whitespace and attempts to convert to int or float.
+    Returns the original value if conversion is not possible.
+    """
+    if value is None:
+        return value
+    if isinstance(value, (int, float)):
+        return value
+    if isinstance(value, str):
+        stripped = value.strip()
+        if not stripped:
+            return value
+        try:
+            # Try integer first
+            return int(stripped)
+        except ValueError:
+            pass
+        try:
+            # Try float
+            return float(stripped)
+        except ValueError:
+            pass
+    return value
+
+
 def export_sample_table(targs):
 
     sample_data = json.loads(targs['export_data'])
@@ -34,7 +61,7 @@ def export_sample_table(targs):
         for i, row in enumerate(sample_data[sample_group]):
             sorted_row = [i + 1] + dict_to_sorted_list(row)[:attr_pos]
             for attr in sample_data['attributes']:
-                sorted_row.append(row[attr])
+                sorted_row.append(convert_to_numeric(row[attr]))
             final_sample_data.append(sorted_row)
 
     return trait_name, final_sample_data
