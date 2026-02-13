@@ -24,3 +24,31 @@
 {% macro timeago(timestamp) %}
 <time class="timeago" datetime="{{ timestamp }}">{{ timestamp }}</time>
 {% endmacro %}
+
+{% macro left_scrollbar_css() %}
+<style>
+    /* Move scrollbar to the left */
+    .dataTables_scrollBody {
+        direction: rtl;
+        overflow: auto;
+    }
+
+    /* Reset direction for table content */
+    .dataTables_scrollBody table.dataTable {
+        direction: ltr;
+    }
+
+    /* Align header with body columns */
+    .dataTables_scrollHeadInner,
+    .dataTables_scrollHead table {
+        direction: ltr;
+        width: 100% !important;
+    }
+
+    /* Shift checkbox to the right so it doesn't overlap with the scrollbar */
+    .trait_checkbox.scroll-left {
+        margin-left: 12px;
+    }
+</style>
+<script language="javascript" type="text/javascript" src="/static/new/javascript/detect_scrollbar_width.js"></script>
+{% endmacro %}

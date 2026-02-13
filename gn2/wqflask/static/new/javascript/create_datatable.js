@@ -65,11 +65,17 @@ create_table = function(tableId="trait_table", tableData = [], columnDefs = [], 
             if (checkedRows.length > 0){
                 recheckRows(theTable, checkedRows);
             }
+            if (window.leftScrollbarFixEnabled && typeof adjustLeftScrollbarHeader === 'function') {
+                adjustLeftScrollbarHeader(tableId);
+            }
         } else {
             theTable = $('#' + tableId).DataTable(tableSettings);
             theTable.draw();
             $('#' + tableId + '_container').css("width", String($('#' + tableId).width() + 17) + "px");
             theTable.columns.adjust().draw();
+            if (window.leftScrollbarFixEnabled && typeof adjustLeftScrollbarHeader === 'function') {
+                adjustLeftScrollbarHeader(tableId);
+            }
         }
     }
 
@@ -83,6 +89,9 @@ create_table = function(tableId="trait_table", tableData = [], columnDefs = [], 
 
     window.addEventListener('resize', function(){
         theTable.columns.adjust();
+        if (window.leftScrollbarFixEnabled && typeof adjustLeftScrollbarHeader === 'function') {
+            adjustLeftScrollbarHeader(tableId);
+        }
     });
 
     $('#' + tableId + '_searchbox').on( 'keyup', function () {
