@@ -15,7 +15,6 @@
   .dataTables_scrollHeadInner,
   .dataTables_scrollHead table {
     direction: ltr;
-    width: 100% !important; /* Ensure width matches the body */
   }
 
   /* Shift checkbox to the right so it doesn't overlap with the scrollbar */
