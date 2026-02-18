@@ -27,10 +27,20 @@ from gn2.utility.type_checking import is_str
 MAX_SEARCH_RESULTS = 50000 # Max number of search results, passed to Xapian search (this needs to match the value in GN3!)
 
 
-def fix_double_encoding(text):
-    """Fix text that was double-encoded (UTF-8 bytes misread as CP1252, then
-    stored as UTF-8). Returns the original text unchanged if it was not
-    double-encoded."""
+def decode_db_text(b):
+    """Decode bytes from the DB, handling both double-encoded UTF-8 and raw
+    Latin-1/CP1252.
+
+    Double-encoded text (UTF-8 bytes misread as CP1252 then stored as UTF-8)
+    is decoded via UTF-8 and then the double-encoding is reversed.  Rows that
+    contain raw CP1252/Latin-1 bytes (e.g. 0xa0 non-breaking space) that are
+    not valid UTF-8 are decoded as Latin-1 directly."""
+    try:
+        text = b.decode('utf-8')
+    except (UnicodeDecodeError, AttributeError):
+        return b.decode('latin-1')
+
+    # If it decoded as UTF-8, check whether it was double-encoded
     try:
         return text.encode('cp1252').decode('utf-8')
     except (UnicodeEncodeError, UnicodeDecodeError):
@@ -169,11 +179,9 @@ class SearchResultPage:
                     trait_dict['symbol'] = "N/A" if result['Symbol'] is None else result['Symbol'].strip()
                     description_text = ""
                     if result['description'] is not None and str(result['description']) != "":
-                        description_text = unicodedata.normalize("NFKD", result['description'].decode('utf-8'))
-                        description_text = fix_double_encoding(description_text)
+                        description_text = unicodedata.normalize("NFKD", decode_db_text(result['description']))
 
-                    target_string = result['Probe_Target_Description'].decode('utf-8') if result['Probe_Target_Description'] else ""
-                    target_string = fix_double_encoding(target_string)
+                    target_string = decode_db_text(result['Probe_Target_Description']) if result['Probe_Target_Description'] else ""
                     description_display = description_text if target_string is None or str(target_string) == "" else description_text + "; " + str(target_string).strip()
                     trait_dict['description'] = description_display
 
@@ -200,10 +208,9 @@ class SearchResultPage:
                     key = f"{trait_dict['name']}:{trait_dict['dataset']}"
                     trait_dict['hmac'] = f"{key}:{hmac_creation(key)}"
 
-                    trait_dict['description'] = result['Pre_publication_description'].decode('utf-8') if result['Pre_publication_description'] else ""
+                    trait_dict['description'] = decode_db_text(result['Pre_publication_description']) if result['Pre_publication_description'] else ""
                     if result['PubMed_ID'] and result['PubMed_ID'] != "NULL":
-                        trait_dict['description'] = result['Post_publication_description'].decode('utf-8') if result['Post_publication_description'] else ""
-                    trait_dict['description'] = fix_double_encoding(trait_dict['description'])
+                        trait_dict['description'] = decode_db_text(result['Post_publication_description']) if result['Post_publication_description'] else ""
 
                     authors = result['Authors']
                     if authors:
@@ -233,7 +240,7 @@ class SearchResultPage:
                 # Convert any remaining bytes in dict to a normal utf-8 string
                 for key in trait_dict.keys():
                     if isinstance(trait_dict[key], bytes):
-                        trait_dict[key] = trait_dict[key].decode('utf-8')
+                        trait_dict[key] = decode_db_text(trait_dict[key])
 
                 trait_list.append(trait_dict)
 
