@@ -464,7 +464,7 @@
 	 });
 	</script>
 	{% endif %}
-        <script>
+        <script language="javascript" type="text/javascript">
                  //http://stackoverflow.com/questions/11521763/bootstrap-scrollspy-not-working
                  var $window = $(window)
                  $('.bs-docs-sidenav').affix({
@@ -478,7 +478,10 @@
                 type="text/javascript"></script>
         <script language="javascript"
                 type="text/javascript"
-                src="{{ url_for('js', filename='jquery-ui/jquery-ui.min.js') }}"></script>    <script language="javascript" type="text/javascript" src="{{ url_for('js', filename='colorbox/jquery.colorbox-min.js') }}"></script>
+                src="{{ url_for('js', filename='jquery-ui/jquery-ui.min.js') }}"></script>
+        <script language="javascript"
+                type="text/javascript"
+                src="{{ url_for('js', filename='colorbox/jquery.colorbox-min.js') }}"></script>
         <script language="javascript"
                 type="text/javascript"
                 src="{{ url_for('js', filename='js_alt/parsley.min.js') }}"></script>
