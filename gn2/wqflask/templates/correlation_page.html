@@ -1,4 +1,5 @@
 {% extends "index_page.html" %}
+{% from "base_macro.html" import left_scrollbar_css %}
 {% block title %}Correlation Results{% endblock %}
 {% block css %}
     <link rel="stylesheet" type="text/css" href="{{ url_for('css', filename='DataTables/css/jquery.dataTables.css') }}" />
@@ -7,6 +8,9 @@
     <link rel="stylesheet" type="text/css" href="{{ url_for('css', filename='fontawesome/css/font-awesome.min.css') }}" />
     <link rel="stylesheet" type="text/css" href="/static/new/css/trait_list.css" />
     <link rel="stylesheet" type="text/css" href="/static/new/css/show_trait.css" />
+    {% if table_json|length > 20 %}
+    {{ left_scrollbar_css() }}
+    {% endif %}
 {% endblock %}
 {% block content %}
     <div class="container">
@@ -238,7 +242,7 @@
               'orderDataType': "dom-checkbox",
               'orderSequence': [ "desc", "asc"],
               'render': function(data) {
-                return '<input type="checkbox" name="searchResult" class="checkbox trait_checkbox" value="' + data.hmac + '">'
+                return '<input type="checkbox" name="searchResult" class="checkbox trait_checkbox {% if table_json|length > 20 %}scroll-left{% endif %}" value="' + data.hmac + '">'
               }
             },
             {
