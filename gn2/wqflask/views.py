@@ -213,7 +213,7 @@ def js(filename):
     if 'js_alt/' in filename:
         js_path = js_path.replace('genenetwork2/javascript', 'javascript')
         name = name.replace('js_alt/', '')
-    return send_from_directory(js_path, name)
+    return send_from_directory(js_path, name, mimetype="text/javascript")
 
 
 @app.route("/css/<path:filename>")
@@ -223,7 +223,7 @@ def css(filename):
     if 'js_alt/' in filename:
         js_path = js_path.replace('genenetwork2/javascript', 'javascript')
         name = name.replace('js_alt/', '')
-    return send_from_directory(js_path, name)
+    return send_from_directory(js_path, name, mimetype="text/css")
 
 
 @app.route("/twitter/<path:filename>")
