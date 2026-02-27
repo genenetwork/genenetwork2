@@ -416,6 +416,11 @@ def gnqna():
 @app.route("/editor/edit", methods=["GET"])
 @require_oauth2
 def edit_gn_doc_file():
+    _user_email = session_info()["user"].get("email")
+    if not _user_email in current_app.config.get("EMERGENCY_ACCESS_EMAILS", []):
+        flash("You are not currently allowed to edit this.",
+              "alert alert-danger")
+        return redirect(url_for('facilities_blueprint.facilities'))
     file_path = urllib.parse.urlencode(
         {"file_path": request.args.get("file-path", "")})
     response = requests.get(urljoin(GN_GUILE_SERVER_URL, f"/edit?{file_path}"))
