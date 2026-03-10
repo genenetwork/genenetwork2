@@ -416,13 +416,41 @@ def gnqna():
 @app.route("/editor/edit", methods=["GET"])
 @require_oauth2
 def edit_gn_doc_file():
+    """Edit the raw Markdown file."""
+    def __back_to__(apath: str) -> Response:
+        """Compute where to go back to."""
+        match apath:
+            case "general/glossary/glossary.md":
+                _back = "glossary_blueprint.glossary"
+            case "general/references/references.md":
+                _back = "references_blueprint.references"
+            case "general/environments/environments.md":
+                _back = "environments_blueprint.environments"
+            case "general/links/links.md":
+                _back = "links_blueprint.links"
+            case "general/policies/policies.md":
+                _back = "policies_blueprint.policies"
+            case "general/help/facilities.md":
+                _back = "facilities_blueprint.facilities"
+            case "general/news/news.md":
+                _back = "news_blueprint.news"
+            case "general/search/xapian_syntax.md":
+                _back = "xapian_syntax_blueprint.xapian"
+            case _:
+                flash(("We couldn't figure out how to redirect you back to what "
+                       "you were doing, so we brought you back to the home page."),
+                      "alert alert-warning")
+                return redirect("/")
+
+        return redirect(url_for(_back))
+
+    _path = request.args.get("file-path", "")
     _user_email = session_info()["user"].get("email")
     if not _user_email in current_app.config.get("EMERGENCY_ACCESS_EMAILS", []):
         flash("You are not currently allowed to edit this.",
               "alert alert-danger")
-        return redirect(url_for('facilities_blueprint.facilities'))
-    file_path = urllib.parse.urlencode(
-        {"file_path": request.args.get("file-path", "")})
+        return __back_to__(_path)
+    file_path = urllib.parse.urlencode({"file_path": _path})
     response = requests.get(urljoin(GN_GUILE_SERVER_URL, f"/edit?{file_path}"))
     response.raise_for_status()
     return render_template("gn_editor.html", **response.json())
