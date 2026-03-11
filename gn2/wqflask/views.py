@@ -112,6 +112,7 @@ from gn2.wqflask import requests as monad_requests
 
 from gn2.wqflask.oauth2.checks import require_oauth2
 from gn2.wqflask.oauth2.checks import fetch_case_attribute_privs
+from gn2.wqflask.oauth2.request_utils import system_privileges
 
 
 Redis = get_redis_conn()
@@ -445,11 +446,12 @@ def edit_gn_doc_file():
         return redirect(url_for(_back))
 
     _path = request.args.get("file-path", "")
-    _user_email = session_info()["user"].get("email")
-    if not _user_email in current_app.config.get("EMERGENCY_ACCESS_EMAILS", []):
-        flash("You are not currently allowed to edit this.",
-              "alert alert-danger")
+    if not "system:documentation:edit" in system_privileges():
+        flash(
+            "You lack the appropriate privileges to edit system documentation.",
+            "alert alert-danger")
         return __back_to__(_path)
+
     file_path = urllib.parse.urlencode({"file_path": _path})
     response = requests.get(urljoin(GN_GUILE_SERVER_URL, f"/edit?{file_path}"))
     response.raise_for_status()
