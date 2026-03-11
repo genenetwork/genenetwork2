@@ -1,5 +1,7 @@
+import logging
 from uuid import UUID
 
+from pymonad.either import Left, Right
 from flask import (
     flash, request, url_for, redirect, Response, Blueprint)
 
@@ -16,6 +18,7 @@ from .request_utils import (flash_error,
                             with_flash_success)
 
 resources = Blueprint("resource", __name__)
+logger = logging.getLogger(__name__)
 
 def render_ui(template, **kwargs):
     return _render_ui(template, uipages="resources", **kwargs)
@@ -301,7 +304,7 @@ def unassign_role(resource_id: UUID) -> Response:
 def toggle_public(resource_id: UUID):
     """Toggle the given resource's public status."""
     def __handle_error__(err):
-        flash_error(process_error(err))
+        flash_error(process_error(err) if isinstance(err, Response) else err)
         return redirect(url_for(
             "oauth2.resource.view_resource", resource_id=resource_id))
 
@@ -310,10 +313,24 @@ def toggle_public(resource_id: UUID):
         return redirect(url_for(
             "oauth2.resource.view_resource", resource_id=resource_id))
 
-    return oauth2_post(
-        f"auth/resource/{resource_id}/toggle-public").either(
-            lambda err: __handle_error__(err),
-            lambda suc: __handle_success__(suc))
+    return oauth2_get("auth/system/roles").then(
+        lambda sysroles: tuple(priv['privilege_id']
+                               for role in sysroles
+                               for priv in role["privileges"])
+    ).then(
+        lambda privs: (
+            Right({"can-make-public": True, "privileges": privs})
+            if "system:resource:make-public" in privs else
+            Left({
+                "error": "AuthorisationError",
+                "error_description": (
+                    "You do not have the privilege to make resources public. "
+                    "Please contact a Genenetwork data curator.")}))
+    ).then(
+        lambda result: oauth2_post(f"auth/resource/{resource_id}/toggle-public")
+    ).either(
+        lambda err: __handle_error__(err),
+        lambda suc: __handle_success__(suc))
 
 @resources.route("/edit/<uuid:resource_id>", methods=["GET"])
 @require_oauth2
