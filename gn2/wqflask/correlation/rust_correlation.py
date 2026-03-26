@@ -2,6 +2,9 @@
 import json
 from functools import reduce
 
+import requests
+from flask import current_app
+
 from gn_libs.mysqldb import database_connection
 
 from gn2.utility.tools import SQL_URI
@@ -238,6 +241,167 @@ def merge_results(dict_a: dict, dict_b: dict, dict_c: dict) -> list[dict]:
     return [__merge__(tname, tcorrs) for tname, tcorrs in dict_a.items()]
 
 
+def __datasets_compatible_p__(trait_dataset, target_dataset, corr_method):
+    return not (
+        corr_method in ("tissue", "Tissue r", "Literature r", "lit")
+        and (trait_dataset.type == "ProbeSet" and
+             target_dataset.type in ("Publish", "Geno")))
+
+
+# ============================================================================
+# LMDB CORRELATION INTEGRATION (NEW)
+# ============================================================================
+
+def check_gn3_lmdb_status(dataset_name: str) -> tuple[bool, str | None]:
+    """Check if LMDB dataset exists in GN3.
+    
+    Queries GN3 /lmdb_status endpoint to check availability.
+    GN2 doesn't need to know about LMDB paths - just asks GN3.
+    
+    Args:
+        dataset_name: Name of dataset (e.g., "HC_M2_0606_P")
+    
+    Returns:
+        Tuple of (available: bool, lmdb_path: str|None)
+    """
+    gn3_url = current_app.config.get("GN3_API_URL", "http://localhost:8080")
+    endpoint = f"{gn3_url}/api/correlation/lmdb_status/{dataset_name}"
+    
+    try:
+        response = requests.get(endpoint, timeout=5)
+        response.raise_for_status()
+        data = response.json()
+        
+        if data.get("available"):
+            return True, data.get("lmdb_path")
+        else:
+            return False, None
+            
+    except requests.RequestException as e:
+        current_app.logger.warning(
+            f"Failed to check LMDB status for {dataset_name}: {e}"
+        )
+        return False, None
+
+
+def call_gn3_lmdb_api(
+    dataset_name: str,
+    trait_vals: list[float],
+    strains: list[str],
+    method: str = "pearson",
+    top_n: int = 500
+) -> dict:
+    """Call GN3 LMDB correlation API.
+    
+    Args:
+        dataset_name: Name of target dataset (e.g., "HC_M2_0606_P")
+        trait_vals: Input trait values
+        strains: Strain names corresponding to values
+        method: "pearson" or "spearman"
+        top_n: Return top N results
+    
+    Returns:
+        Correlation results from GN3
+    
+    Raises:
+        requests.RequestException: If API call fails
+    """
+    gn3_url = current_app.config.get("GN3_API_URL", "http://localhost:8080")
+    endpoint = f"{gn3_url}/api/correlation/lmdb_corr"
+    
+    payload = {
+        "dataset_name": dataset_name,
+        "trait_vals": trait_vals,
+        "strains": strains,
+        "method": method,
+        "parallel": True,
+        "top_n": top_n
+    }
+    
+    response = requests.post(endpoint, json=payload, timeout=300)
+    response.raise_for_status()
+    
+    result = response.json()
+    
+    if result.get("status") != "success":
+        raise requests.RequestException(
+            f"GN3 API error: {result.get('message', 'Unknown error')}"
+        )
+    
+    return result["results"]
+
+
+def __compute_sample_corr_lmdb__(
+    start_vars: dict,
+    corr_type: str,
+    method: str,
+    n_top: int,
+    target_trait_info: tuple,
+    tmpdir: str
+) -> dict:
+    """Compute sample correlation using LMDB (optimized path).
+    
+    This bypasses CSV generation and database queries by calling
+    the GN3 LMDB endpoint.
+    """
+    (this_dataset, this_trait, target_dataset, _) = target_trait_info
+
+    # Handle F1 and parental strains
+    if this_dataset.group.f1list is not None:
+        this_dataset.group.samplelist += this_dataset.group.f1list
+
+    if this_dataset.group.parlist is not None:
+        this_dataset.group.samplelist += this_dataset.group.parlist
+
+    # Get sample data (filtered by user selection: primary/other/all)
+    sample_data = get_sample_corr_data(
+        sample_type=start_vars["corr_samples_group"],
+        sample_data=json.loads(start_vars["sample_vals"]),
+        dataset_samples=this_dataset.group.all_samples_ordered())
+
+    if not sample_data:
+        return {}
+
+    # Extract values and strains
+    trait_vals = list(sample_data.values())
+    strains = list(sample_data.keys())
+
+    try:
+        # Call GN3 LMDB API
+        results = call_gn3_lmdb_api(
+            dataset_name=target_dataset.name,
+            trait_vals=trait_vals,
+            strains=strains,
+            method=method,
+            top_n=n_top
+        )
+        
+        # Convert string values to floats for consistency
+        formatted_results = {}
+        for trait_name, data in results.items():
+            formatted_results[trait_name] = {
+                "corr_coefficient": float(data["corr_coefficient"]),
+                "p_value": float(data["p_value"]),
+                "num_overlap": int(data["num_overlap"])
+            }
+        
+        return formatted_results
+        
+    except requests.RequestException as e:
+        current_app.logger.warning(
+            f"LMDB API failed for {target_dataset.name}: {e}. "
+            f"Falling back to CSV method."
+        )
+        # Fall back to traditional method
+        return __compute_sample_corr__(
+            start_vars, corr_type, method, n_top, target_trait_info, tmpdir
+        )
+
+
+# ============================================================================
+# EXISTING CORRELATION FUNCTIONS (UNCHANGED)
+# ============================================================================
+
 def __compute_sample_corr__(
         start_vars: dict,
         corr_type: str,
@@ -246,13 +410,13 @@ def __compute_sample_corr__(
         target_trait_info: tuple,
         tmpdir
 ):
-    """Compute the sample correlations"""
+    """Compute the sample correlations (traditional CSV method)"""
     (this_dataset, this_trait, target_dataset, sample_data) = target_trait_info
 
-    if this_dataset.group.f1list != None:
+    if this_dataset.group.f1list is not None:
         this_dataset.group.samplelist += this_dataset.group.f1list
 
-    if this_dataset.group.parlist != None:
+    if this_dataset.group.parlist is not None:
         this_dataset.group.samplelist += this_dataset.group.parlist
 
     sample_data = get_sample_corr_data(
@@ -317,13 +481,6 @@ def __compute_sample_corr__(
         top_n=n_top)
 
 
-def __datasets_compatible_p__(trait_dataset, target_dataset, corr_method):
-    return not (
-        corr_method in ("tissue", "Tissue r", "Literature r", "lit")
-        and (trait_dataset.type == "ProbeSet" and
-             target_dataset.type in ("Publish", "Geno")))
-
-
 def __compute_tissue_corr__(
         start_vars: dict,
         corr_type: str,
@@ -348,14 +505,9 @@ def __compute_tissue_corr__(
         dataset_symbols=trait_symbol_dict,
         dataset_vals=corr_result_tissue_vals_dict)
 
-    if data:
+    if data is not None:
         return run_correlation(
-            data[1],
-            data[0],
-            method,
-            ",",
-            tmpdir,
-            corr_type="tissue")
+            data[1], data[0], method, ",", tmpdir, corr_type="tissue")
     return {}
 
 
@@ -394,25 +546,49 @@ def compute_correlation_rust(
         method: str = "pearson",
         n_top: int = 500,
         should_compute_all: bool = False):
-    """function to compute correlation"""
+    """function to compute correlation with LMDB optimization.
+    
+    For sample correlation on ProbeSet datasets, tries LMDB first
+    for performance, falls back to CSV if LMDB unavailable.
+    """
     target_trait_info = create_target_this_trait(start_vars)
     (this_dataset, this_trait, target_dataset, sample_data) = (
         target_trait_info)
     if not __datasets_compatible_p__(this_dataset, target_dataset, corr_type):
         raise WrongCorrelationType(this_trait, target_dataset, corr_type)
 
-    # Replace this with `match ...` once we hit Python 3.10
-    corr_type_fns = {
-        "sample": __compute_sample_corr__,
-        "tissue": __compute_tissue_corr__,
-        "lit": __compute_lit_corr__
-    }
+    # Route to appropriate correlation method
+    if corr_type == "sample":
+        # Try LMDB first for ProbeSet sample correlations
+        if target_dataset.type == "ProbeSet":
+            # Ask GN3 if LMDB is available (GN2 doesn't need to know paths)
+            lmdb_available, _ = check_gn3_lmdb_status(target_dataset.name)
+            if lmdb_available:
+                results = __compute_sample_corr_lmdb__(
+                    start_vars, corr_type, method, n_top, target_trait_info, tmpdir
+                )
+            else:
+                # Fall back to CSV method
+                results = __compute_sample_corr__(
+                    start_vars, corr_type, method, n_top, target_trait_info, tmpdir
+                )
+        else:
+            # Non-ProbeSet datasets use CSV
+            results = __compute_sample_corr__(
+                start_vars, corr_type, method, n_top, target_trait_info, tmpdir
+            )
+    elif corr_type == "tissue":
+        results = __compute_tissue_corr__(
+            start_vars, corr_type, method, n_top, target_trait_info, tmpdir
+        )
+    elif corr_type == "lit":
+        results = __compute_lit_corr__(
+            start_vars, corr_type, method, n_top, target_trait_info, tmpdir
+        )
+    else:
+        raise ValueError(f"Unknown correlation type: {corr_type}")
 
-    results = corr_type_fns[corr_type](
-        start_vars, corr_type, method, n_top, target_trait_info, tmpdir)
-
-    # END: Replace this with `match ...` once we hit Python 3.10
-
+    # Compute additional correlations if requested
     top_a = top_b = {}
 
     if should_compute_all:
@@ -427,16 +603,12 @@ def compute_correlation_rust(
                 pass
 
         elif corr_type == "lit":
-
-            # currently fails for lit
-
             top_a = compute_top_n_sample(
                 start_vars, target_dataset, list(results.keys()), tmpdir)
             top_b = compute_top_n_tissue(
                 target_dataset, this_trait, results, method, tmpdir)
 
         else:
-
             top_a = compute_top_n_sample(
                 start_vars, target_dataset, list(results.keys()), tmpdir)
 
