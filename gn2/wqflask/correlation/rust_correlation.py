@@ -254,29 +254,29 @@ def __datasets_compatible_p__(trait_dataset, target_dataset, corr_method):
 
 def check_gn3_lmdb_status(dataset_name: str) -> tuple[bool, str | None]:
     """Check if LMDB dataset exists in GN3.
-    
+
     Queries GN3 /lmdb_status endpoint to check availability.
     GN2 doesn't need to know about LMDB paths - just asks GN3.
-    
+
     Args:
         dataset_name: Name of dataset (e.g., "HC_M2_0606_P")
-    
+
     Returns:
         Tuple of (available: bool, lmdb_path: str|None)
     """
-    gn3_url = current_app.config.get("GN3_API_URL", "http://localhost:8080")
+    gn3_url = current_app.config.get("GN3_API_URL")
     endpoint = f"{gn3_url}/api/correlation/lmdb_status/{dataset_name}"
-    
+
     try:
         response = requests.get(endpoint, timeout=5)
         response.raise_for_status()
         data = response.json()
-        
+
         if data.get("available"):
             return True, data.get("lmdb_path")
         else:
             return False, None
-            
+
     except requests.RequestException as e:
         current_app.logger.warning(
             f"Failed to check LMDB status for {dataset_name}: {e}"
@@ -292,23 +292,23 @@ def call_gn3_lmdb_api(
     top_n: int = 500
 ) -> dict:
     """Call GN3 LMDB correlation API.
-    
+
     Args:
         dataset_name: Name of target dataset (e.g., "HC_M2_0606_P")
         trait_vals: Input trait values
         strains: Strain names corresponding to values
         method: "pearson" or "spearman"
         top_n: Return top N results
-    
+
     Returns:
         Correlation results from GN3
-    
+
     Raises:
         requests.RequestException: If API call fails
     """
     gn3_url = current_app.config.get("GN3_API_URL", "http://localhost:8080")
     endpoint = f"{gn3_url}/api/correlation/lmdb_corr"
-    
+
     payload = {
         "dataset_name": dataset_name,
         "trait_vals": trait_vals,
@@ -317,17 +317,17 @@ def call_gn3_lmdb_api(
         "parallel": True,
         "top_n": top_n
     }
-    
+
     response = requests.post(endpoint, json=payload, timeout=300)
     response.raise_for_status()
-    
+
     result = response.json()
-    
+
     if result.get("status") != "success":
         raise requests.RequestException(
             f"GN3 API error: {result.get('message', 'Unknown error')}"
         )
-    
+
     return result["results"]
 
 
@@ -340,7 +340,7 @@ def __compute_sample_corr_lmdb__(
     tmpdir: str
 ) -> dict:
     """Compute sample correlation using LMDB (optimized path).
-    
+
     This bypasses CSV generation and database queries by calling
     the GN3 LMDB endpoint.
     """
@@ -362,9 +362,9 @@ def __compute_sample_corr_lmdb__(
     if not sample_data:
         return {}
 
-    # Extract values and strains
-    trait_vals = list(sample_data.values())
+    # Extract strains and values (preserve order)
     strains = list(sample_data.keys())
+    trait_vals = [sample_data[s] for s in strains]
 
     try:
         # Call GN3 LMDB API
@@ -375,7 +375,7 @@ def __compute_sample_corr_lmdb__(
             method=method,
             top_n=n_top
         )
-        
+
         # Convert string values to floats for consistency
         formatted_results = {}
         for trait_name, data in results.items():
@@ -384,9 +384,9 @@ def __compute_sample_corr_lmdb__(
                 "p_value": float(data["p_value"]),
                 "num_overlap": int(data["num_overlap"])
             }
-        
+
         return formatted_results
-        
+
     except requests.RequestException as e:
         current_app.logger.warning(
             f"LMDB API failed for {target_dataset.name}: {e}. "
@@ -442,7 +442,8 @@ def __compute_sample_corr__(
                                        corr_type=corr_type,
                                        top_n=n_top)
 
-            write_db_to_textfile(target_dataset.name, this_dataset.group.samplelist, conn)
+            write_db_to_textfile(target_dataset.name,
+                                 this_dataset.group.samplelist, conn)
             file_path = fetch_text_file(target_dataset.name, conn)
             if file_path:
                 (sample_vals, target_data) = read_text_file(
@@ -547,7 +548,7 @@ def compute_correlation_rust(
         n_top: int = 500,
         should_compute_all: bool = False):
     """function to compute correlation with LMDB optimization.
-    
+
     For sample correlation on ProbeSet datasets, tries LMDB first
     for performance, falls back to CSV if LMDB unavailable.
     """
@@ -598,7 +599,8 @@ def compute_correlation_rust(
                 top_a = compute_top_n_tissue(
                     target_dataset, this_trait, results, method, tmpdir)
 
-                top_b = compute_top_n_lit(results, target_dataset, this_trait, tmpdir)
+                top_b = compute_top_n_lit(
+                    results, target_dataset, this_trait, tmpdir)
             else:
                 pass
 
