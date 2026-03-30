@@ -3,6 +3,7 @@ import time
 import array
 import base64
 import csv
+import logging
 import datetime
 import hashlib
 import io  # Todo: Use cStringIO?
@@ -34,6 +35,7 @@ import requests
 import numpy as np
 import flask
 from typing import Optional
+from gn_libs.privileges import can_edit
 from gn_libs.mysqldb import database_connection
 from gn3.computations.gemma import generate_hash_of_string
 from flask import current_app
@@ -115,6 +117,7 @@ from gn2.wqflask.oauth2.checks import fetch_case_attribute_privs
 from gn2.wqflask.oauth2.request_utils import system_privileges
 
 
+logger = logging.getLogger(__name__)
 Redis = get_redis_conn()
 
 
@@ -1660,14 +1663,48 @@ def get_dataset(name):
             GN3_LOCAL_URL,
             f"/api/metadata/datasets/{name}")
     ).json()
+    ## TODO: Fetch at least one trait belonging to this dataset, if the
+    ## condition(s) below holds.
     result = oauth2_get(
+        ## TODO: @bonz: I'm not sure what you were attempting here: we do not
+        ## have an endpoint of the form
+        ## `auth/resource/authorisation/<some-string>` which tells me that this
+        ## code has not been run (at least with valid auth).
+        ##
+        ## Closest I can think of what you were attempting is:
+        ## curl -H "Content-Type: application/json" \
+        ##      -H "Authorization: Bearer <token>" \
+        ##      -XPOST "http://localhost:8081/auth/data/authorisation" \
+        ##      -d '{"traits": ["<dataset-name>::<a-trait>"]}'
+        ##
+        ## In that case, you need at least one trait from the dataset.
+        ## Please verify that's what you wanted.
         f"auth/resource/authorisation/{metadata.get('label')}"
+    ).then(
+        lambda dataset_auths: {
+            "dataset_privileges": dataset_auths[0]["privileges"]
+        }
+    ).then(
+        ## If notes above hold, we also need to check for system-level
+        ## privileges.
+        lambda dset_privs: oauth2_get("auth/system/roles").then(
+            lambda sys_roles: {
+                **dset_privs,
+                "system_privileges": tuple(
+                    privilege["privilege_id"]
+                    for role in sys_roles
+                    for privilege in role["privileges"])
+            })
     ).either(
-        lambda err: {"roles": []},
-        lambda val: val
+        lambda err: {"privileges": []},
+        lambda val: {
+            # then we can combine all privileges
+            **val,
+            "privileges": val["dataset_privileges"] + val["system_privileges"]
+        }
     )
     if metadata:
-        metadata["editable"] = "group:resource:edit-resource" in result["roles"]
+        metadata["editable"] = can_edit(result["privileges"])
     return render_template(
         "dataset.html",
         name=name,
