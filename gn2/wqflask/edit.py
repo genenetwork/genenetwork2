@@ -17,6 +17,12 @@ from gn2.wqflask.oauth2.checks import require_oauth2_edit_resource_access
 metadata = Blueprint("metadata", __name__)
 
 
+## TODO: @bonz Replace `@require_oauth2_edit_resource_access` decorator with a
+## call to an authorisation function similar to `__edit_with_authorisation__` in
+## GN3 commit 8b984ebc6.
+##
+## Some of that flow might be generalisable further to make it more reusable,
+## so do feel free to do that too.
 @metadata.route("/edit")
 @require_oauth2_edit_resource_access
 @require_oauth2

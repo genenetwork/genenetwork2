@@ -89,6 +89,8 @@ def require_oauth2_edit_resource_access(func):
         if request.method == "POST":
             resource_name = request.form.get("name", "")
         result = oauth2_get(
+            ## TODO: @bonz There is no such endpoint on gn-auth
+            ##       see also GN3 commit 86d0f55bf
             f"auth/resource/authorisation/{resource_name}"
         ).either(
             lambda _: {"roles": []},
