@@ -8,6 +8,7 @@ from flask import current_app
 from gn_libs.mysqldb import database_connection
 
 from gn2.utility.tools import SQL_URI
+from gn2.utility.tools import GN3_LOCAL_URL
 from gn2.utility.db_tools import mescape
 from gn2.utility.db_tools import create_in_clause
 from gn2.wqflask.correlation.correlation_functions\
@@ -264,8 +265,7 @@ def check_gn3_lmdb_status(dataset_name: str) -> tuple[bool, str | None]:
     Returns:
         Tuple of (available: bool, lmdb_path: str|None)
     """
-    gn3_url = current_app.config.get("GN3_API_URL")
-    endpoint = f"{gn3_url}/api/correlation/lmdb_status/{dataset_name}"
+    endpoint = f"{GN3_LOCAL_URL}/api/lmdb_corr/lmdb_status/{dataset_name}"
 
     try:
         response = requests.get(endpoint, timeout=5)
@@ -306,8 +306,7 @@ def call_gn3_lmdb_api(
     Raises:
         requests.RequestException: If API call fails
     """
-    gn3_url = current_app.config.get("GN3_API_URL", "http://localhost:8080")
-    endpoint = f"{gn3_url}/api/correlation/lmdb_corr"
+    endpoint = f"{GN3_LOCAL_URL}/api/lmdb_corr/compute"
 
     payload = {
         "dataset_name": dataset_name,
@@ -317,12 +316,10 @@ def call_gn3_lmdb_api(
         "parallel": True,
         "top_n": top_n
     }
-
     response = requests.post(endpoint, json=payload, timeout=300)
     response.raise_for_status()
 
     result = response.json()
-
     if result.get("status") != "success":
         raise requests.RequestException(
             f"GN3 API error: {result.get('message', 'Unknown error')}"
@@ -560,8 +557,11 @@ def compute_correlation_rust(
 
     # Route to appropriate correlation method
     if corr_type == "sample":
-        # Try LMDB first for ProbeSet sample correlations
-        if target_dataset.type == "ProbeSet":
+        # Check if user requested LMDB mode
+        use_lmdb = start_vars.get("use_lmdb") == "true"
+        
+        if target_dataset.type == "ProbeSet" and use_lmdb:
+            # Try LMDB first for ProbeSet sample correlations
             # Ask GN3 if LMDB is available (GN2 doesn't need to know paths)
             lmdb_available, _ = check_gn3_lmdb_status(target_dataset.name)
             if lmdb_available:
@@ -569,12 +569,16 @@ def compute_correlation_rust(
                     start_vars, corr_type, method, n_top, target_trait_info, tmpdir
                 )
             else:
-                # Fall back to CSV method
+                # LMDB requested but not available - fall back to CSV with warning
+                current_app.logger.warning(
+                    f"LMDB requested for {target_dataset.name} but not available. "
+                    f"Falling back to CSV method."
+                )
                 results = __compute_sample_corr__(
                     start_vars, corr_type, method, n_top, target_trait_info, tmpdir
                 )
         else:
-            # Non-ProbeSet datasets use CSV
+            # Non-ProbeSet datasets or LMDB not requested - use CSV method
             results = __compute_sample_corr__(
                 start_vars, corr_type, method, n_top, target_trait_info, tmpdir
             )
