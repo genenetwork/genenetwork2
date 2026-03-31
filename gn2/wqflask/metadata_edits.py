@@ -29,7 +29,7 @@ from flask import render_template
 from flask import request
 from flask import url_for
 from gn_libs.mysqldb import database_connection
-from gn_libs.privileges import can_view, can_edit
+from gn_libs.privileges import resources
 from gn_libs import monadic_requests as mrequests
 
 from gn2.utility.json import CustomJSONEncoder
@@ -464,8 +464,8 @@ def display_phenotype_metadata(dataset_id: str, name: str):
     return __edit_with_authorisation__(__do_display__,
                                        request.args.get("dataset_name", ""),
                                        name,
-                                       can_view,
-                                       can_edit)
+                                       resources.can_view,
+                                       resources.can_edit)
 
 
 @metadata_edit.route("/traits/<name>")
@@ -496,8 +496,8 @@ def display_probeset_metadata(name: str):
     return __edit_with_authorisation__(__do_display__,
                                        request.args.get("dataset_name", ""),
                                        name,
-                                       can_view,
-                                       can_edit)
+                                       resources.can_view,
+                                       resources.can_edit)
 
 
 @metadata_edit.route("/<dataset_id>/traits/<name>", methods=("POST",))
@@ -719,8 +719,8 @@ def update_phenotype(dataset_id: str, name: str):
     return __edit_with_authorisation__(__do_update__,
                                        request.args.get("dataset_name", ""),
                                        name,
-                                       can_view,
-                                       can_edit)
+                                       resources.can_view,
+                                       resources.can_edit)
 
 
 @metadata_edit.route("/traits/<name>", methods=("POST",))
@@ -919,8 +919,8 @@ def update_probeset(name: str):
     return __edit_with_authorisation__(__do_update__,
                                        request.args.get("dataset_id", ""),
                                        name,
-                                       can_view,
-                                       can_edit)
+                                       resources.can_view,
+                                       resources.can_edit)
 
 
 @metadata_edit.route("/pheno/<name>/group/<group_id>/csv")
@@ -1006,7 +1006,7 @@ def list_diffs():
         }
     ).map(
         lambda lst: [auth_item for auth_item in lst
-                     if can_edit(auth_item["privileges"])]
+                     if resources.can_edit(auth_item["privileges"])]
     ).map(
         lambda alst: __filter_authorised__(files, alst)
     ).map(lambda diffs: reduce(__organise_diffs__,
@@ -1111,7 +1111,7 @@ def __authorised_p__(dataset_name, trait_name):
         dets = auth_details.get(key)
         if not bool(dets):
             return False
-        return can_edit(dets["privileges"])
+        return resources.can_edit(dets["privileges"])
 
     return client.post(
         "auth/data/authorisation",
@@ -1151,8 +1151,8 @@ def reject_data(resource_id: str, file_name: str):
     return __edit_with_authorisation__(__do_reject__,
                                        request.args.get("dataset_name", ""),
                                        request.args.get("trait_name", ""),
-                                       can_view,
-                                       can_edit)
+                                       resources.can_view,
+                                       resources.can_edit)
 
 @metadata_edit.route("<resource_id>/diffs/<file_name>/approve")
 @login_required(pagename="Sample Data Approval")
@@ -1286,8 +1286,8 @@ def approve_data(resource_id: str, file_name: str):
     return __edit_with_authorisation__(__do_approve__,
                                        request.args.get("dataset_name", ""),
                                        request.args.get("trait_name", ""),
-                                       can_view,
-                                       can_edit)
+                                       resources.can_view,
+                                       resources.can_edit)
 
 
 def is_a_number(value: str):

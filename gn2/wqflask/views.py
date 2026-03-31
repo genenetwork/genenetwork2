@@ -35,7 +35,7 @@ import requests
 import numpy as np
 import flask
 from typing import Optional
-from gn_libs.privileges import can_edit
+from gn_libs.privileges import resources
 from gn_libs.mysqldb import database_connection
 from gn3.computations.gemma import generate_hash_of_string
 from flask import current_app
@@ -1704,7 +1704,7 @@ def get_dataset(name):
         }
     )
     if metadata:
-        metadata["editable"] = can_edit(result["privileges"])
+        metadata["editable"] = resources.can_edit(result["privileges"])
     return render_template(
         "dataset.html",
         name=name,
