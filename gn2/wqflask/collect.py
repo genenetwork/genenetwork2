@@ -354,6 +354,11 @@ def view_collection():
                 dataset = create_dataset(
                     dataset_name, dataset_type="Temp", group_name=group)
                 trait_ob = create_trait(name=name, dataset=dataset)
+                custom_name = Redis.get(name + "_name")
+                if custom_name:
+                    if isinstance(custom_name, bytes):
+                        custom_name = custom_name.decode("utf-8")
+                    trait_ob.display_name = custom_name
             else:
                 dataset = create_dataset(dataset_name)
                 trait_ob = create_trait(name=name, dataset=dataset)

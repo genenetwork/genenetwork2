@@ -34,20 +34,31 @@ class SampleList:
         for counter, sample_name in enumerate(sample_names, 1):
             sample_name = sample_name.replace("_2nd_", "")
 
-            # self.this_trait will be a list if it is a Temp trait
-            if isinstance(self.this_trait, list):
+            # self.this_trait will be a dict if it is a Temp trait
+            # with keys like "values", "se", and potentially others
+            if isinstance(self.this_trait, dict):
+                trait_values = self.this_trait.get("values", [])
+                se_vals = self.this_trait.get("se", [])
                 sample = webqtlCaseData.webqtlCaseData(name=sample_name)
-                if counter <= len(self.this_trait):
-                    if isinstance(self.this_trait[counter - 1], (bytes, bytearray)):
-                        if (self.this_trait[counter - 1].decode("utf-8").lower() != 'x'):
-                            sample = webqtlCaseData.webqtlCaseData(
-                                name=sample_name,
-                                value=float(self.this_trait[counter - 1]))
-                    else:
-                        if (self.this_trait[counter - 1].lower() != 'x'):
-                            sample = webqtlCaseData.webqtlCaseData(
-                                name=sample_name,
-                                value=float(self.this_trait[counter - 1]))
+                if counter <= len(trait_values):
+                    val_str = trait_values[counter - 1]
+                    if isinstance(val_str, (bytes, bytearray)):
+                        val_str = val_str.decode("utf-8")
+                    if val_str.lower() != 'x':
+                        variance = None
+                        if se_vals and counter <= len(se_vals):
+                            se_str = se_vals[counter - 1]
+                            if isinstance(se_str, (bytes, bytearray)):
+                                se_str = se_str.decode("utf-8")
+                            if se_str.lower() != 'x':
+                                try:
+                                    variance = float(se_str)
+                                except ValueError:
+                                    pass
+                        sample = webqtlCaseData.webqtlCaseData(
+                            name=sample_name,
+                            value=float(val_str),
+                            variance=variance)
             else:
                 # If there's no value for the sample/strain,
                 # create the sample object (so samples with no value

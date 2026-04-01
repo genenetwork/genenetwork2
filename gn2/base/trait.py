@@ -131,6 +131,13 @@ class GeneralTrait:
                 formatted = self.pre_publication_description
             else:
                 formatted = self.post_publication_description
+        elif self.dataset.type == 'Temp':
+            Redis = get_redis_conn()
+            custom_name = Redis.get(self.name + "_name")
+            if custom_name:
+                formatted = custom_name
+            else:
+                formatted = "Not available"
         else:
             formatted = "Not available"
         if isinstance(formatted, bytes):

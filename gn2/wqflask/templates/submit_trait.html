@@ -2,7 +2,7 @@
 {% block title %}Trait Submission{% endblock %}
 {% block content %}
 <!-- Start of body -->
-  <form method="post" action="/show_temp_trait">
+  <form method="post" action="/show_temp_trait" enctype="multipart/form-data">
     <div class="container-fluid">
 
         {{ flash_me() }}
@@ -53,9 +53,8 @@
                             </div>
                           </div>
                         </div>
-                        <div style="padding-bottom: 50px; margin-bottom:400px" class="form-horizontal">
+                        <div style="padding-bottom: 50px;" class="form-horizontal">
                           <h3>2. Enter Trait Data:</h3>
-                          <h4 style="color:red;">File uploading isn't enabled yet, but is coming soon.</h4>
                           <br>
                           <div class="col-xs-2" style="min-height: 50vh; max-height: 100vh; display: flex; align-items: center;">
                             <img src="/static/new/images/step2.gif">
@@ -63,26 +62,43 @@
                           <div class="col-xs-10">
                             <div class="form-group" style="padding-left: 15px;">
                               <p>
-                                 <b>Paste or Type Multiple Values:</b> You can enter data by pasting a series of numbers representing trait values into this area. 
-                                 The values can be on one line separated by spaces or tabs, or they can be on separate lines. Include one value for each individual 
-                                 or line. Use an "x" for missing values. If you have chosen a set of inbred strains, then your data will be displayed in a form in 
-                                 which you can confirm and/or edit. If you enter a file name in the previous section, 
+                                <b>Upload a File:</b> Upload a text file (.txt, .csv, .tsv) or Excel file (.xlsx) containing your trait data.
+                              </p>
+                              <p>Accepted formats:</p>
+                              <ul>
+                                <li><b>Values only</b> &mdash; one value per line (matched to samples in default order)</li>
+                                <li><b>Sample &amp; Value</b> &mdash; two columns: sample/strain name, value</li>
+                                <li><b>Sample, Value &amp; SE</b> &mdash; three columns: sample/strain name, value, standard error</li>
+                              </ul>
+                              <p>Use <code>x</code> for missing values. A header row (if present) will be auto-detected and skipped.</p>
+                              <p><a href="/static/upload_example_BXD.txt" download>Download example file</a> (Mouse/BXD, all three columns: sample name, value, SE)</p>
+                              <input type="file" name="trait_file" id="trait_file" accept=".txt,.csv,.tsv,.xlsx" class="form-control" style="margin-bottom: 10px;">
+                              <div id="file_preview" style="display:none; margin-top:10px;">
+                                <p><b>File preview</b> (first 5 rows):</p>
+                                <pre id="file_preview_content" style="max-height:150px; overflow:auto; background:#f5f5f5; padding:8px; border:1px solid #ddd;"></pre>
+                                <p id="file_format_detected" style="color:#337ab7;"></p>
+                              </div>
+                            </div>
+                            <hr>
+                            <div class="form-group" style="padding-left: 15px;">
+                              <p>
+                                 <b>Or Paste/Type Multiple Values:</b> You can enter data by pasting a series of numbers representing trait values into this area.
+                                 The values can be on one line separated by spaces or tabs, or they can be on separate lines. Include one value for each individual
+                                 or line. Use an "x" for missing values. If you have chosen a set of inbred strains, then your data will be displayed in a form in
+                                 which you can confirm and/or edit. If you upload a file above,
                                  any data that you paste here will be ignored. Check <a href="http://gn1.genenetwork.org/RIsample.html">sample data</a> for the correct format.
                               </p>
-                              <textarea name="trait_paste" rows="6" cols="70"></textarea>
+                              <textarea name="trait_paste" rows="6" cols="70" placeholder="# For example&#10;10.12&#10;4.61&#10;x&#10;x&#10;4.81&#10;8.41&#10;4.61&#10;8.31&#10;5.11&#10;4.7&#10;8.39&#10;4.71&#10;4.43&#10;4.83&#10;8.33&#10;9.72&#10;9.64&#10;10.51&#10;x&#10;4.2&#10;5.14&#10;x&#10;5.02&#10;x&#10;4.63&#10;9.03&#10;9.72&#10;9.52&#10;4.92&#10;4.84&#10;3.91"></textarea>
                             </div>
-                          </div>
-                          <div class="controls" style="display:block; margin-left: 40%; margin-right: 20%;">
-                            <input type="submit" style="width: 110px; margin-right: 25px;" class="btn btn-primary form-control col-xs-2" value="Submit Trait">
-                            <input type="reset" style="width: 110px;" class="btn btn-primary form-control col-xs-2" value="Reset">
                           </div>
                         </div>
+                        <div class="clearfix"></div>
                         <div style="padding-bottom: 50px;" class="form-horizontal">
-                            <h3>3. Enable Use of Trait Variance:</h3>
-                            <div class="col-xs-2" style=""display: flex; align-items: center;">
+                            <h3>3. Name Your Trait <span style="color:red;">(optional)</span>:</h3>
+                            <div class="col-xs-2" style="display: flex; align-items: center;">
                                 <img src="/static/new/images/step3.gif">
                             </div>
-                                                      <div class="col-xs-10">
+                            <div class="col-xs-10">
                             <div class="form-group" style="padding-left: 15px;">
                               <p>
                                   <b>Name Your Trait:</b> <span style="color:red;">(optional)</span>
@@ -90,6 +106,8 @@
                               <textarea name="trait_name" rows="1" cols="30"></textarea>
                             </div>
                           </div>
+                          <div class="clearfix"></div>
+                          <br>
                           <div class="controls" style="display:block; margin-left: 40%; margin-right: 20%;">
                               <input type="submit" style="width: 110px; margin-right: 25px;" class="btn btn-primary form-control col-xs-2" value="Submit Trait">
                               <input type="reset" style="width: 110px;" class="btn btn-primary form-control col-xs-2" value="Reset">
@@ -108,4 +126,67 @@
       gn_server_url = "{{ gn_server_url }}";
     </script>
     <script src="/static/new/javascript/dataset_select_menu_orig.js"></script>
+    <script>
+      // File upload preview
+      document.getElementById('trait_file').addEventListener('change', function(e) {
+        var file = e.target.files[0];
+        var previewDiv = document.getElementById('file_preview');
+        var previewContent = document.getElementById('file_preview_content');
+        var formatDetected = document.getElementById('file_format_detected');
+
+        if (!file) {
+          previewDiv.style.display = 'none';
+          return;
+        }
+
+        // Check if it's an Excel file
+        var isExcel = /\.xlsx?$/i.test(file.name);
+
+        if (isExcel) {
+          previewContent.textContent = '(Excel file selected — preview not available)';
+          formatDetected.textContent = 'Excel file: data will be read from the first sheet.';
+          previewDiv.style.display = 'block';
+        } else {
+          var reader = new FileReader();
+          reader.onload = function(event) {
+            var text = event.target.result;
+            var lines = text.split(/\r?\n/).filter(function(l) { return l.trim() !== ''; });
+            var previewLines = lines.slice(0, 5);
+            previewContent.textContent = previewLines.join('\n');
+            previewDiv.style.display = 'block';
+
+            // Detect format
+            if (lines.length > 0) {
+              var firstLine = lines[0];
+              // Try to detect delimiter
+              var delimiter = firstLine.indexOf('\t') >= 0 ? '\t' : (firstLine.indexOf(',') >= 0 ? ',' : /\s+/);
+              var cols = firstLine.split(delimiter);
+
+              // Check if first field looks like a header
+              var hasHeader = isNaN(parseFloat(cols[0])) && cols[0].toLowerCase() !== 'x';
+
+              // Check a data line to determine column count
+              var dataLine = hasHeader && lines.length > 1 ? lines[1] : lines[0];
+              var dataCols = dataLine.split(delimiter);
+              var numCols = dataCols.length;
+
+              if (numCols >= 3) {
+                formatDetected.textContent = 'Detected format: Sample Name, Value, Standard Error' + (hasHeader ? ' (with header row)' : '');
+              } else if (numCols == 2) {
+                // Check if first column looks like sample names
+                var firstCol = dataCols[0].trim();
+                if (isNaN(parseFloat(firstCol)) || firstCol.toLowerCase() === 'x') {
+                  formatDetected.textContent = 'Detected format: Sample Name, Value' + (hasHeader ? ' (with header row)' : '');
+                } else {
+                  formatDetected.textContent = 'Detected format: Values only (two per line)' + (hasHeader ? ' (with header row)' : '');
+                }
+              } else {
+                formatDetected.textContent = 'Detected format: Values only (one per line)';
+              }
+            }
+          };
+          reader.readAsText(file);
+        }
+      });
+    </script>
 {% endblock %}

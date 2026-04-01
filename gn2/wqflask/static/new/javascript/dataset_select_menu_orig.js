@@ -2,9 +2,7 @@ var apply_default, check_search_term, dataset_info, group_info, make_default, op
 process_json = function(data) {
   window.jdata = data;
   populate_species();
-  if ($('#type').length > 0) { //This is to determine if it's the index page or the submit_trait page (which only has species and group selection and no make default option)
-    return apply_default();
-  }
+  return apply_default();
 };
 
 range = function(size, startAt=0) {
@@ -313,8 +311,10 @@ apply_default = function() {
   _results = [];
   for (_i = 0, _len = _ref.length; _i < _len; _i++) {
     item = _ref[_i];
-    $("#" + item[0]).val(defaults[item[0]]);
-    if (item[1]) {
+    if ($("#" + item[0]).length > 0) {
+      $("#" + item[0]).val(defaults[item[0]]);
+    }
+    if (item[1] && $("#" + item[1]).length > 0) {
       populate_function = "populate_" + item[1];
       _results.push(window[populate_function]());
     } else {

@@ -56,10 +56,26 @@ class ShowTrait:
             # Put values in Redis so they can be looked up later if
             # added to a collection
             Redis.set(self.trait_id, kw['trait_paste'], ex=ONE_YEAR)
-            self.trait_vals = kw['trait_paste'].split()
+            self.trait_vals = {"values": kw['trait_paste'].split()}
+
+            # Extra columns from file upload (e.g. SE); store as JSON
+            if kw.get('trait_se'):
+                self.trait_vals["se"] = kw['trait_se'].split()
+            extra_cols = {k: v for k, v in self.trait_vals.items() if k != "values"}
+            if extra_cols:
+                Redis.set(self.trait_id + "_extra",
+                          json.dumps(extra_cols), ex=ONE_YEAR)
+
+            # Store user-provided trait name for display
+            if kw.get('trait_name', '').strip():
+                Redis.set(self.trait_id + "_name",
+                          kw['trait_name'].strip(), ex=ONE_YEAR)
+
             self.this_trait = create_trait(dataset=self.dataset,
                                            name=self.trait_id,
                                            cellid=None)
+            if kw.get('trait_name', '').strip():
+                self.this_trait.display_name = kw['trait_name'].strip()
         else:
             self.temp_trait = True
             self.trait_id = kw['trait_id']
@@ -70,10 +86,19 @@ class ShowTrait:
             self.this_trait = create_trait(dataset=self.dataset,
                                            name=self.trait_id,
                                            cellid=None)
+            custom_name = Redis.get(self.trait_id + "_name")
+            if custom_name:
+                if isinstance(custom_name, bytes):
+                    custom_name = custom_name.decode("utf-8")
+                self.this_trait.display_name = custom_name
             if Redis.get(self.trait_id):
-                self.trait_vals = Redis.get(self.trait_id).split()
+                self.trait_vals = {"values": Redis.get(self.trait_id).split()}
             else:
-                self.trait_vals = ["X"] # There needs to be at least one value, not sure why
+                self.trait_vals = {"values": ["X"]} # There needs to be at least one value, not sure why
+            # Retrieve extra columns (e.g. SE) from Redis if stored during upload
+            extra_json = Redis.get(self.trait_id + "_extra")
+            if extra_json:
+                self.trait_vals.update(json.loads(extra_json))
 
 
         # Get verify/rna-seq link URLs

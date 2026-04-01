@@ -904,16 +904,194 @@ def export_perm_data():
 
 @app.route("/show_temp_trait", methods=('POST',))
 def show_temp_trait_page():
+    form_data = request.form.to_dict()
+
+    # Handle file upload — takes priority over pasted values
+    trait_file = request.files.get('trait_file')
+    if trait_file and trait_file.filename:
+        filename = trait_file.filename.lower()
+        if filename.endswith('.xlsx'):
+            file_bytes = trait_file.read()
+            parsed = _parse_xlsx_file(file_bytes, form_data.get('group', ''))
+        else:
+            file_content = trait_file.read().decode('utf-8', errors='replace')
+            parsed = _parse_trait_file(file_content, form_data.get('group', ''))
+        form_data['trait_paste'] = parsed['trait_paste']
+        if parsed.get('trait_se'):
+            form_data['trait_se'] = parsed['trait_se']
+
     with database_connection(get_setting("SQL_URI")) as conn, conn.cursor() as cursor:
         user_id = ((g.user_session.record.get(b"user_id") or b"").decode("utf-8")
                    or g.user_session.record.get("user_id") or "")
         template_vars = show_trait.ShowTrait(cursor,
                                              user_id=user_id,
-                                             kw=request.form)
+                                             kw=form_data)
         template_vars.js_data = json.dumps(template_vars.js_data,
                                            default=json_default_handler,
                                            indent="   ")
         return redirect(url_for("show_trait_page", dataset=template_vars.dataset.name, trait_id=template_vars.trait_id))
+
+
+def _parse_trait_file(file_content, group_name):
+    """Parse an uploaded trait data file.
+
+    Supports three formats:
+      1. Values only — one value per line (or space/tab-separated on one line)
+      2. Two columns — sample_name <delimiter> value
+      3. Three columns — sample_name <delimiter> value <delimiter> SE
+
+    When sample names are present, values are reordered to match the group's
+    samplelist, with 'x' for any samples not in the file.
+    """
+    result = {'trait_paste': '', 'trait_se': '', 'has_sample_names': False}
+
+    lines = [l.strip() for l in file_content.splitlines() if l.strip()]
+    if not lines:
+        return result
+
+    # Detect delimiter: tab first, then comma, then whitespace
+    first_line = lines[0]
+    if '\t' in first_line:
+        delimiter = '\t'
+    elif ',' in first_line:
+        delimiter = ','
+    else:
+        delimiter = None  # split() splits on any whitespace
+
+    def split_line(line):
+        if delimiter:
+            return [f.strip() for f in line.split(delimiter)]
+        return line.split()
+
+    cols = split_line(lines[0])
+
+    # Detect if there's a header row: second field (value column) is
+    # not numeric and not 'x'
+    has_header = False
+    if len(cols) >= 2:
+        first_val = cols[1]
+        try:
+            float(first_val)
+        except ValueError:
+            if first_val.lower() != 'x':
+                has_header = True
+    elif len(cols) == 1:
+        try:
+            float(cols[0])
+        except ValueError:
+            if cols[0].lower() != 'x':
+                has_header = True
+
+    data_lines = lines[1:] if has_header else lines
+    if not data_lines:
+        return result
+
+    # Determine column count from the first data line
+    first_data_cols = split_line(data_lines[0])
+    num_cols = len(first_data_cols)
+
+    # Check if this is a named-sample file (2+ columns where the first
+    # column contains non-numeric sample/strain names)
+    has_sample_names = False
+    if num_cols >= 2:
+        first_field = first_data_cols[0]
+        try:
+            float(first_field)
+        except ValueError:
+            if first_field.lower() != 'x':
+                has_sample_names = True
+
+    if has_sample_names:
+        result['has_sample_names'] = True
+
+        # Build a dict of sample_name -> (value, se)
+        sample_data = {}
+        for line in data_lines:
+            parts = split_line(line)
+            if len(parts) < 2:
+                continue
+            sample_name = parts[0]
+            value = parts[1]
+            se = parts[2] if len(parts) >= 3 else None
+            sample_data[sample_name] = (value, se)
+
+        # Reuse existing code: create a Temp dataset to get the full
+        # sample ordering (parents + F1 + samplelist), which matches
+        # how make_sample_lists builds primary_sample_names.
+        try:
+            dataset = create_dataset(
+                "Temp", dataset_type="Temp", group_name=group_name)
+            samplelist = dataset.group.all_samples_ordered()
+        except Exception:
+            samplelist = None
+
+        if samplelist:
+            values = []
+            ses = []
+            has_se = any(v[1] is not None for v in sample_data.values())
+            for sample in samplelist:
+                if sample in sample_data:
+                    values.append(sample_data[sample][0])
+                    if has_se:
+                        ses.append(sample_data[sample][1] or 'x')
+                else:
+                    values.append('x')
+                    if has_se:
+                        ses.append('x')
+            result['trait_paste'] = ' '.join(values)
+            if has_se:
+                result['trait_se'] = ' '.join(ses)
+        else:
+            # Fallback: no samplelist found, use values in file order
+            values = [sample_data[s][0] for s in sample_data]
+            result['trait_paste'] = ' '.join(values)
+            has_se = any(v[1] is not None for v in sample_data.values())
+            if has_se:
+                ses = [sample_data[s][1] or 'x' for s in sample_data]
+                result['trait_se'] = ' '.join(ses)
+    else:
+        # Values-only format — collect all values
+        values = []
+        for line in data_lines:
+            parts = split_line(line)
+            values.extend(parts)
+        result['trait_paste'] = ' '.join(values)
+
+    return result
+
+
+def _parse_xlsx_file(file_bytes, group_name):
+    """Parse an uploaded .xlsx file using pandas.
+
+    Reads the first sheet, converts all cells to strings, and delegates
+    to _parse_trait_file for the actual parsing logic.
+    """
+    import pandas as pd
+
+    result = {'trait_paste': '', 'trait_se': '', 'has_sample_names': False}
+
+    try:
+        df = pd.read_excel(
+            io.BytesIO(file_bytes),
+            sheet_name=0,
+            header=None,
+            dtype=str,
+            engine='openpyxl',
+        )
+    except Exception:
+        return result
+
+    if df.empty:
+        return result
+
+    # Convert the DataFrame to tab-delimited text that _parse_trait_file
+    # understands, then delegate to it.
+    df = df.fillna('')
+    text_lines = []
+    for _, row in df.iterrows():
+        text_lines.append('\t'.join(str(v) for v in row))
+    file_as_text = '\n'.join(text_lines)
+    return _parse_trait_file(file_as_text, group_name)
 
 
 @app.route("/show_trait")
