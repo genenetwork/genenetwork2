@@ -38,7 +38,8 @@
       {%if calling_page == "resources"%}
       class="active"
       {%endif%}>
-    <a href="{{url_for('oauth2.resource.user_resources')}}">Resources</a>
+    <a href="{{url_for('oauth2.resource.user_resources')}}">
+      Data and Access Management</a>
   </li>
 
   {%if "system:data:link-to-group" in user_sys_privileges|map(attribute="privilege_id") %}
