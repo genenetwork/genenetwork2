@@ -13,11 +13,16 @@ from flask import (
 from gn2.wqflask.oauth2.request_utils import with_flash_error
 
 from gn2.jobs import jobs
-from .ui import render_ui
+from .ui import render_ui as _render_ui
 from .request_utils import process_error
 from .client import oauth2_get, oauth2_post, authserver_uri
 
 data = Blueprint("data", __name__)
+
+
+def render_ui(template, **kwargs):
+    return _render_ui(template, calling_page="data", **kwargs)
+
 
 def __search_mrna__(query, template, **kwargs):
     species_name = kwargs["species_name"]

@@ -18,7 +18,7 @@ from flask import (
 
 from . import client
 from . import session
-from .ui import render_ui
+from .ui import render_ui as _render_ui
 from .checks import require_oauth2
 from .client import (oauth2_get,
                      oauth2_post,
@@ -35,6 +35,11 @@ from .request_utils import (user_details,
 
 users = Blueprint("user", __name__)
 
+
+def render_ui(template, **kwargs):
+    return _render_ui(template, **{"calling_page": "users", **kwargs})
+
+
 @users.route("/profile", methods=["GET"])
 @require_oauth2
 def user_profile():
@@ -46,6 +51,7 @@ def user_profile():
             user_privileges = tuple(
                 privilege["privilege_id"] for role in roles
                 for privilege in role["privileges"]),
+            calling_page="dashboard",
             **kwargs)
 
     def __roles_success__(roles):
@@ -145,7 +151,8 @@ def register_user():
 def masquerade():
     """Masquerade as a particular user."""
     if request.method == "GET":
-        return render_ui("oauth2/masquerade.html", users=tuple())
+        return render_ui(
+            "oauth2/masquerade.html", users=tuple(), calling_page="masquerade")
 
     def __masq_success__(masq_details):
         session.set_masquerading(masq_details)

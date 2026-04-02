@@ -10,6 +10,11 @@ from .request_utils import request_error, process_error
 
 roles = Blueprint("role", __name__)
 
+
+def render_ui(template, **kwargs):
+    return _render_ui(template, calling_page="resources", **kwargs)
+
+
 @roles.route("/role/<uuid:role_id>", methods=["GET"])
 @require_oauth2
 def role(role_id: uuid.UUID):

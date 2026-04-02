@@ -21,7 +21,7 @@ resources = Blueprint("resource", __name__)
 logger = logging.getLogger(__name__)
 
 def render_ui(template, **kwargs):
-    return _render_ui(template, uipages="resources", **kwargs)
+    return _render_ui(template, calling_page="resources", **kwargs)
 
 @resources.route("/", methods=["GET"])
 @require_oauth2

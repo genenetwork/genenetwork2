@@ -16,8 +16,8 @@ from flask import (flash,
 
 from gn_libs.debug import make_peeker
 
-from .ui import render_ui
 from .checks import require_oauth2
+from .ui import render_ui as _render_ui
 from .client import oauth2_get, oauth2_post, oauth2_delete
 from .request_utils import (
     user_details, handle_error, process_error, handle_success,
@@ -29,28 +29,40 @@ logger = logging.getLogger(__name__)
 groups = Blueprint("group", __name__)
 __pk__ = make_peeker(logger)
 
+
+def render_ui(template, **kwargs):
+    return _render_ui(template, **{"calling_page": "groups", **kwargs})
+
+
 @groups.route("/", methods=["GET"])
 def user_group():
     """Get the user's group."""
+    def __render__(*args, **kwargs):
+        return render_ui(
+            "oauth2/group.html", *args, **{"calling_page": "group", **kwargs})
+
     def __get_join_requests__(group, users):
         return oauth2_get("auth/group/requests/join/list").either(
-            lambda error: render_ui(
-                "oauth2/group.html", group=group, users=users,
+            lambda error: __render__(
+                group=group, users=users,
                 group_join_requests_error=__pk__(
-                    "Group join request", process_error(error))),
-            lambda gjr: render_ui(
-                "oauth2/group.html", group=group, users=users,
-                group_join_requests=gjr))
+                    "Group join request", process_error(error)),
+                calling_page="group"),
+            lambda gjr: __render__(
+                group=group, users=users,
+                group_join_requests=gjr,
+                calling_page="group"))
     def __success__(group):
         return oauth2_get(f"auth/group/members/{group['group_id']}").either(
-            lambda error: render_ui(
-                "oauth2/group.html", group=group,
-                user_error=process_error(error)),
+            lambda error: __render__(
+                group=group,
+                user_error=process_error(error),
+                calling_page="group"),
             partial(__get_join_requests__, group))
 
     def __group_error__(err):
-        return render_ui(
-            "oauth2/group.html", group_error=process_error(err))
+        return __render__(group_error=process_error(err),
+                          calling_page="group")
 
     return oauth2_get("auth/user/group").either(
         __group_error__, __success__)
