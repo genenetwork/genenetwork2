@@ -70,7 +70,11 @@
       return results;
     })();
     //ZS: 0.1 indicates buffer, increase to increase buffer
-    y_domain = [sorted_values[0] - (sorted_values.slice(-1)[0] - sorted_values[0])*0.1, sorted_values.slice(-1)[0] + (sorted_values.slice(-1)[0] - sorted_values[0])*0.1]
+    var y_buffer = (sorted_values.slice(-1)[0] - sorted_values[0]) * 0.1;
+    var y_min = sorted_values[0] - y_buffer;
+    if (sorted_values[0] >= 0 && y_min < 0) { y_min = 0; }
+    var y_max = sorted_values.slice(-1)[0] + y_buffer;
+    var y_range = [y_min, y_max];
     //sw_result = ShapiroWilkW(sorted_values);
     //W = sw_result.w.toFixed(3);
     //pvalue = sw_result.p.toFixed(3);
@@ -209,6 +213,7 @@
             visible: true,
             linecolor: 'black',
             linewidth: 1,
+            range: y_range,
             title: "<b>" + js_data.unit_type + "</b>",
             titlefont: {
               family: "arial",
