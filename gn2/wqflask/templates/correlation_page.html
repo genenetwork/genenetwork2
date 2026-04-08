@@ -271,11 +271,18 @@
               'type': "natural",
               'data': null,
               'render': function(data) {
-                try {
-                  return decodeURIComponent(escape(data.description))
-                } catch(err){
-                  return escape(data.description)
+                description = data.description
+                let displayDescription = description
+                if (description.length > 200) {
+                  displayDescription = description.slice(0, 200) + '...'
                 }
+                try {
+                  displayDescription = decodeURIComponent(displayDescription)
+                  description = decodeURIComponent(description)
+                } catch(err){
+                  // description already set
+                }
+                return '<span title="' + description.replace(/"/g, '&quot;') + '">' + displayDescription + '</span>'
               }
             },
             {
@@ -378,11 +385,18 @@
               'width': "500px",
               'data': null,
               'render': function(data) {
-                try {
-                  return decodeURIComponent(escape(data.description))
-                } catch(err){
-                  return data.description
+                description = data.description
+                let displayDescription = description
+                if (description.length > 200) {
+                  displayDescription = description.slice(0, 200) + '...'
                 }
+                try {
+                  displayDescription = decodeURIComponent(displayDescription)
+                  description = decodeURIComponent(description)
+                } catch(err){
+                  // description already set
+                }
+                return '<span title="' + description.replace(/"/g, '&quot;') + '">' + displayDescription + '</span>'
               }
             },
             {
