@@ -21,6 +21,14 @@ create_table = function(tableId="trait_table", tableData = [], columnDefs = [], 
                   }
                   change_buttons()
                 });
+
+                // Fix header alignment when scrollbar visibility changes due to filtering
+                // This ensures headers stay aligned with table content when row count changes
+                if (typeof theTable !== 'undefined' && theTable && theTable.columns) {
+                    setTimeout(function() {
+                        theTable.columns.adjust();
+                    }, 10);
+                }
             },
             "columns": columnDefs,
             "sDom": "iti",
