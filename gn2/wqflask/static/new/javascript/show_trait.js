@@ -342,6 +342,16 @@ updateBarChart = function() {
 
   new_chart_range = getBarRange(trait_vals, trait_vars)
 
+  // Adjust left margin based on y-axis value digit count to prevent label cutoff
+  let maxAbsVal = Math.max(Math.abs(new_chart_range[0]), Math.abs(new_chart_range[1]));
+  let numDigits = Math.ceil(Math.abs(maxAbsVal)).toString().length;
+  let baseLeftMargin = 80;
+  if (numDigits >= 5) {
+    root.bar_layout['margin']['l'] = baseLeftMargin + (numDigits - 4) * 8;
+  } else {
+    root.bar_layout['margin']['l'] = baseLeftMargin;
+  }
+
   root.bar_layout['yaxis']['range'] = new_chart_range
 
   if ($('input[name="transform"]').val() != ""){
