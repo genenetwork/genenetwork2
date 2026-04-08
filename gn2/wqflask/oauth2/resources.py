@@ -2,8 +2,13 @@ import logging
 from uuid import UUID
 
 from pymonad.either import Left, Right
-from flask import (
-    flash, request, url_for, redirect, Response, Blueprint)
+from flask import (flash,
+                   request,
+                   url_for,
+                   jsonify,
+                   redirect,
+                   Response,
+                   Blueprint)
 
 from . import client
 from . import session
@@ -27,11 +32,26 @@ def render_ui(template, **kwargs):
 @require_oauth2
 def user_resources():
     """List the resources the user has access to."""
-    def __success__(resources):
-        return render_ui("oauth2/resources.html", resources=resources)
+    args = request.args
+    if request.method == "GET" and bool(args.get("length") or 0):
+        return oauth2_get(
+            "auth/user/resources",
+            json={
+                "start": args.get("start"),
+                "length": args.get("length"),
+                "text_filter": args.get("search[value]")
+            }
+        ).either(
+            request_error,
+            lambda resp: jsonify({
+                **resp,
+                "draw": int(args.get("draw")),
+                "recordsTotal": int(resp["total-records"]),
+                "recordsFiltered": int(resp["filtered-records"]),
+            }))
 
-    return oauth2_get("auth/user/resources").either(
-        request_error, __success__)
+    return render_ui("oauth2/resources.html", resources=resources)
+
 
 @resources.route("/create", methods=["GET", "POST"])
 @require_oauth2

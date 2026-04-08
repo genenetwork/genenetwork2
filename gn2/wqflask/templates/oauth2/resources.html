@@ -1,9 +1,23 @@
 {% extends "oauth2/base.html" %}
 {%block title%}View User{%endblock%}
 
+{%block css%}
+<link rel="stylesheet" type="text/css" href="/static/new/css/show_trait.css" />
+<link rel="stylesheet"
+      type="text/css"
+      href="{{ url_for('css', filename='DataTables/css/jquery.dataTables.css') }}" />
+<link rel="stylesheet"
+      type="text/css"
+      href="{{ url_for('js', filename='DataTablesExtensions/buttonStyles/css/buttons.dataTables.min.css') }}">
+<link rel="stylesheet"
+      type="text/css"
+      href="{{ url_for('css', filename='jquery-ui/jquery-ui.theme.css') }}"/>
+{%endblock%}
+
 {%block dash_page_header%}Resources{%endblock%}
 
 {%block dash_page_content%}
+
 
 <div class="row">
   <p>This page helps you view and manage your access to data, and the Genenetwork system.<br />
@@ -11,39 +25,101 @@
 </div>
 
 <div class="row">
-  <table class="table">
-    <caption>Resources</caption>
+  <table id="tbl-list-resources"
+         class="table table-hover table-striped cell-border">
     <thead>
       <tr>
 	<th>Name</th>
 	<th>Category</th>
+        <th>Created By</th>
+        <th>Created at</th>
       </tr>
     </thead>
+
     <tbody>
-      {%for resource in resources %}
       <tr>
-	<td>
-	  <a href="{{url_for(
-		   'oauth2.resource.view_resource',
-		   resource_id=resource.resource_id)}}"
-	     title="View resource {{resource.resource_name}}">
-	    {{resource.resource_name}}
-	  </a>
-	</td>
-	<td>{{resource.resource_category.resource_category_key}}</td>
+        <td></td>
+        <td></td>
+        <td></td>
+        <td></td>
       </tr>
-      {%else%}
-      <tr>
-	<td colspan="3">
-	  <span class="glyphicon glyphicon-warning-sign"></span>&nbsp;
-	  <span class="text-warning">
-	    The user has no access to any resource.
-	  </span>
-	</td>
-      </tr>
-      {%endfor%}
     </tbody>
   </table>
 </div>
 
+{%endblock%}
+
+
+{%block js%}
+<script language="javascript"
+        type="text/javascript"
+        src="{{ url_for('js', filename='DataTables/js/jquery.dataTables.min.js') }}"></script>
+<script language="javascript"
+        type="text/javascript"
+        src="{{ url_for('js', filename='DataTablesExtensions/scroller/js/dataTables.scroller.min.js') }}"></script>
+<script language="javascript"
+        type="text/javascript"
+        src="{{ url_for('js', filename='DataTablesExtensions/plugins/sorting/natural.js') }}"></script>
+<script language="javascript"
+        type="text/javascript"
+        src="{{ url_for('js', filename='DataTablesExtensions/buttons/js/dataTables.buttons.min.js') }}"></script>
+<script language="javascript"
+        type="text/javascript"
+        src="{{ url_for('js', filename='DataTablesExtensions/buttons/js/buttons.colVis.min.js') }}"></script>
+
+<script type="text/javascript">
+  $(function() {
+      /**TODO: Update this once backend update is completed.**/
+      var table_api = $("#tbl-list-resources").DataTable({
+          columns: [
+              {
+                  orderable: true,
+                  searchable: true,
+                  data: function(resource) {
+                      name = resource.resource_name;
+                      // if(name.length > 25) {
+                      //     name = name.substring(0, 22) + "...";
+                      // }
+
+                      return `<a href="/oauth2/resource/` +
+                          `${resource.resource_id}/view" ` +
+                          `title="View more details for resource ` +
+                          `'${resource.resource_name}'">` +
+                          `${name}</a>`;
+                  }
+              },
+              {
+                  orderable: true,
+                  searchable: true,
+                  data: function(resource) {
+                      return resource.resource_category.resource_category_description;
+                  }
+              },
+              {
+                  orderable: true,
+                  searchable: true,
+                  data: function(resource) {
+                      return resource.created_by.name;
+                  }
+              },
+              {
+                  orderable: true,
+                  searchable: true,
+                  data: "created_at"
+              }
+          ],
+          select: "single",
+          serverSide: true,
+          "ajax": {
+              "url": "{{url_for('oauth2.resource.user_resources')}}",
+              "dataSrc": "resources"
+          },
+
+          "scroller": true,
+          "scrollY": "100vh",
+          "scrollCollapse": true,
+          "sDom": "frtiS"
+      });
+  });
+</script>
 {%endblock%}
