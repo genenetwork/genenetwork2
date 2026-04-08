@@ -217,7 +217,13 @@ def js(filename):
     if 'js_alt/' in filename:
         js_path = js_path.replace('genenetwork2/javascript', 'javascript')
         name = name.replace('js_alt/', '')
-    return send_from_directory(js_path, name, mimetype="text/javascript")
+    return send_from_directory(
+        js_path,
+        name,
+        mimetype=(
+            "text/javascript"
+            if not name.endswith(".css")
+            else "text/css"))
 
 
 @app.route("/css/<path:filename>")
