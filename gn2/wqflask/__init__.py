@@ -14,7 +14,7 @@ import jinja2
 from flask_session import Session
 from authlib.jose import JsonWebKey
 from cachelib import FileSystemCache
-from flask import g, Flask, flash, session, url_for, Response, redirect, current_app, request
+from flask import g, Flask, flash, session, Response, redirect, current_app, request
 
 
 from gn2.utility import formatting
