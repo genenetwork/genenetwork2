@@ -310,21 +310,23 @@
                   }
               });
           }
-          if(tableData[0].description !== undefined) {
-              colDefs.push({
-                  title: "Description",
-                  searchable: true,
-                  orderable: true,
-                  data: "description"
-              });
-          }
-          if(tableData[0].year !== undefined) {
-              colDefs.push({
-                  title: "Year",
-                  searchable: true,
-                  orderable: true,
-                  data: "year"
-              });
+          if(tableData.length > 0) {
+              if(tableData[0].description !== undefined) {
+                  colDefs.push({
+                      title: "Description",
+                      searchable: true,
+                      orderable: true,
+                      data: "description"
+                  });
+              }
+              if(tableData[0].year !== undefined) {
+                  colDefs.push({
+                      title: "Year",
+                      searchable: true,
+                      orderable: true,
+                      data: "year"
+                  });
+              }
           }
 
           return colDefs.concat([{
