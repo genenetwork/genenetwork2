@@ -107,7 +107,7 @@ def view_resource(resource_id: UUID):
         ).then(
             lambda resource_users_list: {
                 **data,
-                "users": resource_users_list
+                "users": resource_users_list["users"]
             }
         )
 
