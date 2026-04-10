@@ -1455,9 +1455,9 @@ def mapping_results_page(hash_of_inputs=None):
 
     # Store trait sample data in Redis, so additive effect scatterplots can include edited values
     dhash = hashlib.md5()
-    dhash.update(start_vars['sample_vals'].encode())
+    dhash.update(start_vars.get('sample_vals', []).encode())
     samples_hash = dhash.hexdigest()
-    Redis.set(samples_hash, start_vars['sample_vals'])
+    Redis.set(samples_hash, start_vars.get('sample_vals', []))
     start_vars['dataid'] = samples_hash
 
     version = "v3"
