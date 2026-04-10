@@ -18,7 +18,7 @@ def get_groups(species, conn):
     """Build groups list"""
     groups = {}
     with conn.cursor() as cursor:
-        for species_name, _species_full_name in species:
+        for species_name, *_species_full_name in species:
             groups[species_name] = []
             query = ("SELECT InbredSet.Name, InbredSet.FullName, "
                  "IFNULL(InbredSet.Family, 'None') "
