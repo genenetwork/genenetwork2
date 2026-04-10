@@ -342,7 +342,12 @@ def gsearchact():
         return render_template("gsearch_pheno.html", **result)
 
     raise werkzeug.exceptions.BadRequest(
-        description=f"Unknown search type '{search_type}'.")
+        description=(
+            f"Unknown search type '{search_type}'. "
+            "The global search expects only two types of searches, "
+            "'Genes / Molecules' search or 'Phenotypes' search. Any other "
+            "search type is invalid. Please try selecting one or the other and "
+            "redoing your search."))
 
 
 @app.route("/gsearch_table", methods=('GET',))
