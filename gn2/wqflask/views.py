@@ -50,6 +50,8 @@ from flask import send_file
 from flask import url_for
 from flask import flash
 
+import werkzeug
+
 from gn2.wqflask import app
 from gn2.wqflask import search_results
 from gn2.wqflask import server_side
@@ -123,7 +125,6 @@ Redis = get_redis_conn()
 
 @app.errorhandler(Exception)
 def handle_generic_exceptions(e):
-    import werkzeug
     err_msg = str(e)
     # get the stack trace and send it to the logger
     exc_type, exc_value, exc_traceback = sys.exc_info()
@@ -339,6 +340,9 @@ def gsearchact():
                                result=result)
     elif search_type == "phenotype":
         return render_template("gsearch_pheno.html", **result)
+
+    raise werkzeug.exceptions.BadRequest(
+        description=f"Unknown search type '{search_type}'.")
 
 
 @app.route("/gsearch_table", methods=('GET',))
