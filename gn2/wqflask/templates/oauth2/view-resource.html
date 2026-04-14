@@ -3,7 +3,7 @@
 {%block title%}View User{%endblock%}
 
 {%block css%}
-<link rel="stylesheet" href="/static/new/css/pills.css" />
+<link rel="stylesheet" type="text/css" href="/static/new/css/show_trait.css" />
 <link rel="stylesheet" href="/static/new/css/resource-roles.css" />
 <link rel="stylesheet" type="text/css"
       href="{{ url_for('css', filename='DataTables/css/jquery.dataTables.css') }}" />
@@ -83,193 +83,226 @@
   </table>
 </div>
 
-<div class="row">
-  <h3>Resource Data</h3>
-  <table class="table table-hover table-striped cell-border no-footer"
-         id="tbl-resource-data"
-         data-resource-id='{{resource.resource_id}}'
-         data-resource-data='{{resource.resource_data | tojson}}'
-         data-unlink-uri="{{url_for('oauth2.resource.unlink_data_from_resource')}}"
-         data-resource-type="{{resource.resource_category.resource_category_key}}">
-    <caption>Resource Data</caption>
-    <thead></thead>
-    <tbody></tbody>
-  </table>
-  <form action="{{url_for('oauth2.resource.view_resource', resource_id=resource.resource_id)}}"
-	method="GET"
-	style="width:100%;text-align:center;">
-    <input type="hidden" name="page" value="{{page}}" />
-    <input type="hidden" name="count_per_page" value="{{count_per_page}}" />
-
-    <input type="submit" name="submit" value="prev" class="btn btn-info"
-	   {%if page == 1 %}disabled="disabled"{%endif%} />
-    <input type="submit" name="submit" value="next" class="btn btn-info"
-	   {%if resource.resource_data | length < count_per_page %}
-	                                          disabled="disabled"
-	                                          {%endif%} />
-           </form>
-</div>
-
-<div class="row">
-  <h3>Unlinked Data</h3>
-  <div>
-    <a href="#"
-       id="btn-unlinked-data-select-all"
-       title="Select all"
-       class="btn btn-info">select all</a>
-    <a href="#"
-       id="btn-unlinked-data-deselect-all"
-       title="Deselect all"
-       class="btn btn-danger">deselect all</a>
-    <a href="#"
-       id="btn-unlinked-data-link-selected"
-       title="Link selected"
-       class="btn btn-info">link selected</a>
-  </div>
-  <table class="table"
-         id="tbl-unlinked-data"
-         data-unlinked-data='{{unlinked_data | tojson}}'
-         data-link-uri="{{url_for('oauth2.resource.link_data_to_resource')}}">
-    <thead></thead>
-    <tbody></tbody>
-  </table>
-</div>
-
-<div class="row">
-  <h3>Available Resource Roles</h3>
-  <div class="resource_roles">
-    {%for role in resource_roles%}
-    <a class="pill"
-       href="{{url_for('oauth2.resource.view_resource_role',
-             resource_id=resource.resource_id,
-             role_id=role.role_id)}}"
-       title="Role page for role named '{{role.role_name}}'">
-      {{role.role_name}}
+<ul class="nav nav-tabs">
+  <li class="active">
+    <a href="#tab-resource-data"
+       title="Display this resource's data tab."
+       data-toggle="tab">
+      Resource Data
     </a>
-    {%endfor%}
+  </li>
+  <li>
+    <a href="#tab-resource-roles"
+       title="Display roles/permissions available for this resource."
+       data-toggle="tab">
+      Roles
+    </a>
+  </li>
+  <li>
+    <a href="#tab-resource-users"
+       title="Display users with access to this resource."
+       data-toggle="tab">
+      Users
+    </a>
+  </li>
+</ul>
+
+<div class="tab-content">
+  <div id="tab-resource-data" class="tab-pane fade in active">
+    <div class="row">
+      <h3>Resource Data</h3>
+      <table class="table table-hover table-striped cell-border no-footer"
+             id="tbl-resource-data"
+             data-resource-id='{{resource.resource_id}}'
+             data-resource-data='{{resource.resource_data | tojson}}'
+             data-unlink-uri="{{url_for('oauth2.resource.unlink_data_from_resource')}}"
+             data-resource-type="{{resource.resource_category.resource_category_key}}">
+        <caption>Resource Data</caption>
+        <thead></thead>
+        <tbody></tbody>
+      </table>
+      <form action="{{url_for('oauth2.resource.view_resource', resource_id=resource.resource_id)}}"
+	    method="GET"
+	    style="width:100%;text-align:center;">
+        <input type="hidden" name="page" value="{{page}}" />
+        <input type="hidden" name="count_per_page" value="{{count_per_page}}" />
+
+        <input type="submit" name="submit" value="prev" class="btn btn-info"
+	       {%if page == 1 %}disabled="disabled"{%endif%} />
+        <input type="submit" name="submit" value="next" class="btn btn-info"
+	       {%if resource.resource_data | length < count_per_page %}
+	                                              disabled="disabled"
+	                                              {%endif%} />
+               </form>
+    </div>
+
+    <div class="row">
+      <h3>Unlinked Data</h3>
+      <div>
+        <a href="#"
+           id="btn-unlinked-data-select-all"
+           title="Select all"
+           class="btn btn-info">select all</a>
+        <a href="#"
+           id="btn-unlinked-data-deselect-all"
+           title="Deselect all"
+           class="btn btn-danger">deselect all</a>
+        <a href="#"
+           id="btn-unlinked-data-link-selected"
+           title="Link selected"
+           class="btn btn-info">link selected</a>
+      </div>
+      <table class="table"
+             id="tbl-unlinked-data"
+             data-unlinked-data='{{unlinked_data | tojson}}'
+             data-link-uri="{{url_for('oauth2.resource.link_data_to_resource')}}">
+        <thead></thead>
+        <tbody></tbody>
+      </table>
+    </div>
   </div>
-  <hr />
-  <a title="create a new role for this resource"
-     href="{{url_for('oauth2.resource.create_resource_role',
-           resource_id=resource.resource_id)}}"
-     class="btn btn-info">New Role</a>
-</div>
 
-<div class="row">
-  <h3>Users: Assigned Roles</h3>
-  {%if users_n_roles_error is defined%}
-  {{display_error("Users and Roles", users_n_roles_error)}}
-  {%else%}
-  <table class="table">
-    <caption>User Roles</caption>
-    <thead>
-      <tr>
-	<th>User Email</th>
-	<th>User Name</th>
-	<th>User Group</th>
-	<th colspan="2">Assigned Roles</th>
-      </tr>
-    </thead>
-    <tbody>
-      {%for user_row in users_n_roles%}
-      <tr>
-	<td rowspan="{{user_row.roles | length + 1}}">{{user_row.user.email}}</td>
-	<td rowspan="{{user_row.roles | length + 1}}">{{user_row.user.name}}</td>
-	<td rowspan="{{user_row.roles | length + 1}}">
-	  {{user_row.user_group.group_name}}</td>
-	<th>Role</th>
-	<th>Action</th>
-      </tr>
-      {%for role in user_row.roles%}
-      <tr>
-	<td>
-	  <a href="{{url_for(
-		   'oauth2.role.role',
-		   role_id=role.role_id)}}"
-	     title="Details for '{{role.role_name}}' role">
-	    {{role.role_name}}
-	  </a>
-	</td>
-	<td>
-	  <form action="{{url_for('oauth2.resource.unassign_role',
-			resource_id=resource.resource_id)}}"
-		method="POST">
-	    <input type="hidden" name="user_id"
-		   value="{{user_row.user.user_id}}" />
-	    <input type="hidden" name="role_id"
-		   value="{{role.role_id}}">
-	    <input type="submit"
-		   value="Unassign"
-		   class="btn btn-danger"
-		   {%if user_row.user.user_id==this_user.user_id%}
-		   disabled="disabled"
-		   {%endif%}>
-	  </form>
-	</td>
-      </tr>
-      {%endfor%}
+  <div id="tab-resource-roles"  class="tab-pane fade">
+    <div class="row">
+      <h3>Available Resource Roles</h3>
+      <div class="resource_roles">
+        {%for role in resource_roles%}
+        <a class="pill"
+           href="{{url_for('oauth2.resource.view_resource_role',
+                 resource_id=resource.resource_id,
+                 role_id=role.role_id)}}"
+           title="Role page for role named '{{role.role_name}}'">
+          {{role.role_name}}
+        </a>
+        {%endfor%}
+      </div>
+      <hr />
+      <a title="create a new role for this resource"
+         href="{{url_for('oauth2.resource.create_resource_role',
+               resource_id=resource.resource_id)}}"
+         class="btn btn-info">New Role</a>
+    </div>
+  </div>
+
+  <div id="tab-resource-users" class="tab-pane fade">
+    <div class="row">
+      <h3>Users: Assigned Roles</h3>
+      {%if users_n_roles_error is defined%}
+      {{display_error("Users and Roles", users_n_roles_error)}}
       {%else%}
-      <tr>
-	<td colspan="5">
-	  <span class="glyphicon glyphicon-info-sign text-info">
-	  </span>
-	  &nbsp;
-	  <span class="text-info">
-	    There are no users assigned any role for this resource.
-	  </span>
-	</td>
-      </tr>
-      {%endfor%}
-    </tbody>
-  </table>
-  {%endif%}
-</div>
-
-<div class="row">
-  <h3>Assign</h3>
-  {%if resource_roles_error is defined%}
-  {{display_error("Resource Roles", resource_roles_error)}}
-  {%elif users_error is defined%}
-  {{display_error("Users", users_error)}}
-  {%else%}
-  <form action="{{url_for(
-		'oauth2.resource.assign_role',
-		resource_id=resource.resource_id)}}"
-	method="POST" autocomplete="off">
-    <input type="hidden" name="resource_id" value="{{resource_id}}" />
-    <div class="form-group">
-      <label for="role_id" class="form-label">Role</label>
-      <select class="form-control" name="role_id"
-	      id="role_id" required="required">
-	<option value="">Select role</option>
-        {%for rrole in resource_roles%}
-        <option value="{{rrole.role_id}}">
-          {{rrole.role_name}}
-        </option>
-        {%endfor%}
-      </select>
+      <table class="table">
+        <caption>User Roles</caption>
+        <thead>
+          <tr>
+	    <th>User Email</th>
+	    <th>User Name</th>
+	    <th>User Group</th>
+	    <th colspan="2">Assigned Roles</th>
+          </tr>
+        </thead>
+        <tbody>
+          {%for user_row in users_n_roles%}
+          <tr>
+	    <td rowspan="{{user_row.roles | length + 1}}">{{user_row.user.email}}</td>
+	    <td rowspan="{{user_row.roles | length + 1}}">{{user_row.user.name}}</td>
+	    <td rowspan="{{user_row.roles | length + 1}}">
+	      {{user_row.user_group.group_name}}</td>
+	    <th>Role</th>
+	    <th>Action</th>
+          </tr>
+          {%for role in user_row.roles%}
+          <tr>
+	    <td>
+	      <a href="{{url_for(
+		       'oauth2.role.role',
+		       role_id=role.role_id)}}"
+	         title="Details for '{{role.role_name}}' role">
+	        {{role.role_name}}
+	      </a>
+	    </td>
+	    <td>
+	      <form action="{{url_for('oauth2.resource.unassign_role',
+			    resource_id=resource.resource_id)}}"
+		    method="POST">
+	        <input type="hidden" name="user_id"
+		       value="{{user_row.user.user_id}}" />
+	        <input type="hidden" name="role_id"
+		       value="{{role.role_id}}">
+	        <input type="submit"
+		       value="Unassign"
+		       class="btn btn-danger"
+		       {%if user_row.user.user_id==this_user.user_id%}
+		       disabled="disabled"
+		       {%endif%}>
+	      </form>
+	    </td>
+          </tr>
+          {%endfor%}
+          {%else%}
+          <tr>
+	    <td colspan="5">
+	      <span class="glyphicon glyphicon-info-sign text-info">
+	      </span>
+	      &nbsp;
+	      <span class="text-info">
+	        There are no users assigned any role for this resource.
+	      </span>
+	    </td>
+          </tr>
+          {%endfor%}
+        </tbody>
+      </table>
+      {%endif%}
     </div>
 
-    <div class="form-group">
-      <label for="user-email" class="form-label">User Email</label>
-      <input list="users-list" name="user_email" class="form-control"
-	     {%if users | length == 0%}
-	     disabled="disabled"
-	     {%endif%}
-	     required="required" />
-      <datalist id="users-list">
-        {%for user in users%}
-        <option value="{{user.email}}">{{user.email}} - {{user.name}}</option>
-        {%endfor%}
-      </datalist>
-    </div>
+    <div class="row">
+      <h3>Assign</h3>
+      {%if resource_roles_error is defined%}
+      {{display_error("Resource Roles", resource_roles_error)}}
+      {%elif users_error is defined%}
+      {{display_error("Users", users_error)}}
+      {%else%}
+      <form action="{{url_for(
+		    'oauth2.resource.assign_role',
+		    resource_id=resource.resource_id)}}"
+	    method="POST" autocomplete="off">
+        <input type="hidden" name="resource_id" value="{{resource_id}}" />
+        <div class="form-group">
+          <label for="role_id" class="form-label">Role</label>
+          <select class="form-control" name="role_id"
+	          id="role_id" required="required">
+	    <option value="">Select role</option>
+            {%for rrole in resource_roles%}
+            <option value="{{rrole.role_id}}">
+              {{rrole.role_name}}
+            </option>
+            {%endfor%}
+          </select>
+        </div>
 
-    <input type="submit" class="btn btn-primary" value="Assign"
-           {%if users | length == 0%}
-           disabled="disabled"
-           {%endif%} />
-  </form>
-  {%endif%}
+        <div class="form-group">
+          <label for="user-email" class="form-label">User Email</label>
+          <input list="users-list" name="user_email" class="form-control"
+	         {%if users | length == 0%}
+	         disabled="disabled"
+	         {%endif%}
+	         required="required" />
+          <datalist id="users-list">
+            {%for user in users%}
+            <option value="{{user.email}}">{{user.email}} - {{user.name}}</option>
+            {%endfor%}
+          </datalist>
+        </div>
+
+        <input type="submit" class="btn btn-primary" value="Assign"
+               {%if users | length == 0%}
+               disabled="disabled"
+               {%endif%} />
+      </form>
+      {%endif%}
+    </div>
+  </div>
+
 </div>
 {%endif%}
 
@@ -367,7 +400,6 @@
       };
 
       var buildCols = (tableData, datasetType) => {
-          console.debug("Table Data:", tableData, "Dataset Type:", datasetType);
           var colBuildFunctions = {
               "phenotype": buildPhenotypeCols,
               "genotype": buildGenotypeCols,
@@ -432,5 +464,5 @@
           },
           hasIndex=false);
   });
-</script>
+  </script>
 {%endblock%}
