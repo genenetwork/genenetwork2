@@ -51,7 +51,7 @@ def __selected_datasets__():
 def __search_genotypes__(query, template, **kwargs):
     species_name = kwargs["species_name"]
     search_uri = urljoin(authserver_uri(), "auth/data/search")
-    datasets = oauth2_get(
+    return oauth2_get(
         "auth/data/search",
         json = {
             "query": query,
@@ -59,9 +59,14 @@ def __search_genotypes__(query, template, **kwargs):
             "species_name": species_name,
             "selected": __selected_datasets__()
         }).either(
-            lambda err: {"datasets_error": process_error(err)},
-            lambda datasets: {"datasets": datasets})
-    return render_ui(template, search_uri=search_uri, **datasets, **kwargs)
+            lambda err: render_ui(template,
+                                  search_uri=search_uri,
+                                  datasets_error=process_error(err),
+                                  **kwargs),
+            lambda datasets: render_ui(template,
+                                       search_uri=search_uri,
+                                       datasets=datasets,
+                                       **kwargs))
 
 def __search_phenotypes__(query, template, **kwargs):
     from gn2.utility.tools import GN_SERVER_URL
