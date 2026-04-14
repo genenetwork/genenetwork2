@@ -11,7 +11,7 @@ from pymonad.maybe import Just, Maybe
 from pymonad.tools import curry
 from gn_libs.mysqldb import database_connection
 
-from flask import g
+from flask import g, current_app as app
 
 from gn3.monads import MonadicDict
 
@@ -279,7 +279,10 @@ class SearchResultPage:
         # Set of terms compatible with Xapian currently (None is a search without a term)
         xapian_terms = ["POSITION", "MEAN", "LRS", "LOD", "RIF", "WIKI"]
 
-        if all([(the_term['key'] in xapian_terms) or (not the_term['key'] and self.dataset.type != "Publish") for the_term in self.search_terms]):
+        if app.config.get("USE_XAPIAN_SEARCH") and all(
+                [(the_term['key'] in xapian_terms) or (
+                    not the_term['key'] and self.dataset.type != "Publish")
+                 for the_term in self.search_terms]):
             self.search_type = "xapian"
             self.results = requests.get(generate_xapian_request(self.dataset, self.search_terms, self.and_or)).json()
             if not len(self.results) or 'error' in self.results:

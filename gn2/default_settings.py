@@ -167,3 +167,7 @@ PROFILER_SETTINGS = {
     # for more information on the profiler.
 }
 ## ----- END: PROFILING ----- ##
+
+
+## ----- Allow Xapian search for searching ----- ##
+USE_XAPIAN_SEARCH = True # By default, this is true.
