@@ -294,23 +294,50 @@
   $(() => {
       var resourceData = JSON.parse($("#tbl-resource-data").attr("data-resource-data"));
 
-      var buildCols = (tableData, datasetType) => {
+      var buildInbredSetGroupCols = (tableData) => {
+          return [{
+              title: "Population (InbredSet) Full Name",
+              type: "natural",
+              searchable: true,
+              orderable: true,
+              data: "InbredSetFullName"
+          }, {
+              title: "Population Name",
+              type: "natural",
+              searchable: true,
+              orderable: true,
+              data: "InbredSetName"
+          }]
+      };
+
+      var addCommonColumns = (colDefs) => {
+          return [{
+              title: "Trait",
+              type: "natural",
+              searchable: true,
+              orderable: true,
+              data: (row) => {
+                  return (
+                      `<a href="/show_trait?trait_id=${row.PublishXRefId}`
+                          + `&dataset=${row.dataset_name}" target="_blank">`
+                          + `${row.PublishXRefId}</a>`);
+              }
+          }].concat(colDefs).concat([{
+              title: "Dataset Name",
+              searchable: true,
+              orderable: true,
+              data: "dataset_name"
+          }, {
+              title: "Full Name",
+              searchable: true,
+              orderable: true,
+              data: "dataset_fullname"
+          }]);
+      };
+
+      var buildPhenotypeCols = (tableData) => {
           colDefs = [];
-          if(datasetType === "phenotype") {
-              colDefs.push({
-                  title: "Trait",
-                  type: "natural",
-                  searchable: true,
-                  orderable: true,
-                  data: (row) => {
-                      return (
-                          `<a href="/show_trait?trait_id=${row.PublishXRefId}`
-                              + `&dataset=${row.dataset_name}" target="_blank">`
-                              + `${row.PublishXRefId}</a>`);
-                  }
-              });
-          }
-          if(tableData.length > 0) {
+          if(tableData.length != 0) {
               if(tableData[0].description !== undefined) {
                   colDefs.push({
                       title: "Description",
@@ -328,18 +355,28 @@
                   });
               }
           }
+          return addCommonColumns(colDefs);
+      };
 
-          return colDefs.concat([{
-              title: "Dataset Name",
-              searchable: true,
-              orderable: true,
-              data: "dataset_name"
-          }, {
-              title: "Full Name",
-              searchable: true,
-              orderable: true,
-              data: "dataset_fullname"
-          }]);
+      var buildGenotypeCols = (tableData) => {
+          return addCommonColumns([]);
+      };
+
+      var buildMRNACols = (tableData) => {
+          return addCommonColumns([]);
+      };
+
+      var buildCols = (tableData, datasetType) => {
+          console.debug("Table Data:", tableData, "Dataset Type:", datasetType);
+          var colBuildFunctions = {
+              "phenotype": buildPhenotypeCols,
+              "genotype": buildGenotypeCols,
+              "mrna": buildMRNACols,
+              "inbredset-group": buildInbredSetGroupCols,
+              "system": (td) => {return [];},
+              "group": (td) => {return [];}
+          }
+          return colBuildFunctions[datasetType](tableData);
       };
 
       var resourceID = $("#tbl-resource-data").attr("data-resource-id");
