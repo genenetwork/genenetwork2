@@ -40,7 +40,7 @@ def __search_mrna__(query, template, **kwargs):
     return render_ui(template, search_uri=search_uri, **datasets, **kwargs)
 
 def __selected_datasets__():
-    if bool(request.json):
+    if request.headers.get("Content-Type") == "application/json" and bool(request.json):
         return request.json.get(
             "selected",
             request.args.get("selected",
