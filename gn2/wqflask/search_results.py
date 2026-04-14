@@ -1,4 +1,5 @@
 import uuid
+import logging
 from math import *
 import requests
 import unicodedata
@@ -24,6 +25,7 @@ from gn2.utility.hmac import hmac_creation
 from gn2.utility.tools import get_setting, GN3_LOCAL_URL, GN_GUILE_SERVER_URL
 from gn2.utility.type_checking import is_str
 
+logger = logging.getLogger(__name__)
 MAX_SEARCH_RESULTS = 50000 # Max number of search results, passed to Xapian search (this needs to match the value in GN3!)
 
 
@@ -114,6 +116,8 @@ class SearchResultPage:
         the "search" function
 
         """
+        logger.info("Generating search results using the '%s' search type.",
+                    self.search_type)
         trait_list = []
 
         # result_set represents the results for each search term; a search of
