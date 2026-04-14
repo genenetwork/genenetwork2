@@ -344,18 +344,7 @@
       };
 
       var addCommonColumns = (colDefs) => {
-          return [{
-              title: "Trait",
-              type: "natural",
-              searchable: true,
-              orderable: true,
-              data: (row) => {
-                  return (
-                      `<a href="/show_trait?trait_id=${row.PublishXRefId}`
-                          + `&dataset=${row.dataset_name}" target="_blank">`
-                          + `${row.PublishXRefId}</a>`);
-              }
-          }].concat(colDefs).concat([{
+          return colDefs.concat([{
               title: "Dataset Name",
               searchable: true,
               orderable: true,
@@ -369,7 +358,18 @@
       };
 
       var buildPhenotypeCols = (tableData) => {
-          colDefs = [];
+          colDefs = [{
+              title: "Trait",
+              type: "natural",
+              searchable: true,
+              orderable: true,
+              data: (row) => {
+                  return (
+                      `<a href="/show_trait?trait_id=${row.PublishXRefId}`
+                          + `&dataset=${row.dataset_name}" target="_blank">`
+                          + `${row.PublishXRefId}</a>`);
+              }
+          }];
           if(tableData.length != 0) {
               if(tableData[0].description !== undefined) {
                   colDefs.push({
