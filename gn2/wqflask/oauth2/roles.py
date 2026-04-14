@@ -3,7 +3,7 @@ import uuid
 
 from flask import flash, request, url_for, redirect, Blueprint
 
-from .ui import render_ui
+from .ui import render_ui as _render_ui
 from .checks import require_oauth2
 from .client import oauth2_get, oauth2_post
 from .request_utils import request_error, process_error
