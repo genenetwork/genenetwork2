@@ -2,6 +2,7 @@
 import sys
 import json
 import uuid
+import logging
 from datetime import datetime
 from urllib.parse import urljoin
 
@@ -16,6 +17,8 @@ from gn2.jobs import jobs
 from .ui import render_ui as _render_ui
 from .request_utils import process_error
 from .client import oauth2_get, oauth2_post, authserver_uri
+
+logger = logging.getLogger(__name__)
 
 data = Blueprint("data", __name__)
 
