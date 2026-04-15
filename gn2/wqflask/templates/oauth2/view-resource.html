@@ -21,6 +21,15 @@
 {{display_error("Resource", resource_error)}}
 {%else%}
 <div class="row">
+  <p>What is a <strong>resource</strong>?</p>
+  <p>
+    Genenetwork collects data into "bunches". Each "bunch" is a "resource", and
+    contains related data.</p>
+  <p>
+    We use the resources to manage access to the underlying data, and to
+    various features that the system provides.</p>
+</div>
+<div class="row">
   <h3>Resource Details</h3>
   <table class="table">
     <caption>Resource: {{resource.resource_name}}</caption>
@@ -111,6 +120,7 @@
   <div id="tab-resource-data" class="tab-pane fade in active">
     <div class="row">
       <h3>Resource Data</h3>
+      <p>This is the data that's contained in this resource.</p>
       <table class="table table-hover table-striped cell-border no-footer"
              id="tbl-resource-data"
              data-resource-id='{{resource.resource_id}}'
@@ -138,6 +148,9 @@
 
     <div class="row">
       <h3>Unlinked Data</h3>
+      <p>
+        This is data you own, but that is currently not linked to any resource,
+        and is, therefore, inaccessible.</p>
       <div>
         <a href="#"
            id="btn-unlinked-data-select-all"
@@ -164,18 +177,20 @@
 
   <div id="tab-resource-roles"  class="tab-pane fade">
     <div class="row">
-      <h3>Available Resource Roles</h3>
-      <div class="resource_roles">
+      <h3>Resource Roles</h3>
+      <p>These are the roles that users with access to this resource can hold.</p>
+      <ul>
         {%for role in resource_roles%}
-        <a class="pill"
-           href="{{url_for('oauth2.resource.view_resource_role',
-                 resource_id=resource.resource_id,
-                 role_id=role.role_id)}}"
-           title="Role page for role named '{{role.role_name}}'">
-          {{role.role_name}}
-        </a>
+        <li>
+          <a href="{{url_for('oauth2.resource.view_resource_role',
+                   resource_id=resource.resource_id,
+                   role_id=role.role_id)}}"
+             title="Role page for role named '{{role.role_name}}'">
+            {{role.role_name}}
+          </a>
+        </li>
         {%endfor%}
-      </div>
+      </ul>
       <hr />
       <a title="create a new role for this resource"
          href="{{url_for('oauth2.resource.create_resource_role',
@@ -185,8 +200,69 @@
   </div>
 
   <div id="tab-resource-users" class="tab-pane fade">
+    <div class="row"><h3>Users</h3></div>
+
     <div class="row">
-      <h3>Users: Assigned Roles</h3>
+      <p>Assign roles to users to grant them access to this resources.</p>
+      {%if resource_roles_error is defined%}
+      {{display_error("Resource Roles", resource_roles_error)}}
+      {%elif users_error is defined%}
+      {{display_error("Users", users_error)}}
+      {%else%}
+      <form action="{{url_for(
+		    'oauth2.resource.assign_role',
+		    resource_id=resource.resource_id)}}"
+	    method="POST"
+            autocomplete="off"
+            style="max-width: 60em;">
+        <input type="hidden" name="resource_id" value="{{resource_id}}" />
+        <div class="form-group">
+          <label for="role_id" class="form-label">Role</label>
+          <select class="form-control" name="role_id"
+	          id="role_id" required="required">
+	    <option value="">Select role</option>
+            {%for rrole in resource_roles%}
+            <option value="{{rrole.role_id}}">
+              {{rrole.role_name}}
+            </option>
+            {%endfor%}
+          </select>
+          <span class="form-text text-muted">
+            Select a role to assign to a user.
+          </span>
+        </div>
+
+        <div class="form-group">
+          <label for="user-email" class="form-label">User Email</label>
+          <input list="users-list" name="user_email" class="form-control"
+	         {%if users | length == 0%}
+	         disabled="disabled"
+	         {%endif%}
+	         required="required" />
+          <datalist id="users-list">
+            {%for user in users%}
+            <option value="{{user.email}}">{{user.email}} - {{user.name}}</option>
+            {%endfor%}
+          </datalist>
+          <span class="form-text text-muted">
+            Start typing the email (in the "User Email" element above) for the
+            user you wish to assign a role to, then select from the narrowed
+            list that shows up.
+          </span>
+        </div>
+
+        <input type="submit" class="btn btn-primary" value="Assign"
+               {%if users | length == 0%}
+               disabled="disabled"
+               {%endif%} />
+      </form>
+      {%endif%}
+    </div>
+
+    <div class="row">
+      <p>
+        Below are the users with access to this resource. The access roles each
+        user has to this resource is listed beside the user.</p>
       {%if users_n_roles_error is defined%}
       {{display_error("Users and Roles", users_n_roles_error)}}
       {%else%}
@@ -252,53 +328,6 @@
           {%endfor%}
         </tbody>
       </table>
-      {%endif%}
-    </div>
-
-    <div class="row">
-      <h3>Assign</h3>
-      {%if resource_roles_error is defined%}
-      {{display_error("Resource Roles", resource_roles_error)}}
-      {%elif users_error is defined%}
-      {{display_error("Users", users_error)}}
-      {%else%}
-      <form action="{{url_for(
-		    'oauth2.resource.assign_role',
-		    resource_id=resource.resource_id)}}"
-	    method="POST" autocomplete="off">
-        <input type="hidden" name="resource_id" value="{{resource_id}}" />
-        <div class="form-group">
-          <label for="role_id" class="form-label">Role</label>
-          <select class="form-control" name="role_id"
-	          id="role_id" required="required">
-	    <option value="">Select role</option>
-            {%for rrole in resource_roles%}
-            <option value="{{rrole.role_id}}">
-              {{rrole.role_name}}
-            </option>
-            {%endfor%}
-          </select>
-        </div>
-
-        <div class="form-group">
-          <label for="user-email" class="form-label">User Email</label>
-          <input list="users-list" name="user_email" class="form-control"
-	         {%if users | length == 0%}
-	         disabled="disabled"
-	         {%endif%}
-	         required="required" />
-          <datalist id="users-list">
-            {%for user in users%}
-            <option value="{{user.email}}">{{user.email}} - {{user.name}}</option>
-            {%endfor%}
-          </datalist>
-        </div>
-
-        <input type="submit" class="btn btn-primary" value="Assign"
-               {%if users | length == 0%}
-               disabled="disabled"
-               {%endif%} />
-      </form>
       {%endif%}
     </div>
   </div>
