@@ -92,7 +92,7 @@
   </table>
 </div>
 
-<ul class="nav nav-tabs">
+<ul class="nav nav-tabs" id="tabbed-nav-resources-tabs">
   <li class="active">
     <a href="#tab-resource-data"
        title="Display this resource's data tab."
@@ -116,7 +116,7 @@
   </li>
 </ul>
 
-<div class="tab-content">
+<div id="tabbed-nav-resources-content" class="tab-content">
   <div id="tab-resource-data" class="tab-pane fade in active">
     <div class="row">
       <h3>Resource Data</h3>
@@ -354,6 +354,30 @@
         src="/static/new/javascript/create_datatable.js"></script>
 <script language="javascript" type="text/javascript">
   $(() => {
+      var showActiveTab = (navid, contentId) => {
+          var pageHash = window.location.hash;
+          if(pageHash !== "") {
+              $(navid).find(".active").each((idx, element) => {
+                  /** Deactivate any active tabs. **/
+                  $(element).removeClass("active");
+              });
+              $(navid).find(`a[href="${pageHash}"]`).each((idx, element) => {
+                  /** Activate selected tab. Should be one, but just in case. **/
+                  $(element).closest("li").addClass("active");
+              });
+
+              $(contentId).find(".active").each((idx, element) => {
+                  /** Deactivate any active content. **/
+                  $(element).removeClass("active");
+                  $(element).removeClass("in");
+              });
+              $(pageHash).addClass("in");
+              $(pageHash).addClass("active");
+          }
+      };
+
+      showActiveTab("#tabbed-nav-resources-tabs", "#tabbed-nav-resources-content");
+
       var resourceData = JSON.parse($("#tbl-resource-data").attr("data-resource-data"));
 
       var buildInbredSetGroupCols = (tableData) => {
