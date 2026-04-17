@@ -34,7 +34,7 @@ MAXLRS = 460.0
 PUBLICTHRESH = 0
 
 # Groups to treat as unique when drawing correlation dropdowns (not sure if this logic even makes sense or is necessary)
-BXD_GROUP_EXCEPTIONS = ['BXD-Longevity', 'BXD-AE', 'BXD-Heart-Metals', 'BXD-NIA-AD', 'BXD-JAX-OFS', 'BXD-MBD-UTHSC']
+BXD_GROUP_EXCEPTIONS = ['BXD-Longevity', 'BXD-AE', 'BXD-Heart-Metals', 'BXD-NIA-AD', 'BXD-JAX-OFS', 'BXD-MBD-UTHSC', 'BXD_UT-SJ']
 
 # This is used to avoid running the code that manually checks which samples aren't part of the "main" sample list (derived from the .geno file)
 # The code in question is very time-consuming, and unnecessary for the vast majority of groups
