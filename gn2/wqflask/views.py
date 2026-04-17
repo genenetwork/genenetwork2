@@ -321,7 +321,15 @@ def search_page_table():
 
 @app.route("/gsearch", methods=("GET",))
 def gsearchact():
-    result = GSearch(request.args).__dict__
+    try:
+        result = GSearch(request.args).__dict__
+    except ValueError as _verr:
+        raise werkzeug.exceptions.BadRequest(
+            description=(
+                "Global search expects both the type of the search to do, and "
+                "the terms to search for to be provided. One of these, or both "
+                "were not provided. Please try your search again.")
+        ) from _verr
     search_type = request.args["type"]
     is_user_logged_in = session_info().get("user", {}).get("logged_in", False)
 
