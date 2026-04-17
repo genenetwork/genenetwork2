@@ -1111,6 +1111,22 @@ def _parse_xlsx_file(file_bytes, group_name):
 
 @app.route("/show_trait")
 def show_trait_page():
+    dataset = request.args.get("dataset", False)
+    trait_id = request.args.get("trait_id", False)
+
+    if not bool(dataset) or not bool(trait_id):
+        if not bool(dataset):
+            flash(
+                "To view a trait, we need to know the dataset in which it "
+                "exists. The dataset was not provided.",
+                "alert alert-danger")
+        if not bool(trait):
+            flash(
+                "No trait, for which to display information on, was provided.",
+                "alert alert-danger")
+
+        return redirect(url_for("index_page"))
+
     def __show_trait__(privileges_data):
         assert len(privileges_data) == 1
         privileges_data = privileges_data[0]
@@ -1140,8 +1156,6 @@ def show_trait_page():
                     "trait_privileges": trait_privileges,
                     "resource_id": privileges_data["resource_id"]
                 })
-    dataset = request.args["dataset"]
-    trait_id = request.args["trait_id"]
 
     return client.post(
         "auth/data/authorisation",
