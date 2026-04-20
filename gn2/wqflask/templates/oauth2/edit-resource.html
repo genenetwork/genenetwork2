@@ -1,0 +1,74 @@
+{%extends "oauth2/base.html"%}
+{%from "oauth2/display_error.html" import display_error%}
+{%block title%}Edit Resource{%endblock%}
+
+{%block css%}
+{{super()}}
+{%endblock%}
+
+{%block dash_page_header%}Resources{%endblock%}
+
+{%block dash_page_content%}
+{%if error is defined%}
+<p>There was an error fetching data to display this page</p>
+
+<div class="row">
+  <div class="panel panel-danger">
+    <div class="panel-heading">Error</div>
+    <div class="panel-body">
+      <dl>
+        <dt>Error Type</dt>
+        <dd>{{error.error}}</dd>
+
+        <dt>Error Message</dt>
+        <dd>{{error.error_message}}</dd>
+      </dl>
+    </div>
+  </div>
+</div>
+{%endif%}
+
+{%if can_edit%}
+
+<div class="row">
+  {%if resource is defined%}
+  <form id="frm-edit-resource"
+        method="POST"
+        action="{{url_for('oauth2.resource.edit_resource',
+                resource_id=resource.resource_id)}}"
+        class="form-horizontal">
+
+    <div class="form-group">
+      <label for="txt-resource-name"
+             class="control-label col-sm-2">Resource Name</label>
+      <div class="col-sm-10">
+        <input type="text"
+               id="txt-resource-name"
+               value="{{resource.resource_name}}"
+               class="form-control" />
+      </div>
+    </div>
+
+    <div class="col-sm-offset-2">
+      <button type="submit" class="btn btn-primary">submit changes</button>
+      <button type="reset" class="btn btn-warning">reset form</button>
+    </div>
+  </form>
+  {%endif%}
+</div>
+
+{%else%}
+<div class="row">
+  <div class="panel panel-danger">
+    <div class="panel-heading">Authorisation Error</div>
+    <div class="panel-body">
+      <p>You are not allowed to edit this resource.</p>
+    </div>
+  </div>
+</div>
+{%endif%}
+
+{%endblock%}
+
+{%block js%}
+{%endblock%}
