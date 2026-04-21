@@ -9,6 +9,7 @@ from flask import (flash,
                    redirect,
                    Response,
                    Blueprint)
+from gn_libs import privileges
 
 from . import client
 from . import session
@@ -352,11 +353,76 @@ def toggle_public(resource_id: UUID):
         lambda err: __handle_error__(err),
         lambda suc: __handle_success__(suc))
 
-@resources.route("/edit/<uuid:resource_id>", methods=["GET"])
+@resources.route("/<uuid:resource_id>/edit", methods=["GET", "POST"])
 @require_oauth2
 def edit_resource(resource_id: UUID):
     """Edit the given resource."""
-    return "WOULD Edit THE GIVEN RESOURCE'S DETAILS"
+    if request.method == "GET":
+        return oauth2_get(
+            f"auth/resource/{resource_id}/view"
+        ).then(
+            lambda resource: oauth2_post(
+                f"auth/resource/authorisation",
+                json={
+                    "resource-ids": [str(resource_id)]
+                }
+            ).then(
+                lambda auth: {
+                    "resource": resource,
+                    "user_privileges_on_resource": tuple(
+                        privilege["privilege_id"]
+                        for role in auth.get(
+                            str(resource_id), {}).get("roles", [])
+                        for privilege in role.get("privileges", []))
+                })
+        ).then(
+            lambda databag: oauth2_get(
+                f"auth/system/roles"
+            ).then(
+                lambda auth: {
+                    **databag,
+                    "user_privileges_on_system": tuple(
+                        privilege["privilege_id"]
+                        for role in auth
+                        for privilege in role.get("privileges", []))
+                }
+            )
+        ).then(
+            lambda databag: {
+                **databag,
+                "can_edit": privileges.resources.can_edit(
+                    databag["user_privileges_on_resource"] +
+                    databag["user_privileges_on_system"])
+            }
+        ).either(
+            lambda err: render_ui("oauth2/edit-resource.html",
+                                  error=process_error(err)),
+            lambda databag: render_ui("oauth2/edit-resource.html",
+                                      **databag))
+
+    def __flash_message_and_return__(msg, alert_type, return_to):
+        flash(msg, f"alert {alert_type}")
+        return return_to
+
+    return oauth2_post(
+            f"auth/resource/{resource_id}/edit",
+            json={
+                "resource_name": (
+                    request.form.get("resource_name") or "").strip()
+            }).then(
+                lambda results: __flash_message_and_return__(
+                    results["message"], "alert-success", redirect(url_for(
+                        "oauth2.resource.view_resource",
+                        resource_id=resource_id)))
+            ).either(
+                lambda err: __flash_message_and_return__(
+                    process_error(err)["error_description"],
+                    "alert-danger",
+                    redirect(url_for(
+                        "oauth2.resource.edit_resource",
+                        resource_id=resource_id))),
+                lambda resp: resp)
+
 
 @resources.route("/delete/<uuid:resource_id>", methods=["GET"])
 @require_oauth2
