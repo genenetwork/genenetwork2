@@ -1135,11 +1135,7 @@ def show_trait_page():
 
         return redirect(url_for("index_page"))
 
-    def __show_trait__(privileges_data):
-        assert len(privileges_data) == 1
-        privileges_data = privileges_data[0]
-        trait_privileges = tuple(
-            item for item in privileges_data["privileges"])
+    def __show_trait__(databag):
         with database_connection(get_setting("SQL_URI")) as conn, conn.cursor() as cursor:
 
             user_id = ((g.user_session.record.get(b"user_id") or b"").decode("utf-8")
@@ -1160,17 +1156,44 @@ def show_trait_page():
                 is_user_logged_in=is_user_logged_in,
                 **{
                     **template_vars.__dict__,
-                    "user": privileges_data["user"],
-                    "trait_privileges": trait_privileges,
-                    "resource_id": privileges_data["resource_id"]
+                    **databag
                 })
 
     return client.post(
         "auth/data/authorisation",
         json={
             "traits": [f"{dataset}::{trait_id}"]
-        }).either(with_flash_error(render_template("show_trait_error.html")),
-                  __show_trait__)
+        }
+    ).then(
+        lambda privileges_data: {
+            "resource_id": privileges_data[0]["resource_id"],
+            "user": privileges_data[0]["user"],
+            "traitprivileges": tuple(
+                item for item in privileges_data[0]["privileges"])
+        }
+    ).then(
+        lambda databag: client.get(
+            "auth/system/roles"
+        ).then(
+            lambda sys_roles: {
+                **databag,
+                "systemprivileges": tuple(
+                    priv["privilege_id"] for role in sys_roles
+                    for priv in role["privileges"])
+            }
+        ).then(
+            lambda databag: {
+                **databag,
+                "can_view": resources.can_view(
+                    databag["traitprivileges"] + databag["systemprivileges"]),
+                "can_edit": resources.can_edit(
+                    databag["traitprivileges"] + databag["systemprivileges"]),
+                "can_delete": resources.can_delete(
+                    databag["traitprivileges"] + databag["systemprivileges"])
+            })
+    ).either(
+        with_flash_error(render_template("show_trait_error.html")),
+        __show_trait__)
 
 @app.route("/save_trait", methods=('POST',))
 def save_trait():
