@@ -4,6 +4,8 @@
 
 {%block dash_page_content%}
 
+{{flash_me()}}
+
 <div class="row">
   <form id="frm-select-datatype"
 	action="{{url_for('oauth2.data.list_data')}}"
