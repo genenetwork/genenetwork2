@@ -429,7 +429,25 @@ def batch_edit_page() -> Response:
                     diff_data = batch_update_descriptions(conn, json.loads(request.form['diffs']))
                 return render_template("batch_edit_complete.html", diffs=diff_data, data_type=data_type)
     else:
-        return render_template("batch_edit_submit.html", gn_server_url=current_app.config["GN_SERVER_URL"])
+        return client.get(
+            "auth/system/roles"
+        ).then(
+            lambda sysroles: tuple(
+                priv["privilege_id"] for role in sysroles
+                for priv in role["privileges"])
+        ).then(
+            lambda sysprivileges: {
+                "can_batch_edit": resources.can_batch_edit(sysprivileges)
+            }
+        ).either(
+            lambda err: render_template(
+                "batch_edit_submit.html",
+                gn_server_url=current_app.config["GN_SERVER_URL"],
+                **process_error(err)),
+            lambda databag: render_template(
+                "batch_edit_submit.html",
+                gn_server_url=current_app.config["GN_SERVER_URL"],
+                **databag))
 
 
 @metadata_edit.route("/<dataset_id>/traits/<name>")

@@ -2,7 +2,7 @@
 {% block title %}Batch Edit{% endblock %}
 {% block content %}
 <div class="container">
-    {% if 'system:data:batch-edit' in system_privileges() %}
+    {%if can_batch_edit%}
     <form id="edit-form" class="form-horizontal" method="post" action="/datasets/batch_edit" enctype="multipart/form-data">
         <div style="max-width: 800px;">
             <div class="page-header">

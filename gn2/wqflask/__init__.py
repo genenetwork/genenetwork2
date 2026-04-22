@@ -38,7 +38,7 @@ from gn2.wqflask.api.jobs import jobs as jobs_bp
 from gn2.wqflask.oauth2.routes import oauth2
 from gn2.wqflask.oauth2.client import user_logged_in
 from gn2.wqflask.oauth2.collections import num_collections
-from gn2.wqflask.oauth2.request_utils import user_details, system_privileges, authserver_authorise_uri
+from gn2.wqflask.oauth2.request_utils import user_details, authserver_authorise_uri
 
 from gn2.wqflask.jupyter_notebooks import jupyter_notebooks
 from gn_libs.http_logging import SilentHTTPHandler
@@ -100,7 +100,6 @@ app.jinja_env.globals.update(
     logged_in=user_logged_in,
     authserver_authorise_uri=authserver_authorise_uri,
     user_details=user_details,
-    system_privileges=system_privileges,
     num_collections=numcoll,
     is_test_feature_enabled=app.config.get("TEST_FEATURE_SWITCH", False),
     datetime=datetime)
