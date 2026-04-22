@@ -241,7 +241,7 @@
         <button type="button" id="edit_resource" class="btn btn-success" title="Edit Resource" onclick="window.open('/datasets/traits/{{ this_trait.name }}?resource-id={{ resource_id }}&dataset_name={{this_trait.dataset.name}}', '_blank')">Edit</button>
         {% endif %}
     </div>
-    {%if "group:resource:edit-resource" in trait_privileges%}
+    {%if can_edit%}
     <div class="btn-group">
         <button type="button" id="edit_resource" class="btn btn-success" title="Edit Privileges" onclick="window.open('{{url_for('oauth2.resource.view_resource', resource_id=resource_id)}}', '_blank')">Edit Privileges</button>
     </div>
