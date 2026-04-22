@@ -45,26 +45,10 @@ def render_ui(template, **kwargs):
 def user_profile():
     __id__ = lambda the_val: the_val
     usr_dets = user_details()
-    def __render__(usr_dets, roles=[], **kwargs):
-        return render_ui(
-            "oauth2/view-user.html", user_details=usr_dets, roles=roles,
-            user_privileges = tuple(
-                privilege["privilege_id"] for role in roles
-                for privilege in role["privileges"]),
-            calling_page="dashboard",
-            **kwargs)
+    return render_ui("oauth2/view-user.html",
+                     user_details=usr_dets,
+                     calling_page="dashboard")
 
-    def __roles_success__(roles):
-        if bool(usr_dets.get("group")):
-            return __render__(usr_dets, roles)
-        return oauth2_get("auth/user/group/join-request").either(
-            lambda err: __render__(
-                user_details, group_join_error=process_error(err)),
-            lambda gjr: __render__(usr_dets, roles=roles, group_join_request=gjr))
-
-    return oauth2_get("auth/system/roles").either(
-        lambda err: __render__(usr_dets, role_error=process_error(err)),
-        __roles_success__)
 
 @users.route("/request-add-to-group", methods=["POST"])
 @require_oauth2

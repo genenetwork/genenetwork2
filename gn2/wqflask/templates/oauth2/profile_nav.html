@@ -1,4 +1,4 @@
-{%macro profile_nav(calling_page, user_sys_privileges, display)%}
+{%macro profile_nav(calling_page, sysauth, display)%}
 
 <ul class="nav nav-tabs">
 
@@ -42,7 +42,7 @@
       Data and Access Management</a>
   </li>
 
-  {%if "system:data:link-to-group" in user_sys_privileges|map(attribute="privilege_id") %}
+  {%if sysauth.can_link_data %}
   <li role="presentation"
       {%if calling_page == "data"%}
       class="active"
@@ -51,7 +51,7 @@
   </li>
   {%endif%}
 
-  {%if "system:user:masquerade" in user_sys_privileges|map(attribute="privilege_id") %}
+  {%if sysauth.can_masquerade %}
   <li role="presentation"
       {%if calling_page == "masquerade"%}
       class="active"

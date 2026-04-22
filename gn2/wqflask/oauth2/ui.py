@@ -1,7 +1,12 @@
 """UI utilities"""
+import logging
+
 from flask import render_template
+from gn_libs.privileges import system
 
 from .client import oauth2_get
+
+logger = logging.getLogger(__name__)
 
 
 _USER_ADMIN_PRIVILEGES_ = (
@@ -27,23 +32,44 @@ def __display_p__(actual: tuple[str, ...], check_for: tuple[str, ...]) -> bool:
 
 def render_ui(templatepath: str, **kwargs):
     """Handle repetitive UI rendering stuff."""
-    roles = kwargs.get("roles", tuple()) # Get roles
-    if not roles:
-        roles = oauth2_get("auth/system/roles").either(
-                lambda _err: roles, lambda auth_roles: auth_roles)
-    user_privileges = tuple(
-        privilege for role in roles for privilege in role["privileges"])
-    _privilege_ids = tuple(priv["privilege_id"] for priv in user_privileges)
-    return render_template(
-        templatepath,
-        **{
-            **kwargs,
-            "roles": roles,
-            "user_privileges": user_privileges,
+    return oauth2_get(
+        f"auth/system/roles"
+    ).then(
+        lambda sysroles: {
+            "user_system_roles": sysroles,
+            "user_privileges_on_system": tuple(
+                privilege["privilege_id"]
+                        for role in sysroles
+                        for privilege in role.get("privileges", []))
+        }
+    ).then(
+        lambda databag: {
+            **databag,
+            "sysauth": {
+                "can_masquerade": system.can_masquerade(
+                    databag["user_privileges_on_system"]),
+                "can_link_data": system.can_link_data(
+                    databag["user_privileges_on_system"])
+            }
+        }
+    ).then(
+        lambda databag: {
+            **databag,
             "display": {
                 "list_users": __display_p__(
-                    _privilege_ids, _USER_ADMIN_PRIVILEGES_),
+                    databag["user_privileges_on_system"],
+                    _USER_ADMIN_PRIVILEGES_),
                 "list_groups": __display_p__(
-                    _privilege_ids, _GROUP_ADMIN_PRIVILEGES_)
+                    databag["user_privileges_on_system"],
+                    _GROUP_ADMIN_PRIVILEGES_)
             }
-        })
+        }
+    ).either(
+        lambda err: render_template(templatepath,
+                                    error=process_error(err)),
+        lambda databag: render_template(templatepath,
+                                        **{
+                                            **kwargs,
+                                            **databag
+                                        })
+    )

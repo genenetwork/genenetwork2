@@ -181,42 +181,42 @@ def list_data_by_species_and_dataset(
 @data.route("/list", methods=["GET", "POST"])
 def list_data():
     """List ungrouped data."""
-    def __render__(**kwargs):
-        roles = kwargs.get("roles", [])
-        user_privileges = tuple(
-                privilege["privilege_id"] for role in roles
-                for privilege in role["privileges"])
-        return render_ui(
+    resp_monad = oauth2_get(
+        "auth/group/list", json={}
+    ).then(
+        lambda grp: {"groups": grp["groups"]}
+    ).then(
+        lambda databag: oauth2_get(
+            "auth/data/species"
+        ).then(
+            lambda species: {**databag, "species": species}
+        )
+    ).then(
+        lambda databag: render_ui(
             "oauth2/data-list.html",
-            groups=kwargs.get("groups", []),
-            data_items=kwargs.get("data_items", []),
-            user_privileges=user_privileges,
-            **{key:val for key,val in kwargs.items()
-               if key not in ("groups", "data_items", "user_privileges")})
-
-    groups = oauth2_get("auth/group/list", json={}).either(
-        lambda err: {"groups_error": process_error(err)},
-        lambda grp: {"groups": grp["groups"]})
-    roles = oauth2_get("auth/system/roles").either(
-        lambda err: {"roles_error": process_error(err)},
-        lambda roles: {"roles": roles})
-    species = oauth2_get("auth/data/species").either(
-        lambda err: {"species_error": process_error(err)},
-        lambda species: {"species": species})
+            **databag)
+    )
 
     if request.method == "GET":
-        return __render__(**{**groups, **roles, **species})
+        return resp_monad.either(
+            lambda err: render_ui(
+                "oauth2/data-list.html", error=process_error(err)),
+            lambda resp: resp
+        )
 
-    species_name = request.form["species_name"]
     dataset_type = request.form["dataset_type"]
     if dataset_type not in ("mrna", "genotype", "phenotype"):
         flash("InvalidDatasetType: An invalid dataset type was provided",
               "alert-danger")
-        return __render__(**{**groups, **roles, **species})
+        return resp_monad.either(
+            lambda err: render_ui(
+                "oauth2/data-list.html", error=process_error(err)),
+            lambda resp: resp
+        )
 
     return redirect(url_for(
         "oauth2.data.list_data_by_species_and_dataset",
-        species_name=species_name, dataset_type=dataset_type))
+        species_name=request.form["species_name"], dataset_type=dataset_type))
 
 @data.route("/link", methods=["POST"])
 def link_data():
