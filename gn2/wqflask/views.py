@@ -1667,12 +1667,12 @@ def corr_compute_page():
                 jobs.run(job_id, REDIS_URL)
             Redis.set(f"{job_id}-running-time", "%.5f" % time.time())
 
-            return {
+            return make_response(jsonify({
                 "status": "success",
                 "message": "Successfully queued the job.",
                 "job-id": str(job_id),
                 "redirect_url": url_for("corr_compute_page", job_id=str(job_id))
-            }
+            }), 200)
 
         job = jobs.job(
             rconn, UUID(request.args.get("job_id"))).maybe(
