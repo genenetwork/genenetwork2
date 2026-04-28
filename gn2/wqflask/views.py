@@ -44,7 +44,6 @@ from flask import g
 from flask import Response
 from flask import request
 from flask import make_response
-from flask import render_template
 from flask import redirect
 from flask import send_file
 from flask import url_for
@@ -55,6 +54,7 @@ import werkzeug
 from gn2.wqflask import app
 from gn2.wqflask import search_results
 from gn2.wqflask import server_side
+from gn2.wqflask.flask_extensions import render_template
 
 # Used by YAML in marker_regression
 from gn2.base.data_set import create_dataset

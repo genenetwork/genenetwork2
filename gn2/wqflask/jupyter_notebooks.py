@@ -1,4 +1,6 @@
-from flask import Blueprint, render_template
+from flask import Blueprint
+
+from gn2.wqflask.flask_extensions import render_template
 
 jupyter_notebooks = Blueprint("jupyter_notebooks", __name__)
 

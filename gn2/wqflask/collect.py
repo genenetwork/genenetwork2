@@ -6,7 +6,6 @@ import simplejson as json
 from urllib.parse import urljoin
 
 from flask import g
-from flask import render_template
 from flask import url_for
 from flask import request
 from flask import redirect
@@ -28,6 +27,7 @@ from gn2.wqflask.oauth2 import client
 from gn2.wqflask.oauth2 import session
 from gn2.wqflask.oauth2.session import session_info
 from gn2.wqflask.oauth2.client import user_logged_in
+from gn2.wqflask.flask_extensions import render_template
 from gn2.wqflask.oauth2.request_utils import (
     process_error, with_flash_error, with_flash_success)
 from gn2.wqflask.oauth2.client import (

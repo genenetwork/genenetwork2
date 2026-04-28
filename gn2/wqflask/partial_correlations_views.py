@@ -7,16 +7,12 @@ from typing import Union, Tuple
 from urllib.parse import urljoin
 
 from gn_libs.mysqldb import database_connection
-from flask import (
-    flash,
-    request,
-    url_for,
-    redirect,
-    render_template)
+from flask import flash, request, url_for, redirect
 
 from gn2.wqflask import app
 from gn2.utility.tools import get_setting, GN_SERVER_URL
 from gn3.db.partial_correlations import traits_info
+from gn2.wqflask.flask_extensions import render_template
 
 logger = logging.getLogger(__name__)
 

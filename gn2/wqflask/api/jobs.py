@@ -3,9 +3,11 @@ from datetime import datetime
 
 from redis import Redis
 from pymonad.io import IO
-from flask import Blueprint, render_template
+from flask import Blueprint
 
 from gn2.jobs.jobs import job
+
+from gn2.wqflask.flask_extensions import render_template
 
 jobs = Blueprint("jobs", __name__)
 

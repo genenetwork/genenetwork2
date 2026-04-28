@@ -6,7 +6,6 @@ from flask import current_app
 from flask import flash
 from flask import g
 from flask import redirect
-from flask import render_template
 from flask import request
 from flask import url_for
 
@@ -16,6 +15,7 @@ from gn3.authentication import get_highest_user_access_role
 
 from typing import Dict
 
+from gn2.wqflask.flask_extensions import render_template
 from gn2.wqflask.decorators import edit_admins_access_required
 from gn2.wqflask.decorators import login_required
 

@@ -7,9 +7,9 @@ from gn2.wqflask.oauth2.client import oauth2_get
 from flask import (Blueprint,
                    flash,
                    redirect,
-                   render_template,
                    request)
 
+from gn2.wqflask.flask_extensions import render_template
 from gn2.wqflask.oauth2.checks import require_oauth2
 from gn2.wqflask.oauth2.checks import require_oauth2_edit_resource_access
 

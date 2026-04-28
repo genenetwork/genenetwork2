@@ -5,7 +5,6 @@ import datetime
 from flask import current_app
 from flask import Blueprint
 from flask import g
-from flask import render_template
 from flask import request
 from flask import redirect
 from flask import url_for
@@ -13,6 +12,7 @@ from gn3.authentication import get_groups_by_user_uid
 from gn3.authentication import get_user_info_by_key
 from gn3.authentication import create_group
 from gn2.wqflask.decorators import login_required
+from gn2.wqflask.flask_extensions import render_template
 
 group_management = Blueprint("group_management", __name__)
 

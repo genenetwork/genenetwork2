@@ -8,11 +8,11 @@ from uuid import uuid4
 from werkzeug.exceptions import InternalServerError
 from authlib.integrations.base_client.errors import (
     OAuthError, InvalidTokenError)
-from flask import (
-    flash, request, redirect, current_app, render_template, make_response)
+from flask import flash, request, redirect, current_app, make_response
 
 from gn2.wqflask.oauth2 import session
 from gn2.wqflask.decorators import AuthorisationError
+from gn2.wqflask.flask_extensions import render_template
 from gn2.wqflask.external_errors import ExternalRequestError
 
 def render_error(exc):

@@ -25,7 +25,6 @@ from flask import current_app
 from flask import flash
 from flask import g
 from flask import redirect
-from flask import render_template
 from flask import request
 from flask import url_for
 from gn_libs.mysqldb import database_connection
@@ -35,6 +34,7 @@ from gn_libs import monadic_requests as mrequests
 from gn2.utility.json import CustomJSONEncoder
 
 from gn2.wqflask.decorators import login_required
+from gn2.wqflask.flask_extensions import render_template
 
 from gn2.wqflask.oauth2 import client
 from gn2.wqflask.oauth2 import session

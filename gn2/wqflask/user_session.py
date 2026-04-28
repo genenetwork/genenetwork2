@@ -4,11 +4,12 @@ import uuid
 
 import simplejson as json
 
-from flask import (Flask, g, render_template, url_for, request, make_response,
-                   redirect, flash, abort)
+from flask import (Flask, g, url_for, request, make_response, redirect, flash,
+                   abort)
 
 from gn2.wqflask import app
 from gn2.utility import hmac
+from gn2.wqflask.flask_extensions import render_template
 
 from gn2.utility.redis_tools import get_redis_conn, get_user_id, get_user_by_unique_column, set_user_attribute, get_user_collections, save_collections
 Redis = get_redis_conn()

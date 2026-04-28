@@ -9,12 +9,13 @@ import requests
 
 import simplejson as json
 
-from flask import (Flask, g, render_template, url_for, request, make_response,
+from flask import (Flask, g, url_for, request, make_response,
                    redirect, flash, abort)
 
 from gn2.wqflask import app
 from gn2.wqflask import pbkdf2
 from gn2.wqflask.user_session import UserSession
+from gn2.wqflask.flask_extensions import render_template
 
 from gn2.utility import hmac
 from gn2.utility.redis_tools import is_redis_available, get_redis_conn, get_user_id, get_user_by_unique_column, set_user_attribute, save_user, save_verification_code, check_verification_code, get_user_collections, save_collections
