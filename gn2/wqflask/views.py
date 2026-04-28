@@ -1168,7 +1168,7 @@ def show_trait_page():
         lambda privileges_data: {
             "resource_id": privileges_data[0]["resource_id"],
             "user": privileges_data[0]["user"],
-            "traitprivileges": tuple(
+            "resourceprivileges": tuple(
                 item for item in privileges_data[0]["privileges"])
         }
     ).either(
