@@ -1171,26 +1171,6 @@ def show_trait_page():
             "traitprivileges": tuple(
                 item for item in privileges_data[0]["privileges"])
         }
-    ).then(
-        lambda databag: client.get(
-            "auth/system/roles"
-        ).then(
-            lambda sys_roles: {
-                **databag,
-                "systemprivileges": tuple(
-                    priv["privilege_id"] for role in sys_roles
-                    for priv in role["privileges"])
-            }
-        ).then(
-            lambda databag: {
-                **databag,
-                "can_view": resources.can_view(
-                    databag["traitprivileges"] + databag["systemprivileges"]),
-                "can_edit": resources.can_edit(
-                    databag["traitprivileges"] + databag["systemprivileges"]),
-                "can_delete": resources.can_delete(
-                    databag["traitprivileges"] + databag["systemprivileges"])
-            })
     ).either(
         with_flash_error(render_template("show_trait_error.html")),
         __show_trait__)
