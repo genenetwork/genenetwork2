@@ -139,6 +139,10 @@ def edit_phenotype(conn, name, dataset_id):
         "publication": fetch_publication_by_id(conn, publish_xref["publication_id"])
     }
 
+def _normalize_n_cases(value):
+    """Treat N=0 as missing (equivalent to 'x'). Returns 'x' or str(value)."""
+    return 'x' if value in (None, '0', 0) else str(value)
+
 def get_sample_data_diff(dict1, dict2):
     """Get the diff between two sets of sample data"""
 
@@ -178,6 +182,19 @@ def get_sample_data_diff(dict1, dict2):
             for k in set(sub1.keys()) | set(sub2.keys()):
                 v1_raw = sub1.get(k, None)
                 v2_raw = sub2.get(k, None)
+
+                # For n_cases (N field), treat 0 and 'x' as equivalent (both represent missing)
+                if k == 'n_cases':
+                    # Normalize 0 and None to 'x'
+                    v1_norm = _normalize_n_cases(v1_raw)
+                    v2_norm = _normalize_n_cases(v2_raw)
+                    # Skip if both are missing
+                    if v1_norm == 'x' and v2_norm == 'x':
+                        continue
+                    if v1_norm != v2_norm:
+                        sub_diff[k] = {"Original": v1_norm, "Current": v2_norm}
+                    continue
+                
                 try:
                     v1 = float(v1_raw)
                     v2 = float(v2_raw)
@@ -188,6 +205,9 @@ def get_sample_data_diff(dict1, dict2):
                     # Normalize None to 'x' for missing values to avoid showing 'None' in templates
                     v1_disp = v1_raw if v1_raw is not None else 'x'
                     v2_disp = v2_raw if v2_raw is not None else 'x'
+                    # Skip if both are 'x' (both represent missing/null values)
+                    if v1_disp == 'x' and v2_disp == 'x':
+                        continue
                     if v1_disp != v2_disp:
                         sub_diff[k] = {"Original": v1_disp, "Current": v2_disp}
 
@@ -261,25 +281,24 @@ def calculate_sample_diffs(conn, upload_file, transposed, group_name):
 
             sample_data = line[2:]
             for j, sample in enumerate(sample_list):
-                if is_number(sample_data[j]):
-                    if sample not in edited_sample_data:
-                        edited_sample_data[sample] = {}
+                if sample not in edited_sample_data:
+                    edited_sample_data[sample] = {}
 
-                    if i % 3 == 1:
-                        if is_number(sample_data[j]):
-                            edited_sample_data[sample]['value'] = f"{round(float(sample_data[j]), 2)}"
-                        else:
-                            edited_sample_data[sample]['value'] = 'x'
-                    if i % 3 == 2 and is_number(sample_data[j]):
-                        if is_number(sample_data[j]):
-                            edited_sample_data[sample]['error'] = f"{round(float(sample_data[j]), 3)}"
-                        else:
-                            edited_sample_data[sample]['error'] = 'x'
-                    if i % 3 == 0 and is_number(sample_data[j]):
-                        if is_number(sample_data[j]):
-                            edited_sample_data[sample]['n_cases'] = f"{int(sample_data[j])}"
-                        else:
-                            edited_sample_data[sample]['n_cases'] = 'x'
+                if i % 3 == 1:
+                    if is_number(sample_data[j]):
+                        edited_sample_data[sample]['value'] = f"{round(float(sample_data[j]), 2)}"
+                    else:
+                        edited_sample_data[sample]['value'] = 'x'
+                if i % 3 == 2:
+                    if is_number(sample_data[j]):
+                        edited_sample_data[sample]['error'] = f"{round(float(sample_data[j]), 3)}"
+                    else:
+                        edited_sample_data[sample]['error'] = 'x'
+                if i % 3 == 0:
+                    if is_number(sample_data[j]):
+                        edited_sample_data[sample]['n_cases'] = f"{int(sample_data[j])}"
+                    else:
+                        edited_sample_data[sample]['n_cases'] = 'x'
 
             if i % 3 == 0:
                 orig_sample_data = get_pheno_sample_data(conn, trait_name, None, group_id=group_id)
@@ -291,6 +310,22 @@ def calculate_sample_diffs(conn, upload_file, transposed, group_name):
                         del orig_sample_data[sample]
 
                 diff, diff_samples = get_sample_data_diff(orig_sample_data, edited_sample_data)
+                
+                # Skip "additions" where all values are missing (represented as 'x' or N=0).
+                # These are not real additions, just samples with no actual data.
+                def has_real_data(sample_diff):
+                    """Check if sample has any non-missing values."""
+                    for k, v in sample_diff.items():
+                        # For n_cases, treat 0 as missing; for other fields, 'x' is missing
+                        if k == 'n_cases' and _normalize_n_cases(v) != 'x':
+                            return True
+                        if k != 'n_cases' and v != 'x':
+                            return True
+                    return False
+
+                diff["Additions"] = {s: d for s, d in diff["Additions"].items() if has_real_data(d)}
+                diff_samples['Additions'] = list(diff["Additions"].keys())
+                
                 for key in all_diff_samples:
                     all_diff_samples[key] = list(set(diff_samples[key]).union(set(all_diff_samples[key])))
 
