@@ -192,6 +192,17 @@ initialize_show_trait_tables = function(new_data = []) {
             $(this).addClass("selected")
           }
         });
+        // Safari misaligns the header with RTL scroll containers when the table
+        // doesn't overflow the viewport. A deferred columns.adjust() forces a
+        // recalculation after the browser has finished its RTL layout pass.
+        var dt = $(settings.nTable).DataTable();
+        var tId = settings.nTable.id;
+        setTimeout(function() {
+          dt.columns.adjust();
+          if (window.leftScrollbarFixEnabled && typeof adjustLeftScrollbarHeader === 'function') {
+            adjustLeftScrollbarHeader(tId);
+          }
+        }, 100);
       },
       'createdRow': function ( row, data, index ) {
         $(row).attr('id', tableType + "_" + data.this_id)
