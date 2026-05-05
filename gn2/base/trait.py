@@ -161,14 +161,24 @@ class GeneralTrait:
 
         alias = 'Not available'
         if self.symbol:
-            human_response = requests.get(urljoin(GN_GUILE_SERVER_URL, f"gene/aliases/{self.symbol.upper()}"))
-            mouse_response = requests.get(urljoin(GN_GUILE_SERVER_URL, f"gene/aliases/{self.symbol.capitalize()}"))
-            other_response = requests.get(urljoin(GN_GUILE_SERVER_URL, f"gene/aliases/{self.symbol.lower()}"))
+            try:
+                resp = requests.get(urljoin(GN_GUILE_SERVER_URL, f"gene/aliases/{self.symbol.upper()}"))
+                human_response = resp.json()
+            except requests.exceptions.ConnectionError:
+                human_response = []
+            try:
+                resp = requests.get(urljoin(GN_GUILE_SERVER_URL, f"gene/aliases/{self.symbol.capitalize()}"))
+                mouse_response = resp.json()
+            except requests.exceptions.ConnectionError:
+                mouse_response = []
+            try:
+                resp = requests.get(urljoin(GN_GUILE_SERVER_URL, f"gene/aliases/{self.symbol.lower()}"))
+                other_response = resp.json()
+            except requests.exceptions.ConnectionError:
+                other_response = []
 
             if human_response and mouse_response and other_response:
-                alias_list = json.loads(human_response.content) + json.loads(
-                    mouse_response.content) + \
-                    json.loads(other_response.content)
+                alias_list = human_response + mouse_response + other_response
 
                 filtered_aliases = []
                 seen = set()
