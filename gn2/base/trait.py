@@ -11,6 +11,7 @@ from gn2.utility.tools import get_setting, GN2_BASE_URL
 from gn2.utility.redis_tools import get_redis_conn
 
 from flask import g, request, url_for
+from requests.exceptions import Timeout, ConnectionError
 
 from gn_libs.mysqldb import database_connection
 from gn2.utility.tools import GN_GUILE_SERVER_URL
@@ -161,20 +162,30 @@ class GeneralTrait:
 
         alias = 'Not available'
         if self.symbol:
+            _timeout = (9.13, 20)
             try:
-                resp = requests.get(urljoin(GN_GUILE_SERVER_URL, f"gene/aliases/{self.symbol.upper()}"))
+                resp = requests.get(
+                    urljoin(GN_GUILE_SERVER_URL,
+                            f"gene/aliases/{self.symbol.upper()}"),
+                    timeout=_timeout)
                 human_response = resp.json()
-            except requests.exceptions.ConnectionError:
+            except (Timeout, ConnectionError):
                 human_response = []
             try:
-                resp = requests.get(urljoin(GN_GUILE_SERVER_URL, f"gene/aliases/{self.symbol.capitalize()}"))
+                resp = requests.get(
+                    urljoin(GN_GUILE_SERVER_URL,
+                            f"gene/aliases/{self.symbol.capitalize()}"),
+                    timeout=_timeout)
                 mouse_response = resp.json()
-            except requests.exceptions.ConnectionError:
+            except (Timeout, ConnectionError):
                 mouse_response = []
             try:
-                resp = requests.get(urljoin(GN_GUILE_SERVER_URL, f"gene/aliases/{self.symbol.lower()}"))
+                resp = requests.get(
+                    urljoin(GN_GUILE_SERVER_URL,
+                            f"gene/aliases/{self.symbol.lower()}"),
+                    timeout=_timeout)
                 other_response = resp.json()
-            except requests.exceptions.ConnectionError:
+            except (Timeout, ConnectionError):
                 other_response = []
 
             if human_response and mouse_response and other_response:
