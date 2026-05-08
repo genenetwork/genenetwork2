@@ -101,12 +101,6 @@ def view_resource(resource_id: UUID):
 
     def __fetch_resource_users__(data):
         """Fetch all users. This might be one cause of slow-down."""
-        def __handle_users_error__(err):
-            error = process_error(err)
-            if error["error"] == "UNAUTHORIZED":
-                return Right({**data, "users_error": error})
-            return Left(err)
-
         resource_id = data["resource"]["resource_id"]
         return oauth2_get(
             f"auth/user/list",
@@ -117,7 +111,7 @@ def view_resource(resource_id: UUID):
                 "users": resource_users_list["users"]
             }
         ).either(
-            __handle_users_error__,
+            lambda err: Right({**data, "users_error": process_error(err)}),
             lambda result: Right(result))
 
     def __fetch_roles_for_resource__(data):
