@@ -1,4 +1,6 @@
+import logging
 import requests
+import multiprocessing
 import simplejson as json
 from gn2.wqflask import app
 from urllib.parse import urljoin
@@ -12,10 +14,13 @@ from gn2.utility.redis_tools import get_redis_conn
 
 from flask import g, request, url_for
 from requests.exceptions import Timeout, ConnectionError
+from concurrent.futures import ThreadPoolExecutor
 
+import gn_libs.monadic_requests as mrequests
 from gn_libs.mysqldb import database_connection
 from gn2.utility.tools import GN_GUILE_SERVER_URL
 
+logger = logging.getLogger(__name__)
 Redis = get_redis_conn()
 
 
@@ -160,48 +165,31 @@ class GeneralTrait:
     def wikidata_alias_fmt(self):
         """Return a text formatted alias"""
 
-        alias = 'Not available'
         if self.symbol:
-            _timeout = (9.13, 20)
-            try:
-                resp = requests.get(
-                    urljoin(GN_GUILE_SERVER_URL,
-                            f"gene/aliases/{self.symbol.upper()}"),
-                    timeout=_timeout)
-                human_response = resp.json()
-            except (Timeout, ConnectionError):
-                human_response = []
-            try:
-                resp = requests.get(
-                    urljoin(GN_GUILE_SERVER_URL,
-                            f"gene/aliases/{self.symbol.capitalize()}"),
-                    timeout=_timeout)
-                mouse_response = resp.json()
-            except (Timeout, ConnectionError):
-                mouse_response = []
-            try:
-                resp = requests.get(
-                    urljoin(GN_GUILE_SERVER_URL,
-                            f"gene/aliases/{self.symbol.lower()}"),
-                    timeout=_timeout)
-                other_response = resp.json()
-            except (Timeout, ConnectionError):
-                other_response = []
+            def __safe_query__(url) -> list[str]:
+                """Query the URL safely."""
+                return mrequests.get(url).either(
+                    lambda err: [], lambda aliases: aliases)
 
-            if human_response and mouse_response and other_response:
-                alias_list = human_response + mouse_response + other_response
+            _num_threads = int((# this is I/O bound, so 5 to 10 threads is good
+                ((multiprocessing.cpu_count() * 5) +
+                 (multiprocessing.cpu_count() *10)) / 2 ) + 1)
+            with ThreadPoolExecutor(max_workers=_num_threads) as executor:
+                human_response, mouse_response, other_response = tuple(
+                    executor.map(__safe_query__, (
+                        urljoin(GN_GUILE_SERVER_URL,
+                                f"gene/aliases/{self.symbol.upper()}"),
+                        urljoin(GN_GUILE_SERVER_URL,
+                                f"gene/aliases/{self.symbol.capitalize()}"),
+                        urljoin(GN_GUILE_SERVER_URL,
+                                f"gene/aliases/{self.symbol.lower()}"))))
 
-                filtered_aliases = []
-                seen = set()
-                for item in alias_list:
-                    if item in seen:
-                        continue
-                    else:
-                        filtered_aliases.append(item)
-                        seen.add(item)
-                alias = "; ".join(filtered_aliases)
+            return "; ".join({
+                key: None for key in
+                (human_response + mouse_response + other_response)
+            }.keys()) or "Not available"
+        return "Not available"
 
-        return alias
 
     @property
     def location_fmt(self):
