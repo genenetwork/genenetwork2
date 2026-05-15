@@ -132,10 +132,16 @@
         </div>
       </form>
     </div>
-  {%else%}
-    {%if user.name == "Anonymous User"%}
-    {{display_error("Access Denied", {"error": "AuthorisationError", "error_description": "This trait is not accessible for the general public yet. Please log in."})}}
-    {%else%}
+{%else%}
+{%if user.name == "Anonymous User"%}
+{{display_error("Access Denied", {"error": "AuthorisationError", "error_description": "This trait is not accessible for the general public yet."})}}
+<p>Please <a href="{{authserver_authorise_uri()}}"
+             title="Sign in to the system to identify yourself.">log in</a>
+  or if you do not already have an existing account, you can
+  <a href="{{url_for('oauth2.user.register_user')}}"
+     title="Register a new account with GeneNetwork.">register for one</a>
+</p>
+{%else%}
     {{display_error("Access Denied", {"error": "AuthorisationError", "error_description": "The user '" + user.name + "', does not currently possess the appropriate privileges to view this trait. If you know the owner of this trait, please request that they grant you access, or wait until it is made public."})}}
     {%endif%}
   {%endif%}
