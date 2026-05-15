@@ -431,8 +431,8 @@ def __edit_with_authorisation__(thunk, dataset_name, trait_name, *auth_checkers)
     ).then(
         lambda _bag_: (
             Right(_bag_)
-            if all(checker(
-                    _bag_["resource_privileges"] + _bag_["system_privileges"])
+            if all(checker(_bag_["resource_privileges"],
+                           _bag_["system_privileges"])
                    for checker in auth_checkers)
             else Left("You do not have sufficient privileges to edit this "
                       "trait's metadata."))

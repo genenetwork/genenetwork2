@@ -1922,7 +1922,9 @@ def get_dataset(name):
         }
     )
     if metadata:
-        metadata["editable"] = resources.can_edit(result["privileges"])
+        metadata["editable"] = resources.can_edit(
+            result["dataset_privileges"],
+            result["system_privileges"])
     return render_template(
         "dataset.html",
         name=name,

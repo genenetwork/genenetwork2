@@ -15,6 +15,17 @@ logger = logging.getLogger(__name__)
 
 def render_template(template, **context: Any) -> str:
     """Extend flask's `render_template` function."""
+    def __compute_authorisations__(databag):
+        _rprivs = databag.get("resourceprivileges", tuple())
+        _sprivs = databag.get("systemprivileges", tuple())
+        return {
+            **databag,
+            "can_view": resources.can_view(_rprivs, _sprivs),
+            "can_edit": resources.can_edit(_rprivs, _sprivs),
+            "can_delete": resources.can_delete(_rprivs, _sprivs),
+            "can_batch_edit": resources.can_batch_edit(_sprivs)
+        }
+
     return client.get(
         "auth/system/roles"
     ).then(
@@ -25,20 +36,7 @@ def render_template(template, **context: Any) -> str:
                     for priv in role["privileges"])
         }
     ).then(
-        lambda databag: {
-            **databag,
-            "can_view": resources.can_view(
-                databag.get("resourceprivileges", tuple())
-                + databag["systemprivileges"]),
-            "can_edit": resources.can_edit(
-                databag.get("resourceprivileges", tuple())
-                + databag["systemprivileges"]),
-            "can_delete": resources.can_delete(
-                databag.get("resourceprivileges", tuple())
-                + databag["systemprivileges"]),
-            "can_batch_edit": resources.can_batch_edit(
-                databag["systemprivileges"])
-        }
+        __compute_authorisations__
     ).either(
         lambda error: with_flash_error(_render(template, **context)),
         lambda databag: _render(template, **databag)

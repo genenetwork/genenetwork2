@@ -393,7 +393,7 @@ def edit_resource(resource_id: UUID):
             lambda databag: {
                 **databag,
                 "can_edit": privileges.resources.can_edit(
-                    databag["user_privileges_on_resource"] +
+                    databag["user_privileges_on_resource"],
                     databag["user_privileges_on_system"])
             }
         ).either(
