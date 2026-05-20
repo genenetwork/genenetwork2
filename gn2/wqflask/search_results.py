@@ -77,6 +77,8 @@ class SearchResultPage:
         rx = re.compile(
             r'.*\W(href|http|sql|select|update)\W.*', re.IGNORECASE)
         if rx.match(search):
+            logger.debug("Search term did not match the regular expression. "
+                         "Setting 'search_term_exists' to 'False'.")
             self.search_term_exists = False
             return
         else:
@@ -100,6 +102,8 @@ class SearchResultPage:
         try:
             self.search()
         except:
+            logger.debug(
+                "Search failed. Setting 'search_term_exists' to 'False'.")
             self.search_term_exists = False
 
         self.too_many_results = False
@@ -389,6 +393,9 @@ class SearchResultPage:
                             else:
                                 combined_where_clause += "OR"
                 else:
+                    logger.error("No search term object found. Search: %s",
+                                 a_search,
+                                 exc_info=True)
                     self.search_term_exists = False
 
         if self.search_term_exists:
