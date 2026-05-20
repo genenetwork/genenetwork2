@@ -1078,7 +1078,7 @@ def list_diffs():
                 for priv in role["privileges"]
             ]
         ).then(
-            lambda: sysprivs: [
+            lambda sysprivs: [
                     auth_item for auth_item in lst
                     if resources.can_edit(auth_item["privileges"], sysprivs)
                 ]
