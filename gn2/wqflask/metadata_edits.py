@@ -423,9 +423,11 @@ def __edit_with_authorisation__(thunk, dataset_name, trait_name, *auth_checkers)
                 "traits": [f"{dataset_name}::{trait_name}"]
             }
         ).then(
+            lambda authorisations: authorisations["authorisation"][0]
+        ).then(
             lambda resource_details: {
                 **_bag_,
-                "resource_privileges": tuple(resource_details[0]["privileges"])
+                "resource_privileges": tuple(resource_details["privileges"])
             }
         )
     ).then(
@@ -1061,6 +1063,8 @@ def list_diffs():
                 for meta in files
             ]
         }
+    ).then(
+        lambda auths: auths["authorisation"]
     ).map(
         lambda lst: [auth_item for auth_item in lst
                      if resources.can_edit(auth_item["privileges"])]
@@ -1173,6 +1177,8 @@ def __authorised_p__(dataset_name, trait_name):
     return client.post(
         "auth/data/authorisation",
         json={"traits": [f"{dataset_name}::{trait_name}"]}
+    ).then(
+        lambda auths: auths["authorisation"]
     ).map(
         lambda adets: {
             f"{dets['dataset_name']}::{dets['trait_name']}": dets

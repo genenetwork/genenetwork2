@@ -1165,11 +1165,13 @@ def show_trait_page():
             "traits": [f"{dataset}::{trait_id}"]
         }
     ).then(
+        lambda authorisations: authorisations["authorisation"][0]
+    ).then(
         lambda privileges_data: {
-            "resource_id": privileges_data[0]["resource_id"],
-            "user": privileges_data[0]["user"],
+            "resource_id": privileges_data["resource_id"],
+            "user": session_info()["user"],
             "resourceprivileges": tuple(
-                item for item in privileges_data[0]["privileges"])
+                item for item in privileges_data["privileges"])
         }
     ).either(
         with_flash_error(render_template("show_trait_error.html")),
