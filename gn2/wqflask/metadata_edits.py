@@ -1069,9 +1069,20 @@ def list_diffs():
         }
     ).then(
         lambda auths: auths["authorisation"]
-    ).map(
-        lambda lst: [auth_item for auth_item in lst
-                     if resources.can_edit(auth_item["privileges"])]
+    ).then(
+        lambda lst: client.post(
+            "auth/system/roles"
+        ).then(
+            lambda sysroles: [
+                priv["privilege_id"] for role in sysroles
+                for priv in role["privileges"]
+            ]
+        ).then(
+            lambda: sysprivs: [
+                    auth_item for auth_item in lst
+                    if resources.can_edit(auth_item["privileges"], sysprivs)
+                ]
+            )
     ).map(
         lambda alst: __filter_authorised__(files, alst)
     ).map(lambda diffs: reduce(__organise_diffs__,
@@ -1176,18 +1187,28 @@ def __authorised_p__(dataset_name, trait_name):
         dets = auth_details.get(key)
         if not bool(dets):
             return False
-        return resources.can_edit(dets["privileges"])
+        return resources.can_edit(dets["privileges"], dets["system_privileges"])
 
     return client.post(
         "auth/data/authorisation",
         json={"traits": [f"{dataset_name}::{trait_name}"]}
     ).then(
         lambda auths: auths["authorisation"]
-    ).map(
+    ).then(
         lambda adets: {
             f"{dets['dataset_name']}::{dets['trait_name']}": dets
             for dets in adets
         }
+    ).then(
+        lambda databag: client.get("auth/system/roles").then(
+            lambda sysroles: {
+                **databag,
+                "system_privileges": [
+                    priv["privilege_id"] for role in sysroles
+                    for priv in role["privileges"]
+                ]
+            }
+        )
     ).either(__error__, __success__)
 
 @metadata_edit.route("<resource_id>/diffs/<file_name>/reject")
