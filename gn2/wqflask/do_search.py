@@ -2,6 +2,7 @@ import json
 import re
 import requests
 import string
+import logging
 
 from gn_libs.mysqldb import database_connection
 
@@ -9,6 +10,8 @@ import sys
 
 from gn2.db import webqtlDatabaseFunction
 from gn2.utility.tools import get_setting, GN2_BASE_URL
+
+logger = logging.getLogger(__name__)
 
 
 class DoSearch:
@@ -34,6 +37,7 @@ class DoSearch:
     def execute(self, query):
         """Executes query and returns results"""
         query = self.normalize_spaces(query)
+        logger.debug("QUERY: %s", query)
         with database_connection(get_setting("SQL_URI")) as conn, conn.cursor() as cursor:
             cursor.execute(query)
             return cursor.fetchall()
