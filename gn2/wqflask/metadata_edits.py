@@ -484,7 +484,11 @@ def batch_edit_page() -> Response:
             lambda databag: render_template(
                 "batch_edit_submit.html",
                 gn_server_url=current_app.config["GN_SERVER_URL"],
-                **databag))
+                **{
+                    "user_signed_in": session.session_info().get(
+                        "user", {}).get("logged_in", False),
+                    **databag
+                }))
 
 
 @metadata_edit.route("/<dataset_id>/traits/<name>")

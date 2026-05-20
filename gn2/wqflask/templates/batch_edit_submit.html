@@ -61,7 +61,14 @@
         </div>
     </form>
     {% else %}
-    <h2>You lack the permissions to view this page. Please <a href="{{ authserver_authorise_uri() }}">sign in</a>.</h2>
+    <h2>Authorisation Error</h2>
+    <p class="text-danger">You do not have the permission to view this page.
+      {%if not user_signed_in%}
+      Please <a href="{{ authserver_authorise_uri() }}">sign in</a>.
+      {%else%}
+      Your account lacks sufficient privileges to access this feature.
+      {%endif%}
+    </p>
     {% endif %}
 </div>
 {% endblock %}
