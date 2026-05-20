@@ -1028,8 +1028,12 @@ filename=sample-data-{probeset_id}.csv"
 @metadata_edit.route("/diffs")
 @login_required(pagename="Sample Data Diffs")
 def list_diffs():
+    # Make directory if it doesn't exist.
+    diff_dir = Path(f"{current_app.config.get('TMPDIR')}/sample-data/diffs")
+    diff_dir.mkdir(parents=True, exist_ok=True)
+
     files = _get_diffs(
-        diff_dir=f"{current_app.config.get('TMPDIR')}/sample-data/diffs",
+        diff_dir=diff_dir,
         redis_conn=redis.from_url(current_app.config["REDIS_URL"],
                                   decode_responses=True))
 
