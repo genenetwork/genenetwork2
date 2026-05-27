@@ -1387,7 +1387,7 @@ root.modebar_options = {
       Plotly.downloadImage(gd, {format: 'jpeg'})
     }
   }],
-  showEditInChartStudio: true,
+  showEditInChartStudio: false,
   plotlyServerURL: "https://chart-studio.plotly.com",
   modeBarButtonsToRemove:['zoom2d', 'pan2d', 'toImage', 'hoverClosest', 'hoverCompare', 'hoverClosestCartesian', 'hoverCompareCartesian', 'lasso2d', 'toggleSpikelines', 'resetScale2d'],
   displaylogo: false
