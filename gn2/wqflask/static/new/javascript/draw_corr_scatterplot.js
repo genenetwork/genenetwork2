@@ -860,11 +860,16 @@ $("#cofactor3_type").change(function () {
 });
 
 open_covariate_selection = function() {
+  coll_count = parseInt($('.num_coll').text())
+  var height = Math.min((200 + 40 * coll_count), 850).toString() + "px"
+  var width = "1000px"
   return $('#collections_holder').load('/collections/list #collections_list', (function(_this) {
     return function() {
       $.colorbox({
         inline: true,
         href: "#collections_holder",
+        width: width,
+        height: height,
         onComplete: function(){
             $.getScript("/static/new/javascript/get_traits_from_collection.js");
         }

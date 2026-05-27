@@ -1,0 +1,38 @@
+/*
+  Colorbox Close Button Customization
+  Replaces the "close" text with a Font Awesome icon
+  This file should be imported after colorbox.css to override its styles
+*/
+
+#cboxClose {
+    font-size: 0;
+    width: 40px;
+    height: 40px;
+    padding: 8px;
+    line-height: 1;
+    top: 0;
+    left: 0;
+}
+
+/* When collections_list is inside a colorbox, make it fill width and add minimal top space */
+#cboxLoadedContent #collections_list {
+    width: 100% !important;
+    padding-top: 25px;
+}
+
+#cboxClose::before {
+    content: "\f00d";
+    font-family: FontAwesome;
+    font-size: 24px;
+    color: #555;
+    display: inline-block;
+    line-height: 1;
+}
+
+#cboxClose:hover::before {
+    color: #000;
+}
+
+#cboxClose:focus::before {
+    color: #000;
+}
