@@ -8,7 +8,7 @@ from gn_libs.privileges import resources
 from flask import render_template as _render
 
 from gn2.wqflask.oauth2 import client
-
+from gn2.wqflask.oauth2.request_utils import with_flash_error
 
 logger = logging.getLogger(__name__)
 
