@@ -1916,12 +1916,8 @@ def get_dataset(name):
                     for privilege in role["privileges"])
             })
     ).either(
-        lambda err: {"privileges": []},
-        lambda val: {
-            # then we can combine all privileges
-            **val,
-            "privileges": val["dataset_privileges"] + val["system_privileges"]
-        }
+        lambda err: {"dataset_privileges": [], "system_privileges": []},
+        lambda val: val
     )
     if metadata:
         metadata["editable"] = resources.can_edit(
