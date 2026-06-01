@@ -1209,7 +1209,14 @@ getSampleTableData = function(tableName, attributesAsList, includeNAs=false) {
 
     checkedRows = getCheckedRows(tableName)
 
+    // Get visible row indexes (respecting DataTables search filter)
+    visibleRowIndexes = tableApi.rows({search: 'applied'}).indexes().toArray();
+
     for (_j = 0; _j < valNodes.length; _j++){
+      // Skip if row is hidden by search filter
+      if (!visibleRowIndexes.includes(_j)) {
+        continue
+      }
       if (!checkedRows.includes(_j) && checkedRows.length > 0) {
         continue
       }
