@@ -157,12 +157,9 @@ class DatasetGroup:
         if result is not None:
             self.samplelist = json.loads(result)
         else:
-            genotype_fn = locate_ignore_error(self.name + ".geno", 'genotype')
-            if genotype_fn:
-                self.samplelist = get_group_samplelists.get_samplelist(
-                    "geno", genotype_fn)
-            else:
-                self.samplelist = None
+            # Get samplelist from JSON file
+            self.samplelist = get_group_samplelists.get_samplelist_from_json(
+                self.name)
 
             if USE_REDIS:
                 redis_conn.set(key, json.dumps(self.samplelist))
