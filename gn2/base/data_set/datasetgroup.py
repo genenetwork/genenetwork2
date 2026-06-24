@@ -161,6 +161,13 @@ class DatasetGroup:
             self.samplelist = get_group_samplelists.get_samplelist_from_json(
                 self.name)
 
+            # If not found in JSON, get samplelist from .geno file
+            if self.samplelist is None:
+                genotype_fn = locate_ignore_error(self.name + ".geno", 'genotype')
+                self.samplelist = get_group_samplelists.get_samplelist_from_geno(
+                    genotype_fn)
+                logger.info(self.samplelist)
+
             if USE_REDIS:
                 redis_conn.set(key, json.dumps(self.samplelist))
                 redis_conn.expire(key, 60 * 5)
