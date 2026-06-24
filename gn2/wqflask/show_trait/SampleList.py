@@ -25,6 +25,7 @@ class SampleList:
 
         self.sample_list = []  # The actual list
         self.sample_attribute_values = {}
+        self.px_attribute_ids = set()
 
         self.get_attributes()
 
@@ -135,6 +136,8 @@ class SampleList:
     def get_attributes(self):
         """Finds which extra attributes apply to this dataset"""
 
+        self.px_attribute_ids = set()
+
         # Get attribute names and distinct values for each attribute
         with database_connection(get_setting("SQL_URI")) as conn, conn.cursor() as cursor:
             cursor.execute(
@@ -145,7 +148,8 @@ class SampleList:
                 "CaseAttributeXRefNew.CaseAttributeId = CaseAttribute.CaseAttributeId "
                 "AND CaseAttributeXRefNew.InbredSetId = %s "
                 "AND CaseAttribute.InbredSetId = %s "
-                "ORDER BY CaseAttribute.CaseAttributeId", (str(self.dataset.group.id),str(self.dataset.group.id))
+                "ORDER BY CaseAttribute.CaseAttributeId",
+                (str(self.dataset.group.id), str(self.dataset.group.id))
             )
 
             self.attributes = {}
@@ -174,6 +178,65 @@ class SampleList:
                 else:
                     self.attributes[key].alignment = "left"
 
+            # Also check PublishXRef for traits marked as case attributes
+            # (if the AttributeName column exists)
+            try:
+                cursor.execute(
+                    "SELECT PX.PhenotypeId, PX.AttributeName, "
+                    "COALESCE(PH.Post_publication_description, "
+                    "         PH.Pre_publication_description, "
+                    "         PH.Original_description, ''), "
+                    "PD.value "
+                    "FROM PublishXRef PX "
+                    "JOIN Phenotype PH ON PH.Id = PX.PhenotypeId "
+                    "JOIN PublishData PD ON PD.Id = PX.DataId "
+                    "JOIN StrainXRef ON StrainXRef.StrainId = PD.StrainId "
+                    "WHERE PX.InbredSetId = %s AND PX.AttributeName IS NOT NULL "
+                    "AND StrainXRef.InbredSetId = %s "
+                    "ORDER BY PX.PhenotypeId, PD.StrainId",
+                    (str(self.dataset.group.id), str(self.dataset.group.id))
+                )
+
+                px_rows = cursor.fetchall()
+                if px_rows:
+                    # If a PublishXRef attribute has the same name as an existing
+                    # CaseAttribute, use the PublishXRef one instead
+                    px_attr_names = set(row[1] for row in px_rows)
+                    for key in list(self.attributes.keys()):
+                        if self.attributes[key].name in px_attr_names:
+                            del self.attributes[key]
+
+                    for attr, values in itertools.groupby(
+                            px_rows, lambda row: (row[0], row[1], row[2])
+                    ):
+                        pheno_id, name, description = attr
+                        # Use negative Phenotype ID so PublishXRef attributes
+                        # sort before regular CaseAttribute columns in JS
+                        px_key = -pheno_id
+                        self.attributes[px_key] = Bunch()
+                        self.attributes[px_key].id = px_key
+                        self.attributes[px_key].name = name
+                        self.attributes[px_key].description = description
+                        self.attributes[px_key].distinct_values = [
+                            str(item[3]) for item in values]
+                        self.attributes[px_key].distinct_values = natural_sort(
+                            self.attributes[px_key].distinct_values)
+                        all_numbers = True
+                        for value in self.attributes[px_key].distinct_values:
+                            try:
+                                val_as_float = float(value)
+                            except:
+                                all_numbers = False
+                                break
+                        if all_numbers:
+                            self.attributes[px_key].alignment = "right"
+                        else:
+                            self.attributes[px_key].alignment = "left"
+                        self.px_attribute_ids.add(px_key)
+            except Exception:
+                # AttributeName column doesn't exist; just use CaseAttribute data
+                pass
+
     def get_extra_attribute_values(self):
         if self.attributes:
             with database_connection(get_setting("SQL_URI")) as conn, conn.cursor() as cursor:
@@ -194,11 +257,18 @@ class SampleList:
                         cursor.fetchall(), lambda row: row[0]
                 ):
                     attribute_values = {}
-                    # Make a list of attr IDs without values (that have values for other samples)
-                    valueless_attr_ids = [self.attributes[key].id for key in self.attributes.keys()]
+                    # Make a set of attr IDs without values
+                    # Exclude PublishXRef attribute IDs since they're queried separately
+                    valueless_attr_ids = {self.attributes[key].id for key in self.attributes.keys()
+                                          if key not in self.px_attribute_ids}
                     for item in items:
                         sample_name, _id, value = item
-                        valueless_attr_ids.remove(_id)
+                        # Skip attribute IDs that were removed from
+                        # self.attributes (e.g., due to name conflict
+                        # with PublishXRef attributes)
+                        if _id not in self.attributes:
+                            continue
+                        valueless_attr_ids.discard(_id)
                         attribute_value = value
 
                         # If it's an int, turn it into one for sorting
@@ -214,6 +284,54 @@ class SampleList:
                         attribute_values[str(attr_id)] = ""
 
                     self.sample_attribute_values[sample_name] = attribute_values
+
+            # Also fetch extra attribute values from PublishXRef
+            if self.px_attribute_ids:
+                try:
+                    with database_connection(get_setting("SQL_URI")) as conn, conn.cursor() as cursor:
+                        cursor.execute(
+                            "SELECT Strain.Name AS SampleName, "
+                            "PX.PhenotypeId AS Id, "
+                            "PD.value "
+                            "FROM PublishXRef PX "
+                            "JOIN PublishData PD ON PD.Id = PX.DataId "
+                            "JOIN Strain ON Strain.Id = PD.StrainId "
+                            "JOIN StrainXRef ON StrainXRef.StrainId = Strain.Id "
+                            "WHERE PX.InbredSetId = %s AND PX.AttributeName IS NOT NULL "
+                            "AND StrainXRef.InbredSetId = %s "
+                            "ORDER BY SampleName",
+                            (str(self.dataset.group.id), str(self.dataset.group.id))
+                        )
+
+                        for sample_name, items in itertools.groupby(
+                                cursor.fetchall(), lambda row: row[0]
+                        ):
+                            if sample_name not in self.sample_attribute_values:
+                                self.sample_attribute_values[sample_name] = {}
+                            for item in items:
+                                _id = -item[1]  # Use negative Phenotype ID to
+                                                # match the key in self.attributes
+                                value = item[2]
+                                try:
+                                    value = int(value)
+                                except (ValueError, TypeError):
+                                    try:
+                                        value = float(value)
+                                    except (ValueError, TypeError):
+                                        pass
+                                self.sample_attribute_values[sample_name][str(_id)] = value
+
+                    # Ensure all attribute keys (both CaseAttribute and
+                    # PublishXRef) exist for every sample that has any
+                    # attribute values, so columns align correctly in JS
+                    all_attr_keys = set(str(self.attributes[key].id) for key in self.attributes.keys())
+                    for sample_values in self.sample_attribute_values.values():
+                        for attr_key in all_attr_keys:
+                            if attr_key not in sample_values:
+                                sample_values[attr_key] = ""
+                except Exception:
+                    # AttributeName column doesn't exist; just use CaseAttribute data
+                    pass
 
     def get_first_attr_col(self):
         first_attr_col = 4
