@@ -21,25 +21,34 @@ from unittest import TestSuite, TextTestRunner, TestLoader
 
 print("Mechanical Rob firing up...")
 
-def host_is_online(host):
+def _wait_for(url, timeout=120, interval=2):
+    """Poll url until the upstream service is ready or timeout elapses.
+
+    Retries on ConnectionError (process not yet bound) and on 502/503
+    (Nginx upstream-not-ready).  Any other HTTP status is treated as ready.
+    Raises RuntimeError on timeout.
+    """
     import time
     import requests
-    for count in range(1, 5):
+    deadline = time.monotonic() + timeout
+    last_exc = None
+    while time.monotonic() < deadline:
         try:
-            time.sleep(count)
-            requests.get(host)
-            return True
-        except Exception as cre:
-            print(f"Retrying in {count + 1} seconds ...")
-            print(f"Error: {cre}")
-
-    return False
+            resp = requests.get(url, timeout=5, allow_redirects=True)
+            if resp.status_code not in (502, 503):
+                return
+        except requests.exceptions.ConnectionError as exc:
+            last_exc = exc
+        time.sleep(interval)
+    raise RuntimeError(
+        f"Service at {url} did not become available within {timeout}s"
+    ) from last_exc
 
 def run_all(args_obj, parser):
     print("")
     print("Running all tests.")
     print(args_obj)
-    assert host_is_online(args_obj.host), f"Could not connect to {args_obj.host}"
+    _wait_for(args_obj.host)
     link_checker.DO_FAIL = args_obj.fail
     check_main_web_functionality(args_obj, parser)
     check_links(args_obj, parser)
