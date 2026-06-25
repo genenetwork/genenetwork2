@@ -2,6 +2,7 @@
 
 import os
 import json
+import logging
 
 
 from gn2.base import webqtlConfig
@@ -18,6 +19,8 @@ from gn2.utility.tools import (
     get_setting,
     flat_file_exists,
     locate_ignore_error)
+
+logger = logging.getLogger(__name__)
 
 class DatasetGroup:
     """
