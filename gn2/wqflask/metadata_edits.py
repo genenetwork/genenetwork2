@@ -1177,41 +1177,6 @@ def show_history(dataset_id: str = "", name: str = ""):
         version=current_app.config.get("GN_VERSION"),
     )
 
-def __authorised_p__(dataset_name, trait_name):
-    """Check whether the user is authorised to edit the trait."""
-    def __error__(error):
-        flash_error(process_error(error))
-        return False
-
-    def __success__(auth_details):
-        key = f"{dataset_name}::{trait_name}"
-        dets = auth_details.get(key)
-        if not bool(dets):
-            return False
-        return resources.can_edit(dets["privileges"], dets["system_privileges"])
-
-    return client.post(
-        "auth/data/authorisation",
-        json={"traits": [f"{dataset_name}::{trait_name}"]}
-    ).then(
-        lambda auths: auths["authorisation"]
-    ).then(
-        lambda adets: {
-            f"{dets['dataset_name']}::{dets['trait_name']}": dets
-            for dets in adets
-        }
-    ).then(
-        lambda databag: client.get("auth/system/roles").then(
-            lambda sysroles: {
-                **databag,
-                "system_privileges": [
-                    priv["privilege_id"] for role in sysroles
-                    for priv in role["privileges"]
-                ]
-            }
-        )
-    ).either(__error__, __success__)
-
 @metadata_edit.route("<resource_id>/diffs/<file_name>/reject")
 @login_required(pagename="sample data rejection")
 def reject_data(resource_id: str, file_name: str):
@@ -1227,11 +1192,6 @@ def reject_data(resource_id: str, file_name: str):
 
         with open(samplefile, "r") as sfile:
             sample_data = json.loads(sfile.read())
-            if not __authorised_p__(sample_data["dataset_name"],
-                                    sample_data["trait_name"]):
-                flash("You are not authorised to edit that trait."
-                      "alert-danger")
-                return diffs_page
 
         samplefile.rename(Path(sampledir, f"{file_name}.rejected"))
         flash(f"{file_name} has been rejected!", "alert-success")
@@ -1260,11 +1220,6 @@ def approve_data(resource_id: str, file_name: str):
         n_insertions = 0
         with open(diffpath, "r") as myfile:
             sample_data = json.load(myfile)
-
-        if not __authorised_p__(sample_data["dataset_name"],
-                                sample_data["trait_name"]):
-            flash("You are not authorised to edit that trait.", "alert-danger")
-            return redirect(url_for("metadata_edit.list_diffs"))
 
         # Define the trait_info that is passed into the update functions, by data type
         if sample_data.get("probeset_id"):  # if trait is ProbeSet
