@@ -1070,7 +1070,7 @@ def list_diffs():
     ).then(
         lambda auths: auths["authorisation"]
     ).then(
-        lambda lst: client.post(
+        lambda lst: client.get(
             "auth/system/roles"
         ).then(
             lambda sysroles: [
