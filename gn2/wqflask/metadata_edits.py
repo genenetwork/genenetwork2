@@ -1132,7 +1132,7 @@ def show_diff(name):
 @metadata_edit.route("/probeset/<name>")
 def show_history(dataset_id: str = "", name: str = ""):
     from gn2.utility.tools import get_setting
-    diff_data_ = None
+    diff_data_ = groupby([])
     with database_connection(get_setting("SQL_URI")) as conn:
         json_data = None
         if dataset_id:  # This is a published phenotype
