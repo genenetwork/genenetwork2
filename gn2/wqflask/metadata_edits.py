@@ -1047,10 +1047,11 @@ def list_diffs():
         """Retain only those diffs that the current user has edit access to."""
         return list({
             diff["filepath"]: diff for diff in diffs
-            for auth in auth_details
-            if (diff["diff"]["dataset_name"] == auth["dataset_name"]
-                 and
-                 diff["diff"]["trait_name"] == auth["trait_name"]) }.values())
+            if (diff["diff"]["dataset_name"] == res_data_obj.get("dataset_name")
+                and
+                diff["diff"]["trait_name"] == res_data_obj.get("trait_name")
+                for auth_obj in auth_details
+                for res_data_obj in auth_obj.get("resource_data", []))}.values())
 
     def __organise_diffs__(acc, item):
         if item["filepath"].name.endswith(".rejected"):
