@@ -875,9 +875,7 @@ def get_diff_of_vals(new_vals: Dict, trait_id: str, samples: List) -> Dict:
     that is a dict with keys for the old_value and new_value
 
     """
-
-    trait_name = trait_id.split(":")[0]
-    dataset_name = trait_id.split(":")[1]
+    trait_name, dataset_name = trait_id.rsplit(":", 1)
     trait_ob = create_trait(name=trait_name, dataset_name=dataset_name)
 
     old_vals = {sample : trait_ob.data[sample].value for sample in samples if sample in trait_ob.data}
