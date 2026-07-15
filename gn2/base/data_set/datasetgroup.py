@@ -2,7 +2,6 @@
 
 import os
 import json
-import logging
 
 
 from gn2.base import webqtlConfig
@@ -20,7 +19,6 @@ from gn2.utility.tools import (
     flat_file_exists,
     locate_ignore_error)
 
-logger = logging.getLogger(__name__)
 
 class DatasetGroup:
     """
@@ -156,7 +154,6 @@ class DatasetGroup:
         key = "samplelist:v3:" + self.name
         if USE_REDIS:
             result = redis_conn.get(key)
-
         if result is not None:
             self.samplelist = json.loads(result)
         else:
@@ -169,7 +166,6 @@ class DatasetGroup:
                 genotype_fn = locate_ignore_error(self.name + ".geno", 'genotype')
                 self.samplelist = get_group_samplelists.get_samplelist_from_geno(
                     genotype_fn)
-                logger.info(self.samplelist)
 
             if USE_REDIS:
                 redis_conn.set(key, json.dumps(self.samplelist))
