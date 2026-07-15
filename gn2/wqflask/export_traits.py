@@ -85,7 +85,7 @@ def export_traitlist(targs):
 
     trait_list = []
     for trait in table_rows:
-        trait_name, dataset_name, _hash = trait.split(":")
+        trait_name, dataset_name, _hash = trait.rsplit(":", 2)
         trait_ob = create_trait(name=trait_name, dataset_name=dataset_name)
         trait_ob = retrieve_trait_info(
             trait_ob, trait_ob.dataset, get_qtl_info=True)

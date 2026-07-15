@@ -632,8 +632,10 @@ def fetch_symbols(trait_db_list):
                     psf.Name = %(db_name)s
             """
 
-            cursor.execute(symbol_query, {'trait_name': trait_db.split(":")[0],
-                                          'db_name': trait_db.split(":")[1]})
+            trait_name, dataset_name = trait_db.rsplit(":", 1)
+
+            cursor.execute(symbol_query, {'trait_name': trait_name,
+                                          'db_name': dataset_name})
             symbol_list.append(cursor.fetchone()[0])
 
     return "+".join(symbol_list)
