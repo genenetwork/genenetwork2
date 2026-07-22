@@ -2,6 +2,16 @@ tr .outlier {
   background-color: #ffff99;
 }
 
+/* ---- Trait description toggle ---- */
+.truncDesc {
+  display: block;
+}
+
+.fullDesc {
+  display: none;
+}
+
+/* ---- Existing ---- */
 table.dataTable tbody tr.selected {
   background-color: #ffee99;
 }
