@@ -51,3 +51,17 @@ div.dts div.dataTables_scrollBody table {
 div.dts div.dataTables_paginate,div.dts div.dataTables_length{
     display:none
 }
+
+/* ---- Shared DataTable patterns ----
+   Used across ~20 templates that have
+   <table class="table-hover table-striped cell-border" style="float: left;">
+   and ~5 templates with the "Loading..." cell. */
+
+.gn-dt-table {
+    float: left;
+}
+
+.gn-dt-loading {
+    text-align: center;
+    font-weight: bold;
+}
