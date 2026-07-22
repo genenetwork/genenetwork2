@@ -52,6 +52,40 @@ div.dts div.dataTables_paginate,div.dts div.dataTables_length{
     display:none
 }
 
+/* ---- Search results page ---- */
+.gn-srch-wrapper {
+    margin-left: 20px;
+}
+
+.gn-srch-description {
+    padding-top: 10px;
+    padding-bottom: 10px;
+    font-size: 16px;
+}
+
+.gn-srch-export-bar {
+    min-width: 950px;
+}
+
+.gn-srch-table-container {
+    width: 90%;
+    min-width: 1250px;
+}
+
+.gn-srch-table-container--geno {
+    width: 450px;
+    min-width: auto;
+}
+
+.gn-srch-table {
+    float: left;
+}
+
+.gn-srch-loading {
+    text-align: center;
+    font-weight: bold;
+}
+
 /* ---- Shared DataTable patterns ----
    Used across ~20 templates that have
    <table class="table-hover table-striped cell-border" style="float: left;">
