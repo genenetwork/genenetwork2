@@ -29,7 +29,7 @@
         {% if trait_description|length < 100 %}
         {{ trait_description }}
         {% else %}
-        <span class="truncDesc" style="display: block;">{{ trait_description[:99] }}... (<a onclick="toggleDescription()" href="#">Show More</a>)</span><span class="fullDesc" style="display: none;">{{ trait_description }} (<a onclick="toggleDescription()" href="#">Show Less</a>)</span>
+        <span class="truncDesc">{{ trait_description[:99] }}... (<a onclick="toggleDescription()" href="#">Show More</a>)</span><span class="fullDesc">{{ trait_description }} (<a onclick="toggleDescription()" href="#">Show Less</a>)</span>
         {% endif %}
       </h3>
       {% endif %}
@@ -87,7 +87,7 @@
                 <div class="panel-body">
                   {% include 'show_trait_transform_and_filter.html' %}
                 </div>
-                <div id="transform_alert_placeholder"><div id="transform_alert" style="display: none;"class="alert alert-success outlier-alert"><a href="#" class="close" data-dismiss="alert">�</a><span>Because there are some values between 0 and 1, log2 and log10 transforms will add 1 to each value.</span></div></div>
+                <div id="transform_alert_placeholder"><div id="transform_alert" class="gn-hidden alert alert-success outlier-alert"><a href="#" class="close" data-dismiss="alert">�</a><span>Because there are some values between 0 and 1, log2 and log10 transforms will add 1 to each value.</span></div></div>
               </div>
             </div>
             <div class="panel panel-default">

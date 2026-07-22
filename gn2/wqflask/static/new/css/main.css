@@ -71,3 +71,9 @@
     width: 200px !important;
     display: inline;
 }
+
+/* ===== Shared display utilities ===== */
+
+.gn-hidden {
+    display: none;
+}
