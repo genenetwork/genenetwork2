@@ -7,62 +7,17 @@
 {% block css %}
 <link rel="stylesheet"
       type="text/css"
-      href="{{ url_for('static', filename='/new/css/index_page.css') }}" />
+      href="{{ url_for('static', filename='/new/css/toots.css') }}" />
 <link rel="stylesheet"
       type="text/css"
-      href="{{ url_for('static', filename='/new/css/toots.css') }}" />
-<style TYPE="text/css">
-
- p.interact { display: none; }
-
-
- .media {
-     padding-bottom:10px;
-     border-bottom: 1px solid #c8ccc9;
- }
-
- .media img {
-
-     width: 95%;
-     height: 100%;
-     border-radius: 5px;
-     /*transform: scale(1.1); image small?*/
-     border:1px solid #c8ccc9;
- }
-
- .toots {
-     margin:0 auto;
-     max-width: 500px;
-     height: 160px;
-     position: relative;
-     border-radius:10px;
-     background-color: #F9F9F9;
-
- }
-
- h2 {
-     margin-bottom: 0px;
- }
-
- ul {
-     margin-top: 0px;
- }
-
- .toot {
-     padding-top:8px;     
-     background:#f9f9f9;
-     color:#000;
-     
- }
-
-</style>
+      href="{{ url_for('static', filename='/new/css/index_page.css') }}" />
 {% endblock %}
 {% block search %}
 {% include "gsearch.html" %}
 {% endblock %}
 {% block content %}
 {{ flash_me() }}
-<div class="container-fluid" style="min-width: 1210px;">
+<div class="container-fluid gn-idx-container">
     {% if anon_collections | length > 0 %}
     <div class="panel panel-warning">
         <div class="panel-heading">
@@ -100,10 +55,7 @@
     </div>
     {% endif %}
     <div class="row" style="width: 100%;">
-        <div class="col-xs-4"
-             style="margin-right:50px;
-                    min-width: 530px;
-                    max-width: 550px">
+        <div class="col-xs-4 gn-idx-search-col">
             <section id="search">
                 <div class="page-header">
                     <h2>Select and Search</h2>
@@ -115,21 +67,15 @@
                       name="SEARCHFORM"
                       data-gn_server_url="{{ gn_server_url }}">
                     <fieldset>
-                        <div style="padding-left: 20px;
-                                    padding-right: 20px"
-                             class="form-horizontal">
+                        <div class="gn-search-form form-horizontal">
                             <div class="form-group">
                                 <label for="species"
-                                       class="col-xs-1 control-label"
-                                       style="width: 65px !important">Species:</label>
-                                <div class="col-xs-10 controls input-append"
-                                     style="display: flex;
-                                            padding-left: 20px">
+                                       class="col-xs-1 control-label gn-search-form__label">Species:</label>
+                                <div class="col-xs-10 controls input-append gn-search-form__controls">
                                     <div class="col-9">
                                         <select name="species"
                                                 id="species"
-                                                class="form-control"
-                                                style="width: 340px !important">
+                                                class="form-control gn-form-select-md">
                                             <option>Loading...</option>
                                         </select>
                                     </div>
@@ -137,21 +83,17 @@
                             </div>
                             <div class="form-group">
                                 <label for="group"
-                                       class="col-xs-1 control-label"
-                                       style="width: 65px !important">Group:</label>
-                                <div class="col-xs-10 controls input-append"
-                                     style="display: flex;
-                                            padding-left: 20px">
+                                       class="col-xs-1 control-label gn-search-form__label">Group:</label>
+                                <div class="col-xs-10 controls input-append gn-search-form__controls">
                                     <div class="col-9">
                                         <select name="group"
                                                 id="group"
-                                                class="form-control"
-                                                style="width: 340px !important">
+                                                class="form-control gn-form-select-md">
                                             <option>Loading...</option>
                                         </select>
                                         <i class="icon-question-sign"></i>
                                     </div>
-                                    <div class="col-3" style="margin-left: 10px;">
+                                    <div class="col-3 gn-search-form__info-btn">
                                         <button type="button" id="group_info" class="btn form-control info-button">
                                             <span class="glyphicon glyphicon-flag"></span> Info
                                         </button>
@@ -160,20 +102,16 @@
                             </div>
                             <div class="form-group">
                                 <label for="tissue"
-                                       class="col-xs-1 control-label"
-                                       style="width: 65px !important">Type:</label>
-                                <div class="col-xs-10 controls input-append"
-                                     style="display: flex;
-                                            padding-left: 20px">
+                                       class="col-xs-1 control-label gn-search-form__label">Type:</label>
+                                <div class="col-xs-10 controls input-append gn-search-form__controls">
                                     <div class="col-9">
                                         <select name="type"
                                                 id="type"
-                                                class="form-control"
-                                                style="width: 340px !important">
+                                                class="form-control gn-form-select-md">
                                             <option>Loading...</option>
                                         </select>
                                     </div>
-                                    <div class="col-3" style="margin-left: 10px;">
+                                    <div class="col-3 gn-search-form__info-btn">
                                         <button type="button" id="dataset_info" class="btn form-control info-button">
                                             <span class="glyphicon glyphicon-flag"></span> Info
                                         </button>
@@ -182,15 +120,12 @@
                             </div>
                             <div class="form-group">
                                 <label for="dataset"
-                                       class="col-xs-1 control-label"
-                                       style="width: 65px !important">Dataset:</label>
-                                <div class="col-xs-10 controls" style="display: flex; padding-left: 20px;">
+                                       class="col-xs-1 control-label gn-search-form__label">Dataset:</label>
+                                <div class="col-xs-10 controls gn-search-form__controls--stack">
                                     <div class="col-9">
                                         <select name="dataset"
                                                 id="dataset"
-                                                class="form-control"
-                                                style="max-width: 550px;
-                                                      width: 450px !important">
+                                                class="form-control gn-form-select-lg">
                                             <option>Loading...</option>
                                         </select>
                                         <i class="icon-question-sign"></i>
@@ -200,20 +135,14 @@
                             <!--  GET ANY  SEARCH -->
                             <div class="form-group">
                                 <label for="or_search"
-                                       class="col-xs-1 control-label"
-                                       style="padding-left: 0px;
-                                            padding-right: 0px;
-                                            width: 65px !important">Get Any:</label>
-                                <div class="col-xs-10 controls" style="padding-left: 20px;">
+                                       class="col-xs-1 control-label gn-search-form__label gn-search-form__label--flush">Get Any:</label>
+                                <div class="col-xs-10 controls gn-search-form__controls--stack">
                                     <div class="col-8 autocomplete">
                                         <textarea id="myInput"
                                                   onkeyup="pressed(event)"
                                                   name="search_terms_or"
                                                   rows="1"
-                                                  class="form-control search-query"
-                                                  style="resize: vertical;
-                                                      max-width: 550px;
-                                                      width: 450px !important"
+                                                  class="form-control search-query gn-form-textarea"
                                                   id="or_search"></textarea>
                                     </div>
                                 </div>
@@ -221,9 +150,8 @@
                             <!--  GET ANY HELP   -->
                             <div class="form-group">
                                 <label for="btsearch"
-                                       class="col-xs-1 control-label"
-                                       style="width: 65px !important"></label>
-                                <div class="col-xs-10 controls" style="padding-left: 20px;">
+                                       class="col-xs-1 control-label gn-search-form__label"></label>
+                                <div class="col-xs-10 controls gn-search-form__controls--stack">
                                     <div class="col-12 controls">
                                         Enter terms, genes, ID numbers in the <b>Search</b> field.
                                         <br>
@@ -242,29 +170,22 @@
                             </div>
                             <div class="form-group">
                                 <label for="and_search"
-                                       class="col-xs-1 control-label"
-                                       style="padding-left: 0px;
-                                            padding-right: 0px;
-                                            width: 65px !important">Combined:</label>
-                                <div class="col-xs-10 controls" style="padding-left: 20px;">
+                                       class="col-xs-1 control-label gn-search-form__label gn-search-form__label--flush">Combined:</label>
+                                <div class="col-xs-10 controls gn-search-form__controls--stack">
                                     <div class="col-8 autocomplete">
                                         <textarea id="myInput"
                                                   onkeyup="pressed(event)"
                                                   name="search_terms_and"
                                                   rows="1"
-                                                  class="form-control search-query"
-                                                  style="resize: vertical;
-                                                      max-width: 550px;
-                                                      width: 450px !important"
+                                                  class="form-control search-query gn-form-textarea"
                                                   id="and_search"></textarea>
                                     </div>
                                 </div>
                             </div>
                             <div class="form-group">
                                 <label for="btsearch"
-                                       class="col-xs-1 control-label"
-                                       style="width: 65px !important"></label>
-                                <div class="col-xs-10 controls" style="display: flex; padding-left: 20px;">
+                                       class="col-xs-1 control-label gn-search-form__label"></label>
+                                <div class="col-xs-10 controls gn-search-form__controls">
                                     <div class="col-2 controls">
                                         <button id="btsearch" class="btn btn-primary form-control">
                                             <span class="glyphicon glyphicon-search"></span> Search
@@ -344,7 +265,7 @@
                 </ul>
             </section>
         </div>
-        <div class="col-xs-4" style="width: 600px !important;">
+        <div class="col-xs-4 gn-idx-content-col">
             <section id="tutorials">
                 <div class="page-header">
                     <h2>Tutorials</h2>
@@ -377,16 +298,13 @@
                 <div class="page-header">
                     <h2>News</h2>
                 </div>
-                <div id="mastadon"
-                     style="height: 405px;
-                         overflow: scroll;
-                         overflow-x: hidden">
+                <div id="mastadon" class="gn-idx-mastodon">
                     <a class="mastodon-feed"
                        target="_blank"
                        href="https://genomic.social/@genenetwork"
                        data-toot-limit="5">Genenetwork mastadon</a>
                 </div>
-                <div align="right">
+                <div class="gn-text-right">
                     <a href="https://genomic.social/@genenetwork">more news items...</a>
                 </div>
             </section>
