@@ -38,3 +38,36 @@
 .checkbox {
     min-height: 20px;
 }
+
+/* ===== Shared form-control sizing =====
+   Reusable widths for selects and textareas
+   (also used in multimap.html, correlation pages, etc.)
+   !important needed to override Bootstrap's .form-control { width: 100% } */
+
+.gn-form-select-md {
+    width: 340px !important;
+}
+
+.gn-form-select-lg {
+    width: 450px !important;
+    max-width: 550px;
+}
+
+.gn-form-textarea {
+    width: 450px !important;
+    max-width: 550px;
+    resize: vertical;
+}
+
+/* ===== Shared text utilities ===== */
+
+.gn-font-mono {
+    font-family: "Courier New", monospace;
+}
+
+/* ===== Shared input sizing ===== */
+
+.gn-input-sm {
+    width: 200px !important;
+    display: inline;
+}
