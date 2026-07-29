@@ -77,3 +77,16 @@
 .gn-hidden {
     display: none;
 }
+
+.gn-float-left {
+    float: left;
+}
+
+.gn-clear-left {
+    clear: left;
+}
+
+.gn-terminal {
+    background-color: black;
+    color: green;
+}
