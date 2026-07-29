@@ -34,8 +34,6 @@ from PIL import ImageColor
 import os
 import json
 
-import htmlgen as HT
-
 from gn2.base import webqtlConfig
 from gn2.base.GeneralObject import GeneralObject
 from gn2.utility import webqtlUtil
@@ -102,73 +100,13 @@ def _make_link(href, text, target=None, Class=None):
 
 
 def _make_area(coords, href, title=None, target=None):
-    """Build an HTML <area> tag string.  Replaces HtmlGenWrapper.create_area_tag."""
+    """Build an HTML <area> tag string."""
     attrs = f'shape="rect" coords="{coords}" href="{href}"'
     if title:
         attrs += f' title="{title}"'
     if target:
         attrs += f' target="{target}"'
     return f'<area {attrs}>'
-
-
-class HtmlGenWrapper:
-    """Wrapper Methods for HTML gen"""
-    @staticmethod
-    def create_image_tag(**kwargs):
-        image = HT.Image("", "")
-        for key, value in list(kwargs.items()):
-            image.set_attribute(key, value)
-        return image
-
-    @staticmethod
-    def create_form_tag(**kwargs):
-        form = HT.Form("POST", "")  # Default method is POST
-
-        for key, value in list(kwargs.items()):
-            if key == "submit":
-                form.append(value)
-                continue
-            form.set_attribute(key.replace("cgi", "action"), str(value))
-        return form
-
-    @staticmethod
-    def create_p_tag(**kwargs):
-        paragraph = HT.Paragraph()
-        for key, value in list(kwargs.items()):
-            paragraph.set_attribute(key, value)
-        return paragraph
-
-    @staticmethod
-    def create_br_tag():
-        return HT.VoidElement("br")
-
-    @staticmethod
-    def create_input_tag(**kwargs):
-        input_ = HT.Input()
-        for key, value in list(kwargs.items()):
-            input_.set_attribute(key.lower().replace("_", ""), value)
-        return input_
-
-    @staticmethod
-    def create_area_tag(**kwargs):
-        area = HT.VoidElement("area")
-        for key, value in list(kwargs.items()):
-            area.set_attribute(key, value)
-        return area
-
-    @staticmethod
-    def create_link_tag(href, content, **kwargs):
-        link = HT.Link(href, content)
-        for key, value in list(kwargs.items()):
-            link.set_attribute(key, value)
-        return link
-
-    @staticmethod
-    def create_map_tag(**kwargs):
-        map_ = HT.Element("map")
-        for key, value in list(kwargs.items()):
-            map_.set_attribute(key, value)
-        return map_
 
 
 class DisplayMappingResults:
@@ -2560,8 +2498,10 @@ class DisplayMappingResults:
                     sig_title = "Significant LOD = %0.2f" % (
                         self.significant / 4.61)
                 Areas1 = _make_area(coords=sugg_coords,
+                    href="",
                     title=sugg_title)
                 Areas2 = _make_area(coords=sig_coords,
+                    href="",
                     title=sig_title)
                 gifmap.append(Areas1)
                 gifmap.append(Areas2)
