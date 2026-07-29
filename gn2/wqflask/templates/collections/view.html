@@ -58,7 +58,7 @@
                         Generate Heatmap
                 </button>
                 <br>
-                <div id="heatmap-options" style="display: none;">
+                <div id="heatmap-options" class="gn-hidden">
                     <div style="margin-bottom: 10px;">
                         <b>Heatmap Orientation: </b>
                         <br>
@@ -99,8 +99,8 @@
                     <input type="hidden" name="collection_name_export" value="{{ uc.name }}">
                     <input type="hidden" name="user_email_export" value="{% if g.user_session.user_email %}{{ g.user_session.user_email }}{% else %}N/A{% endif %}">
                     <button class="btn btn-default" id="export_collection">Export Collection</button>
-                    <input type="text" id="searchbox" class="form-control" style="width: 200px; display: inline; padding-bottom: 9px;" placeholder="Search Table For ...">
-                    <input type="text" id="select_top" class="form-control" style="width: 200px; display: inline; padding-bottom: 9px;" placeholder="Select Top ...">
+                    <input type="text" id="searchbox" class="form-control gn-input-sm" style="padding-bottom: 9px;" placeholder="Search Table For ...">
+                    <input type="text" id="select_top" class="form-control gn-input-sm" style="padding-bottom: 9px;" placeholder="Select Top ...">
                     <button class="btn btn-default" id="deselect_all" type="button"><span class="glyphicon glyphicon-remove"></span> Deselect</button>
                     <button id="remove" class="btn btn-danger" data-url="/collections/remove" type="button" disabled><i class="icon-minus-sign"></i> Remove</button>
                     <button class="btn btn-default" id="export_traits">Download</button>
@@ -124,9 +124,9 @@
                 <button class="toggle-vis" data-column="10">Effect Size</button>
             </div>
             <div id="trait_table_container" style="width: 2000px; min-width: 1500px;">
-                <table class="table-hover table-striped cell-border" id='trait_table' style="float: left;">
+                <table class="table-hover table-striped cell-border" id='trait_table' class="gn-dt-table">
                     <tbody>
-                        <td colspan="100%" align="center"><br><b><font size="15">Loading...</font></b><br></td>
+                        <td colspan="100%" class="gn-dt-loading"><br>Loading...<br></td>
                     </tbody>
                 </table>
             </div>
