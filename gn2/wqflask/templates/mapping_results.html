@@ -96,7 +96,7 @@
               <table>
                 <tr>
                   <td><b>Chr:&nbsp;</b></td>
-                  <td style="padding: 5px;">
+                  <td class="gn-pad-xs">
                     <select name="chromosomes" size="1">
                         {% for chr in ChrList %}
                         <option value="{{ chr[1] }}" {% if (chr[1] + 1) == selectedChr %}selected{% endif %}>{{ chr[0] }}</option>
@@ -107,13 +107,13 @@
                 </tr>
                 <tr>
                   <td ><b>View:&nbsp;</b></td>
-                  <td style="padding: 5px;">
+                  <td class="gn-pad-xs">
                     <input type="text" name="startMb" size="7" value="{% if startMb != -1 %}{{ startMb }}{% endif %}"> to <input type="text" name="endMb" size="7" value="{% if endMb != -1 %}{{ endMb }}{% endif %}">
                   </td>
                 </tr>
                 <tr>
                   <td><b>Units:&nbsp;</b></td>
-                  <td style="padding: 5px;">
+                  <td class="gn-pad-xs">
                     <label class="radio-inline">
                       <input type="radio" name="LRSCheck" value="LRS" {% if LRS_LOD == "LRS" %}checked{% endif %}>LRS
                     </label>
@@ -121,20 +121,20 @@
                       <input type="radio" name="LRSCheck" value="{% if LRS_LOD == "-logP" %}-logP{% else %}LOD{% endif %}" {% if LRS_LOD == "LOD" or LRS_LOD == "-logP" %}checked{% endif %}>{% if LRS_LOD == "-logP" %}-logP{% else %}LOD{% endif %}
                     </label>
                     <a href="{{ url_for('gn_docs_blueprint.glossary') }}#LOD" target="_blank">
-                      <sup style="color:#f00"> ?</sup>
+                      <sup class="text-danger"> ?</sup>
                     </a>
                   </td>
                 </tr>
                 <tr>
                   <td></td>
-                  <td style="padding: 5px;">
-                    <input type="text" name="lrsMax" value="{{ '%0.1f' | format(lrsMax|float) }}" size="3"> <span style="font-size: 12px;">units on the y-axis (0 for default)</span>   
+                  <td class="gn-pad-xs">
+                    <input type="text" name="lrsMax" value="{{ '%0.1f' | format(lrsMax|float) }}" size="3"> <span class="gn-text-sm">units on the y-axis (0 for default)</span>   
                   </td>
                 </tr>
                 <tr>
                   <td><b>Width:&nbsp;</b></td>
-                  <td style="padding: 5px;">
-                    <input type="text" name="graphWidth" value="{% if graphWidth is defined %}{{ graphWidth }}{% else %}1600{% endif %}" size="5"><span style="font-size: 12px;"> pixels (minimum=900)</span>
+                  <td class="gn-pad-xs">
+                    <input type="text" name="graphWidth" value="{% if graphWidth is defined %}{{ graphWidth }}{% else %}1600{% endif %}" size="5"><span class="gn-text-sm"> pixels (minimum=900)</span>
                   </td>
                 </tr>
               </table>
@@ -161,40 +161,40 @@
             </div>
             <div class="col-xs-4" style="padding: 0px;">
                   {% if (mapping_method == "reaper" or mapping_method == "rqtl_geno") and nperm > 0 %}
-                  <input type="checkbox" name="permCheck" class="checkbox" style="display: inline; margin-top: 0px;" {% if permChecked|upper == "ON" %}value="ON" checked{% endif %}> <span style="font-size: 12px;">Permutation Test 
+                  <input type="checkbox" name="permCheck" class="checkbox gn-checkbox-inline" {% if permChecked|upper == "ON" %}value="ON" checked{% endif %}> <span class="gn-text-sm">Permutation Test 
                     <a href="{{ url_for('gn_docs_blueprint.glossary') }}#Permutation" target="_blank">
-                      <sup style="color:#f00"> ?</sup>
+                      <sup class="text-danger"> ?</sup>
                     </a>
                   <br>
                   {% endif %}
                   {% if mapping_method == "reaper" and nboot > 0 %}
-                  <input type="checkbox" name="bootCheck" class="checkbox" style="display: inline; margin-top: 0px;" {% if bootChecked|upper == "ON" %}value="ON" checked{% endif %}> <span style="font-size: 12px;">Bootstrap Test 
+                  <input type="checkbox" name="bootCheck" class="checkbox gn-checkbox-inline" {% if bootChecked|upper == "ON" %}value="ON" checked{% endif %}> <span class="gn-text-sm">Bootstrap Test 
                     <a href="{{ url_for('gn_docs_blueprint.glossary') }}#bootstrap" target="_blank">
-                      <sup style="color:#f00"> ?</sup>
+                      <sup class="text-danger"> ?</sup>
                     </a>
                   <br>
                   {% endif %}
                   {% if mapping_method == "reaper" %}
-                  <input type="checkbox" name="additiveCheck" class="checkbox" style="display: inline; margin-top: 0px;" {% if additiveChecked|upper == "ON" %}value="ON" checked{% endif %}> <span style="font-size: 12px;">Allele Effects
+                  <input type="checkbox" name="additiveCheck" class="checkbox gn-checkbox-inline" {% if additiveChecked|upper == "ON" %}value="ON" checked{% endif %}> <span class="gn-text-sm">Allele Effects
                     <a href="{{ url_for('gn_docs_blueprint.glossary') }}#additive" target="_blank">
-                      <sup style="color:#f00"> ?</sup>
+                      <sup class="text-danger"> ?</sup>
                     </a>
                   <br>
                   {% endif %}
-                  <input type="checkbox" name="showSNP" class="checkbox" style="display: inline; margin-top: 0px;" {% if SNPChecked|upper == "ON" %}value="ON" checked{% endif %}> <span style="font-size: 12px;">SNP Track </span>
+                  <input type="checkbox" name="showSNP" class="checkbox gn-checkbox-inline" {% if SNPChecked|upper == "ON" %}value="ON" checked{% endif %}> <span class="gn-text-sm">SNP Track </span>
                     <a href="{{ url_for('gn_docs_blueprint.glossary') }}#snpSeismograph" target="_blank">
-                      <sup style="color:#f00"> ?</sup>
+                      <sup class="text-danger"> ?</sup>
                     </a>
-                    <span style="color:red;">*</span>
+                    <span class="text-danger">*</span>
                   <br>
-                  <input type="checkbox" name="showGenes" class="checkbox" style="display: inline; margin-top: 0px;" {% if geneChecked|upper == "ON" %}value="ON" checked{% endif %}> <span style="font-size: 12px;">Gene Track </span> <span style="color:red;">*</span><br>
+                  <input type="checkbox" name="showGenes" class="checkbox gn-checkbox-inline" {% if geneChecked|upper == "ON" %}value="ON" checked{% endif %}> <span class="gn-text-sm">Gene Track </span> <span class="text-danger">*</span><br>
                   {% if plotScale != "morgan" %}
-                  <input type="checkbox" name="haplotypeAnalystCheck" class="checkbox" style="display: inline; margin-top: 0px;" {% if haplotypeAnalystChecked|upper == "ON" %}value="ON" checked{% endif %}> <span style="font-size: 12px;">Haplotype Tracks </span> <span style="color:red;">*</span><br>
+                  <input type="checkbox" name="haplotypeAnalystCheck" class="checkbox gn-checkbox-inline" {% if haplotypeAnalystChecked|upper == "ON" %}value="ON" checked{% endif %}> <span class="gn-text-sm">Haplotype Tracks </span> <span class="text-danger">*</span><br>
                   {% endif %}
-                  <input type="checkbox" name="viewLegend" class="checkbox" style="display: inline; margin-top: 0px;" {% if legendChecked|upper == "ON" %}value="ON" checked{% endif %}> <span style="font-size: 12px;">Legend </span><br>
-                  <input type="checkbox" name="showHomology" class="checkbox" style="display: inline; margin-top: 0px;" {% if homologyChecked|upper == "ON" %}value="ON" checked{% endif %}> <span style="font-size: 12px;">Human Chromosomes <a href="http://hgdownload.cse.ucsc.edu/goldenpath/hg38/liftOver/"><sup style="color:#f00" title="Human Syntenic Chromosomes taken from HG38 (Human Genome 38)"> ?</sup></a></span>
+                  <input type="checkbox" name="viewLegend" class="checkbox gn-checkbox-inline" {% if legendChecked|upper == "ON" %}value="ON" checked{% endif %}> <span class="gn-text-sm">Legend </span><br>
+                  <input type="checkbox" name="showHomology" class="checkbox gn-checkbox-inline" {% if homologyChecked|upper == "ON" %}value="ON" checked{% endif %}> <span class="gn-text-sm">Human Chromosomes <a href="http://hgdownload.cse.ucsc.edu/goldenpath/hg38/liftOver/"><sup class="text-danger" title="Human Syntenic Chromosomes taken from HG38 (Human Genome 38)"> ?</sup></a></span>
                   <br>
-                  <span style="color:red;">*</span> <span style="font-size: 12px;">only apply to single chromosome physical mapping</span>
+                  <span class="text-danger">*</span> <span class="gn-text-sm">only apply to single chromosome physical mapping</span>
             </div>
           </div>
         </div>
@@ -245,7 +245,7 @@
             {% endif %}
           </div>
         </div>
-        <div style="float: left;">
+        <div class="gn-float-left">
             {% if nperm > 0 and permChecked == "ON" %}
             <br><br>
             <div id="perm_histogram" class="barchart"></div>
@@ -267,20 +267,20 @@
             <button class="btn btn-default" id="invert"><span class="glyphicon glyphicon-resize-vertical"></span> Invert</button>
           </div>
           {% if geno_db_exists == "True" %}
-          <div class="btn-group" style="margin-left: 10px;">
+          <div class="btn-group gn-ml-sm">
             <button class="btn btn-success" id="add" disabled><span class="glyphicon glyphicon-plus-sign"></span> Add</button>
           </div>
           {% endif %}
-          <div class="btn-group" style="margin-left: 10px;">
+          <div class="btn-group gn-ml-sm">
             <button class="btn btn-default export_mapping_results" ><span class="glyphicon glyphicon-download"></span> Download</span></button>
           </div>
         </div>
         <br />
         <br />
           <div id="trait_table_container" style="width:{% if 'additive' in trimmed_markers[0] %}600{% elif 'mean1' in trimmed_markers[0] %}1000{% else %}550{% endif %}px;">
-            <table class="table-hover table-striped cell-border no-footer" id='trait_table' style="float: left;">
+            <table class="table-hover table-striped cell-border no-footer gn-dt-table" id='trait_table'>
               <tbody>
-               <td colspan="100%" align="center"><br><b><font size="15">Loading...</font></b><br></td>
+               <td colspan="100%" class="gn-dt-loading"><br>Loading...<br></td>
               </tbody>
             </table>
           </div>
@@ -295,13 +295,13 @@
               <button class="btn btn-default" id="deselect_all"><span class="glyphicon glyphicon-remove"></span> Deselect All</button>
               <button class="btn btn-default" id="invert"><span class="glyphicon glyphicon-resize-vertical"></span> Invert</button>
             </div>
-            <div class="btn-group" style="margin-left: 10px;">
+            <div class="btn-group gn-ml-sm">
               <button class="btn btn-default dt-button buttons-excel buttons-html5">Export to Excel</button>
               <button class="btn btn-default dt-button buttons-csv buttons-html5">Export to CSV</button>
             </div>
           </div>
           <div id="table_container" style="width: 1000px;">
-          <table id="trait_table" class="table-hover table-striped cell-border dataTable" style="float: left; width:100%;">
+          <table id="trait_table" class="table-hover table-striped cell-border dataTable gn-dt-table" style="width:100%;">
             <thead>
               <tr>
                 {% for header in gene_table_header %}
