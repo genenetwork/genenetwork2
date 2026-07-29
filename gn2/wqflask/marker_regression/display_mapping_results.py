@@ -90,6 +90,17 @@ ARIAL_FILE = "./gn2/wqflask/static/fonts/arial.ttf"
 assert(os.path.isfile(VERDANA_FILE))
 
 
+
+def _make_link(href, text, target=None, Class=None):
+    """Build an HTML <a> tag string."""
+    attrs = f'href="{href}"'
+    if target:
+        attrs += f' target="{target}"'
+    if Class:
+        attrs += f' class="{Class}"'
+    return f'<a {attrs}>{text}</a>'
+
+
 def _make_area(coords, href, title=None, target=None):
     """Build an HTML <area> tag string.  Replaces HtmlGenWrapper.create_area_tag."""
     attrs = f'shape="rect" coords="{coords}" href="{href}"'
@@ -188,10 +199,7 @@ class DisplayMappingResults:
     DRAW_DETAIL_MB = 4
     DRAW_UTR_LABELS_MB = 4
 
-    qmarkImg = HtmlGenWrapper.create_image_tag(
-        src='/images/qmarkBoxBlue.gif',
-        width="10", height="13", border="0", alt='Glossary'
-    )
+    qmarkImg = '<img src="/images/qmarkBoxBlue.gif" width="10" height="13" border="0" alt="Glossary">'
 
     # Note that "qmark.gif" is a similar, smaller, rounded-edges
     # question mark. It doesn't look like the ones on the image,
@@ -623,10 +631,7 @@ class DisplayMappingResults:
             "{}.png".format(
                 os.path.join(webqtlConfig.GENERATED_IMAGE_DIR, self.filename)),
             format='png')
-        intImg = HtmlGenWrapper.create_image_tag(
-            src="/image/{}.png".format(self.filename),
-            border="0", usemap='#WebQTLImageMap'
-        )
+        intImg = '<img src="/image/{}.png" border="0" usemap="#WebQTLImageMap">'.format(self.filename)
 
         # Scales plot differently for high resolution
         if self.draw2X:
@@ -644,18 +649,19 @@ class DisplayMappingResults:
         ################################################################
         # this form is used for opening Locus page or trait page, only available for genetic mapping
         if showLocusForm:
-            showLocusForm = HtmlGenWrapper.create_form_tag(
-                cgi=os.path.join(webqtlConfig.CGIDIR, webqtlConfig.SCRIPTFILE),
-                enctype='multipart/form-data',
-                name=showLocusForm,
-                submit=HtmlGenWrapper.create_input_tag(type_='hidden'))
-
             hddn = {'FormID': 'showDatabase', 'ProbeSetID': '_', 'database': fd.RISet + \
                     "Geno", 'CellID': '_', 'RISet': fd.RISet, 'incparentsf1': 'ON'}
-            for key in hddn.keys():
-                showLocusForm.append(HtmlGenWrapper.create_input_tag(
-                    name=key, value=hddn[key], type_='hidden'))
-            showLocusForm.append(intImg)
+            hidden_inputs = ''.join(
+                f'<input type="hidden" name="{key}" value="{hddn[key]}">'
+                for key in hddn)
+            showLocusForm = (
+                f'<form action="{os.path.join(webqtlConfig.CGIDIR, webqtlConfig.SCRIPTFILE)}" '
+                f'enctype="multipart/form-data" name="{showLocusForm}" method="POST">'
+                f'<input type="hidden">'
+                f'{hidden_inputs}'
+                f'{intImg}'
+                f'</form>'
+            )
         else:
             showLocusForm = intImg
 
@@ -666,12 +672,15 @@ class DisplayMappingResults:
         # footnote goes here
         ################################################################
         # Small('More information about this graph is available here.')
-        btminfo = HtmlGenWrapper.create_p_tag(id="smallsize")
+        btminfo_parts = []
+        btminfo_parts.append('<p id="smallsize">')
 
         if self.traitList and self.traitList[0].dataset and self.traitList[0].dataset.type == 'Geno':
-            btminfo.append(HtmlGenWrapper.create_br_tag())
-            btminfo.append(
+            btminfo_parts.append('<br>')
+            btminfo_parts.append(
                 'Mapping using genotype data as a trait will result in infinity LRS at one locus. In order to display the result properly, all LRSs higher than 100 are capped at 100.')
+        btminfo_parts.append('</p>')
+        btminfo = "".join(btminfo_parts)
 
     def plotIntMapping(self, canvas, offset=(80, 120, 110, 100), zoom=1, startMb=None, endMb=None, showLocusForm=""):
         im_drawer = ImageDraw.Draw(canvas)
@@ -3120,11 +3129,7 @@ class DisplayMappingResults:
                 tableIterationsCnt = tableIterationsCnt + 1
 
                 this_row = []  # container for the cells of each row
-                selectCheck = HtmlGenWrapper.create_input_tag(
-                    type_="checkbox",
-                    name="selectCheck",
-                    value=theGO["GeneSymbol"],
-                    Class="checkbox trait_checkbox")  # checkbox for each row
+                selectCheck = '<input type="checkbox" name="selectCheck" value="{}" class="checkbox trait_checkbox">'.format(theGO["GeneSymbol"])
 
                 geneLength = (theGO["TxEnd"] - theGO["TxStart"]) * 1000.0
                 tenPercentLength = geneLength * 0.0001
@@ -3136,17 +3141,17 @@ class DisplayMappingResults:
                         "GeneID"]
 
                     if theGO["snpCount"]:
-                        snpString = HT.Link(
+                        snpString = _make_link(
                             (f"http://genenetwork.org/webqtl/main.py?FormID=snpBrowser&"
                              f"chr={theGO['Chr']}&"
                              f"start={theGO['TxStart']}&"
                              f"end={theGO['TxEnd']}&"
                              f"geneName={theGO['GeneSymbol']}&"
                              f"s1={self.diffCol[0]}&s2=%d"),
-                            str(theGO["snpCount"])  # The text to display
+                            str(theGO["snpCount"]),
+                            target="_blank",
+                            Class="normalsize"
                         )
-                        snpString.set_blank_target()
-                        snpString.set_attribute("class", "normalsize")
                     else:
                         snpString = 0
 
@@ -3193,58 +3198,45 @@ class DisplayMappingResults:
                         literatureCorrelationString = str(self.getLiteratureCorrelation(
                             self.cursor, refGene, theGO['GeneID']) or "N/A")
 
-                        this_row = [selectCheck.__str__(),
+                        this_row = [selectCheck,
                                     str(tableIterationsCnt),
-                                    str(HtmlGenWrapper.create_link_tag(
+                                    _make_link(
                                         geneIdString,
                                         theGO["GeneSymbol"],
-                                        target="_blank")
-                                        ),
-                                    str(HtmlGenWrapper.create_link_tag(
+                                        target="_blank"),
+                                    _make_link(
                                         mouseStartString,
                                         "{:.6f}".format(txStart),
-                                        target="_blank")
-                                        ),
-                                    str(HtmlGenWrapper.create_link_tag(
+                                        target="_blank"),
+                                    _make_link(
                                         "javascript:rangeView('{}', {:f}, {:f})".format(
                                             str(chr_as_int),
                                             txStart - tenPercentLength,
                                             txEnd + tenPercentLength),
-                                        "{:.3f}".format(geneLength))),
+                                        "{:.3f}".format(geneLength)),
                                     snpString,
                                     snpDensityStr,
                                     avgExpr,
                                     humanChr,
-                                    str(HtmlGenWrapper.create_link_tag(
-                                        humanStartString,
-                                        humanStartDisplay,
-                                        target="_blank")),
+                                    _make_link(humanStartString, humanStartDisplay, target="_blank"),
                                     literatureCorrelationString,
                                     geneDescription]
                     else:
-                        this_row = [selectCheck.__str__(),
+                        this_row = [selectCheck,
                                     str(tableIterationsCnt),
-                                    str(HtmlGenWrapper.create_link_tag(
-                                        geneIdString, theGO["GeneSymbol"],
-                                        target="_blank")),
-                                    str(HtmlGenWrapper.create_link_tag(
-                                        mouseStartString,
-                                        "{:.6f}".format(txStart),
-                                        target="_blank")),
-                                    str(HtmlGenWrapper.create_link_tag(
+                                    _make_link(geneIdString, theGO["GeneSymbol"], target="_blank"),
+                                    _make_link(mouseStartString, "{:.6f}".format(txStart), target="_blank"),
+                                    _make_link(
                                         "javascript:rangeView('{}', {:f}, {:f})".format(
                                             str(chr_as_int),
                                             txStart - tenPercentLength,
                                             txEnd + tenPercentLength),
-                                        "{:.3f}".format(geneLength))),
+                                        "{:.3f}".format(geneLength)),
                                     snpString,
                                     snpDensityStr,
                                     avgExpr,
                                     humanChr,
-                                    str(HtmlGenWrapper.create_link_tag(
-                                        humanStartString,
-                                        humanStartDisplay,
-                                        target="_blank")),
+                                    _make_link(humanStartString, humanStartDisplay, target="_blank"),
                                     geneDescription]
 
                 gene_table_body.append(this_row)
@@ -3252,18 +3244,13 @@ class DisplayMappingResults:
         elif self.dataset.group.species == 'rat':
             for gIndex, theGO in enumerate(geneCol):
                 this_row = []  # container for the cells of each row
-                selectCheck = str(HtmlGenWrapper.create_input_tag(
-                    type_="checkbox",
-                    name="selectCheck",
-                    Class="checkbox trait_checkbox"))  # checkbox for each row
+                selectCheck = '<input type="checkbox" name="selectCheck" class="checkbox trait_checkbox">'  # checkbox for each row
 
                 if theGO["GeneID"] != "":
-                    geneSymbolNCBI = str(HtmlGenWrapper.create_link_tag(
-                        "http://www.ncbi.nlm.nih.gov/entrez/query.fcgi?db=gene&cmd=Retrieve&dopt=Graphics&list_uids={}".format(
-                            theGO["GeneID"]),
-                        theGO["GeneSymbol"],
+                    geneSymbolNCBI = _make_link("http://www.ncbi.nlm.nih.gov/entrez/query.fcgi?db=gene&cmd=Retrieve&dopt=Graphics&list_uids={}".format(
+                            theGO["GeneID"]), theGO["GeneSymbol"],
                         Class="normalsize",
-                        target="_blank"))
+                        target="_blank")
                 else:
                     geneSymbolNCBI = theGO["GeneSymbol"]
 
@@ -3300,13 +3287,11 @@ class DisplayMappingResults:
                 if geneDesc == "---":
                     geneDesc = ""
 
-                this_row = [selectCheck.__str__(),
+                this_row = [selectCheck,
                             str(gIndex + 1),
                             geneSymbolNCBI,
                             "%0.6f" % theGO["TxStart"],
-                            str(HtmlGenWrapper.create_link_tag(
-                                geneLengthURL,
-                                "{:.3f}".format(geneLength * 1000.0))),
+                            _make_link(geneLengthURL, "{:.3f}".format(geneLength * 1000.0)),
                             avgExprVal,
                             mouseChr,
                             mouseTxStart,
