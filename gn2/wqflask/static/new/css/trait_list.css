@@ -99,3 +99,32 @@ div.dts div.dataTables_paginate,div.dts div.dataTables_length{
     text-align: center;
     font-weight: bold;
 }
+
+/* ---- Correlation page ---- */
+.gn-corr-hr {
+    height: 1px;
+    background-color: #A9A9A9;
+}
+
+.gn-corr-export-bar {
+    min-width: 900px;
+}
+
+.gn-corr-more-options {
+    float: left;
+    clear: left;
+    margin-top: 10px;
+    margin-bottom: 20px;
+}
+
+.gn-corr-filter-box {
+    border: 1px dashed #999;
+    padding: 8px;
+    background-color: #ddf;
+    font-size: 12px;
+}
+
+.gn-corr-filter-btn {
+    font-size: 12px;
+    padding: 2px 3px;
+}
