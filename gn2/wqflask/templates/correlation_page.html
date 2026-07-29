@@ -18,7 +18,7 @@
             <h1>Correlation Table</h1>
             <h2>Trait: {{ this_trait.name }}
 
-            <hr style="height: 1px; background-color: #A9A9A9;">
+            <hr class="gn-corr-hr">
         </div>
         <div style="max-width: 100%;">
           <p>Values of record {{ this_trait.name }} in the <a href='https://info.genenetwork.org/{% if this_dataset.type != "ProbeSet" %}species/source.php?SpeciesName={{ this_dataset.group.species }}&InbredSetName={{ this_dataset.group.name }}{% else %}infofile/source.php?GN_AccesionId={{ this_dataset.accession_id }}{% endif %}' target="_blank">{{ this_dataset.fullname }}</a>
@@ -40,7 +40,7 @@
           </form>
         </div>
         <br />
-        <div style="min-width: 900px;">
+        <div class="gn-corr-export-bar">
             <form id="export_form" method="POST" action="/export_traits_csv">
                 <button class="btn btn-default" id="select_all" type="button"><span class="glyphicon glyphicon-ok"></span> Select All</button>
                 <button class="btn btn-default" id="invert" type="button"><span class="glyphicon glyphicon-adjust"></span> Invert</button>
@@ -48,22 +48,22 @@
                 <input type="hidden" name="database_name" id="database_name" value="None">
                 <input type="hidden" name="export_data" id="export_data" value="">
                 <input type="hidden" name="file_name" id="file_name" value="{{ this_trait.name }}_{{ this_dataset.name }}_correlation">
-                <input type="text" id="searchbox" class="form-control" style="width: 200px; display: inline;" placeholder="Search Table For ...">
-                <input type="text" id="select_top" class="form-control" style="width: 200px; display: inline;" placeholder="Select Rows (1-5, 11)">
+                <input type="text" id="searchbox" class="form-control gn-input-sm" placeholder="Search Table For ...">
+                <input type="text" id="select_top" class="form-control gn-input-sm" placeholder="Select Rows (1-5, 11)">
                 <button class="btn btn-default" id="deselect_all" type="button"><span class="glyphicon glyphicon-remove"></span> Deselect</button>
                 <button id="redraw" class="btn btn-default" type="button">Reset Columns</button>
             </form>
             <br />
-            <div id="export_options" style="float: left;"></div>
+            <div id="export_options" class="gn-float-left"></div>
             <br />
-            <div style="float: left; clear: left; margin-top: 10px; margin-bottom: 20px;">
+            <div class="gn-corr-more-options">
               <button id="more_options" class="btn btn-primary">More Options...</button>
             </div>
             <br />
             <br />
-            <div id="filter_options" style="display: none; float: left; clear: left;">
-            <span style="border: 1px dashed #999999; padding: 8px; background-color: #ddf; font-size: 12px;">
-                <button id="select_traits" class="btn btn-primary" style="font-size: 12px; padding: 2px 3px;">Select Traits</button> with r >
+            <div id="filter_options" class="gn-hidden gn-float-left gn-clear-left">
+            <span class="gn-corr-filter-box">
+                <button id="select_traits" class="btn btn-primary gn-corr-filter-btn">Select Traits</button> with r >
                 <input type="text" name="r_greater_select" value="-1.0" size="6" maxlength="10">
                 <select id="r_and_or" size="1">
                     <option value="and" selected>AND</option>
@@ -83,7 +83,7 @@
             <br />
             </div>
         </div>
-        <div class="show-hide-container" style="float: left; clear: left;">
+        <div class="show-hide-container gn-float-left gn-clear-left">
           <b>Show/Hide Columns:</b>
           <br>
           {% if target_dataset.type == 'ProbeSet' %}
@@ -114,7 +114,7 @@
           {% endif %}
         </div>
         <div style="width: 90%; {% if target_dataset.type == "ProbeSet" %}min-width: 1700px;{% elif target_dataset.type == "Publish" %}min-width: 1600px;{% else %}width: 650px;{% endif %}">
-            <table id="trait_table" class="table-hover table-striped cell-border" style="float: left;">
+            <table id="trait_table" class="table-hover table-striped cell-border gn-dt-table">
                 <thead>
                     <tr>
                         <th></th>
@@ -125,7 +125,7 @@
                 </thead>
 
                 <tbody>
-                    <td colspan="100%" align="center"><br><b><font size="15">Loading...</font></b><br></td>
+                    <td colspan="100%" class="gn-dt-loading"><br>Loading...<br></td>
                 </tbody>
             </table>
         </div>
