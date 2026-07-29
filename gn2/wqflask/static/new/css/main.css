@@ -90,3 +90,22 @@
     background-color: black;
     color: green;
 }
+
+/* ===== Shared spacing & text utilities ===== */
+
+.gn-text-sm {
+    font-size: 12px;
+}
+
+.gn-pad-xs {
+    padding: 5px;
+}
+
+.gn-ml-sm {
+    margin-left: 10px;
+}
+
+.gn-checkbox-inline {
+    display: inline;
+    margin-top: 0;
+}
