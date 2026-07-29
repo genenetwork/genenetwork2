@@ -89,6 +89,17 @@ ARIAL_FILE = "./gn2/wqflask/static/fonts/arial.ttf"
 
 assert(os.path.isfile(VERDANA_FILE))
 
+
+def _make_area(coords, href, title=None, target=None):
+    """Build an HTML <area> tag string.  Replaces HtmlGenWrapper.create_area_tag."""
+    attrs = f'shape="rect" coords="{coords}" href="{href}"'
+    if title:
+        attrs += f' title="{title}"'
+    if target:
+        attrs += f' target="{target}"'
+    return f'<area {attrs}>'
+
+
 class HtmlGenWrapper:
     """Wrapper Methods for HTML gen"""
     @staticmethod
@@ -602,10 +613,10 @@ class DisplayMappingResults:
         ################################################################
         showLocusForm = ""
         intCanvas = Image.new("RGBA", size=(self.graphWidth, self.graphHeight))
-        gifmap = self.plotIntMapping(
+        areas = self.plotIntMapping(
             intCanvas, startMb=self.startMb, endMb=self.endMb, showLocusForm=showLocusForm)
 
-        self.gifmap = gifmap.__str__()
+        self.gifmap = '<map name="WebQTLImageMap">\n' + "\n".join(areas) + '\n</map>'
 
         self.filename = webqtlUtil.genRandStr("Itvl_")
         intCanvas.save(
@@ -723,7 +734,7 @@ class DisplayMappingResults:
             drawAreaHeight -= 60
 
         # Image map
-        gifmap = HtmlGenWrapper.create_map_tag(name="WebQTLImageMap")
+        gifmap = []
 
         newoffset = (xLeftOffset, xRightOffset, yTopOffset, yBottomOffset)
         # Draw the alternating-color background first and get plotXScale
@@ -1095,8 +1106,7 @@ class DisplayMappingResults:
                                           15, rectWidth + 2 + rightShift + nameWidth, yPaddingTop + 10 + kstep * 15,)
                 HREF = "javascript:showDatabase3('%s','%s','%s','');" % (
                     showLocusForm, thisTrait.db.name, thisTrait.name)
-                Areas = HtmlGenWrapper.create_area_tag(
-                    shape='rect', coords=COORDS, href=HREF)
+                Areas = _make_area(coords=COORDS, href=HREF)
                 gifmap.append(Areas)  # TODO
 
     def drawLegendPanel(self, canvas, offset=(40, 120, 80, 10), zoom=1):
@@ -1451,9 +1461,7 @@ class DisplayMappingResults:
                 geneStartPix, geneYLocation, geneEndPix, (geneYLocation + self.EACH_GENE_HEIGHT))
 
             gifmap.append(
-                HtmlGenWrapper.create_area_tag(
-                    shape='rect',
-                    coords=COORDS,
+                _make_area(coords=COORDS,
                     href=HREF,
                     title=TITLE,
                     target="_blank"))
@@ -1708,9 +1716,7 @@ class DisplayMappingResults:
                 geneStartPix, geneYLocation, geneEndPix, (geneYLocation + self.EACH_GENE_HEIGHT))
             # NL: 06-02-2011 Rob required to display NCBI info in a new window
             gifmap.append(
-                HtmlGenWrapper.create_area_tag(
-                    shape='rect',
-                    coords=COORDS,
+                _make_area(coords=COORDS,
                     href=HREF,
                     title=TITLE,
                     target="_blank"))
@@ -1889,9 +1895,7 @@ class DisplayMappingResults:
                                         samplelist[k], _chr[j].name, float(txStart))
                                     HREF = ''
                                     gifmap.append(
-                                        HtmlGenWrapper.create_area_tag(
-                                            shape='rect',
-                                            coords=COORDS,
+                                        _make_area(coords=COORDS,
                                             href=HREF,
                                             title=TITLE))
 
@@ -2018,9 +2022,7 @@ class DisplayMappingResults:
 
                 WEBQTL_TITLE = "Click to view this section of the genome in WebQTL"
                 gifmap.append(
-                    HtmlGenWrapper.create_area_tag(
-                        shape='rect',
-                        coords=WEBQTL_COORDS,
+                    _make_area(coords=WEBQTL_COORDS,
                         href=WEBQTL_HREF,
                         title=WEBQTL_TITLE))
                 im_drawer.rectangle(
@@ -2044,9 +2046,7 @@ class DisplayMappingResults:
                             self.selectedChr, max(0, calBase - flankingWidthInBases), calBase + flankingWidthInBases)
                     PHENOGEN_TITLE = "Click to view this section of the genome in PhenoGen"
                     gifmap.append(
-                        HtmlGenWrapper.create_area_tag(
-                            shape='rect',
-                            coords=PHENOGEN_COORDS,
+                        _make_area(coords=PHENOGEN_COORDS,
                             href=PHENOGEN_HREF,
                             title=PHENOGEN_TITLE))
                     im_drawer.rectangle(
@@ -2069,9 +2069,7 @@ class DisplayMappingResults:
                         self._ucscDb, self.selectedChr, max(0, calBase - flankingWidthInBases), calBase + flankingWidthInBases)
                 UCSC_TITLE = "Click to view this section of the genome in the UCSC Genome Browser"
                 gifmap.append(
-                    HtmlGenWrapper.create_area_tag(
-                        shape='rect',
-                        coords=UCSC_COORDS,
+                    _make_area(coords=UCSC_COORDS,
                         href=UCSC_HREF,
                         title=UCSC_TITLE))
                 im_drawer.rectangle(
@@ -2093,9 +2091,7 @@ class DisplayMappingResults:
                     ENSEMBL_HREF = "http://www.ensembl.org/Rattus_norvegicus/contigview?chr=%s&start=%d&end=%d" % (
                         self.selectedChr, max(0, calBase - flankingWidthInBases), calBase + flankingWidthInBases)
                 ENSEMBL_TITLE = "Click to view this section of the genome in the Ensembl Genome Browser"
-                gifmap.append(HtmlGenWrapper.create_area_tag(
-                    shape='rect',
-                    coords=ENSEMBL_COORDS,
+                gifmap.append(_make_area(coords=ENSEMBL_COORDS,
                     href=ENSEMBL_HREF,
                     title=ENSEMBL_TITLE))
                 im_drawer.rectangle(
@@ -2343,9 +2339,7 @@ class DisplayMappingResults:
                     HREF = "/show_trait?trait_id=%s&dataset=%s" % (
                         Lname, self.dataset.group.name + "Geno")
                     #HREF="javascript:showDatabase3('%s','%s','%s','');" % (showLocusForm,fd.RISet+"Geno", Lname)
-                    Areas = HtmlGenWrapper.create_area_tag(
-                        shape='rect',
-                        coords=COORDS,
+                    Areas = _make_area(coords=COORDS,
                         href=HREF,
                         target="_blank",
                         title="Locus : {}".format(Lname))
@@ -2556,13 +2550,9 @@ class DisplayMappingResults:
                         self.suggestive / 4.61)
                     sig_title = "Significant LOD = %0.2f" % (
                         self.significant / 4.61)
-                Areas1 = HtmlGenWrapper.create_area_tag(
-                    shape='rect',
-                    coords=sugg_coords,
+                Areas1 = _make_area(coords=sugg_coords,
                     title=sugg_title)
-                Areas2 = HtmlGenWrapper.create_area_tag(
-                    shape='rect',
-                    coords=sig_coords,
+                Areas2 = _make_area(coords=sig_coords,
                     title=sig_title)
                 gifmap.append(Areas1)
                 gifmap.append(Areas2)
@@ -3041,9 +3031,7 @@ class DisplayMappingResults:
 
                 # add by NL 09-03-2010
                 HREF = "javascript:chrView(%d,%s);" % (i, self.ChrLengthMbList)
-                Areas = HtmlGenWrapper.create_area_tag(
-                    shape='rect',
-                    coords=COORDS,
+                Areas = _make_area(coords=COORDS,
                     href=HREF)
                 gifmap.append(Areas)
                 startPosX += (self.ChrLengthDistList[i] + \
