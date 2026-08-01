@@ -1308,7 +1308,7 @@ def approve_data(resource_id: str, file_name: str):
             if n_deletions:
                 flash(f"# Deletions: {n_deletions}", "success")
             if n_insertions:
-                flash(f"# Additions: {len(n_insertions)}", "success")
+                flash(f"# Additions: {n_insertions}", "success")
             if len(modifications):
                 flash(f"# Modifications: {len(modifications)}", "success")
         else:  # Edge case where you need to automatically reject the file
