@@ -76,15 +76,30 @@ class RunMapping:
         self.vals_hash = start_vars['vals_hash']
         sample_val_dict = json.loads(self.sample_vals)
         samples = sample_val_dict.keys()
+
+        if 'incparentsf1' in start_vars and start_vars['incparentsf1'].upper() == 'ON':
+            self.incparentsf1 = "ON"
+            self.dataset.group.incparentsf1 = True
+            mapping_sample_list = self.dataset.group.all_samples_ordered()
+            self.temp_genofile = generate_geno_file_with_parents_f1(self.dataset)
+        else:
+            self.incparentsf1 = "OFF"
+            self.temp_genofile = None
+            mapping_sample_list = self.dataset.group.samplelist
+
         if (len(genofile_samplelist) != 0):
-            for sample in genofile_samplelist:
+            if self.incparentsf1 == "ON":
+                effective_genofile_samples = (self.dataset.group.parlist or []) + (self.dataset.group.f1list or []) + genofile_samplelist
+            else:
+                effective_genofile_samples = genofile_samplelist
+            for sample in effective_genofile_samples:
                 self.samples.append(sample)
                 if sample in samples:
                     self.vals.append(sample_val_dict[sample])
                 else:
                     self.vals.append("x")
         else:
-            for sample in self.dataset.group.samplelist:
+            for sample in mapping_sample_list:
                 if sample in samples:
                     self.vals.append(sample_val_dict[sample])
                     self.samples.append(sample)
@@ -245,11 +260,11 @@ class RunMapping:
                 self.use_rqtl2 = True
             if self.permCheck and self.num_perm > 0:
                 self.perm_output, self.suggestive, self.significant, results = rqtl_mapping.run_rqtl(
-                    self.this_trait.name, self.vals, self.samples, self.dataset, self.pair_scan, self.mapping_scale, self.model, self.method, self.num_perm, self.perm_strata, self.do_control, self.control_marker, self.manhattan_plot, self.covariates, run_id=self.run_id, use_rqtl2 = self.use_rqtl2)
+                    self.this_trait.name, self.vals, self.samples, self.dataset, self.pair_scan, self.mapping_scale, self.model, self.method, self.num_perm, self.perm_strata, self.do_control, self.control_marker, self.manhattan_plot, self.covariates, run_id=self.run_id, use_rqtl2 = self.use_rqtl2, geno_file=self.temp_genofile)
             else:
                 results = rqtl_mapping.run_rqtl(self.this_trait.name, self.vals, self.samples, self.dataset, self.pair_scan, self.mapping_scale, self.model, self.method,
                                                      self.num_perm, self.perm_strata, self.do_control, self.control_marker, self.manhattan_plot,
-                                                self.covariates, run_id=self.run_id, use_rqtl2 =self.use_rqtl2)
+                                                self.covariates, run_id=self.run_id, use_rqtl2 =self.use_rqtl2, geno_file=self.temp_genofile)
         elif self.mapping_method == "reaper":
             if "startMb" in start_vars:  # ZS: Check if first time page loaded, so it can default to ON
                 if "additiveCheck" in start_vars:
@@ -299,7 +314,8 @@ class RunMapping:
                                                                                                                                                     self.control_marker,
                                                                                                                                                     self.manhattan_plot,
                                                                                                                                                     self.first_run,
-                                                                                                                                                    self.output_files)
+                                                                                                                                                    self.output_files,
+                                                                                                                                                    geno_file=self.temp_genofile)
         elif self.mapping_method == "plink":
             self.score_type = "-logP"
             self.manhattan_plot = True
@@ -730,6 +746,71 @@ def get_genofile_samplelist(dataset):
             genofile_samplelist = genofile['sample_list']
 
     return genofile_samplelist
+
+
+def generate_geno_file_with_parents_f1(dataset):
+    """Generate a temporary .geno file with parental and F1 strains appended.
+
+    Mapping tools that read a group's .geno file directly will ignore any
+    samples that aren't present in that file. Since the parental and F1
+    strains aren't included in the .geno file, this generates a temporary copy
+    with those strains appended (using their inferred genotypes) so they can be
+    mapped.
+
+    Returns the absolute path to the generated file, or None if the group has
+    no parental/F1 strains.
+    """
+    group = dataset.group
+    if not (group.parlist or group.f1list):
+        return None
+
+    source_name = group.genofile or (group.name + ".geno")
+    source_path = locate(source_name, "genotype")
+
+    with open(source_path, "r") as geno_file:
+        lines = geno_file.readlines()
+
+    mat_code = pat_code = "U"
+    het_code = "H"
+    for line in lines:
+        if line.startswith("@mat:"):
+            mat_code = line.split(":")[1].strip()
+        elif line.startswith("@pat:"):
+            pat_code = line.split(":")[1].strip()
+        elif line.startswith("@het:"):
+            het_code = line.split(":")[1].strip()
+
+    # New columns, ordered to match all_samples_ordered() (parents then F1s)
+    inferred_columns = []
+    if group.parlist and len(group.parlist) >= 2:
+        inferred_columns.append((group.parlist[0], mat_code))
+        inferred_columns.append((group.parlist[1], pat_code))
+    if group.f1list:
+        for f1_name in group.f1list:
+            inferred_columns.append((f1_name, het_code))
+
+    if not inferred_columns:
+        return None
+
+    new_sample_names = [name for name, _ in inferred_columns]
+    new_genotypes = [code for _, code in inferred_columns]
+
+    output_path = os.path.join(
+        TEMPDIR,
+        "{}_incparentsf1_{}.geno".format(group.name, uuid.uuid4().hex[:8]))
+
+    with open(output_path, "w") as out_file:
+        for line in lines:
+            if line.startswith("Chr"):
+                out_file.write(
+                    line.rstrip("\n") + "\t" + "\t".join(new_sample_names) + "\n")
+            elif not line.strip() or line[0] in "#@":
+                out_file.write(line)
+            else:
+                out_file.write(
+                    line.rstrip("\n") + "\t" + "\t".join(new_genotypes) + "\n")
+
+    return output_path
 
 
 def get_perm_strata(this_trait, sample_list, categorical_vars, used_samples):

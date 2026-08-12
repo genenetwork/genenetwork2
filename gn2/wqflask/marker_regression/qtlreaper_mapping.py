@@ -11,14 +11,16 @@ from gn2.base.data_set import create_dataset
 from gn2.utility.tools import flat_files, REAPER_COMMAND, TEMPDIR
 
 
-def run_reaper(this_trait, this_dataset, samples, vals, json_data, num_perm, boot_check, num_bootstrap, do_control, control_marker, manhattan_plot, first_run=True, output_files=None):
+def run_reaper(this_trait, this_dataset, samples, vals, json_data, num_perm, boot_check, num_bootstrap, do_control, control_marker, manhattan_plot, first_run=True, output_files=None, geno_file=None):
     """Generates p-values for each marker using qtlreaper"""
 
     if first_run:
-        if this_dataset.group.genofile != None:
-            genofile_name = this_dataset.group.genofile[:-5]
+        if geno_file is not None:
+            geno_path = geno_file
+        elif this_dataset.group.genofile != None:
+            geno_path = flat_files('genotype') + "/" + this_dataset.group.genofile
         else:
-            genofile_name = this_dataset.group.name
+            geno_path = flat_files('genotype') + "/" + this_dataset.group.name + ".geno"
 
         trait_filename = f"{str(this_trait.name)}_{str(this_dataset.name)}_pheno"
         gen_pheno_txt_file(samples, vals, trait_filename)
@@ -55,12 +57,10 @@ def run_reaper(this_trait, this_dataset, samples, vals, json_data, num_perm, boo
             opt_list.append("--interval 1")
 
         reaper_command = (REAPER_COMMAND +
-                          ' --geno {0}/{1}.geno --traits {2}/gn2/{3}.txt {4} -o {5}{6}.txt'.format(flat_files('genotype'),
-
-                                                                                                   genofile_name,
-                                                                                                   TEMPDIR,
-                                                                                                   trait_filename,
-                                                                                                   " ".join(
+                          ' --geno {0} --traits {1}/gn2/{2}.txt {3} -o {4}{5}.txt'.format(geno_path,
+                                                                                          TEMPDIR,
+                                                                                          trait_filename,
+                                                                                          " ".join(
                               opt_list),
                               webqtlConfig.GENERATED_IMAGE_DIR,
                               output_filename))
