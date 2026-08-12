@@ -113,6 +113,17 @@
                                             </select>
                                         </div>
                                     </div>
+                                    {% if dataset.group.parlist or dataset.group.f1list %}
+                                    <div class="mapping_method_fields form-group">
+                                        <label class="col-xs-3 control-label">Include Parents &amp; F1s</label>
+                                        <div class="col-xs-6 controls">
+                                            <label class="checkbox-inline">
+                                                <input type="checkbox" name="incparentsf1_gemma" value="ON">
+                                                Include parental strains and F1 hybrids in mapping
+                                            </label>
+                                        </div>
+                                    </div>
+                                    {% endif %}
                                     <div class="mapping_method_fields form-group">
                                         <label class="col-xs-3 control-label"></label>
                                         <div class="col-xs-6">
@@ -222,7 +233,7 @@
                                         <label class="col-xs-3 control-label">Include Parents &amp; F1s</label>
                                         <div class="col-xs-6 controls">
                                             <label class="checkbox-inline">
-                                                <input type="checkbox" name="incparentsf1" value="ON">
+                                                <input type="checkbox" name="incparentsf1_reaper" value="ON">
                                                 Include parental strains and F1 hybrids in mapping
                                             </label>
                                         </div>
@@ -393,6 +404,17 @@
                                             </select>
                                         </div>
                                     </div>
+                                    {% if dataset.group.parlist or dataset.group.f1list %}
+                                    <div class="mapping_method_fields form-group">
+                                        <label class="col-xs-3 control-label">Include Parents &amp; F1s</label>
+                                        <div class="col-xs-6 controls">
+                                            <label class="checkbox-inline">
+                                                <input type="checkbox" name="incparentsf1_rqtl_geno" value="ON">
+                                                Include parental strains and F1 hybrids in mapping
+                                            </label>
+                                        </div>
+                                    </div>
+                                    {% endif %}
                                     <div class="mapping_method_fields form-group">
                                         <label class="col-xs-3 control-label"></label>
                                         <div class="col-xs-6 controls">
@@ -545,6 +567,17 @@
                                             </select>
                                         </div>
                                     </div>
+                                    {% if dataset.group.parlist or dataset.group.f1list %}
+                                    <div class="mapping_method_fields form-group">
+                                        <label class="col-xs-3 control-label">Include Parents &amp; F1s</label>
+                                        <div class="col-xs-6 controls">
+                                            <label class="checkbox-inline">
+                                                <input type="checkbox" name="incparentsf1_rqtl2_geno" value="ON">
+                                                Include parental strains and F1 hybrids in mapping
+                                            </label>
+                                        </div>
+                                    </div>
+                                    {% endif %}
                                     <div class="mapping_method_fields form-group">
                                         <label class="col-xs-3 control-label"></label>
                                         <div class="col-xs-6 controls">
@@ -655,6 +688,17 @@
                                                       class="selected-covariates"></textarea>
                                         </div>
                                     </div>
+                                    {% if dataset.group.parlist or dataset.group.f1list %}
+                                    <div class="mapping_method_fields form-group">
+                                        <label class="col-xs-3 control-label">Include Parents &amp; F1s</label>
+                                        <div class="col-xs-6 controls">
+                                            <label class="checkbox-inline">
+                                                <input type="checkbox" name="incparentsf1_rqtl_pair" value="ON">
+                                                Include parental strains and F1 hybrids in mapping
+                                            </label>
+                                        </div>
+                                    </div>
+                                    {% endif %}
                                     <div class="mapping_method_fields form-group">
                                         <label class="col-xs-3 control-label"></label>
                                         <div class="col-xs-6 controls">
