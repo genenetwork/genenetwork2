@@ -32,6 +32,14 @@
       <td style="vertical-align: middle; padding-left: 5px;"><button type="button" class="btn btn-default" id="invert_axes">
         Invert Axes
       </button></td>
+      {% if has_parents_f1 %}
+      <td style="vertical-align: middle; padding-left: 15px;">
+        <label class="checkbox-inline">
+          <input type="checkbox" id="incparentsf1" {% if incparentsf1 == 'ON' %}checked{% endif %}>
+          Include parents &amp; F1s
+        </label>
+      </td>
+      {% endif %}
     </tr>
   </table>
   <hr style="height: 1px; background-color: #A9A9A9;">
@@ -364,4 +372,13 @@
     <!--<script language="javascript" type="text/javascript" src="/static/new/javascript/get_traits_from_collection.js"></script>-->
     <script type="text/javascript" src="{{ url_for('js', filename='plotly/plotly.min.js') }}"></script>
     <script language="javascript" type="text/javascript" src="/static/new/javascript/draw_corr_scatterplot.js"></script>
+    <script>
+      $(function() {
+        $('#incparentsf1').change(function() {
+          var url = new URL(window.location.href);
+          url.searchParams.set('incparentsf1', this.checked ? 'ON' : 'OFF');
+          window.location.href = url.toString();
+        });
+      });
+    </script>
 {% endblock %}
