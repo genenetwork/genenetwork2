@@ -46,6 +46,7 @@ class CorrScatterPlot:
             primary_samples += self.dataset_1.group.f1list
 
         self.effect_plot = True if 'effect' in params else False
+        self.incparentsf1 = params.get('incparentsf1', 'ON').upper()
 
         if 'dataid' in params:
             trait_data_dict = json.loads(Redis.get(params['dataid']))
@@ -62,6 +63,17 @@ class CorrScatterPlot:
         else:
             samples_1, samples_2, num_overlap = corr_result_helpers.normalize_values_with_samples(
                 self.trait_1.data, self.trait_2.data)
+
+        if self.incparentsf1 == "OFF":
+            parents_f1 = []
+            if self.dataset_1.group.parlist:
+                parents_f1 += self.dataset_1.group.parlist
+            if self.dataset_1.group.f1list:
+                parents_f1 += self.dataset_1.group.f1list
+            if parents_f1:
+                samples_1 = {k: v for k, v in samples_1.items() if k not in parents_f1}
+                samples_2 = {k: v for k, v in samples_2.items() if k not in parents_f1}
+                num_overlap = len(samples_1)
 
         self.data = []
         self.indIDs = list(samples_1.keys())
