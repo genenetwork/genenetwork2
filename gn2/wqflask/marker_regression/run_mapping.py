@@ -81,10 +81,16 @@ class RunMapping:
             self.incparentsf1 = "ON"
             self.dataset.group.incparentsf1 = True
             mapping_sample_list = self.dataset.group.all_samples_ordered()
-            self.temp_genofile = generate_geno_file_with_parents_f1(self.dataset)
+            self.temp_genofile = None
+            self.temp_bimbam_genofile = None
+            if start_vars['method'] == "gemma":
+                self.temp_bimbam_genofile = generate_bimbam_geno_with_parents_f1(self.dataset)
+            elif start_vars['method'] in ("rqtl_geno", "rqtl2_geno", "reaper"):
+                self.temp_genofile = generate_geno_file_with_parents_f1(self.dataset)
         else:
             self.incparentsf1 = "OFF"
             self.temp_genofile = None
+            self.temp_bimbam_genofile = None
             mapping_sample_list = self.dataset.group.samplelist
 
         if (len(genofile_samplelist) != 0):
@@ -224,10 +230,10 @@ class RunMapping:
             self.manhattan_plot = True
             if self.use_loco == "True":
                 marker_obs, self.output_files = gemma_mapping.run_gemma(
-                    self.this_trait, self.dataset, self.samples, self.vals, self.covariates, self.use_loco, self.maf, self.first_run, self.output_files)
+                    self.this_trait, self.dataset, self.samples, self.vals, self.covariates, self.use_loco, self.maf, self.first_run, self.output_files, geno_file=self.temp_bimbam_genofile)
             else:
                 marker_obs, self.output_files = gemma_mapping.run_gemma(
-                    self.this_trait, self.dataset, self.samples, self.vals, self.covariates, self.use_loco, self.maf, self.first_run, self.output_files)
+                    self.this_trait, self.dataset, self.samples, self.vals, self.covariates, self.use_loco, self.maf, self.first_run, self.output_files, geno_file=self.temp_bimbam_genofile)
             results = marker_obs
         elif self.mapping_method == "rqtl_plink":
             results = self.run_rqtl_plink()
@@ -809,6 +815,54 @@ def generate_geno_file_with_parents_f1(dataset):
             else:
                 out_file.write(
                     line.rstrip("\n") + "\t" + "\t".join(new_genotypes) + "\n")
+
+    return output_path
+
+
+def generate_bimbam_geno_with_parents_f1(dataset):
+    """Generate a temporary BIMBAM _geno.txt file with parent/F1 columns prepended.
+
+    GEMMA reads BIMBAM files (rather than .geno) and its phenotype file is
+    positional (no sample names), so both the genotype columns and the phenotype
+    values must have parents/F1s in matching order. The BIMBAM encoding is
+    maternal allele = 1, paternal allele = 0, heterozygote = 0.5.
+
+    Returns the absolute path to the generated file, or None if the group has no
+    parental/F1 strains or no BIMBAM file.
+    """
+    group = dataset.group
+    if not (group.parlist or group.f1list):
+        return None
+
+    genofile_name = (group.genofile or (group.name + ".geno"))[:-5]
+    source_path = locate_ignore_error(
+        f"{genofile_name}_geno.txt", "genotype/bimbam")
+    if not source_path:
+        return None
+
+    # New columns, ordered to match the mapping sample list (parents then F1s)
+    inferred = []
+    if group.parlist and len(group.parlist) >= 2:
+        inferred.append(" 1")    # maternal allele
+        inferred.append(" 0")    # paternal allele
+    if group.f1list:
+        for _ in group.f1list:
+            inferred.append(" 0.5")
+
+    if not inferred:
+        return None
+
+    output_path = os.path.join(
+        TEMPDIR,
+        "{}_incparentsf1_{}_geno.txt".format(group.name, uuid.uuid4().hex[:8]))
+
+    with open(source_path, "r") as src, open(output_path, "w") as out_file:
+        for line in src:
+            line = line.rstrip("\n")
+            parts = line.split(",")
+            # parts[0] = marker id, parts[1] = " X", parts[2] = " Y",
+            # parts[3:] = genotypes
+            out_file.write(",".join(parts[:3] + inferred + parts[3:]) + "\n")
 
     return output_path
 

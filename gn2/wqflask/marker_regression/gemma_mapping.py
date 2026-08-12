@@ -29,13 +29,18 @@ def generate_random_n_string(n):
 
 
 def run_gemma(this_trait, this_dataset, samples, vals, covariates, use_loco,
-              maf=0.01, first_run=True, output_files=None):
+              maf=0.01, first_run=True, output_files=None, geno_file=None):
     """Generates p-values for each marker using GEMMA"""
 
     if this_dataset.group.genofile is not None:
         genofile_name = this_dataset.group.genofile[:-5]
     else:
         genofile_name = this_dataset.group.name
+
+    if geno_file is not None:
+        bimbam_geno_filepath = geno_file
+    else:
+        bimbam_geno_filepath = f"{flat_files('genotype/bimbam')}/{genofile_name}_geno.txt"
 
     if first_run:
         pheno_filename = gen_pheno_txt_file(this_dataset, genofile_name, vals)
@@ -62,8 +67,7 @@ def run_gemma(this_trait, this_dataset, samples, vals, covariates, use_loco,
             covar_filename = gen_covariates_file(this_dataset, covariates, samples)
         if str(use_loco).lower() == "true":
             bimbam_dir = flat_files('genotype/bimbam')
-            geno_filepath = assert_file(
-                f"{bimbam_dir}/{genofile_name}_geno.txt")
+            geno_filepath = assert_file(bimbam_geno_filepath)
             pheno_filepath = f"{TEMPDIR}/gn2/{pheno_filename}.txt"
             snps_filepath = assert_file(
                 f"{bimbam_dir}/{genofile_name}_snps.txt")
@@ -98,8 +102,7 @@ def run_gemma(this_trait, this_dataset, samples, vals, covariates, use_loco,
         else:
             generate_k_command = (f"{GEMMA_WRAPPER_COMMAND} --json -- "
                                   f"{GEMMAOPTS} "
-                                  f" -g {flat_files('genotype/bimbam')}/"
-                                  f"{genofile_name}_geno.txt -p "
+                                  f" -g {bimbam_geno_filepath} -p "
                                   f"{TEMPDIR}/gn2/{pheno_filename}.txt -a "
                                   f"{flat_files('genotype/bimbam')}/"
                                   f"{genofile_name}_snps.txt -gk > "
@@ -112,8 +115,7 @@ def run_gemma(this_trait, this_dataset, samples, vals, covariates, use_loco,
                              f"{GEMMAOPTS} "
                              f"-a {flat_files('genotype/bimbam')}/"
                              f"{genofile_name}_snps.txt "
-                             f"-lmm 9 -g {flat_files('genotype/bimbam')}/"
-                             f"{genofile_name}_geno.txt -p "
+                             f"-lmm 9 -g {bimbam_geno_filepath} -p "
                              f"{TEMPDIR}/gn2/{pheno_filename}.txt ")
 
             if covariates != "":

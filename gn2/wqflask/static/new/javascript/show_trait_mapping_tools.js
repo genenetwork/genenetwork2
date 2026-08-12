@@ -198,6 +198,7 @@ $(".rqtl-geno-tab, #rqtl_geno_compute").on("click", (function(_this) {
       $('input[name=mapping_scale]').val($('#scale_rqtl_geno').val());
       $('input[name=genofile]').val($('#genofile_rqtl_geno').val());
       $('input[name=mapmodel_rqtl]').val($('#mapmodel_rqtl_geno').val());
+      $('input[name=incparentsf1]').val($('input[name=incparentsf1_rqtl_geno]').is(':checked') ? 'ON' : '');
       $('input[name=mapmethod_rqtl]').val($('#mapmethod_rqtl_geno').val());
       $('input[name=num_perm]').val($('input[name=num_perm_rqtl_geno]').val());
       $('input[name=categorical_vars]').val(js_data.categorical_vars)
@@ -227,6 +228,7 @@ $(".rqtl-geno-tab, #rqtl2_geno_compute").on("click", (function(_this) {
       $('input[name=mapping_scale]').val($('#scale_rqtl2_geno').val());
       $('input[name=genofile]').val($('#genofile_rqtl2_geno').val());
       $('input[name=mapmodel_rqtl]').val($('#mapmodel_rqtl2_geno').val());
+      $('input[name=incparentsf1]').val($('input[name=incparentsf1_rqtl2_geno]').is(':checked') ? 'ON' : '');
       $('input[name=mapmethod_rqtl]').val($('#mapmethod_rqtl2_geno').val());
       $('input[name=num_perm]').val($('input[name=num_perm_rqtl2_geno]').val());
       $('input[name=categorical_vars]').val(js_data.categorical_vars)
@@ -255,6 +257,7 @@ $(".rqtl-pair-tab, #rqtl_pair_compute").on("click", (function(_this) {
       $('input[name=pair_scan]').val("true");
       $('input[name=genofile]').val($('#genofile_rqtl_pair').val());
       $('input[name=mapmodel_rqtl]').val($('#mapmodel_rqtl_pair').val());
+      $('input[name=incparentsf1]').val($('input[name=incparentsf1_rqtl_pair]').is(':checked') ? 'ON' : '');
       $('input[name=mapmethod_rqtl]').val($('#mapmethod_rqtl_pair').val());
       $('input[name=num_perm]').val($('input[name=num_perm_rqtl_pair]').val());
       $('input[name=categorical_vars]').val(js_data.categorical_vars)
@@ -281,6 +284,7 @@ $(".gemma-tab, #gemma_compute").on("click", (function(_this) {
       $('input[name=num_perm]').val(0);
       $('input[name=genofile]').val($('#genofile_gemma').val());
       $('input[name=maf]').val($('input[name=maf_gemma]').val());
+      $('input[name=incparentsf1]').val($('input[name=incparentsf1_gemma]').is(':checked') ? 'ON' : '');
       $('input[name=tool_used]').val("Mapping");
       $('input[name=form_url]').val("/run_mapping");
       $('input[name=wanted_inputs]').val(mapping_input_list.join(","));
@@ -302,6 +306,7 @@ $(".reaper-tab, #interval_mapping_compute").on("click", (function(_this) {
       $('input[name=mapping_scale]').val($('#scale_reaper').val());
       $('input[name=genofile]').val($('#genofile_reaper').val());
       $('input[name=num_perm]').val($('input[name=num_perm_reaper]').val());
+      $('input[name=incparentsf1]').val($('input[name=incparentsf1_reaper]').is(':checked') ? 'ON' : '');
       $('input[name=control_marker]').val($('input[name=control_reaper]').val());
       $('input[name=do_control]').val($('input[name=do_control_reaper]:checked').val());
       $('input[name=manhattan_plot]').val($('input[name=manhattan_plot_reaper]:checked').val());
