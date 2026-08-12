@@ -213,6 +213,10 @@ class DisplayMappingResults:
             self.genofile_string = start_vars['genofile_string']
 
         self.geno_db_exists = start_vars['geno_db_exists']
+        if 'incparentsf1' in start_vars:
+            self.incparentsf1 = start_vars['incparentsf1']
+        else:
+            self.incparentsf1 = "OFF"
 
         self.first_run = True
         if 'first_run' in start_vars:

@@ -1344,7 +1344,10 @@ def loading_page():
         else:
             dataset = create_dataset(start_vars['dataset'])
         start_vars['trait_name'] = start_vars['trait_id']
-        samples = dataset.group.samplelist
+        if start_vars.get('incparentsf1', '').upper() == 'ON':
+            samples = dataset.group.all_samples_ordered()
+        else:
+            samples = dataset.group.samplelist
 
         sample_vals_dict = json.loads(start_vars['sample_vals'])
         sample_vals_dict = {k: sample_vals_dict[k] for k in samples if k in sample_vals_dict}
@@ -1361,7 +1364,10 @@ def loading_page():
                     genofile_samples = run_mapping.get_genofile_samplelist(
                         dataset)
                     if len(genofile_samples) > 1:
-                        samples = genofile_samples
+                        if start_vars.get('incparentsf1', '').upper() == 'ON':
+                            samples = (dataset.group.parlist or []) + (dataset.group.f1list or []) + genofile_samples
+                        else:
+                            samples = genofile_samples
 
             for sample in samples:
                 if sample in sample_vals_dict:
@@ -1471,7 +1477,8 @@ def mapping_results_page(hash_of_inputs=None):
         'transform',
         'hash_of_inputs',
         'dataid',
-        'cross_type'
+        'cross_type',
+        'incparentsf1'
     )
     start_vars = {}
     for key, value in list(initial_start_vars.items()):

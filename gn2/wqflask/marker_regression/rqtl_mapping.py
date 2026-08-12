@@ -91,14 +91,15 @@ def run_rqtl2(metadata, pheno_file, run_id, group="bxd", use_cache=False):
 def run_rqtl(trait_name, vals, samples, dataset, pair_scan,
             mapping_scale, model, method, num_perm, perm_strata_list,
             do_control, control_marker, manhattan_plot, cofactors, run_id="",
-            use_rqtl2=False):
+            use_rqtl2=False, geno_file=None):
     """Run R/qtl by making a request to the GN3 endpoint and reading in the output file(s)"""
 
     pheno_file = write_phenotype_file(trait_name, samples, vals, dataset, cofactors, perm_strata_list)
-    if dataset.group.genofile:
-        geno_file = locate(dataset.group.genofile, "genotype")
-    else:
-        geno_file = locate(dataset.group.name + ".geno", "genotype")
+    if geno_file is None:
+        if dataset.group.genofile:
+            geno_file = locate(dataset.group.genofile, "genotype")
+        else:
+            geno_file = locate(dataset.group.name + ".geno", "genotype")
 
     post_data = {
         "pheno_file": pheno_file,
