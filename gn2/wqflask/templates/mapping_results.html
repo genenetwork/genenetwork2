@@ -204,6 +204,11 @@
             <li id="gn1_map_tab">
               <a href="#gn1_map" data-toggle="tab" aria-expanded="true">GN1 Map</a>
             </li>
+            {% if mapping_data %}
+            <li id="interactive_map_tab">
+                <a href="#interactive_map" data-toggle="tab" aria-expanded="true">Interactive Map</a>
+            </li>
+            {% endif %}
             {% if mapping_method == "gemma" or mapping_method == "reaper" %}
             <li id="browser_tab">
                 <a href="#browser_holder" data-toggle="tab" aria-expanded="true">Genome Browser</a>
@@ -219,6 +224,11 @@
                   <br>
                   <span style="white-space: nowrap;">A positive additive coefficient (green line) indicates that {{ dataset.group.parlist[1] }} alleles increase trait values. In contrast, a negative additive coefficient (orange line) indicates that {{ dataset.group.parlist[0] }} alleles increase trait values.</span>
                   {% endif %}
+              </div>
+            </div>
+            <div class="tab-pane" id="interactive_map">
+              <div class="qtlcharts">
+                  <div id="mapping-figure"></div>
               </div>
             </div>
             {% if mapping_method == "gemma" or mapping_method == "reaper" %}
@@ -359,6 +369,30 @@
     <script>
         var js_data = {{ js_data | safe }};
         var markersJson = {{ trimmed_markers|safe }};
+        {% if mapping_data %}
+        var mapping_data = {{ mapping_data | safe }};
+        {% endif %}
+    </script>
+
+    <script language="javascript" type="text/javascript" src="/static/new/javascript/mapping_figure.js"></script>
+    <script type="text/javascript">
+        $(document).ready(function () {
+            if (window.MappingFigure && window.mapping_data) {
+                var renderInteractiveMap = function () {
+                    window.MappingFigure.render("mapping-figure", window.mapping_data);
+                };
+                $('#interactive_map_tab').on('shown.bs.tab', function () {
+                    $('div#gn1_map_options').css("display", "none");
+                    renderInteractiveMap();
+                });
+                $('#gn1_map_tab').on('shown.bs.tab', function () {
+                    $('div#gn1_map_options').css("display", "block");
+                });
+                if ($('#interactive_map').hasClass('active')) {
+                    renderInteractiveMap();
+                }
+            }
+        });
     </script>
 
     <script language="javascript" type="text/javascript" src="/static/new/javascript/search_results.js"></script>
