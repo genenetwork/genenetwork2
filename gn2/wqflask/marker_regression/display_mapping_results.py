@@ -43,6 +43,7 @@ from gn2.wqflask.interval_analyst import GeneUtil
 from gn2.base.webqtlConfig import GENERATED_IMAGE_DIR
 from gn2.utility.pillow_utils import draw_rotated_text, draw_open_polygon
 from gn_libs.mysqldb import database_connection
+from gn2.wqflask.marker_regression.run_mapping import trim_markers_for_figure
 
 try:  # Only import this for Python3
     from functools import reduce
@@ -623,6 +624,120 @@ class DisplayMappingResults:
                 'Mapping using genotype data as a trait will result in infinity LRS at one locus. In order to display the result properly, all LRSs higher than 100 are capped at 100.')
         btminfo_parts.append('</p>')
         btminfo = "".join(btminfo_parts)
+
+        # ---- Data for the client-side d3 mapping figure ----
+        # Built after plotIntMapping() has run so that self.js_data already
+        # contains the computed values (chr_lengths, significant, ...).
+        _mapping_js_data = json.loads(self.js_data)
+
+        # Metadata lines shown in the top-left of the d3 figure (mirrors the
+        # information drawn by the original PIL legend).
+        if self.selectedChr == -1:
+            _ident = "Mapping on All Chromosomes for Trait: %s" % (
+                self.this_trait.display_name)
+        else:
+            _ident = "Mapping on Chromosome %s for Trait: %s" % (
+                self.ChrList[self.selectedChr][0], self.this_trait.display_name)
+        _ident += " with %s samples" % self.n_samples
+
+        if self.dataset.type in ("Publish", "Geno"):
+            _dataset_label = self.dataset.fullname
+        else:
+            _dataset_label = "%s - %s" % (
+                self.dataset.group.name, self.dataset.fullname)
+
+        _metadata_lines = [
+            _ident,
+            "Dataset: %s" % _dataset_label,
+        ]
+        if self.genofile_string == "":
+            _metadata_lines.append(
+                "Genotype File: %s.geno" % self.dataset.group.name)
+        else:
+            _metadata_lines.append(
+                "Genotype File: %s" % self.genofile_string.split(":")[1])
+
+        _covariates = getattr(self, "covariates", "")
+        if getattr(self, "mapping_method", "") in ("gemma", "gemma_bimbam"):
+            _method = "Using GEMMA mapping method with "
+            if getattr(self, "use_loco", "") == "True":
+                _method += "LOCO and "
+            if _covariates != "":
+                _method += "the cofactors: %s" % ", ".join(
+                    _covar.split(":")[0] for _covar in _covariates.split(","))
+            else:
+                _method += "no cofactors"
+        elif getattr(self, "mapping_method", "") in (
+                "rqtl_plink", "rqtl_geno", "rqtl2_geno"):
+            _method = "Using R/qtl mapping method with "
+            if _covariates != "":
+                _method += "the cofactors: %s" % ", ".join(
+                    _covar.split(":")[0] for _covar in _covariates.split(","))
+            elif self.controlLocus and self.doControl != "false":
+                _method += "%s as control" % self.controlLocus
+            else:
+                _method += "no cofactors"
+        else:
+            _method = "Using Haldane mapping function with "
+            if self.controlLocus and self.doControl != "false":
+                _method += "%s as control" % self.controlLocus
+            else:
+                _method += "no control for other QTLs"
+        _metadata_lines.append(_method)
+
+        if self.transform:
+            if self.transform == "qnorm":
+                _metadata_lines.append("Transform - Quantile Normalized")
+            elif self.transform in ("log2", "log10"):
+                _metadata_lines.append(
+                    "Transform - %s" % self.transform.capitalize())
+
+        # Location of the trait's gene, used for the purple marker at the
+        # bottom of the d3 figure (mirrors drawProbeSetPosition).
+        _gene_position = None
+        if (self.traitList and hasattr(self.traitList[0], "chr")
+                and hasattr(self.traitList[0], "mb")):
+            _gene_position = {
+                "chr": str(self.traitList[0].chr),
+                "mb": self.traitList[0].mb,
+            }
+
+        self.mapping_data = json.dumps({
+            "markers": trim_markers_for_figure(self.qtlresults),
+            "chr_lengths": _mapping_js_data.get("chr_lengths", []),
+            "significant": (
+                getattr(self, "significant", None)
+                if self.permChecked and self.nperm > 0 else None),
+            "suggestive": (
+                getattr(self, "suggestive", None)
+                if self.permChecked and self.nperm > 0 else None),
+            "lrsMax": self.lrsMax,
+            "LRS_LOD": self.LRS_LOD,
+            "LODFACTOR": self.LODFACTOR,
+            "plotScale": self.plotScale,
+            "manhattan_plot": (
+                str(self.manhattan_plot).strip().lower() in ("true", "1")),
+            "color_scheme": getattr(self, "color_scheme", "alternating"),
+            "manhattan_single_color": (
+                "#" + str(start_vars["manhattan_single_color"])
+                if (getattr(self, "color_scheme", "") == "single"
+                    and "manhattan_single_color" in start_vars)
+                else None),
+            "selected_chr": self.selectedChr,
+            "startMb": self.startMb,
+            "endMb": self.endMb,
+            "total_markers": _mapping_js_data.get(
+                "total_markers", len(self.qtlresults)),
+            "this_trait": {
+                "name": self.this_trait.name,
+                "display_name": getattr(
+                    self.this_trait, "display_name", self.this_trait.name),
+            },
+            "metadata_lines": _metadata_lines,
+            "gene_position": _gene_position,
+            "n_samples": self.n_samples,
+            "mapping_method": getattr(self, "mapping_method", ""),
+        }, default=str)
 
     def plotIntMapping(self, canvas, offset=(80, 120, 110, 100), zoom=1, startMb=None, endMb=None, showLocusForm=""):
         im_drawer = ImageDraw.Draw(canvas)
