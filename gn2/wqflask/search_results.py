@@ -194,7 +194,8 @@ class SearchResultPage:
                     trait_dict['description'] = description_display
 
                     trait_dict['location'] = "N/A"
-                    if (result['Chr'] is not None) and (result['Chr'] != "") and (result['Chr'] != "Un") and (result['Mb'] is not None) and (result['Mb'] != 0):
+
+                    if (result['Chr'] is not None) and (result['Chr'] != "") and (result['Mb'] is not None) and (result['Mb'] != 0):
                         trait_dict['location'] = f"Chr{result['Chr']}: {float(result['Mb']):.6f}"
 
                     trait_dict['mean'] = "N/A" if result['Mean'] is None or result['Mean'] == "" else f"{result['Mean']:.3f}"
