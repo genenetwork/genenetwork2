@@ -38,7 +38,7 @@ window.MappingFigure = (function () {
     var MAX_WIDTH = 2400;
     var PLOT_HEIGHT = 460;
 
-    var MARGIN = { top: 110, right: 25, bottom: 95, left: 70 };
+    var MARGIN = { top: 110, right: 70, bottom: 95, left: 70 };
     var TOP_LABEL_INSET = 32;        // room at the top of the plot for chr labels
     var FONT = "Verdana, sans-serif";
 
@@ -54,6 +54,8 @@ window.MappingFigure = (function () {
         suggestive: "#DCDCDC",
         peak: "#7B2D8E",
         geneMarker: "#9370DB",       // MEDIUMPURPLE (TRANSCRIPT_LOCATION_COLOR)
+        additivePositive: "#008000", // GREEN (ADDITIVE_COLOR_POSITIVE)
+        additiveNegative: "#FFA500", // ORANGE (ADDITIVE_COLOR_NEGATIVE)
         text: "#000000",
         link: "#1f77b4"
     };
@@ -331,6 +333,85 @@ window.MappingFigure = (function () {
             .on("mouseout", hideTip);
     }
 
+    /* Additive-effect lines (green = positive, orange = negative), mirroring
+       drawQTL: value 0 sits at the plot baseline (bottom), additiveMax at the
+       vertical middle; negative values are reflected above the baseline. */
+    function additiveY(v, additiveMax, chartH) {
+        return chartH - (v * (chartH / 2)) / additiveMax;
+    }
+
+    function drawAdditiveSegment(g, x0, y0, v0, x1, y1, v1, chartH) {
+        var plus = COLORS.additivePositive;
+        var minus = COLORS.additiveNegative;
+        var mirror = function (y) { return 2 * chartH - y; };
+        var seg = function (xa, ya, xb, yb, color) {
+            g.append("line")
+                .attr("x1", xa).attr("y1", ya)
+                .attr("x2", xb).attr("y2", yb)
+                .attr("stroke", color)
+                .attr("stroke-width", 1);
+        };
+        if (v0 >= 0 && v1 >= 0) {
+            seg(x0, y0, x1, y1, plus);
+        } else if (v0 < 0 && v1 < 0) {
+            seg(x0, mirror(y0), x1, mirror(y1), minus);
+        } else {
+            var t = -v0 / (v1 - v0);
+            var xm = x0 + t * (x1 - x0);
+            if (v0 >= 0) {
+                seg(x0, y0, xm, chartH, plus);
+                seg(xm, chartH, x1, mirror(y1), minus);
+            } else {
+                seg(x0, mirror(y0), xm, chartH, minus);
+                seg(xm, chartH, x1, y1, plus);
+            }
+        }
+    }
+
+    function drawAdditiveLines(g, markers, focusLayout, xScale, additiveMax, chartH) {
+        var byChr = {};
+        markers.forEach(function (m) {
+            if (m.additive === undefined || m.additive === null || m.additive === "") {
+                return;
+            }
+            var k = String(m.chr);
+            (byChr[k] = byChr[k] || []).push(m);
+        });
+        Object.keys(byChr).forEach(function (k) {
+            var pts = byChr[k];
+            for (var i = 1; i < pts.length; i++) {
+                var a = pts[i - 1], b = pts[i];
+                var v0 = parseFloat(a.additive), v1 = parseFloat(b.additive);
+                if (isNaN(v0) || isNaN(v1)) continue;
+                drawAdditiveSegment(
+                    g,
+                    xScale(xForMarker(focusLayout, a)), additiveY(v0, additiveMax, chartH), v0,
+                    xScale(xForMarker(focusLayout, b)), additiveY(v1, additiveMax, chartH), v1,
+                    chartH);
+            }
+        });
+    }
+
+    /* Green right-hand axis for the additive-effect scale (0..additiveMax). */
+    function drawAdditiveAxis(g, chartW, additiveMax, chartH) {
+        var scale = d3.scale.linear()
+            .domain([0, additiveMax])
+            .range([chartH, chartH / 2]);
+        var axis = d3.svg.axis().scale(scale).orient("right")
+            .ticks(5).tickSize(-6, 0).tickPadding(6)
+            .tickFormat(d3.format(".3f"));
+        var ax = g.append("g").attr("class", "additive axis")
+            .attr("transform", "translate(" + chartW + ",0)")
+            .call(axis);
+        ax.selectAll("path,line")
+            .attr("stroke", COLORS.additivePositive)
+            .style("stroke-width", 1).style("fill", "none");
+        ax.selectAll("text")
+            .attr("fill", COLORS.additivePositive)
+            .attr("font-family", FONT)
+            .attr("font-size", "15px");
+    }
+
     function render(containerId, data) {
         var container = document.getElementById(containerId);
         if (!container) return;
@@ -561,6 +642,26 @@ window.MappingFigure = (function () {
                     .attr("stroke", lineColor)
                     .attr("stroke-width", lineWidth);
             });
+        }
+
+        /* additive-effect lines + green right-hand axis */
+        var addChecked = data.additive_checked === true;
+        var hasAdditive = focusMarkers.some(function (m) {
+            return m.additive !== undefined && m.additive !== null &&
+                m.additive !== "";
+        });
+        if (addChecked && hasAdditive) {
+            var additiveMax = 0;
+            focusMarkers.forEach(function (m) {
+                var v = parseFloat(m.additive);
+                if (!isNaN(v) && Math.abs(v) > additiveMax) {
+                    additiveMax = Math.abs(v);
+                }
+            });
+            if (additiveMax === 0) additiveMax = 0.000001;
+            drawAdditiveLines(g, focusMarkers, focusLayout, xScale,
+                              additiveMax, chartH);
+            drawAdditiveAxis(g, chartW, additiveMax, chartH);
         }
 
         /* gene location marker (purple triangle at the bottom) */

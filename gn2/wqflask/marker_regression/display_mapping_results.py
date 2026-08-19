@@ -737,6 +737,9 @@ class DisplayMappingResults:
             "gene_position": _gene_position,
             "n_samples": self.n_samples,
             "mapping_method": getattr(self, "mapping_method", ""),
+            "additive_checked": (
+                str(getattr(self, "additiveChecked", False)).strip().upper()
+                == "ON"),
         }, default=str)
 
     def plotIntMapping(self, canvas, offset=(80, 120, 110, 100), zoom=1, startMb=None, endMb=None, showLocusForm=""):
