@@ -37,12 +37,14 @@
       </table>
     </div>
     <div class="panel-footer">
+      {%if resource_id is defined %}
       <p>
 	This role acts on the resource with ID:
 	<a href="{{url_for('oauth2.resource.view_resource', resource_id=resource_id)}}">
 	  {{resource_id}}
 	</a>
       </p>
+      {%endif%}
     </div>
   </div>
 </div>

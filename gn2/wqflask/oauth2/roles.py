@@ -15,13 +15,11 @@ def render_ui(template, **kwargs):
     return _render_ui(template, calling_page="resources", **kwargs)
 
 
-@roles.route("/role/<uuid:role_id>", methods=["GET"])
+@roles.route("/<uuid:role_id>", methods=["GET"])
 @require_oauth2
 def role(role_id: uuid.UUID):
     def __success__(the_role):
-        return render_ui("oauth2/role.html",
-                         role=the_role[0],
-                         resource_id=uuid.UUID(the_role[1]))
+        return render_ui("oauth2/role.html", role=the_role)
 
     return oauth2_get(f"auth/role/view/{role_id}").either(
         request_error, __success__)
