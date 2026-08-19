@@ -42,7 +42,7 @@
       Data and Access Management</a>
   </li>
 
-  {%if sysauth.can_link_data %}
+  {%if sysauth is defined and sysauth.can_link_data %}
   <li role="presentation"
       {%if calling_page == "data"%}
       class="active"
@@ -51,7 +51,7 @@
   </li>
   {%endif%}
 
-  {%if sysauth.can_masquerade %}
+  {%if sysauth is defined and sysauth.can_masquerade %}
   <li role="presentation"
       {%if calling_page == "masquerade"%}
       class="active"
