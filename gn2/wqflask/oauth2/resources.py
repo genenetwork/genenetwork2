@@ -568,7 +568,12 @@ def create_resource_role(resource_id: UUID):
                     "resource": resource,
                     "resource_role_error": process_error(error)
                 },
-                lambda roles: {"resource": resource, "roles": roles})
+                lambda roles: {
+                    "resource": resource,
+                    "roles": roles,
+                    "user_privileges": tuple(# StopGap: Check this elsewhere.
+                        privilege for role in roles
+                        for privilege in role["privileges"])})
 
     if request.method == "GET":
         return oauth2_get(f"auth/resource/view/{resource_id}").map(
