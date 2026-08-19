@@ -740,6 +740,8 @@ class DisplayMappingResults:
             "additive_checked": (
                 str(getattr(self, "additiveChecked", False)).strip().upper()
                 == "ON"),
+            "species": self.dataset.group.species,
+            "ucsc_db": getattr(self, "_ucscDb", ""),
         }, default=str)
 
     def plotIntMapping(self, canvas, offset=(80, 120, 110, 100), zoom=1, startMb=None, endMb=None, showLocusForm=""):

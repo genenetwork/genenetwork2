@@ -412,6 +412,106 @@ window.MappingFigure = (function () {
             .attr("font-size", "15px");
     }
 
+    /* ---- browser-link bands (PhenoGen / UCSC / Ensembl) ----
+       Shown only in the single-chromosome (focused) view. Each band spans the
+       plot width and is divided into clickable segments; clicking a segment
+       links to the proportional genomic range underneath it (mirroring the
+       original clickable-region bands). */
+    var BAND_H = 18;
+    var BAND_PAD = 4;
+
+    function browserBandURL(data, band, chr, calBase, startB, endB) {
+        var flank = Math.min((endB - startB) / 2, 5e6);
+        var s = Math.max(0, Math.round(calBase - flank));
+        var e = Math.round(calBase + flank);
+        var ucsc = data.ucsc_db || "";
+        var genomeVer = ucsc || (data.species === "rat" ? "rn6" : "mm10");
+        var ensSpecies = data.species === "rat"
+            ? "Rattus_norvegicus" : "Mus_musculus";
+        if (band === "phenogen") {
+            return "https://phenogen.org/gene.jsp?speciesCB=Mm&auto=Y&" +
+                "geneTxt=chr" + chr + ":" + s + "-" + e + "&genomeVer=" + genomeVer;
+        }
+        if (band === "ucsc") {
+            return "http://genome.ucsc.edu/cgi-bin/hgTracks?db=" + ucsc +
+                "&position=chr" + chr + ":" + s + "-" + e;
+        }
+        return "http://www.ensembl.org/" + ensSpecies +
+            "/contigview?highlight=&chr=" + chr + "&vc_start=" + s +
+            "&vc_end=" + e + "&x=35&y=12";
+    }
+
+    function drawBrowserBands(g, data, layout, focus, chartW, startB, endB) {
+        if (focus === null) return;
+        var fl = layout.lengths[focus];
+        var chr = fl.chr;
+        var bands = [
+            { key: "phenogen", fill: "#A2FB94", text: "#1FD504",
+              divider: "#FFFFFF",
+              msg: "Click to view the corresponding section of the genome in " +
+                   "PhenoGen" },
+            { key: "ucsc", fill: "#DDDDEE", text: "#333366",
+              divider: "#FFFFFF",
+              msg: "Click to view the corresponding section of the genome in " +
+                   "the UCSC Genome Browser" },
+            { key: "ensembl", fill: "#EEEEDD", text: "#555500",
+              divider: "#FFFFFF",
+              msg: "Click to view the corresponding section of the genome in " +
+                   "the Ensembl Genome Browser" }
+        ];
+        /* The number of on-screen intervals is fixed by the plot width (mirrors
+           the original MAX_CLICKABLE_REGION_DIVISIONS = 100). When pan/zoom is
+           added, startB/endB just become the currently visible window and every
+           segment (plus its divider) recomputes its proportional genomic range
+           automatically, so this code needs no structural changes for zoom. */
+        var nSeg = Math.max(20, Math.min(100, Math.round(chartW / 10)));
+        var segW = chartW / nSeg;
+        bands.forEach(function (band, i) {
+            var yTop = BAND_PAD + i * (BAND_H + BAND_PAD);
+            g.append("rect")
+                .attr("x", 0).attr("y", yTop)
+                .attr("width", chartW).attr("height", BAND_H)
+                .attr("fill", band.fill)
+                .attr("stroke", "#FFFFFF");
+            /* clickable segments -> proportional genomic range */
+            for (var s = 0; s < nSeg; s++) {
+                var x0 = segW * s;
+                var x1 = segW * (s + 1);
+                var frac = (x0 + x1) / 2 / chartW;
+                var calBase = startB + (endB - startB) * frac;
+                g.append("a")
+                    .attr("xlink:href", browserBandURL(
+                        data, band.key, chr, calBase, startB, endB))
+                    .attr("target", "_blank")
+                    .append("rect")
+                    .attr("x", x0).attr("y", yTop)
+                    .attr("width", Math.max(1, x1 - x0))
+                    .attr("height", BAND_H)
+                    .attr("fill", "transparent")
+                    .style("cursor", "pointer");
+            }
+            /* divider lines marking each interval boundary. Drawn on top of the
+               link segments so they are visible, but pointer-events:none so they
+               never intercept clicks meant for the links underneath. */
+            for (var d = 0; d <= nSeg; d++) {
+                var dx = segW * d;
+                g.append("line")
+                    .attr("x1", dx).attr("y1", yTop)
+                    .attr("x2", dx).attr("y2", yTop + BAND_H)
+                    .attr("stroke", band.divider)
+                    .attr("stroke-width", 1)
+                    .style("pointer-events", "none");
+            }
+            /* band label drawn last so it sits on a layer above the dividers */
+            g.append("text")
+                .attr("x", 6).attr("y", yTop + BAND_H / 2 + 4)
+                .attr("font-family", FONT)
+                .attr("font-size", "11px")
+                .attr("fill", band.text)
+                .text(band.msg);
+        });
+    }
+
     function render(containerId, data) {
         var container = document.getElementById(containerId);
         if (!container) return;
@@ -420,9 +520,7 @@ window.MappingFigure = (function () {
 
         var width = Math.min(
             Math.max(container.clientWidth || DEFAULT_WIDTH, 600), MAX_WIDTH);
-        var height = PLOT_HEIGHT + MARGIN.top + MARGIN.bottom;
         var chartW = width - MARGIN.left - MARGIN.right;
-        var chartH = height - MARGIN.top - MARGIN.bottom;
 
         var fullLayout = layoutChromosomes(data);
         var markers = (data.markers || []).filter(function (m) {
@@ -453,13 +551,23 @@ window.MappingFigure = (function () {
             focusMarkers = markers;
         }
 
+        /* extra vertical room for the browser-link bands in the focused view */
+        var hasBands = focus !== null;
+        var bandStack = hasBands
+            ? (BAND_PAD + 3 * (BAND_H + BAND_PAD))
+            : 0;
+        var height = PLOT_HEIGHT + MARGIN.top + MARGIN.bottom + bandStack;
+        var chartH = height - MARGIN.top - MARGIN.bottom;
+        var chrLabelY = 24 + bandStack;
+        var topInset = TOP_LABEL_INSET + bandStack;
+
         var xScale = d3.scale.linear()
             .domain([0, focusLayout.totalBases])
             .range([0, chartW]);
         var yMax = yDomain(data, focusMarkers)[1];
         var yScale = d3.scale.linear()
             .domain([0, yMax])
-            .range([chartH, TOP_LABEL_INSET]);
+            .range([chartH, topInset]);
 
         var svg = d3.select(container).append("svg")
             .attr("width", width)
@@ -491,7 +599,7 @@ window.MappingFigure = (function () {
                regular weight, sitting just inside the top of the plot) */
             g.append("text")
                 .attr("x", (x0 + x1) / 2)
-                .attr("y", 24)
+                .attr("y", chrLabelY)
                 .attr("text-anchor", "middle")
                 .attr("font-family", FONT)
                 .attr("font-size", "22px")
@@ -505,6 +613,12 @@ window.MappingFigure = (function () {
                     }
                 });
         });
+
+        /* browser-link bands (focused view only) */
+        if (hasBands) {
+            drawBrowserBands(g, data, layout, focus, chartW,
+                             0, focusLayout.lengths[0].size);
+        }
 
         /* Mb tick marks + labels (physic scale, mirrors PIL) */
         if (data.plotScale === "physic") {
