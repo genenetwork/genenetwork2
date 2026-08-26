@@ -148,6 +148,18 @@ window.MappingFigure = (function () {
             ? 5 * 1e6
             : (lengths.length ? total / (lengths.length * 12) : 0);
 
+        var startsInfo = computeStarts(lengths, interval);
+        return {
+            lengths: lengths,
+            starts: startsInfo.starts,
+            interval: interval,
+            totalBases: startsInfo.totalBases
+        };
+    }
+
+    /* Per-chromosome start offsets (with the inter-chromosome gap) from a
+       list of lengths. Shared by layoutChromosomes and filterEmptyChromosomes. */
+    function computeStarts(lengths, interval) {
         var starts = [];
         var cursor = 0;
         lengths.forEach(function (c) {
@@ -155,9 +167,7 @@ window.MappingFigure = (function () {
             cursor += c.size + interval;
         });
         return {
-            lengths: lengths,
             starts: starts,
-            interval: interval,
             totalBases: lengths.length ? cursor - interval : 0
         };
     }
@@ -174,17 +184,12 @@ window.MappingFigure = (function () {
             if (used[c.chr]) kept.push({ c: c, start: layout.starts[i] });
         });
         var lengths = kept.map(function (k) { return k.c; });
-        var starts = [];
-        var cursor = 0;
-        lengths.forEach(function (c) {
-            starts.push(cursor);
-            cursor += c.size + layout.interval;
-        });
+        var startsInfo = computeStarts(lengths, layout.interval);
         return {
             lengths: lengths,
-            starts: starts,
+            starts: startsInfo.starts,
             interval: layout.interval,
-            totalBases: lengths.length ? cursor - layout.interval : 0
+            totalBases: startsInfo.totalBases
         };
     }
 
@@ -296,6 +301,19 @@ window.MappingFigure = (function () {
         if (link) window.open(link, "_blank");
     }
 
+    /* Shared hover/click behaviour for marker elements (points, peaks, and
+       the invisible line-mode hover circles): pointer cursor + tooltip when a
+       trait page link exists, and open that link on click. */
+    function attachMarkerInteractions(sel, data) {
+        return sel
+            .style("cursor", function (m) {
+                return markerTraitLink(m, data) ? "pointer" : "default";
+            })
+            .on("mouseover", function (m) { showTip(m, data); })
+            .on("mouseout", hideTip)
+            .on("click", function (m) { openMarkerTrait(m, data); });
+    }
+
     function repositionTip() {
         if (!tipEl) return;
         var node = tipEl.node();
@@ -319,6 +337,29 @@ window.MappingFigure = (function () {
         t.html("<b>" + title + "</b>" + (sub ? "<br/>" + sub : ""));
         t.style("display", "block");
         repositionTip();
+    }
+
+    /* Threshold line: the visible line plus a wider transparent hit-area that
+       shows a labelled tooltip on hover (mirrors the PIL threshold labels). */
+    function drawThresholdLine(g, chartW, yScale, value, color, label, data) {
+        var y = yScale(value);
+        var yLabel = value.toFixed(2);
+        g.append("line")
+            .attr("x1", 0).attr("x2", chartW)
+            .attr("y1", y).attr("y2", y)
+            .attr("stroke", color)
+            .attr("stroke-width", 3);
+        g.append("line")
+            .attr("x1", 0).attr("x2", chartW)
+            .attr("y1", y).attr("y2", y)
+            .attr("stroke", "transparent")
+            .attr("stroke-width", 16)
+            .style("cursor", "pointer")
+            .on("mouseover", function () {
+                showLineTip(label + " threshold",
+                            (data.LRS_LOD || "LRS") + ": " + yLabel);
+            })
+            .on("mouseout", hideTip);
     }
 
     /* ------------------------------ rendering ---------------------------- */
@@ -583,6 +624,25 @@ window.MappingFigure = (function () {
     var TRACK_HEADER_H = 16;     // collapse/expand header height per track
     var SNP_MAX_H = 18;          // max SNP-density bar height (SNP_HEIGHT_MODIFIER)
 
+    /* Strand chevrons along a gene/homology segment. The apex of each chevron
+       sits at `ax`; the base is pushed left/right by the strand direction. */
+    function drawStrandArrows(link, x0, x1, y, midY, dir, color, divisor) {
+        var step = Math.max(6, Math.min(14, (x1 - x0) / divisor));
+        for (var ax = x0 + step; ax < x1; ax += step) {
+            var baseX = dir > 0 ? ax - 3 : ax + 3;
+            link.append("line")
+                .attr("x1", baseX).attr("y1", y)
+                .attr("x2", ax).attr("y2", midY)
+                .attr("stroke", color).attr("stroke-width", 1)
+                .style("cursor", "pointer");
+            link.append("line")
+                .attr("x1", baseX).attr("y1", y + EACH_GENE_HEIGHT)
+                .attr("x2", ax).attr("y2", midY)
+                .attr("stroke", color).attr("stroke-width", 1)
+                .style("cursor", "pointer");
+        }
+    }
+
     /* Collapsible header band at the top of each track. Clicking it toggles
        the track between expanded (content shown) and minimized (just this
        band, labelled "Expand ..."). */
@@ -601,6 +661,19 @@ window.MappingFigure = (function () {
             .attr("font-size", "11px")
             .attr("fill", "#333366")
             .text((expanded ? "\u25BE Minimize " : "\u25B8 Expand ") + label);
+    }
+
+    /* One collapsible track: header + (when expanded) its content, returning
+       the y position just below it. */
+    function drawTrackSection(g, chartW, trackY, label, expanded, toggleFn,
+                              drawContent, contentH) {
+        drawTrackHeader(g, chartW, trackY, label, expanded, toggleFn);
+        trackY += TRACK_HEADER_H;
+        if (expanded) {
+            drawContent(trackY);
+            trackY += contentH;
+        }
+        return trackY;
     }
 
     /* Strains plotted in the haplotype band: those with an expression value
@@ -789,22 +862,7 @@ window.MappingFigure = (function () {
                 }
             });
             var dir = gene.strand === "-" ? -1 : 1;
-            var step = Math.max(6, Math.min(14, (x1 - x0) / 10));
-            for (var ax = x0 + step; ax < x1; ax += step) {
-                /* chevron apex sits at ax; base pushed left/right by strand */
-                var tipX = ax;
-                var baseX = dir > 0 ? ax - 3 : ax + 3;
-                link.append("line")
-                    .attr("x1", baseX).attr("y1", y)
-                    .attr("x2", tipX).attr("y2", midY)
-                    .attr("stroke", "#999999").attr("stroke-width", 1)
-                    .style("cursor", "pointer");
-                link.append("line")
-                    .attr("x1", baseX).attr("y1", y + EACH_GENE_HEIGHT)
-                    .attr("x2", tipX).attr("y2", midY)
-                    .attr("stroke", "#999999").attr("stroke-width", 1)
-                    .style("cursor", "pointer");
-            }
+            drawStrandArrows(link, x0, x1, y, midY, dir, "#999999", 10);
             link.append("title").text(title);
         });
     }
@@ -836,22 +894,7 @@ window.MappingFigure = (function () {
                 .attr("stroke", "#000000").attr("stroke-width", 1)
                 .style("cursor", "pointer");
             var dir = h.query_strand === "-" ? -1 : 1;
-            var step = Math.max(6, Math.min(14, (x1 - x0) / 8));
-            for (var ax = x0 + step; ax < x1; ax += step) {
-                /* chevron apex sits at ax; base pushed left/right by strand */
-                var tipX = ax;
-                var baseX = dir > 0 ? ax - 3 : ax + 3;
-                link.append("line")
-                    .attr("x1", baseX).attr("y1", y)
-                    .attr("x2", tipX).attr("y2", midY)
-                    .attr("stroke", "#666666").attr("stroke-width", 1)
-                    .style("cursor", "pointer");
-                link.append("line")
-                    .attr("x1", baseX).attr("y1", y + EACH_GENE_HEIGHT)
-                    .attr("x2", tipX).attr("y2", midY)
-                    .attr("stroke", "#666666").attr("stroke-width", 1)
-                    .style("cursor", "pointer");
-            }
+            drawStrandArrows(link, x0, x1, y, midY, dir, "#666666", 8);
             link.append("title").text(title);
         });
     }
@@ -1158,45 +1201,44 @@ window.MappingFigure = (function () {
                                   : focusLayout.lengths[0].size / 1e6;
             var detail = rangeMb <= DRAW_DETAIL_MB;
             if (th.gene && trackData.genes) {
-                drawTrackHeader(g, chartW, trackY, "Gene track",
-                                state.tracks.gene, function () {
-                    state.tracks.gene = !state.tracks.gene;
-                    render(containerId, data);
-                });
-                trackY += TRACK_HEADER_H;
-                if (state.tracks.gene) {
-                    drawGeneTrack(g, xScale, chartW, trackY,
-                                  trackData.genes, detail);
-                    trackY += GENE_TRACK_H;
-                }
+                trackY = drawTrackSection(
+                    g, chartW, trackY, "Gene track",
+                    state.tracks.gene, function () {
+                        state.tracks.gene = !state.tracks.gene;
+                        render(containerId, data);
+                    },
+                    function (y) {
+                        drawGeneTrack(g, xScale, chartW, y,
+                                      trackData.genes, detail);
+                    },
+                    GENE_TRACK_H);
             }
             if (th.homology && trackData.homology) {
-                drawTrackHeader(g, chartW, trackY, "Homology track",
-                                state.tracks.homology, function () {
-                    state.tracks.homology = !state.tracks.homology;
-                    render(containerId, data);
-                });
-                trackY += TRACK_HEADER_H;
-                if (state.tracks.homology) {
-                    drawHomologyTrack(g, xScale, chartW, trackY,
-                                      trackData.homology);
-                    trackY += GENE_TRACK_H;
-                }
+                trackY = drawTrackSection(
+                    g, chartW, trackY, "Homology track",
+                    state.tracks.homology, function () {
+                        state.tracks.homology = !state.tracks.homology;
+                        render(containerId, data);
+                    },
+                    function (y) {
+                        drawHomologyTrack(g, xScale, chartW, y,
+                                          trackData.homology);
+                    },
+                    GENE_TRACK_H);
             }
             if (th.haplotype && trackData.haplotype) {
-                drawTrackHeader(g, chartW, trackY, "Haplotype track",
-                                state.tracks.haplotype, function () {
-                    state.tracks.haplotype = !state.tracks.haplotype;
-                    render(containerId, data);
-                });
-                trackY += TRACK_HEADER_H;
-                if (state.tracks.haplotype) {
-                    drawHaplotypeTrack(g, xScale, chartW, trackY,
-                                       trackData.haplotype);
-                    trackY += (haplotypePlottedStrains(
-                                   trackData.haplotype).length + 8)
-                        * HAPLOTYPE_ROW_H;
-                }
+                trackY = drawTrackSection(
+                    g, chartW, trackY, "Haplotype track",
+                    state.tracks.haplotype, function () {
+                        state.tracks.haplotype = !state.tracks.haplotype;
+                        render(containerId, data);
+                    },
+                    function (y) {
+                        drawHaplotypeTrack(g, xScale, chartW, y,
+                                           trackData.haplotype);
+                    },
+                    (haplotypePlottedStrains(
+                        trackData.haplotype).length + 8) * HAPLOTYPE_ROW_H);
             }
         }
 
@@ -1287,57 +1329,27 @@ window.MappingFigure = (function () {
         /* suggestive / significant threshold lines (with hover tooltips) */
         var sugg = toNum(data.suggestive);
         var sig = toNum(data.significant);
-        var thresholdTip = function (label, value) {
-            showLineTip(label + " threshold",
-                        (data.LRS_LOD || "LRS") + ": " + value.toFixed(2));
-        };
         if (sugg !== null) {
-            g.append("line")
-                .attr("x1", 0).attr("x2", chartW)
-                .attr("y1", yScale(sugg)).attr("y2", yScale(sugg))
-                .attr("stroke", COLORS.suggestive)
-                .attr("stroke-width", 3);
-            g.append("line")
-                .attr("x1", 0).attr("x2", chartW)
-                .attr("y1", yScale(sugg)).attr("y2", yScale(sugg))
-                .attr("stroke", "transparent")
-                .attr("stroke-width", 16)
-                .style("cursor", "pointer")
-                .on("mouseover", function () { thresholdTip("Suggestive", sugg); })
-                .on("mouseout", hideTip);
+            drawThresholdLine(g, chartW, yScale, sugg, COLORS.suggestive,
+                              "Suggestive", data);
         }
         if (sig !== null) {
-            g.append("line")
-                .attr("x1", 0).attr("x2", chartW)
-                .attr("y1", yScale(sig)).attr("y2", yScale(sig))
-                .attr("stroke", COLORS.significant)
-                .attr("stroke-width", 3);
-            g.append("line")
-                .attr("x1", 0).attr("x2", chartW)
-                .attr("y1", yScale(sig)).attr("y2", yScale(sig))
-                .attr("stroke", "transparent")
-                .attr("stroke-width", 16)
-                .style("cursor", "pointer")
-                .on("mouseover", function () { thresholdTip("Significant", sig); })
-                .on("mouseout", hideTip);
+            drawThresholdLine(g, chartW, yScale, sig, COLORS.significant,
+                              "Significant", data);
         }
 
         if (data.manhattan_plot) {
             /* scatter points (larger when focused on a single chromosome) */
             var dotR = focus === null ? 2 : 3.5;
             var pts = g.append("g").attr("class", "points");
-            pts.selectAll("circle").data(focusMarkers).enter().append("circle")
-                .attr("r", dotR)
-                .attr("cx", function (m) { return xScale(xForMarker(focusLayout, m)); })
-                .attr("cy", function (m) { return yScale(markerScore(m, data)); })
-                .attr("fill", function (m) { return pointColor(data, layout, m); })
-                .style("opacity", 1.0)
-                .style("cursor", function (m) {
-                    return markerTraitLink(m, data) ? "pointer" : "default";
-                })
-                .on("mouseover", function (m) { showTip(m, data); })
-                .on("mouseout", hideTip)
-                .on("click", function (m) { openMarkerTrait(m, data); });
+            attachMarkerInteractions(
+                pts.selectAll("circle").data(focusMarkers).enter().append("circle")
+                    .attr("r", dotR)
+                    .attr("cx", function (m) { return xScale(xForMarker(focusLayout, m)); })
+                    .attr("cy", function (m) { return yScale(markerScore(m, data)); })
+                    .attr("fill", function (m) { return pointColor(data, layout, m); })
+                    .style("opacity", 1.0),
+                data);
 
             /* peak markers (>= significant threshold) as purple triangles */
             if (sig !== null) {
@@ -1346,20 +1358,18 @@ window.MappingFigure = (function () {
                 var peaks = focusMarkers.filter(function (m) {
                     return markerScore(m, data) >= sig;
                 });
-                pts.selectAll("path.peak").data(peaks).enter().append("path")
-                    .attr("d", function (m) {
-                        var x = xScale(xForMarker(focusLayout, m));
-                        var y = yScale(markerScore(m, data));
-                        return "M" + x + "," + (y - triH) +
-                               "L" + (x - halfW) + "," + y +
-                               "L" + (x + halfW) + "," + y + "Z";
-                    })
-                    .attr("fill", COLORS.peak)
-                    .attr("stroke", COLORS.peak)
-                    .style("cursor", "pointer")
-                    .on("mouseover", function (m) { showTip(m, data); })
-                    .on("mouseout", hideTip)
-                    .on("click", function (m) { openMarkerTrait(m, data); });
+                attachMarkerInteractions(
+                    pts.selectAll("path.peak").data(peaks).enter().append("path")
+                        .attr("d", function (m) {
+                            var x = xScale(xForMarker(focusLayout, m));
+                            var y = yScale(markerScore(m, data));
+                            return "M" + x + "," + (y - triH) +
+                                   "L" + (x - halfW) + "," + y +
+                                   "L" + (x + halfW) + "," + y + "Z";
+                        })
+                        .attr("fill", COLORS.peak)
+                        .attr("stroke", COLORS.peak),
+                    data);
             }
         } else {
             /* connected LRS line, one path per chromosome. A single colour
@@ -1385,18 +1395,14 @@ window.MappingFigure = (function () {
             });
             /* invisible hover targets along the line so hovering any position
                (e.g. a peak) shows that marker's tooltip */
-            g.append("g").selectAll("circle").data(focusMarkers).enter()
-                .append("circle")
-                .attr("r", 5)
-                .attr("cx", function (m) { return xScale(xForMarker(focusLayout, m)); })
-                .attr("cy", function (m) { return yScale(markerScore(m, data)); })
-                .attr("fill", "transparent")
-                .style("cursor", function (m) {
-                    return markerTraitLink(m, data) ? "pointer" : "default";
-                })
-                .on("mouseover", function (m) { showTip(m, data); })
-                .on("mouseout", hideTip)
-                .on("click", function (m) { openMarkerTrait(m, data); });
+            attachMarkerInteractions(
+                g.append("g").selectAll("circle").data(focusMarkers).enter()
+                    .append("circle")
+                    .attr("r", 5)
+                    .attr("cx", function (m) { return xScale(xForMarker(focusLayout, m)); })
+                    .attr("cy", function (m) { return yScale(markerScore(m, data)); })
+                    .attr("fill", "transparent"),
+                data);
         }
 
         /* additive-effect lines + green right-hand axis */
