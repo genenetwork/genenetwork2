@@ -28,7 +28,8 @@ def load_homology(chr_name, start_mb, end_mb, source_file):
 
     return homology_list
 
-def loadGenes(chrName, diffCol, startMb, endMb, species='mouse'):
+def loadGenes(chrName, diffCol, startMb, endMb, species='mouse',
+              merge_other_species=True):
     assembly_map = {
         "mouse": "mm10",
         "rat": "rn7"
@@ -108,7 +109,11 @@ def loadGenes(chrName, diffCol, startMb, endMb, species='mouse'):
                         (newdict['TxEnd'] - newdict['TxStart'])
                 except:
                     pass
-                # load gene from other Species by the same name
+                # load gene from other Species by the same name (skippable -
+                # the track data does not need it and it is a per-gene query)
+                if not merge_other_species:
+                    GeneList.append(newdict)
+                    continue
                 for item in otherSpecies:
                     othSpec, othSpecId, othSpecAssembly = item
                     newdict2 = {}
