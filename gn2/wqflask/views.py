@@ -1589,7 +1589,9 @@ def mapping_track_data():
     haplotype = _tracks.build_haplotype(
         dataset_name, chr_name, genofile_string, sample_vals,
         start_mb=start_mb, end_mb=end_mb)
-    return jsonify(genes=genes, homology=homology, haplotype=haplotype)
+    snp = _tracks.build_snp(chr_name, start_mb, end_mb, diff_col)
+    return jsonify(genes=genes, homology=homology, haplotype=haplotype,
+                   snp=snp)
 
 
 @app.route("/export_mapping_results", methods=('POST',))

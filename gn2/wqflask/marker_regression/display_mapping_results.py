@@ -753,6 +753,9 @@ class DisplayMappingResults:
             "haplotype_checked": (
                 str(getattr(self, "haplotypeAnalystChecked", False))
                 .strip().upper() == "ON"),
+            "snp_checked": (
+                str(getattr(self, "SNPChecked", False)).strip().upper()
+                == "ON"),
             "diff_col": getattr(self, "diffCol", []),
             "dataset_name": self.dataset.name,
             "genofile_string": getattr(self, "genofile_string", ""),

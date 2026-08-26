@@ -547,6 +547,7 @@ window.MappingFigure = (function () {
         rec: "#A9A9A9"           // DARKGRAY
     };
     var TRACK_HEADER_H = 16;     // collapse/expand header height per track
+    var SNP_MAX_H = 18;          // max SNP-density bar height (SNP_HEIGHT_MODIFIER)
 
     /* Collapsible header band at the top of each track. Clicking it toggles
        the track between expanded (content shown) and minimized (just this
@@ -818,6 +819,28 @@ window.MappingFigure = (function () {
                     .style("cursor", "pointer");
             }
             link.append("title").text(title);
+        });
+    }
+
+    /* ---- SNP track (mirrors drawSNPTrackNew) ----
+       Dense orange density bars at the bottom of the plot, one per Mb-bin,
+       normalised 0..1 (snp data comes from the track endpoint). Each bar is
+       a full-width rect centred on the x-axis (extending above and below it)
+       so adjacent bins form a contiguous, gapless band like the original. */
+    function drawSNPTrack(g, chartW, chartH, snp) {
+        if (!snp || !snp.length) return;
+        var nbins = snp.length;
+        snp.forEach(function (d, i) {
+            var h = d * SNP_MAX_H;
+            if (h < 0.5) return;
+            var x0 = (chartW * i) / nbins;
+            var x1 = (chartW * (i + 1)) / nbins;
+            g.append("rect")
+                .attr("x", x0)
+                .attr("y", chartH - h)
+                .attr("width", Math.max(1, x1 - x0))
+                .attr("height", 2 * h)
+                .attr("fill", "#FFA500");   // SNP_COLOR = ORANGE
         });
     }
 
@@ -1134,6 +1157,12 @@ window.MappingFigure = (function () {
                 .attr("font-size", "12px")
                 .attr("fill", "#666666")
                 .text("Loading track data\u2026");
+        }
+
+        /* SNP density track (orange bars at the bottom of the plot) */
+        if (hasBands && trackData && trackData.snp &&
+            trackData.snp.length && data.snp_checked) {
+            drawSNPTrack(g, chartW, chartH, trackData.snp);
         }
 
         /* Mb tick marks + labels (physic scale, mirrors PIL) */
