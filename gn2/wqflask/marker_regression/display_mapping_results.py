@@ -746,7 +746,33 @@ class DisplayMappingResults:
                 == "ON"),
             "species": self.dataset.group.species,
             "ucsc_db": getattr(self, "_ucscDb", ""),
+            # Track toggles (mirror the mapping form checkboxes) + the context
+            # the client needs to fetch track data on demand for any chromosome.
+            "gene_checked": (
+                str(getattr(self, "geneChecked", False)).strip().upper()
+                == "ON"),
+            "homology_checked": (
+                str(getattr(self, "homologyChecked", False)).strip().upper()
+                == "ON"),
+            "haplotype_checked": (
+                str(getattr(self, "haplotypeAnalystChecked", False))
+                .strip().upper() == "ON"),
+            "diff_col": getattr(self, "diffCol", []),
+            "dataset_name": self.dataset.name,
+            "genofile_string": getattr(self, "genofile_string", ""),
+            "sample_vals": getattr(self, "sample_vals_dict", {}),
+            "strainlist": getattr(self, "strainlist", []),
         }, default=str)
+
+        # Pre-cache the parsed genotype so the track-data endpoint does not
+        # re-read the .geno file on the first client-side chromosome focus.
+        try:
+            from gn2.wqflask.marker_regression import tracks as _tracks
+            _tracks.cache_genotype(
+                self.dataset.name, self.genofile_string,
+                getattr(self, "genotype", None))
+        except Exception:
+            pass
 
     def plotIntMapping(self, canvas, offset=(80, 120, 110, 100), zoom=1, startMb=None, endMb=None, showLocusForm=""):
         im_drawer = ImageDraw.Draw(canvas)
