@@ -43,7 +43,6 @@ from gn2.wqflask.interval_analyst import GeneUtil
 from gn2.base.webqtlConfig import GENERATED_IMAGE_DIR
 from gn2.utility.pillow_utils import draw_rotated_text, draw_open_polygon
 from gn_libs.mysqldb import database_connection
-from gn2.wqflask.marker_regression.run_mapping import trim_markers_for_figure
 
 try:  # Only import this for Python3
     from functools import reduce
@@ -707,7 +706,10 @@ class DisplayMappingResults:
             }
 
         self.mapping_data = json.dumps({
-            "markers": trim_markers_for_figure(self.qtlresults),
+            # Use the same markers as the original PIL figure (self.qtlresults,
+            # already capped by run_mapping if > 30000) so the interval-map and
+            # additive lines keep the original density.
+            "markers": self.qtlresults,
             "chr_lengths": _mapping_js_data.get("chr_lengths", []),
             "significant": (
                 getattr(self, "significant", None)
