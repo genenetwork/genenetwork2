@@ -36,7 +36,7 @@ window.MappingFigure = (function () {
     var MAX_SCORE = 460;             // webqtlConfig.MAXLRS cap
     var DEFAULT_WIDTH = 1280;        // GRAPH_DEFAULT_WIDTH
     var MAX_WIDTH = 2400;
-    var PLOT_HEIGHT = 460;
+    var PLOT_HEIGHT = 390;           // mirrors the original plot area (600-110-100)
 
     var MARGIN = { top: 110, right: 70, bottom: 95, left: 70 };
     var TOP_LABEL_INSET = 32;        // room at the top of the plot for chr labels
@@ -293,6 +293,14 @@ window.MappingFigure = (function () {
         if (tipEl) tipEl.style("display", "none");
     }
 
+    /* Simple tooltip for non-marker elements (e.g. threshold lines). */
+    function showLineTip(title, sub) {
+        var t = tip();
+        t.html("<b>" + title + "</b>" + (sub ? "<br/>" + sub : ""));
+        t.style("display", "block");
+        repositionTip();
+    }
+
     /* ------------------------------ rendering ---------------------------- */
 
     function xForMarker(focusLayout, marker) {
@@ -350,9 +358,11 @@ window.MappingFigure = (function () {
 
     /* Additive-effect lines (green = positive, orange = negative), mirroring
        drawQTL: value 0 sits at the plot baseline (bottom), additiveMax at the
-       vertical middle; negative values are reflected above the baseline. */
-    function additiveY(v, additiveMax, chartH) {
-        return chartH - (v * (chartH / 2)) / additiveMax;
+       vertical middle of the plot area (AdditiveHeightThresh = drawAreaHeight/2);
+       negative values are reflected above the baseline. */
+    function additiveY(v, additiveMax, chartH, topInset) {
+        var plotH = chartH - topInset;
+        return chartH - (v * (plotH / 2)) / additiveMax;
     }
 
     function drawAdditiveSegment(g, x0, y0, v0, x1, y1, v1, chartH) {
@@ -383,7 +393,8 @@ window.MappingFigure = (function () {
         }
     }
 
-    function drawAdditiveLines(g, markers, focusLayout, xScale, additiveMax, chartH) {
+    function drawAdditiveLines(g, markers, focusLayout, xScale, additiveMax,
+                               chartH, topInset) {
         var byChr = {};
         markers.forEach(function (m) {
             if (m.additive === undefined || m.additive === null || m.additive === "") {
@@ -400,18 +411,21 @@ window.MappingFigure = (function () {
                 if (isNaN(v0) || isNaN(v1)) continue;
                 drawAdditiveSegment(
                     g,
-                    xScale(xForMarker(focusLayout, a)), additiveY(v0, additiveMax, chartH), v0,
-                    xScale(xForMarker(focusLayout, b)), additiveY(v1, additiveMax, chartH), v1,
+                    xScale(xForMarker(focusLayout, a)),
+                    additiveY(v0, additiveMax, chartH, topInset), v0,
+                    xScale(xForMarker(focusLayout, b)),
+                    additiveY(v1, additiveMax, chartH, topInset), v1,
                     chartH);
             }
         });
     }
 
     /* Green right-hand axis for the additive-effect scale (0..additiveMax). */
-    function drawAdditiveAxis(g, chartW, additiveMax, chartH) {
+    function drawAdditiveAxis(g, chartW, additiveMax, chartH, topInset) {
+        var plotH = chartH - topInset;
         var scale = d3.scale.linear()
             .domain([0, additiveMax])
-            .range([chartH, chartH / 2]);
+            .range([chartH, chartH - plotH / 2]);
         var axis = d3.svg.axis().scale(scale).orient("right")
             .ticks(5).tickSize(-6, 0).tickPadding(6)
             .tickFormat(d3.format(".3f"));
@@ -1051,42 +1065,61 @@ window.MappingFigure = (function () {
             .attr("transform", "translate(" + MARGIN.left + "," + MARGIN.top + ")");
 
         /* chromosome bands + labels */
-        focusLayout.lengths.forEach(function (c, i) {
-            var x0 = xScale(focusLayout.starts[i]);
-            var x1 = xScale(focusLayout.starts[i] + c.size);
-            g.append("rect")
-                .attr("x", x0).attr("y", 0)
-                .attr("width", Math.max(1, x1 - x0))
-                .attr("height", chartH)
-                .attr("fill", i % 2 === 0 ? COLORS.backLight : COLORS.backDark)
-                .attr("stroke", COLORS.chrStroke)
-                .style("cursor", focus === null ? "pointer" : "default")
-                .on("click", function () {
-                    if (focus === null) {
+        if (focus === null) {
+            focusLayout.lengths.forEach(function (c, i) {
+                var x0 = xScale(focusLayout.starts[i]);
+                var x1 = xScale(focusLayout.starts[i] + c.size);
+                g.append("rect")
+                    .attr("x", x0).attr("y", 0)
+                    .attr("width", Math.max(1, x1 - x0))
+                    .attr("height", chartH)
+                    .attr("fill", i % 2 === 0 ? COLORS.backLight : COLORS.backDark)
+                    .attr("stroke", COLORS.chrStroke)
+                    .style("cursor", "pointer")
+                    .on("click", function () {
                         state.focusChr = i;
                         state.range = null;
                         render(containerId, data);
-                    }
-                });
-            /* chromosome label at the TOP of the band (like the original:
-               regular weight, sitting just inside the top of the plot) */
+                    });
+                /* chromosome label at the TOP of the band (like the original:
+                   regular weight, sitting just inside the top of the plot) */
+                g.append("text")
+                    .attr("x", (x0 + x1) / 2)
+                    .attr("y", chrLabelY)
+                    .attr("text-anchor", "middle")
+                    .attr("font-family", FONT)
+                    .attr("font-size", "22px")
+                    .attr("fill", COLORS.text)
+                    .style("cursor", "pointer")
+                    .text(c.chr)
+                    .on("click", function () {
+                        state.focusChr = i;
+                        state.range = null;
+                        render(containerId, data);
+                    });
+            });
+        } else {
+            /* focused single chromosome: fixed-width alternating vertical
+               bands (mirrors the original's plotWidth/13.5 background) */
+            var nBands = 14;
+            var bandW = chartW / nBands;
+            for (var b = 0; b < nBands; b++) {
+                g.append("rect")
+                    .attr("x", b * bandW).attr("y", 0)
+                    .attr("width", Math.max(1, bandW))
+                    .attr("height", chartH)
+                    .attr("fill", b % 2 === 0 ? COLORS.backDark : COLORS.backLight);
+            }
+            /* focused chromosome label at the top, centred */
             g.append("text")
-                .attr("x", (x0 + x1) / 2)
+                .attr("x", chartW / 2)
                 .attr("y", chrLabelY)
                 .attr("text-anchor", "middle")
                 .attr("font-family", FONT)
                 .attr("font-size", "22px")
                 .attr("fill", COLORS.text)
-                .style("cursor", focus === null ? "pointer" : "default")
-                .text(c.chr)
-                .on("click", function () {
-                    if (focus === null) {
-                        state.focusChr = i;
-                        state.range = null;
-                        render(containerId, data);
-                    }
-                });
-        });
+                .text(focusLayout.lengths[0].chr);
+        }
 
         /* browser-link bands (focused view only) */
         if (hasBands) {
@@ -1231,15 +1264,27 @@ window.MappingFigure = (function () {
                 .text("Megabases");
         }
 
-        /* suggestive / significant threshold lines */
+        /* suggestive / significant threshold lines (with hover tooltips) */
         var sugg = toNum(data.suggestive);
         var sig = toNum(data.significant);
+        var thresholdTip = function (label, value) {
+            showLineTip(label + " threshold",
+                        (data.LRS_LOD || "LRS") + ": " + value.toFixed(2));
+        };
         if (sugg !== null) {
             g.append("line")
                 .attr("x1", 0).attr("x2", chartW)
                 .attr("y1", yScale(sugg)).attr("y2", yScale(sugg))
                 .attr("stroke", COLORS.suggestive)
                 .attr("stroke-width", 3);
+            g.append("line")
+                .attr("x1", 0).attr("x2", chartW)
+                .attr("y1", yScale(sugg)).attr("y2", yScale(sugg))
+                .attr("stroke", "transparent")
+                .attr("stroke-width", 16)
+                .style("cursor", "pointer")
+                .on("mouseover", function () { thresholdTip("Suggestive", sugg); })
+                .on("mouseout", hideTip);
         }
         if (sig !== null) {
             g.append("line")
@@ -1247,6 +1292,14 @@ window.MappingFigure = (function () {
                 .attr("y1", yScale(sig)).attr("y2", yScale(sig))
                 .attr("stroke", COLORS.significant)
                 .attr("stroke-width", 3);
+            g.append("line")
+                .attr("x1", 0).attr("x2", chartW)
+                .attr("y1", yScale(sig)).attr("y2", yScale(sig))
+                .attr("stroke", "transparent")
+                .attr("stroke-width", 16)
+                .style("cursor", "pointer")
+                .on("mouseover", function () { thresholdTip("Significant", sig); })
+                .on("mouseout", hideTip);
         }
 
         if (data.manhattan_plot) {
@@ -1258,7 +1311,7 @@ window.MappingFigure = (function () {
                 .attr("cx", function (m) { return xScale(xForMarker(focusLayout, m)); })
                 .attr("cy", function (m) { return yScale(markerScore(m, data)); })
                 .attr("fill", function (m) { return pointColor(data, layout, m); })
-                .style("opacity", 0.85)
+                .style("opacity", 1.0)
                 .on("mouseover", function (m) { showTip(m, data); })
                 .on("mouseout", hideTip);
 
@@ -1305,6 +1358,17 @@ window.MappingFigure = (function () {
                     .attr("stroke", lineColor)
                     .attr("stroke-width", lineWidth);
             });
+            /* invisible hover targets along the line so hovering any position
+               (e.g. a peak) shows that marker's tooltip */
+            g.append("g").selectAll("circle").data(focusMarkers).enter()
+                .append("circle")
+                .attr("r", 5)
+                .attr("cx", function (m) { return xScale(xForMarker(focusLayout, m)); })
+                .attr("cy", function (m) { return yScale(markerScore(m, data)); })
+                .attr("fill", "transparent")
+                .style("cursor", "pointer")
+                .on("mouseover", function (m) { showTip(m, data); })
+                .on("mouseout", hideTip);
         }
 
         /* additive-effect lines + green right-hand axis */
@@ -1323,8 +1387,8 @@ window.MappingFigure = (function () {
             });
             if (additiveMax === 0) additiveMax = 0.000001;
             drawAdditiveLines(g, focusMarkers, focusLayout, xScale,
-                              additiveMax, chartH);
-            drawAdditiveAxis(g, chartW, additiveMax, chartH);
+                              additiveMax, chartH, topInset);
+            drawAdditiveAxis(g, chartW, additiveMax, chartH, topInset);
         }
 
         /* gene location marker (purple triangle at the bottom) */
