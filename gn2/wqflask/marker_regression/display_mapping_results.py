@@ -760,6 +760,16 @@ class DisplayMappingResults:
                 == "ON"),
             "diff_col": getattr(self, "diffCol", []),
             "dataset_name": self.dataset.name,
+            # Whether the genotype markers are databased (so the figure can
+            # link marker points to their /show_trait pages, like the results
+            # table does). Mirrors the template's `geno_db_exists` value, which
+            # is a string "True"/"False" (or bool False before the check runs).
+            "geno_db_exists": (
+                str(getattr(self, "geno_db_exists", False)).strip().upper()
+                == "TRUE"),
+            # Genotype dataset name used for marker trait links, matching the
+            # results-table links: /show_trait?trait_id=<name>&dataset=<group>Geno
+            "marker_dataset": self.dataset.group.name + "Geno",
             "genofile_string": getattr(self, "genofile_string", ""),
             "sample_vals": getattr(self, "sample_vals_dict", {}),
             "strainlist": getattr(self, "strainlist", []),
