@@ -267,13 +267,33 @@ window.MappingFigure = (function () {
 
     function showTip(marker, data) {
         var t = tip();
+        var link = markerTraitLink(marker, data);
         t.html(
             "<b>" + (marker.name || "") + "</b><br/>" +
             markerPosLabel(marker) + "<br/>" +
-            (data.LRS_LOD || "LRS") + ": " + markerScore(marker, data).toFixed(2)
+            (data.LRS_LOD || "LRS") + ": " + markerScore(marker, data).toFixed(2) +
+            (link ? "<br/><span style='color:#9fb6ff'>Click to view trait page</span>" : "")
         );
         t.style("display", "block");
         repositionTip();
+    }
+
+    /* Trait-page link for a marker, or null when markers aren't databased.
+       Mirrors the results-table links (only shown when geno_db_exists). */
+    function markerTraitLink(marker, data) {
+        if (!data || data.geno_db_exists !== true || !data.marker_dataset) {
+            return null;
+        }
+        var name = marker && marker.name;
+        if (!name) return null;
+        return "/show_trait?trait_id=" + encodeURIComponent(name) +
+            "&dataset=" + encodeURIComponent(data.marker_dataset);
+    }
+
+    /* Open the marker's trait page in a new tab (like the table's target=_blank). */
+    function openMarkerTrait(marker, data) {
+        var link = markerTraitLink(marker, data);
+        if (link) window.open(link, "_blank");
     }
 
     function repositionTip() {
@@ -1312,8 +1332,12 @@ window.MappingFigure = (function () {
                 .attr("cy", function (m) { return yScale(markerScore(m, data)); })
                 .attr("fill", function (m) { return pointColor(data, layout, m); })
                 .style("opacity", 1.0)
+                .style("cursor", function (m) {
+                    return markerTraitLink(m, data) ? "pointer" : "default";
+                })
                 .on("mouseover", function (m) { showTip(m, data); })
-                .on("mouseout", hideTip);
+                .on("mouseout", hideTip)
+                .on("click", function (m) { openMarkerTrait(m, data); });
 
             /* peak markers (>= significant threshold) as purple triangles */
             if (sig !== null) {
@@ -1334,7 +1358,8 @@ window.MappingFigure = (function () {
                     .attr("stroke", COLORS.peak)
                     .style("cursor", "pointer")
                     .on("mouseover", function (m) { showTip(m, data); })
-                    .on("mouseout", hideTip);
+                    .on("mouseout", hideTip)
+                    .on("click", function (m) { openMarkerTrait(m, data); });
             }
         } else {
             /* connected LRS line, one path per chromosome. A single colour
@@ -1366,9 +1391,12 @@ window.MappingFigure = (function () {
                 .attr("cx", function (m) { return xScale(xForMarker(focusLayout, m)); })
                 .attr("cy", function (m) { return yScale(markerScore(m, data)); })
                 .attr("fill", "transparent")
-                .style("cursor", "pointer")
+                .style("cursor", function (m) {
+                    return markerTraitLink(m, data) ? "pointer" : "default";
+                })
                 .on("mouseover", function (m) { showTip(m, data); })
-                .on("mouseout", hideTip);
+                .on("mouseout", hideTip)
+                .on("click", function (m) { openMarkerTrait(m, data); });
         }
 
         /* additive-effect lines + green right-hand axis */
