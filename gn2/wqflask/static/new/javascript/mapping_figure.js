@@ -67,7 +67,17 @@ window.MappingFigure = (function () {
         "#C000C0", "#00C0C0", "#C0C0C0", "#400000", "#004000", "#000040"
     ];
 
-    var state = { focusChr: null };
+    var state = {
+        focusChr: null,
+        /* client-side track toggles (Gene / Homology / Haplotype) */
+        tracks: { gene: false, homology: false, haplotype: false },
+        tracksInitialized: false,
+        /* on-demand track data cache + in-flight markers, keyed by chr */
+        trackData: {},
+        trackLoading: {},
+        containerId: null,
+        data: null
+    };
 
     var tipEl = null;
 
@@ -512,15 +522,332 @@ window.MappingFigure = (function () {
         });
     }
 
+    /* ---- gene / homology / haplotype tracks ----
+       These mirror the original PIL Gene Band, Homology Band and Haplotype
+       Band. They are shown only in the focused (single-chromosome) view, and
+       their data is fetched on demand from /mapping/track_data for the focused
+       chromosome. The drawing functions take the visible range through xScale,
+       so future pan/zoom just refetches with a new start/end window. */
+
+    var EACH_GENE_HEIGHT = 6;    // pixel height of a gene/homology row
+    var NUM_GENE_ROWS = 10;      // genes/homology wrap onto this many rows
+    var GENE_TRACK_H = NUM_GENE_ROWS * EACH_GENE_HEIGHT;
+    var HAPLOTYPE_ROW_H = 2 * EACH_GENE_HEIGHT;    // 12 px per strain row
+    var HAPLOTYPE_LINE_W = EACH_GENE_HEIGHT + 2;   // 8 px line thickness
+    var DRAW_DETAIL_MB = 4;      // zoom level at which exon detail is drawn
+    var HAPLOTYPE_COLORS = {
+        pos: "#0000FF",          // BLUE
+        neg: "#FF0000",          // RED
+        het: "#FFA500",          // ORANGE
+        rec: "#A9A9A9"           // DARKGRAY
+    };
+
+    /* Strains plotted in the haplotype band: those with an expression value
+       (not "x"), sorted by value descending (mirrors smd in drawHaplotypeBand). */
+    function haplotypePlottedStrains(hp) {
+        var rows = [];
+        if (!hp) return rows;
+        var strains = hp.strains || [];
+        var values = hp.values || {};
+        for (var i = 0; i < strains.length; i++) {
+            var v = values[strains[i]];
+            if (v === undefined || v === null) continue;
+            var vs = String(v).trim().toLowerCase();
+            if (vs === "x" || vs === "" || vs === "none") continue;
+            var nv = parseFloat(v);
+            if (isNaN(nv)) continue;
+            rows.push({ strain: strains[i], value: nv });
+        }
+        rows.sort(function (a, b) { return b.value - a.value; });
+        return rows;
+    }
+
+    /* Height (px) reserved for each enabled track in the focused view. */
+    function trackHeights(state, focus, trackData) {
+        var h = { gene: 0, homology: 0, haplotype: 0 };
+        if (focus === null || !trackData) return h;
+        if (state.tracks.gene && trackData.genes && trackData.genes.length) {
+            h.gene = GENE_TRACK_H;
+        }
+        if (state.tracks.homology && trackData.homology &&
+            trackData.homology.length) {
+            h.homology = GENE_TRACK_H;
+        }
+        if (state.tracks.haplotype && trackData.haplotype &&
+            trackData.haplotype.markers && trackData.haplotype.markers.length) {
+            h.haplotype = (haplotypePlottedStrains(trackData.haplotype).length
+                           + 8) * HAPLOTYPE_ROW_H;
+        }
+        return h;
+    }
+
+    /* clamp an [x0, x1] segment to the visible [0, chartW] range */
+    function clampRange(x0, x1, chartW) {
+        return [Math.max(0, Math.min(chartW, x0)),
+                Math.max(0, Math.min(chartW, x1))];
+    }
+
+    /* fetch the gene/homology/haplotype data for the focused chromosome */
+    function ensureTrackData(containerId, data, focus, layout) {
+        if (focus === null) return;
+        if (!state.tracks.gene && !state.tracks.homology &&
+            !state.tracks.haplotype) return;
+        var chr = layout.lengths[focus].chr;
+        if (state.trackData[chr] || state.trackLoading[chr]) return;
+        state.trackLoading[chr] = true;
+        var endMb = (layout.lengths[focus].size || 0) / 1e6;
+        var body = {
+            dataset: data.dataset_name || "",
+            species: data.species || "",
+            chr: chr,
+            start_mb: 0,
+            end_mb: endMb,
+            diff_col: data.diff_col || [],
+            genofile_string: data.genofile_string || "",
+            sample_vals: data.sample_vals || {}
+        };
+        if (window.$ && window.$.ajax) {
+            window.$.ajax({
+                url: "/mapping/track_data",
+                method: "POST",
+                contentType: "application/json",
+                data: JSON.stringify(body),
+                dataType: "json"
+            }).done(function (resp) {
+                state.trackData[chr] = resp || {};
+                state.trackLoading[chr] = false;
+                render(containerId, data);
+            }).fail(function () {
+                state.trackData[chr] = {};
+                state.trackLoading[chr] = false;
+            });
+        }
+    }
+
+    /* ---- Gene Band (mirrors drawGeneBand) ---- */
+    function drawGeneTrack(g, xScale, chartW, yTop, genes, detail) {
+        if (!genes || !genes.length) return;
+        var ncbi = "http://www.ncbi.nlm.nih.gov/gene?term=";
+        genes.forEach(function (gene, i) {
+            var row = i % NUM_GENE_ROWS;
+            var y = yTop + row * EACH_GENE_HEIGHT;
+            var mb0 = toNum(gene.txStart);
+            var mb1 = toNum(gene.txEnd);
+            if (mb0 === null || mb1 === null) return;
+            var r = clampRange(xScale(Math.min(mb0, mb1) * 1e6),
+                               xScale(Math.max(mb0, mb1) * 1e6), chartW);
+            var x0 = r[0], x1 = r[1];
+            if (x1 - x0 < 0.5) return;
+            var color = gene.color || "#000000";
+            var title = "Gene: " + gene.sym + " (" + gene.nm + ")\nFrom " +
+                mb0.toFixed(3) + " to " + mb1.toFixed(3) + " Mb (" +
+                gene.strand + ")";
+            var href = ncbi + gene.sym;
+            if (!detail || (x1 - x0 <= 20)) {
+                /* simple rectangle (whole-chromosome / too narrow for detail) */
+                g.append("a").attr("xlink:href", href).attr("target", "_blank")
+                    .append("rect")
+                    .attr("x", x0).attr("y", y)
+                    .attr("width", Math.max(1, x1 - x0))
+                    .attr("height", EACH_GENE_HEIGHT)
+                    .attr("fill", color).attr("stroke", color)
+                    .style("cursor", "pointer")
+                    .append("title").text(title);
+                return;
+            }
+            /* detail view: central line + UTRs + exons + strand arrows */
+            var link = g.append("a")
+                .attr("xlink:href", href).attr("target", "_blank");
+            var midY = y + EACH_GENE_HEIGHT / 2;
+            link.append("line")
+                .attr("x1", x0).attr("y1", midY)
+                .attr("x2", x1).attr("y2", midY)
+                .attr("stroke", color).attr("stroke-width", 1)
+                .style("cursor", "pointer");
+            var cdsS = toNum(gene.cdsStart);
+            var cdsE = toNum(gene.cdsEnd);
+            if (cdsS !== null && cdsE !== null && cdsS > mb0 && cdsE < mb1) {
+                var u0 = clampRange(x0, xScale(cdsS * 1e6), chartW);
+                var u1 = clampRange(xScale(cdsE * 1e6), x1, chartW);
+                [u0, u1].forEach(function (u) {
+                    if (u[1] - u[0] > 0) {
+                        link.append("rect")
+                            .attr("x", u[0]).attr("y", y)
+                            .attr("width", u[1] - u[0])
+                            .attr("height", EACH_GENE_HEIGHT)
+                            .attr("fill", "#A9A9A9").attr("stroke", "#A9A9A9")
+                            .style("cursor", "pointer");
+                    }
+                });
+            }
+            (gene.exons || []).forEach(function (ex) {
+                var es = clampRange(xScale(toNum(ex[0]) * 1e6),
+                                    xScale(toNum(ex[1]) * 1e6), chartW);
+                if (es[1] - es[0] > 0) {
+                    link.append("rect")
+                        .attr("x", es[0]).attr("y", y)
+                        .attr("width", es[1] - es[0])
+                        .attr("height", EACH_GENE_HEIGHT)
+                        .attr("fill", color).attr("stroke", color)
+                        .style("cursor", "pointer");
+                }
+            });
+            var dir = gene.strand === "-" ? -1 : 1;
+            var step = Math.max(6, Math.min(14, (x1 - x0) / 10));
+            for (var ax = x0 + step; ax < x1; ax += step) {
+                /* chevron apex sits at ax; base pushed left/right by strand */
+                var tipX = ax;
+                var baseX = dir > 0 ? ax - 3 : ax + 3;
+                link.append("line")
+                    .attr("x1", baseX).attr("y1", y)
+                    .attr("x2", tipX).attr("y2", midY)
+                    .attr("stroke", "#999999").attr("stroke-width", 1)
+                    .style("cursor", "pointer");
+                link.append("line")
+                    .attr("x1", baseX).attr("y1", y + EACH_GENE_HEIGHT)
+                    .attr("x2", tipX).attr("y2", midY)
+                    .attr("stroke", "#999999").attr("stroke-width", 1)
+                    .style("cursor", "pointer");
+            }
+            link.append("title").text(title);
+        });
+    }
+
+    /* ---- Homology Band (mirrors drawHomologyBand; mouse -> human) ---- */
+    function drawHomologyTrack(g, xScale, chartW, yTop, homology) {
+        if (!homology || !homology.length) return;
+        homology.forEach(function (h, i) {
+            var row = i % NUM_GENE_ROWS;
+            var y = yTop + row * EACH_GENE_HEIGHT;
+            var rs = toNum(h.ref_start), re = toNum(h.ref_end);
+            if (rs === null || re === null) return;
+            var r = clampRange(xScale(Math.min(rs, re) * 1e6),
+                               xScale(Math.max(rs, re) * 1e6), chartW);
+            var x0 = r[0], x1 = r[1];
+            if (x1 - x0 < 0.5) return;
+            var qs = toNum(h.query_start), qe = toNum(h.query_end);
+            var href = "http://genome.ucsc.edu/cgi-bin/hgTracks?db=hg38" +
+                "&position=chr" + h.query_chr + ":" +
+                Math.round(qs * 1e6) + "-" + Math.round(qe * 1e6);
+            var title = "hg38: Chr " + h.query_chr + " from " +
+                qs.toFixed(3) + " to " + qe.toFixed(3) + " Mb";
+            var link = g.append("a")
+                .attr("xlink:href", href).attr("target", "_blank");
+            var midY = y + EACH_GENE_HEIGHT / 2;
+            link.append("line")
+                .attr("x1", x0).attr("y1", midY)
+                .attr("x2", x1).attr("y2", midY)
+                .attr("stroke", "#000000").attr("stroke-width", 1)
+                .style("cursor", "pointer");
+            var dir = h.query_strand === "-" ? -1 : 1;
+            var step = Math.max(6, Math.min(14, (x1 - x0) / 8));
+            for (var ax = x0 + step; ax < x1; ax += step) {
+                /* chevron apex sits at ax; base pushed left/right by strand */
+                var tipX = ax;
+                var baseX = dir > 0 ? ax - 3 : ax + 3;
+                link.append("line")
+                    .attr("x1", baseX).attr("y1", y)
+                    .attr("x2", tipX).attr("y2", midY)
+                    .attr("stroke", "#666666").attr("stroke-width", 1)
+                    .style("cursor", "pointer");
+                link.append("line")
+                    .attr("x1", baseX).attr("y1", y + EACH_GENE_HEIGHT)
+                    .attr("x2", tipX).attr("y2", midY)
+                    .attr("stroke", "#666666").attr("stroke-width", 1)
+                    .style("cursor", "pointer");
+            }
+            link.append("title").text(title);
+        });
+    }
+
+    /* ---- Haplotype Band (mirrors drawHaplotypeBand) ---- */
+    function haplotypeSegmentColor(prev, cur) {
+        if (prev === -1 && cur === -1) return HAPLOTYPE_COLORS.neg;
+        if (prev === 1 && cur === 1) return HAPLOTYPE_COLORS.pos;
+        if (prev === 0 && cur === 0) return HAPLOTYPE_COLORS.het;
+        return HAPLOTYPE_COLORS.rec;
+    }
+
+    function drawHaplotypeTrack(g, xScale, chartW, yTop, haplotype) {
+        var rows = haplotypePlottedStrains(haplotype);
+        if (!rows.length) return;
+        var strains = haplotype.strains || [];
+        var markers = haplotype.markers || [];
+        var mX = markers.map(function (m) { return xScale(toNum(m.m) * 1e6); });
+
+        /* coloured horizontal segments between consecutive markers */
+        for (var j = 1; j < markers.length; j++) {
+            var x0 = Math.max(0, mX[j - 1]);
+            var x1 = Math.min(chartW, mX[j]);
+            if (x1 - x0 < 0.5) continue;
+            for (var rI = 0; rI < rows.length; rI++) {
+                var k = strains.indexOf(rows[rI].strain);
+                if (k < 0) continue;
+                var color = haplotypeSegmentColor(
+                    markers[j - 1].g[k], markers[j].g[k]);
+                g.append("line")
+                    .attr("x1", x0).attr("y1", yTop + 7 + rI * HAPLOTYPE_ROW_H)
+                    .attr("x2", x1).attr("y2", yTop + 7 + rI * HAPLOTYPE_ROW_H)
+                    .attr("stroke", color)
+                    .attr("stroke-width", HAPLOTYPE_LINE_W);
+            }
+        }
+
+        /* black marker ticks + rotated marker names at the bottom */
+        var lastRow = rows.length - 1;
+        markers.forEach(function (m, j) {
+            var mx = mX[j];
+            if (mx < 0 || mx > chartW) return;
+            g.append("rect")
+                .attr("x", mx - 1).attr("y", yTop)
+                .attr("width", 2)
+                .attr("height", rows.length * HAPLOTYPE_ROW_H)
+                .attr("fill", "#000000");
+            g.append("text")
+                .attr("transform", "translate(" + mx + "," +
+                       (yTop + 17 + 2 * lastRow * EACH_GENE_HEIGHT) +
+                       ") rotate(-90)")
+                .attr("text-anchor", "middle")
+                .attr("font-family", FONT)
+                .attr("font-size", "12px")
+                .attr("fill", "#000000")
+                .text(m.n);
+        });
+
+        /* strain names + expression values on the right of the plot */
+        rows.forEach(function (r, rI) {
+            var y = yTop + 11 + rI * HAPLOTYPE_ROW_H;
+            g.append("text")
+                .attr("x", chartW + 10).attr("y", y)
+                .attr("font-family", FONT)
+                .attr("font-size", "12px")
+                .attr("fill", "#000000")
+                .text(r.strain);
+            g.append("text")
+                .attr("x", chartW + 80).attr("y", y)
+                .attr("font-family", FONT)
+                .attr("font-size", "12px")
+                .attr("fill", "#000000")
+                .text(r.value.toFixed(2));
+        });
+    }
+
     function render(containerId, data) {
         var container = document.getElementById(containerId);
         if (!container) return;
 
         container.innerHTML = "";
 
-        var width = Math.min(
-            Math.max(container.clientWidth || DEFAULT_WIDTH, 600), MAX_WIDTH);
-        var chartW = width - MARGIN.left - MARGIN.right;
+        state.containerId = containerId;
+        state.data = data;
+
+        /* initialise track toggles from the payload the first time we render */
+        if (!state.tracksInitialized) {
+            state.tracks.gene = data.gene_checked === true;
+            state.tracks.homology = data.homology_checked === true;
+            state.tracks.haplotype = data.haplotype_checked === true;
+            state.tracksInitialized = true;
+        }
 
         var fullLayout = layoutChromosomes(data);
         var markers = (data.markers || []).filter(function (m) {
@@ -551,15 +878,31 @@ window.MappingFigure = (function () {
             focusMarkers = markers;
         }
 
-        /* extra vertical room for the browser-link bands in the focused view */
+        /* on-demand track data for the focused chromosome */
+        var trackData = null;
+        if (focus !== null) {
+            var chrName = layout.lengths[focus].chr;
+            trackData = state.trackData[chrName] || null;
+            ensureTrackData(containerId, data, focus, layout);
+        }
+
+        var width = Math.min(
+            Math.max(container.clientWidth || DEFAULT_WIDTH, 600), MAX_WIDTH);
+        /* extra right room for haplotype strain labels when that track is on */
+        var th = trackHeights(state, focus, trackData);
+        var rightExtra = (focus !== null && th.haplotype > 0) ? 110 : 0;
+        var chartW = width - MARGIN.left - MARGIN.right - rightExtra;
+
+        /* extra vertical room for the browser-link bands + tracks (focused) */
         var hasBands = focus !== null;
         var bandStack = hasBands
             ? (BAND_PAD + 3 * (BAND_H + BAND_PAD))
             : 0;
-        var height = PLOT_HEIGHT + MARGIN.top + MARGIN.bottom + bandStack;
+        var topStack = bandStack + th.gene + th.homology + th.haplotype;
+        var height = PLOT_HEIGHT + MARGIN.top + MARGIN.bottom + topStack;
         var chartH = height - MARGIN.top - MARGIN.bottom;
-        var chrLabelY = 24 + bandStack;
-        var topInset = TOP_LABEL_INSET + bandStack;
+        var chrLabelY = 24 + topStack;
+        var topInset = TOP_LABEL_INSET + topStack;
 
         var xScale = d3.scale.linear()
             .domain([0, focusLayout.totalBases])
@@ -618,6 +961,36 @@ window.MappingFigure = (function () {
         if (hasBands) {
             drawBrowserBands(g, data, layout, focus, chartW,
                              0, focusLayout.lengths[0].size);
+        }
+
+        /* gene / homology / haplotype tracks (focused view only) */
+        if (hasBands && trackData) {
+            var trackY = bandStack;
+            var detail = (focusLayout.lengths[0].size / 1e6) <= DRAW_DETAIL_MB;
+            if (th.gene && trackData.genes) {
+                drawGeneTrack(g, xScale, chartW, trackY, trackData.genes, detail);
+                trackY += th.gene;
+            }
+            if (th.homology && trackData.homology) {
+                drawHomologyTrack(g, xScale, chartW, trackY, trackData.homology);
+                trackY += th.homology;
+            }
+            if (th.haplotype && trackData.haplotype) {
+                drawHaplotypeTrack(g, xScale, chartW, trackY, trackData.haplotype);
+                trackY += th.haplotype;
+            }
+        }
+
+        /* brief "loading" hint while track data for this chr is fetched */
+        if (hasBands && !trackData &&
+            (state.tracks.gene || state.tracks.homology ||
+             state.tracks.haplotype)) {
+            g.append("text")
+                .attr("x", 10).attr("y", 8)
+                .attr("font-family", FONT)
+                .attr("font-size", "12px")
+                .attr("fill", "#666666")
+                .text("Loading track data\u2026");
         }
 
         /* Mb tick marks + labels (physic scale, mirrors PIL) */
@@ -831,7 +1204,25 @@ window.MappingFigure = (function () {
         render: render,
         reset: function (containerId, data) {
             state.focusChr = null;
-            render(containerId, data);
+            render(containerId || state.containerId, data || state.data);
+        },
+        /* client-side toggles for the Gene / Homology / Haplotype tracks */
+        setTracks: function (tracks) {
+            if (tracks.gene !== undefined) state.tracks.gene = !!tracks.gene;
+            if (tracks.homology !== undefined) {
+                state.tracks.homology = !!tracks.homology;
+            }
+            if (tracks.haplotype !== undefined) {
+                state.tracks.haplotype = !!tracks.haplotype;
+            }
+            if (state.containerId) render(state.containerId, state.data);
+        },
+        getTracks: function () {
+            return {
+                gene: !!state.tracks.gene,
+                homology: !!state.tracks.homology,
+                haplotype: !!state.tracks.haplotype
+            };
         }
     };
 })();

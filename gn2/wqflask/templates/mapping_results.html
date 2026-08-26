@@ -228,6 +228,18 @@
             </div>
             <div class="tab-pane" id="interactive_map">
               <div class="qtlcharts">
+                  <div id="mapping-figure-controls" style="margin-bottom: 6px; font-size: 13px;">
+                      <span class="gn-text-sm">Tracks:</span>
+                      <label class="gn-text-sm" style="font-weight: normal; margin: 0 14px 0 6px;">
+                          <input type="checkbox" class="mapping-track-toggle" data-track="gene"> Gene Track
+                      </label>
+                      <label class="gn-text-sm" style="font-weight: normal; margin: 0 14px 0 0;">
+                          <input type="checkbox" class="mapping-track-toggle" data-track="homology"> Human Homology
+                      </label>
+                      <label class="gn-text-sm" style="font-weight: normal; margin: 0;">
+                          <input type="checkbox" class="mapping-track-toggle" data-track="haplotype"> Haplotype Track
+                      </label>
+                  </div>
                   <div id="mapping-figure"></div>
               </div>
             </div>
@@ -378,8 +390,31 @@
     <script type="text/javascript">
         $(document).ready(function () {
             if (window.MappingFigure && window.mapping_data) {
+                /* client-side toggles for the gene/homology/haplotype tracks */
+                var setTrackCheckboxes = function () {
+                    if (!window.MappingFigure.getTracks) return;
+                    var tr = window.MappingFigure.getTracks();
+                    $('.mapping-track-toggle').each(function () {
+                        $(this).prop('checked', !!tr[$(this).data('track')]);
+                    });
+                };
+                $('.mapping-track-toggle').on('change', function () {
+                    var t = {};
+                    t[$(this).data('track')] = $(this).is(':checked');
+                    window.MappingFigure.setTracks(t);
+                });
+                /* hide toggles that don't apply to this species */
+                var _sp = String(window.mapping_data.species || '').toLowerCase();
+                if (_sp !== 'mouse') {
+                    $('.mapping-track-toggle[data-track="homology"]').closest('label').hide();
+                }
+                if (_sp !== 'mouse' && _sp !== 'rat') {
+                    $('.mapping-track-toggle[data-track="gene"]').closest('label').hide();
+                }
+
                 var renderInteractiveMap = function () {
                     window.MappingFigure.render("mapping-figure", window.mapping_data);
+                    setTrackCheckboxes();
                 };
                 $('#interactive_map_tab').on('shown.bs.tab', function () {
                     $('div#gn1_map_options').css("display", "none");
