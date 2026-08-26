@@ -1553,6 +1553,45 @@ def cache_mapping_inputs():
     return "Success"
 
 
+@app.route("/mapping/track_data", methods=("POST",))
+def mapping_track_data():
+    """Return gene / homology / haplotype track data for a chromosome/range.
+
+    Used by the interactive d3 mapping figure to draw the Gene Band,
+    Homology Band and Haplotype Band when a chromosome is focused
+    client-side. Because the figure focuses chromosomes without a page
+    reload, this endpoint is queried on demand for the focused chr/range
+    (which also keeps it compatible with future pan/zoom).
+    """
+    from gn2.wqflask.marker_regression import tracks as _tracks
+
+    body = request.get_json(force=True, silent=True) or {}
+    chr_name = body.get("chr")
+    if not chr_name:
+        return jsonify(error="missing 'chr'"), 400
+    try:
+        start_mb = float(body.get("start_mb", 0) or 0)
+        end_mb = float(body.get("end_mb", 0) or 0)
+    except (TypeError, ValueError):
+        return jsonify(error="invalid start_mb/end_mb"), 400
+    species = body.get("species") or ""
+    diff_col = body.get("diff_col") or []
+    dataset_name = body.get("dataset") or ""
+    genofile_string = body.get("genofile_string") or ""
+    sample_vals = body.get("sample_vals") or {}
+
+    # Gene exon detail is only needed when zoomed in close enough
+    # (mirrors DRAW_DETAIL_MB = 4).
+    detail = (end_mb - start_mb) <= 4.0
+    genes = _tracks.build_genes(
+        chr_name, diff_col, start_mb, end_mb, species, detail=detail)
+    homology = _tracks.build_homology(chr_name, start_mb, end_mb, species)
+    haplotype = _tracks.build_haplotype(
+        dataset_name, chr_name, genofile_string, sample_vals,
+        start_mb=start_mb, end_mb=end_mb)
+    return jsonify(genes=genes, homology=homology, haplotype=haplotype)
+
+
 @app.route("/export_mapping_results", methods=('POST',))
 def export_mapping_results():
     file_path = request.form.get("results_path")
