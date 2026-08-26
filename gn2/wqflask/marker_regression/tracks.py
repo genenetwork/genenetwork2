@@ -123,6 +123,40 @@ def build_homology(chr_name, start_mb, end_mb, species):
         str(chr_name), start_mb, end_mb, "mouse_to_human.csv")
 
 
+def build_snp(chr_name, start_mb, end_mb, diff_col, nbins=400):
+    """Normalised SNP density (0..1) per Mb-bin across the range.
+
+    Mirrors drawSNPTrackNew: counts SNPs between the two diffCol strains in
+    each bin and normalises by the max bin count. Returns an empty list when
+    the strains cannot be resolved or the range is invalid.
+    """
+    resolved = _resolve_diff_col(diff_col)
+    if len(resolved) < 2 or not all(isinstance(x, int) for x in resolved):
+        return []
+    if end_mb <= start_mb:
+        return []
+    strain1, strain2 = resolved[0], resolved[1]
+    step = (end_mb - start_mb) / float(nbins)
+    bins = [0] * nbins
+    with database_connection(get_setting("SQL_URI")) as conn, conn.cursor() as cur:
+        cur.execute(
+            "SELECT FLOOR((Mb - %s) / %s) AS bin, COUNT(*) "
+            "FROM BXDSnpPosition "
+            "WHERE Chr = %s AND Mb >= %s AND Mb < %s "
+            "AND StrainId1 = %s AND StrainId2 = %s "
+            "GROUP BY bin",
+            (start_mb, step, str(chr_name), start_mb, end_mb,
+             strain1, strain2))
+        for bin_i, cnt in cur.fetchall():
+            b = int(bin_i)
+            if 0 <= b < nbins:
+                bins[b] = int(cnt)
+    max_count = max(bins) if bins else 0
+    if max_count <= 0:
+        return [0.0] * nbins
+    return [float(c) / max_count for c in bins]
+
+
 # Cache the parsed genotype object per (dataset, genofile) so the haplotype
 # band does not re-read the .geno file on every chromosome focus.
 _GENOTYPE_CACHE = {}
