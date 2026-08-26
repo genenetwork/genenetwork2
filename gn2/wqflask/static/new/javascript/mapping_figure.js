@@ -72,7 +72,12 @@ window.MappingFigure = (function () {
         /* client-side track toggles (Gene / Homology / Haplotype) */
         tracks: { gene: false, homology: false, haplotype: false },
         tracksInitialized: false,
-        /* on-demand track data cache + in-flight markers, keyed by chr */
+        /* manual Mb-range zoom applied to the focused chromosome */
+        range: null,
+        layout: null,            // most recent layout (for focus-by-name)
+        viewInitialized: false,  // first-render carry-over from original view
+        initialFocusChrName: null,
+        /* on-demand track data cache + in-flight markers, keyed by chr/range */
         trackData: {},
         trackLoading: {},
         containerId: null,
@@ -541,6 +546,27 @@ window.MappingFigure = (function () {
         het: "#FFA500",          // ORANGE
         rec: "#A9A9A9"           // DARKGRAY
     };
+    var TRACK_HEADER_H = 16;     // collapse/expand header height per track
+
+    /* Collapsible header band at the top of each track. Clicking it toggles
+       the track between expanded (content shown) and minimized (just this
+       band, labelled "Expand ..."). */
+    function drawTrackHeader(g, chartW, yTop, label, expanded, toggleFn) {
+        var band = g.append("g")
+            .style("cursor", "pointer")
+            .on("click", toggleFn);
+        band.append("rect")
+            .attr("x", 0).attr("y", yTop)
+            .attr("width", chartW).attr("height", TRACK_HEADER_H)
+            .attr("fill", "#ECECF2")
+            .attr("stroke", "#B8B8C8");
+        band.append("text")
+            .attr("x", 6).attr("y", yTop + TRACK_HEADER_H - 4)
+            .attr("font-family", FONT)
+            .attr("font-size", "11px")
+            .attr("fill", "#333366")
+            .text((expanded ? "\u25BE Minimize " : "\u25B8 Expand ") + label);
+    }
 
     /* Strains plotted in the haplotype band: those with an expression value
        (not "x"), sorted by value descending (mirrors smd in drawHaplotypeBand). */
@@ -562,21 +588,26 @@ window.MappingFigure = (function () {
         return rows;
     }
 
-    /* Height (px) reserved for each enabled track in the focused view. */
+    /* Height (px) reserved for each track in the focused view. Every track
+       that has data keeps its collapsible header; an expanded track adds the
+       content height on top. */
     function trackHeights(state, focus, trackData) {
         var h = { gene: 0, homology: 0, haplotype: 0 };
         if (focus === null || !trackData) return h;
-        if (state.tracks.gene && trackData.genes && trackData.genes.length) {
-            h.gene = GENE_TRACK_H;
+        var gd = trackData.genes && trackData.genes.length;
+        var hd = trackData.homology && trackData.homology.length;
+        var hap = trackData.haplotype && trackData.haplotype.markers &&
+            trackData.haplotype.markers.length;
+        if (gd) h.gene = TRACK_HEADER_H + (state.tracks.gene ? GENE_TRACK_H : 0);
+        if (hd) {
+            h.homology = TRACK_HEADER_H +
+                (state.tracks.homology ? GENE_TRACK_H : 0);
         }
-        if (state.tracks.homology && trackData.homology &&
-            trackData.homology.length) {
-            h.homology = GENE_TRACK_H;
-        }
-        if (state.tracks.haplotype && trackData.haplotype &&
-            trackData.haplotype.markers && trackData.haplotype.markers.length) {
-            h.haplotype = (haplotypePlottedStrains(trackData.haplotype).length
-                           + 8) * HAPLOTYPE_ROW_H;
+        if (hap) {
+            h.haplotype = TRACK_HEADER_H + (state.tracks.haplotype
+                ? (haplotypePlottedStrains(trackData.haplotype).length + 8)
+                    * HAPLOTYPE_ROW_H
+                : 0);
         }
         return h;
     }
@@ -587,20 +618,38 @@ window.MappingFigure = (function () {
                 Math.max(0, Math.min(chartW, x1))];
     }
 
-    /* fetch the gene/homology/haplotype data for the focused chromosome */
-    function ensureTrackData(containerId, data, focus, layout) {
+    /* Cache key for track data: chromosome plus the visible Mb range, so a
+       manual range zoom refetches the data for the zoomed window. */
+    function trackDataKey(chr, rangeB) {
+        if (!rangeB) return String(chr) + ":full";
+        return String(chr) + ":" +
+            (rangeB.start / 1e6).toFixed(3) + "-" +
+            (rangeB.end / 1e6).toFixed(3);
+    }
+
+    /* fetch the gene/homology/haplotype data for the focused chromosome/range.
+       Fetches whenever a track could be shown (mouse/rat) so the collapsible
+       track headers are always available. */
+    function ensureTrackData(containerId, data, focus, layout, rangeB) {
         if (focus === null) return;
-        if (!state.tracks.gene && !state.tracks.homology &&
-            !state.tracks.haplotype) return;
+        var sp = String(data.species || "").toLowerCase();
+        if (sp !== "mouse" && sp !== "rat") return;
         var chr = layout.lengths[focus].chr;
-        if (state.trackData[chr] || state.trackLoading[chr]) return;
-        state.trackLoading[chr] = true;
-        var endMb = (layout.lengths[focus].size || 0) / 1e6;
+        var chrSize = layout.lengths[focus].size || 0;
+        var startMb = 0;
+        var endMb = chrSize / 1e6;
+        if (rangeB) {
+            startMb = rangeB.start / 1e6;
+            endMb = rangeB.end / 1e6;
+        }
+        var key = trackDataKey(chr, rangeB);
+        if (state.trackData[key] || state.trackLoading[key]) return;
+        state.trackLoading[key] = true;
         var body = {
             dataset: data.dataset_name || "",
             species: data.species || "",
             chr: chr,
-            start_mb: 0,
+            start_mb: startMb,
             end_mb: endMb,
             diff_col: data.diff_col || [],
             genofile_string: data.genofile_string || "",
@@ -614,12 +663,12 @@ window.MappingFigure = (function () {
                 data: JSON.stringify(body),
                 dataType: "json"
             }).done(function (resp) {
-                state.trackData[chr] = resp || {};
-                state.trackLoading[chr] = false;
+                state.trackData[key] = resp || {};
+                state.trackLoading[key] = false;
                 render(containerId, data);
             }).fail(function () {
-                state.trackData[chr] = {};
-                state.trackLoading[chr] = false;
+                state.trackData[key] = null;   // allow a later retry
+                state.trackLoading[key] = false;
             });
         }
     }
@@ -637,12 +686,24 @@ window.MappingFigure = (function () {
             var r = clampRange(xScale(Math.min(mb0, mb1) * 1e6),
                                xScale(Math.max(mb0, mb1) * 1e6), chartW);
             var x0 = r[0], x1 = r[1];
-            if (x1 - x0 < 0.5) return;
             var color = gene.color || "#000000";
             var title = "Gene: " + gene.sym + " (" + gene.nm + ")\nFrom " +
                 mb0.toFixed(3) + " to " + mb1.toFixed(3) + " Mb (" +
                 gene.strand + ")";
             var href = ncbi + gene.sym;
+            if (x1 - x0 < 1) {
+                /* Too narrow for a visible rectangle at this zoom - draw a 1px
+                   vertical mark so the band stays dense (mirrors the PIL,
+                   which draws every gene's rectangle at least 1px wide). */
+                g.append("a").attr("xlink:href", href).attr("target", "_blank")
+                    .append("rect")
+                    .attr("x", Math.floor((x0 + x1) / 2)).attr("y", y)
+                    .attr("width", 1).attr("height", EACH_GENE_HEIGHT)
+                    .attr("fill", color).attr("stroke", color)
+                    .style("cursor", "pointer")
+                    .append("title").text(title);
+                return;
+            }
             if (!detail || (x1 - x0 <= 20)) {
                 /* simple rectangle (whole-chromosome / too narrow for detail) */
                 g.append("a").attr("xlink:href", href).attr("target", "_blank")
@@ -836,17 +897,35 @@ window.MappingFigure = (function () {
         var container = document.getElementById(containerId);
         if (!container) return;
 
+        /* preserve the page scroll across re-renders so expanding/collapsing
+           tracks (or async track-data arriving) doesn't make the page jump */
+        var scrollY = window.scrollY;
+
         container.innerHTML = "";
 
         state.containerId = containerId;
         state.data = data;
 
-        /* initialise track toggles from the payload the first time we render */
+        /* initialise track toggles + carried-over view the first render */
         if (!state.tracksInitialized) {
             state.tracks.gene = data.gene_checked === true;
             state.tracks.homology = data.homology_checked === true;
             state.tracks.haplotype = data.haplotype_checked === true;
             state.tracksInitialized = true;
+        }
+        if (!state.viewInitialized) {
+            var _sc = parseInt(data.selected_chr, 10);
+            if (_sc > 0) {
+                var _chrs = data.chr_lengths || [];
+                var _cname = _chrs[_sc - 1] ? String(_chrs[_sc - 1].chr) : null;
+                if (_cname) state.initialFocusChrName = _cname;
+                var _sm = toNum(data.startMb);
+                var _em = toNum(data.endMb);
+                if (_sm !== null && _em !== null && _sm >= 0 && _em > _sm) {
+                    state.range = { startMb: _sm, endMb: _em };
+                }
+            }
+            state.viewInitialized = true;
         }
 
         var fullLayout = layoutChromosomes(data);
@@ -854,6 +933,14 @@ window.MappingFigure = (function () {
             return chrIndex(fullLayout, m.chr) >= 0 && markerBases(m) !== null;
         });
         var layout = filterEmptyChromosomes(fullLayout, markers, data);
+        state.layout = layout;
+
+        /* resolve any carried-over focus-by-name into a layout index */
+        if (state.initialFocusChrName) {
+            var _fi = chrIndex(layout, state.initialFocusChrName);
+            if (_fi >= 0) state.focusChr = _fi;
+            state.initialFocusChrName = null;
+        }
 
         var focus = (state.focusChr !== null &&
                      state.focusChr >= 0 &&
@@ -878,12 +965,22 @@ window.MappingFigure = (function () {
             focusMarkers = markers;
         }
 
-        /* on-demand track data for the focused chromosome */
+        /* on-demand track data for the focused chromosome/range */
         var trackData = null;
+        var rangeB = null;
         if (focus !== null) {
             var chrName = layout.lengths[focus].chr;
-            trackData = state.trackData[chrName] || null;
-            ensureTrackData(containerId, data, focus, layout);
+            var chrSizeB = layout.lengths[focus].size;
+            if (state.range) {
+                var rs = Math.max(0, toNum(state.range.startMb) || 0);
+                var re = Math.min(chrSizeB / 1e6,
+                                  toNum(state.range.endMb) || 0);
+                if (re > rs) {
+                    rangeB = { start: rs * 1e6, end: re * 1e6 };
+                }
+            }
+            trackData = state.trackData[trackDataKey(chrName, rangeB)] || null;
+            ensureTrackData(containerId, data, focus, layout, rangeB);
         }
 
         var width = Math.min(
@@ -905,8 +1002,17 @@ window.MappingFigure = (function () {
         var topInset = TOP_LABEL_INSET + topStack;
 
         var xScale = d3.scale.linear()
-            .domain([0, focusLayout.totalBases])
+            .domain(rangeB ? [rangeB.start, rangeB.end]
+                            : [0, focusLayout.totalBases])
             .range([0, chartW]);
+
+        /* restrict plotted markers to the visible range when zoomed */
+        if (rangeB) {
+            focusMarkers = focusMarkers.filter(function (m) {
+                var b = markerBases(m);
+                return b !== null && b >= rangeB.start && b <= rangeB.end;
+            });
+        }
         var yMax = yDomain(data, focusMarkers)[1];
         var yScale = d3.scale.linear()
             .domain([0, yMax])
@@ -935,6 +1041,7 @@ window.MappingFigure = (function () {
                 .on("click", function () {
                     if (focus === null) {
                         state.focusChr = i;
+                        state.range = null;
                         render(containerId, data);
                     }
                 });
@@ -952,6 +1059,7 @@ window.MappingFigure = (function () {
                 .on("click", function () {
                     if (focus === null) {
                         state.focusChr = i;
+                        state.range = null;
                         render(containerId, data);
                     }
                 });
@@ -959,32 +1067,67 @@ window.MappingFigure = (function () {
 
         /* browser-link bands (focused view only) */
         if (hasBands) {
+            var bandStartB = rangeB ? rangeB.start : 0;
+            var bandEndB = rangeB ? rangeB.end : focusLayout.lengths[0].size;
             drawBrowserBands(g, data, layout, focus, chartW,
-                             0, focusLayout.lengths[0].size);
+                             bandStartB, bandEndB);
         }
 
-        /* gene / homology / haplotype tracks (focused view only) */
+        /* gene / homology / haplotype tracks (focused view only). Each track
+           has a collapsible header: expanded shows the content, minimized
+           shows just the "Expand ..." band. */
         if (hasBands && trackData) {
             var trackY = bandStack;
-            var detail = (focusLayout.lengths[0].size / 1e6) <= DRAW_DETAIL_MB;
+            var rangeMb = rangeB ? (rangeB.end - rangeB.start) / 1e6
+                                  : focusLayout.lengths[0].size / 1e6;
+            var detail = rangeMb <= DRAW_DETAIL_MB;
             if (th.gene && trackData.genes) {
-                drawGeneTrack(g, xScale, chartW, trackY, trackData.genes, detail);
-                trackY += th.gene;
+                drawTrackHeader(g, chartW, trackY, "Gene track",
+                                state.tracks.gene, function () {
+                    state.tracks.gene = !state.tracks.gene;
+                    render(containerId, data);
+                });
+                trackY += TRACK_HEADER_H;
+                if (state.tracks.gene) {
+                    drawGeneTrack(g, xScale, chartW, trackY,
+                                  trackData.genes, detail);
+                    trackY += GENE_TRACK_H;
+                }
             }
             if (th.homology && trackData.homology) {
-                drawHomologyTrack(g, xScale, chartW, trackY, trackData.homology);
-                trackY += th.homology;
+                drawTrackHeader(g, chartW, trackY, "Homology track",
+                                state.tracks.homology, function () {
+                    state.tracks.homology = !state.tracks.homology;
+                    render(containerId, data);
+                });
+                trackY += TRACK_HEADER_H;
+                if (state.tracks.homology) {
+                    drawHomologyTrack(g, xScale, chartW, trackY,
+                                      trackData.homology);
+                    trackY += GENE_TRACK_H;
+                }
             }
             if (th.haplotype && trackData.haplotype) {
-                drawHaplotypeTrack(g, xScale, chartW, trackY, trackData.haplotype);
-                trackY += th.haplotype;
+                drawTrackHeader(g, chartW, trackY, "Haplotype track",
+                                state.tracks.haplotype, function () {
+                    state.tracks.haplotype = !state.tracks.haplotype;
+                    render(containerId, data);
+                });
+                trackY += TRACK_HEADER_H;
+                if (state.tracks.haplotype) {
+                    drawHaplotypeTrack(g, xScale, chartW, trackY,
+                                       trackData.haplotype);
+                    trackY += (haplotypePlottedStrains(
+                                   trackData.haplotype).length + 8)
+                        * HAPLOTYPE_ROW_H;
+                }
             }
         }
 
         /* brief "loading" hint while track data for this chr is fetched */
+        var _species = String(data.species || "").toLowerCase();
         if (hasBands && !trackData &&
-            (state.tracks.gene || state.tracks.homology ||
-             state.tracks.haplotype)) {
+            (_species === "mouse" || _species === "rat")) {
             g.append("text")
                 .attr("x", 10).attr("y", 8)
                 .attr("font-family", FONT)
@@ -1021,12 +1164,16 @@ window.MappingFigure = (function () {
                     }
                 });
             } else {
-                /* single chromosome: nice continuous scale, major + minor ticks */
-                var lenMb = focusLayout.lengths[0].size / 1e6;
+                /* single chromosome / Mb range: nice continuous scale, with
+                   major + minor ticks labelled in absolute Mb */
+                var mbStart = rangeB ? rangeB.start / 1e6 : 0;
+                var lenMb = rangeB ? (rangeB.end - rangeB.start) / 1e6
+                                   : focusLayout.lengths[0].size / 1e6;
                 var step = niceStep(lenMb);
                 var minorStep = step / 5;
                 var vi = 0;
-                for (var v = 0; v <= lenMb + 1e-9; vi += 1, v = vi * minorStep) {
+                for (var v = mbStart; v <= mbStart + lenMb + 1e-9;
+                     vi += 1, v = mbStart + vi * minorStep) {
                     var nearMajor = Math.abs(v - Math.round(v / step) * step) < 1e-6;
                     var x = xScale(v * 1e6);
                     g.append("line")
@@ -1034,7 +1181,7 @@ window.MappingFigure = (function () {
                         .attr("x2", x).attr("y2", chartH + (nearMajor ? 12 : 6))
                         .attr("stroke", "#000")
                         .attr("stroke-width", nearMajor ? 2 : 1);
-                    if (nearMajor && v > 0) {
+                    if (nearMajor && v > mbStart) {
                         g.append("text")
                             .attr("transform", "translate(" + x + "," + (chartH + 26) + ") rotate(-90)")
                             .attr("text-anchor", "middle")
@@ -1190,12 +1337,15 @@ window.MappingFigure = (function () {
                       layout.lengths[focus].chr + ")")
                 .on("click", function () {
                     state.focusChr = null;
+                    state.range = null;
                     render(containerId, data);
                 });
         }
 
         /* metadata block (top-left) */
         drawMetadata(svg, data, MARGIN.left);
+
+        window.scrollTo(0, scrollY);
     }
 
     /* ------------------------------ public API --------------------------- */
@@ -1204,6 +1354,7 @@ window.MappingFigure = (function () {
         render: render,
         reset: function (containerId, data) {
             state.focusChr = null;
+            state.range = null;
             render(containerId || state.containerId, data || state.data);
         },
         /* client-side toggles for the Gene / Homology / Haplotype tracks */
@@ -1223,6 +1374,34 @@ window.MappingFigure = (function () {
                 homology: !!state.tracks.homology,
                 haplotype: !!state.tracks.haplotype
             };
+        },
+        /* focus a chromosome by name (used by the Chr dropdown) */
+        focusChromosome: function (chrName) {
+            if (!state.layout) return;
+            var idx = chrIndex(state.layout, String(chrName));
+            if (idx < 0) return;
+            state.focusChr = idx;
+            state.range = null;
+            if (state.containerId) render(state.containerId, state.data);
+        },
+        /* manual Mb-range zoom applied to the focused chromosome */
+        setRange: function (range) {
+            if (range && range.startMb !== undefined &&
+                range.endMb !== undefined) {
+                state.range = {
+                    startMb: parseFloat(range.startMb),
+                    endMb: parseFloat(range.endMb)
+                };
+            } else {
+                state.range = null;
+            }
+            if (state.containerId) render(state.containerId, state.data);
+        },
+        getRange: function () {
+            return state.range ? {
+                startMb: state.range.startMb,
+                endMb: state.range.endMb
+            } : null;
         }
     };
 })();
