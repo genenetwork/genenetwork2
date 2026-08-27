@@ -556,9 +556,12 @@ window.MappingFigure = (function () {
            automatically, so this code needs no structural changes for zoom. */
         var nSeg = Math.max(20, Math.min(100, Math.round(chartW / 10)));
         var segW = chartW / nSeg;
+        /* wrapper group so SVG export can strip the bands from a "map only"
+           export (class mapping-browser-bands) */
+        var bandsG = g.append("g").attr("class", "mapping-browser-bands");
         bands.forEach(function (band, i) {
             var yTop = BAND_PAD + i * (BAND_H + BAND_PAD);
-            g.append("rect")
+            bandsG.append("rect")
                 .attr("x", 0).attr("y", yTop)
                 .attr("width", chartW).attr("height", BAND_H)
                 .attr("fill", band.fill)
@@ -569,7 +572,7 @@ window.MappingFigure = (function () {
                 var x1 = segW * (s + 1);
                 var frac = (x0 + x1) / 2 / chartW;
                 var calBase = startB + (endB - startB) * frac;
-                g.append("a")
+                bandsG.append("a")
                     .attr("xlink:href", browserBandURL(
                         data, band.key, chr, calBase, startB, endB))
                     .attr("target", "_blank")
@@ -585,7 +588,7 @@ window.MappingFigure = (function () {
                never intercept clicks meant for the links underneath. */
             for (var d = 0; d <= nSeg; d++) {
                 var dx = segW * d;
-                g.append("line")
+                bandsG.append("line")
                     .attr("x1", dx).attr("y1", yTop)
                     .attr("x2", dx).attr("y2", yTop + BAND_H)
                     .attr("stroke", band.divider)
@@ -593,7 +596,7 @@ window.MappingFigure = (function () {
                     .style("pointer-events", "none");
             }
             /* band label drawn last so it sits on a layer above the dividers */
-            g.append("text")
+            bandsG.append("text")
                 .attr("x", 6).attr("y", yTop + BAND_H / 2 + 4)
                 .attr("font-family", FONT)
                 .attr("font-size", "11px")
@@ -648,6 +651,7 @@ window.MappingFigure = (function () {
        band, labelled "Expand ..."). */
     function drawTrackHeader(g, chartW, yTop, label, expanded, toggleFn) {
         var band = g.append("g")
+            .attr("class", "mapping-track-header")
             .style("cursor", "pointer")
             .on("click", toggleFn);
         band.append("rect")
@@ -664,13 +668,19 @@ window.MappingFigure = (function () {
     }
 
     /* One collapsible track: header + (when expanded) its content, returning
-       the y position just below it. */
+       the y position just below it. Each track is wrapped in its own <g> with
+       a class + data-expanded attribute so SVG export can include just the
+       currently-maximized tracks (stripping the "Expand ..." sections). */
     function drawTrackSection(g, chartW, trackY, label, expanded, toggleFn,
                               drawContent, contentH) {
-        drawTrackHeader(g, chartW, trackY, label, expanded, toggleFn);
+        var trackG = g.append("g")
+            .attr("class", "mapping-track")
+            .attr("data-track", label)
+            .attr("data-expanded", expanded ? "true" : "false");
+        drawTrackHeader(trackG, chartW, trackY, label, expanded, toggleFn);
         trackY += TRACK_HEADER_H;
         if (expanded) {
-            drawContent(trackY);
+            drawContent(trackG, trackY);
             trackY += contentH;
         }
         return trackY;
@@ -906,13 +916,14 @@ window.MappingFigure = (function () {
        so adjacent bins form a contiguous, gapless band like the original. */
     function drawSNPTrack(g, chartW, chartH, snp) {
         if (!snp || !snp.length) return;
+        var snpG = g.append("g").attr("class", "mapping-snp-track");
         var nbins = snp.length;
         snp.forEach(function (d, i) {
             var h = d * SNP_MAX_H;
             if (h < 0.5) return;
             var x0 = (chartW * i) / nbins;
             var x1 = (chartW * (i + 1)) / nbins;
-            g.append("rect")
+            snpG.append("rect")
                 .attr("x", x0)
                 .attr("y", chartH - h)
                 .attr("width", Math.max(1, x1 - x0))
@@ -1207,8 +1218,8 @@ window.MappingFigure = (function () {
                         state.tracks.gene = !state.tracks.gene;
                         render(containerId, data);
                     },
-                    function (y) {
-                        drawGeneTrack(g, xScale, chartW, y,
+                    function (trackG, y) {
+                        drawGeneTrack(trackG, xScale, chartW, y,
                                       trackData.genes, detail);
                     },
                     GENE_TRACK_H);
@@ -1220,8 +1231,8 @@ window.MappingFigure = (function () {
                         state.tracks.homology = !state.tracks.homology;
                         render(containerId, data);
                     },
-                    function (y) {
-                        drawHomologyTrack(g, xScale, chartW, y,
+                    function (trackG, y) {
+                        drawHomologyTrack(trackG, xScale, chartW, y,
                                           trackData.homology);
                     },
                     GENE_TRACK_H);
@@ -1233,8 +1244,8 @@ window.MappingFigure = (function () {
                         state.tracks.haplotype = !state.tracks.haplotype;
                         render(containerId, data);
                     },
-                    function (y) {
-                        drawHaplotypeTrack(g, xScale, chartW, y,
+                    function (trackG, y) {
+                        drawHaplotypeTrack(trackG, xScale, chartW, y,
                                            trackData.haplotype);
                     },
                     (haplotypePlottedStrains(
@@ -1247,6 +1258,7 @@ window.MappingFigure = (function () {
         if (hasBands && !trackData &&
             (_species === "mouse" || _species === "rat")) {
             g.append("text")
+                .attr("class", "mapping-loading")
                 .attr("x", 10).attr("y", 8)
                 .attr("font-family", FONT)
                 .attr("font-size", "12px")
@@ -1453,6 +1465,7 @@ window.MappingFigure = (function () {
         /* toolbar / back-to-full-view (top-right, clear of the metadata) */
         if (focus !== null) {
             svg.append("text")
+                .attr("class", "mapping-toolbar")
                 .attr("text-anchor", "end")
                 .attr("x", width - 10)
                 .attr("y", 16)
@@ -1475,10 +1488,72 @@ window.MappingFigure = (function () {
         window.scrollTo(0, scrollY);
     }
 
+    /* ------------------------------ SVG export --------------------------- */
+
+    /* Serialize the current figure to a standalone .svg file and download it.
+       mode "map"  -> just the plot (strips browser bands, all tracks, SNP)
+       mode "full" -> plot + currently-maximized tracks; collapsed tracks are
+                      dropped entirely (no "Expand ..." sections in the file). */
+    function downloadSVG(mode) {
+        var container = state.containerId &&
+            document.getElementById(state.containerId);
+        if (!container) return;
+        var svg = container.querySelector("svg.mapping-figure");
+        if (!svg) return;
+
+        var clone = svg.cloneNode(true);
+        var removeEls = function (selector) {
+            var nodes = clone.querySelectorAll(selector);
+            for (var i = nodes.length - 1; i >= 0; i--) {
+                nodes[i].parentNode.removeChild(nodes[i]);
+            }
+        };
+
+        /* interactive chrome is never exported */
+        removeEls(".mapping-toolbar");
+        removeEls(".mapping-loading");
+
+        if (mode === "map") {
+            removeEls(".mapping-browser-bands");
+            removeEls(".mapping-snp-track");
+            /* drop all track sections (header + content) */
+            removeEls(".mapping-track");
+        } else {
+            /* "full": keep maximized tracks, drop collapsed ("Expand") ones */
+            removeEls('.mapping-track[data-expanded="false"]');
+        }
+
+        /* make it a valid standalone SVG */
+        clone.setAttribute("xmlns", "http://www.w3.org/2000/svg");
+        clone.setAttribute("xmlns:xlink", "http://www.w3.org/1999/xlink");
+
+        var str = new XMLSerializer().serializeToString(clone);
+        var blob = new Blob([str], { type: "image/svg+xml;charset=utf-8" });
+        var url = URL.createObjectURL(blob);
+
+        var chrLabel = "";
+        if (state.focusChr !== null && state.layout &&
+            state.layout.lengths[state.focusChr]) {
+            chrLabel = "_chr" + state.layout.lengths[state.focusChr].chr;
+        }
+        var traitName = (state.data && state.data.this_trait &&
+                         state.data.this_trait.name) || "mapping";
+
+        var a = document.createElement("a");
+        a.href = url;
+        a.download = (mode === "map" ? "mapping_" : "mapping_full_") +
+            traitName + chrLabel + ".svg";
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        setTimeout(function () { URL.revokeObjectURL(url); }, 1000);
+    }
+
     /* ------------------------------ public API --------------------------- */
 
     return {
         render: render,
+        downloadSVG: downloadSVG,
         reset: function (containerId, data) {
             state.focusChr = null;
             state.range = null;

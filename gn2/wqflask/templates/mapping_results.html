@@ -243,7 +243,11 @@
                       <input type="text" id="map-range-end" size="6" placeholder="End" style="font-size: 14px; padding: 2px 4px; width: 64px;">
                       <button type="button" id="map-range-go" class="btn btn-primary btn-sm" style="margin-left: 8px;">Go</button>
                       <button type="button" id="map-range-reset" class="btn btn-sm">Reset</button>
-                      <span class="text-muted" style="font-size: 12px; margin-left: 10px;">(the track headers in the figure collapse/expand each track)</span>
+                      <span style="display: inline-block; width: 1px; height: 18px; background: #ccc; margin: 0 10px; vertical-align: middle;"></span>
+                      <span style="font-weight: bold;">Download:</span>&nbsp;
+                      <button type="button" id="map-export-map" class="btn btn-default btn-sm">SVG (map)</button>
+                      <button type="button" id="map-export-full" class="btn btn-default btn-sm" style="margin-left: 4px;">SVG (full)</button>
+                      <span class="text-muted" style="font-size: 12px; margin-left: 10px;">(the track headers in the figure collapse/expand each track; "full" includes currently-maximized tracks)</span>
                   </div>
                   <div id="mapping-figure"></div>
               </div>
@@ -431,6 +435,12 @@
                 $('#map-range-reset').on('click', function () {
                     window.MappingFigure.reset("mapping-figure", _md);
                     mapStart.val(''); mapEnd.val('');
+                });
+                $('#map-export-map').on('click', function () {
+                    window.MappingFigure.downloadSVG("map");
+                });
+                $('#map-export-full').on('click', function () {
+                    window.MappingFigure.downloadSVG("full");
                 });
 
                 var renderInteractiveMap = function () {
