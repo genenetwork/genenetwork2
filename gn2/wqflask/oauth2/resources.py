@@ -336,7 +336,7 @@ def toggle_public(resource_id: UUID):
         return redirect(url_for(
             "oauth2.resource.view_resource", resource_id=resource_id))
 
-    return oauth2_get("auth/system/roles").then(
+    return oauth2_get("auth/resource/system/roles").then(
         lambda sysroles: tuple(priv['privilege_id']
                                for role in sysroles
                                for priv in role["privileges"])
@@ -379,7 +379,7 @@ def edit_resource(resource_id: UUID):
                 })
         ).then(
             lambda databag: oauth2_get(
-                f"auth/system/roles"
+                f"auth/resource/system/roles"
             ).then(
                 lambda auth: {
                     **databag,

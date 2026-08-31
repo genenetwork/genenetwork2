@@ -33,7 +33,7 @@ def __display_p__(actual: tuple[str, ...], check_for: tuple[str, ...]) -> bool:
 def render_ui(templatepath: str, **kwargs):
     """Handle repetitive UI rendering stuff."""
     return oauth2_get(
-        f"auth/system/roles"
+        f"auth/resource/system/roles"
     ).then(
         lambda sysroles: {
             "user_system_roles": sysroles,

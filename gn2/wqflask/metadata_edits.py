@@ -405,7 +405,7 @@ def __edit_with_authorisation__(thunk, dataset_name, trait_name, *auth_checkers)
         lambda wrapper: wrapper["access_token"]
     ).then(# Fetch system roles
         lambda token: mrequests.get(
-            urljoin(authserver_url, "auth/system/roles"),
+            urljoin(authserver_url, "auth/resource/system/roles"),
             headers=__headers__(token)
         ).then(
             lambda system_roles: {
@@ -467,7 +467,7 @@ def batch_edit_page() -> Response:
                 return render_template("batch_edit_complete.html", diffs=diff_data, data_type=data_type)
     else:
         return client.get(
-            "auth/system/roles"
+            "auth/resource/system/roles"
         ).then(
             lambda sysroles: tuple(
                 priv["privilege_id"] for role in sysroles
@@ -1072,7 +1072,7 @@ def list_diffs():
         lambda auths: auths["authorisation"]
     ).then(
         lambda lst: client.get(
-            "auth/system/roles"
+            "auth/resource/system/roles"
         ).then(
             lambda sysroles: [
                 priv["privilege_id"] for role in sysroles

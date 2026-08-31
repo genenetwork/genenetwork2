@@ -39,7 +39,7 @@ def system_privileges():
             privilege['privilege_id'] for role in sys_roles for privilege in role["privileges"])
 
     try:
-        return oauth2_get("auth/system/roles").either(
+        return oauth2_get("auth/resource/system/roles").either(
             __handle_error__,
             lambda sys_roles: __fetch_privilege_ids__(sys_roles))
     except MissingTokenError as _mte:

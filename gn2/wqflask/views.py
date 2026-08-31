@@ -1907,7 +1907,7 @@ def get_dataset(name):
     ).then(
         ## If notes above hold, we also need to check for system-level
         ## privileges.
-        lambda dset_privs: oauth2_get("auth/system/roles").then(
+        lambda dset_privs: oauth2_get("auth/resource/system/roles").then(
             lambda sys_roles: {
                 **dset_privs,
                 "system_privileges": tuple(
