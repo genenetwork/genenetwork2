@@ -241,7 +241,9 @@ def login():
                 else:
                     email_ob = send_verification_email(
                         user_details, template_name="email/user_verification.txt")
-                    return render_template("newsecurity/verification_still_needed.html", subject=email_ob['subject'])
+                    return render_template(
+                        "new_security/verification_still_needed.html",
+                        subject=email_ob['subject'])
             else:  # Incorrect password
                 # ZS: It previously seemed to store that there was an incorrect log-in attempt here, but it did so in the MySQL DB so this might need to be reproduced with Redis
                 flash("Invalid password. Please try again.", "alert-danger")
