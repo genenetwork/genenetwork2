@@ -1177,7 +1177,7 @@ def show_history(dataset_id: str = "", name: str = ""):
         version=current_app.config.get("GN_VERSION"),
     )
 
-@metadata_edit.route("<resource_id>/diffs/<file_name>/reject")
+@metadata_edit.route("<resource_id>/diffs/<file_name>/reject", methods=["POST"])
 @login_required(pagename="sample data rejection")
 def reject_data(resource_id: str, file_name: str):
     def __do_reject__(*args, **kwargs):
@@ -1203,7 +1203,7 @@ def reject_data(resource_id: str, file_name: str):
                                        resources.can_view,
                                        resources.can_edit)
 
-@metadata_edit.route("<resource_id>/diffs/<file_name>/approve")
+@metadata_edit.route("<resource_id>/diffs/<file_name>/approve", methods=["POST"])
 @login_required(pagename="Sample Data Approval")
 def approve_data(resource_id: str, file_name: str):
     def __do_approve__(*args, **kwargs):
