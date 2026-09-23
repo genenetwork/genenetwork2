@@ -245,6 +245,29 @@ window.MappingFigure = (function () {
         return step * mag;
     }
 
+    /* Tick labels for a linear scale, formatted the way the original PIL
+       plots do: whole numbers while every tick is a whole number, otherwise
+       decimals. The number of decimals follows the tick step, so an axis
+       spanning a very small range still tells its ticks apart (a single
+       decimal would otherwise print, say, "0.0" for every one of them). */
+    function tickNumberFormat(scale, count) {
+        var ticks = scale.ticks(count);
+        var wholeNumbers = true;
+        ticks.forEach(function (v) {
+            if (v !== Math.round(v)) wholeNumbers = false;
+        });
+        if (wholeNumbers) {
+            return function (v) { return String(Math.round(v)); };
+        }
+        var step = ticks.length > 1
+            ? Math.abs(ticks[1] - ticks[0])
+            : (Math.abs(ticks[0]) || 1);
+        var decimals = Math.ceil(-Math.log(step) / Math.LN10);
+        if (!(decimals >= 1)) decimals = 1;
+        if (decimals > 4) decimals = 4;
+        return d3.format("." + decimals + "f");
+    }
+
     /* ------------------------------ tooltip ------------------------------ */
 
     function tip() {
@@ -1492,13 +1515,31 @@ window.MappingFigure = (function () {
         /* gene location marker (purple triangle at the bottom) */
         drawGeneMarker(g, data, layout, focus, xScale, chartH);
 
-        /* y axis (thin line, ticks pointing inward) */
+        /* y axis: mirrors the original PIL figure - a blue axis line with
+           short ticks pointing outwards and blue tick labels. d3 v3 does not
+           set a stroke on the domain/tick lines and GN2 does not load d3's
+           axis stylesheet (which normally supplies the stroke), so it has to
+           be set explicitly or the line and ticks do not render at all. */
         var yAxis = d3.svg.axis().scale(yScale).orient("left")
-            .ticks(5).tickSize(-6, 0).tickPadding(6);
+            .ticks(5).tickSize(4, 0).tickPadding(5)
+            .tickFormat(tickNumberFormat(yScale, 5));
         var yAxisG = g.append("g").attr("class", "y axis").call(yAxis);
-        yAxisG.selectAll("path")
-            .style("stroke-width", 1).style("fill", "none");
-        yAxisG.selectAll("line").style("stroke-width", 1);
+        /* The original runs this line from the bottom of the plot all the way
+           up to its top edge, which is above the highest tick: the scale's
+           range stops at topInset to leave room for the chromosome label (and
+           the bands/tracks) at the top of the drawing area. d3's domain path
+           would stop there instead, leaving the axis short of the top of the
+           figure, so drop it and draw the line ourselves. */
+        yAxisG.select("path").remove();
+        yAxisG.append("line")
+            .attr("class", "y-axis-line")
+            .attr("x1", 0).attr("y1", 0)
+            .attr("x2", 0).attr("y2", chartH)
+            .attr("stroke", COLORS.axis)
+            .style("stroke-width", 1);
+        yAxisG.selectAll("g.tick line")
+            .attr("stroke", COLORS.axis)
+            .style("stroke-width", 1);
         yAxisG.selectAll("text")
             .attr("fill", COLORS.axis)
             .attr("font-family", FONT)
