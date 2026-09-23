@@ -208,14 +208,14 @@
         </style>
         <div class="tabbable" style="width: 100%; overflow-x: auto; margin: 10px; float: left;">
           <ul class="nav nav-tabs">
-            <li id="gn1_map_tab">
-              <a href="#gn1_map" data-toggle="tab" aria-expanded="true">GN1 Map</a>
-            </li>
             {% if mapping_data %}
             <li id="interactive_map_tab">
                 <a href="#interactive_map" data-toggle="tab" aria-expanded="true">Interactive Map</a>
             </li>
             {% endif %}
+            <li id="gn1_map_tab">
+              <a href="#gn1_map" data-toggle="tab" aria-expanded="true">GN1 Map</a>
+            </li>
             {% if mapping_method == "gemma" or mapping_method == "reaper" %}
             <li id="browser_tab">
                 <a href="#browser_holder" data-toggle="tab" aria-expanded="true">Genome Browser</a>
@@ -223,7 +223,7 @@
             {% endif %}
           </ul>
           <div class="tab-content">
-            <div class="tab-pane active" id="gn1_map">
+            <div class="tab-pane" id="gn1_map">
               <div class="qtlcharts">
                   {{ gifmap|safe }}
                   <img src="/generated/{{ filename }}.png" usemap="#WebQTLImageMap">
@@ -233,7 +233,7 @@
                   {% endif %}
               </div>
             </div>
-            <div class="tab-pane" id="interactive_map">
+            <div class="tab-pane active" id="interactive_map">
               <div class="qtlcharts">
                   <div id="mapping-figure-controls" style="margin: 16px 0 10px 0; padding: 8px 10px; font-size: 14px; background: #f7f7fa; border: 1px solid #ddd; border-radius: 4px;">
                       <span style="font-weight: bold;">Chr:</span>&nbsp;
