@@ -81,7 +81,10 @@ window.MappingFigure = (function () {
         trackData: {},
         trackLoading: {},
         containerId: null,
-        data: null
+        data: null,
+        /* signature of the last view we announced, so the page is only told
+           about a change when the focused chromosome/range actually changes */
+        lastViewKey: null
     };
 
     var tipEl = null;
@@ -1004,6 +1007,55 @@ window.MappingFigure = (function () {
         });
     }
 
+    /* ---- view-change notification ----
+       The page shows a different results table per view: the whole-genome QTL
+       results table, or the server-rendered "Interval Analyst" gene table for
+       a chromosome/range. Because the figure switches views without reloading
+       the page, tell the page whenever the view changes so it can keep the
+       table in step. Listeners get the chr (null = whole genome) plus the
+       visible Mb range. */
+    function announceView(container, data, focusLayout, focus, rangeB) {
+        var viewChr = (focus === null)
+            ? null
+            : String(focusLayout.lengths[0].chr);
+        var startMb = null;
+        var endMb = null;
+        if (viewChr !== null) {
+            if (rangeB) {
+                startMb = rangeB.start / 1e6;
+                endMb = rangeB.end / 1e6;
+            } else {
+                startMb = 0;
+                endMb = focusLayout.lengths[0].size / 1e6;
+            }
+        }
+
+        var viewKey = (viewChr === null)
+            ? "all"
+            : viewChr + ":" + startMb.toFixed(6) + "-" + endMb.toFixed(6);
+        if (viewKey === state.lastViewKey) return;
+        state.lastViewKey = viewKey;
+
+        var detail = {
+            chr: viewChr,
+            startMb: startMb,
+            endMb: endMb,
+            species: data.species || ""
+        };
+        var evt;
+        try {
+            evt = new CustomEvent("mappingfigure:viewchange", {
+                bubbles: true,
+                detail: detail
+            });
+        } catch (err) {
+            /* older browsers without the CustomEvent constructor */
+            evt = document.createEvent("CustomEvent");
+            evt.initCustomEvent("mappingfigure:viewchange", true, false, detail);
+        }
+        container.dispatchEvent(evt);
+    }
+
     function render(containerId, data) {
         var container = document.getElementById(containerId);
         if (!container) return;
@@ -1484,6 +1536,13 @@ window.MappingFigure = (function () {
 
         /* metadata block (top-left) */
         drawMetadata(svg, data, MARGIN.left);
+
+        /* Announce the view so the page can keep in step with the figure.
+           The results table below the figure is rendered server-side for the
+           mapped chromosome, so it needs to refresh whenever we focus a
+           different chromosome or range (and revert to the whole-genome table
+           when we go back to all chromosomes). */
+        announceView(container, data, focusLayout, focus, rangeB);
 
         window.scrollTo(0, scrollY);
     }

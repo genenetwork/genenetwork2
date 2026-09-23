@@ -1594,6 +1594,51 @@ def mapping_track_data():
                    snp=snp)
 
 
+@app.route("/mapping/interval_analyst_data", methods=("POST",))
+def mapping_interval_analyst_data():
+    """Return the Interval Analyst table (header + rows) for a chr/range.
+
+    The Interval Analyst table on the mapping-results page is rendered
+    server-side for the chromosome that was initially mapped. The interactive
+    d3 figure changes the chromosome/range client-side without reloading the
+    page, so it calls this endpoint to refresh the table for the interval it
+    is currently showing. The markup is produced by the same helper as the
+    initial render (``interval_analyst_table.build_gene_table``) so the two
+    stay in agreement.
+    """
+    from gn2.wqflask.interval_analyst import GeneUtil
+    from gn2.wqflask.marker_regression import interval_analyst_table as _iat
+
+    body = request.get_json(force=True, silent=True) or {}
+    chr_name = body.get("chr")
+    if not chr_name:
+        return jsonify(error="missing 'chr'"), 400
+
+    species = str(body.get("species") or "").lower()
+    if species not in ("mouse", "rat"):
+        # The page only shows this table for mouse and rat.
+        return jsonify(header=[], body=[], count=0)
+
+    try:
+        start_mb = float(body.get("start_mb", 0) or 0)
+        end_mb = float(body.get("end_mb", 0) or 0)
+    except (TypeError, ValueError):
+        return jsonify(error="invalid start_mb/end_mb"), 400
+    if end_mb <= start_mb:
+        return jsonify(error="end_mb must be greater than start_mb"), 400
+
+    diff_col = body.get("diff_col") or []
+
+    # merge_other_species defaults to True, which is what supplies the
+    # Human Chr / Mb Start (hg19) columns. It issues one query per gene, so
+    # this is the same work the initial page render already does - it is just
+    # done lazily here instead.
+    gene_col = GeneUtil.loadGenes(
+        str(chr_name), diff_col, start_mb, end_mb, species)
+    header, rows = _iat.build_gene_table(gene_col, species, diff_col)
+    return jsonify(header=header, body=rows, count=len(rows))
+
+
 @app.route("/export_mapping_results", methods=('POST',))
 def export_mapping_results():
     file_path = request.form.get("results_path")
