@@ -101,8 +101,12 @@ class SearchResultPage:
         # I don't like using try/except, but it seems like the easiest way to account for all possible bad searches here
         try:
             self.search()
-        except:
-            logger.debug(
+        except Exception:
+            # NB: the SQL fallback lives inside self.search(), after the Xapian
+            # HTTP call -- so an exception here means NO fallback ran. Log the
+            # traceback, otherwise those failures are indistinguishable from
+            # "the search legitimately found nothing".
+            logger.exception(
                 "Search failed. Setting 'search_term_exists' to 'False'.")
             self.search_term_exists = False
 
