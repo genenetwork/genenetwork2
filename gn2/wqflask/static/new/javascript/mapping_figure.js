@@ -1350,10 +1350,21 @@ window.MappingFigure = (function () {
         /* Mb tick marks + labels (physic scale, mirrors PIL) */
         if (data.plotScale === "physic") {
             if (focus === null) {
-                /* whole-genome: fixed spacing per chromosome */
+                /* whole-genome: the original works out one tick step from the
+                   first chromosome and then reuses it for every chromosome
+                   (its distScale is only ever assigned while it is still
+                   zero), so the gap between ticks is the same all the way
+                   across the figure. A chromosome shorter than the step just
+                   gets no tick, or a single one where the step falls inside
+                   it - far better than a per-chromosome step that packs
+                   labels on top of each other wherever a chromosome is small
+                   relative to the others. */
+                var firstMb = fullLayout.lengths.length
+                    ? fullLayout.lengths[0].size / 1e6
+                    : 0;
+                var distScale = firstMb > 75 ? 25 : (firstMb > 30 ? 10 : 5);
                 focusLayout.lengths.forEach(function (c, i) {
                     var lenMb = c.size / 1e6;
-                    var distScale = lenMb > 75 ? 25 : (lenMb > 30 ? 10 : 5);
                     var j = 0;
                     for (var tick = distScale; tick < Math.ceil(lenMb); tick += distScale) {
                         var x = xScale(focusLayout.starts[i] + tick * 1e6);
@@ -1363,9 +1374,12 @@ window.MappingFigure = (function () {
                             .attr("stroke", "#000")
                             .attr("stroke-width", 1);
                         if (j % 2 === 0) {
+                            /* labels read downwards, as in the original (which
+                               draws them with PIL at angle 270, i.e. a quarter
+                               turn clockwise) and hang below their tick */
                             g.append("text")
-                                .attr("transform", "translate(" + x + "," + (chartH + 26) + ") rotate(-90)")
-                                .attr("text-anchor", "middle")
+                                .attr("transform", "translate(" + x + "," + (chartH + 10) + ") rotate(90)")
+                                .attr("text-anchor", "start")
                                 .attr("font-family", FONT)
                                 .attr("font-size", "14px")
                                 .attr("fill", "#000")
