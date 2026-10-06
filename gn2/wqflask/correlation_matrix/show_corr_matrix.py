@@ -190,8 +190,6 @@ class CorrelationMatrix:
         pca = compute_pca(self.pca_corr_results)
 
         self.loadings = pca["components"]
-        self.scores = pca["scores"]
-        self.pca_obj = pca["pca"]
 
         this_group_name = self.trait_list[0][1].group.name
         temp_dataset = create_dataset(
@@ -211,7 +209,7 @@ class CorrelationMatrix:
         self.pca_trait_ids = list(pca_temp_traits.keys())
 
         x_coord, y_coord = generate_scree_plot_data(
-            list(self.pca_obj.explained_variance_ratio_))
+            list(pca["explained_variance_ratio"]))
 
         self.scree_data = {
             "x_coord": x_coord,
