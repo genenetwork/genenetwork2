@@ -1,5 +1,6 @@
 """module contains integration code for rust-gn3"""
 import json
+import logging
 from functools import reduce
 
 from gn_libs.mysqldb import database_connection
@@ -12,17 +13,22 @@ from gn2.wqflask.correlation.correlation_functions\
 from gn2.wqflask.correlation.correlation_gn3_api import create_target_this_trait
 from gn2.wqflask.correlation.correlation_gn3_api import lit_for_trait_list
 from gn2.wqflask.correlation.correlation_gn3_api import do_lit_correlation
+from gn2.wqflask.correlation.pre_computes import discard_cached_text_file
 from gn2.wqflask.correlation.pre_computes import fetch_text_file
 from gn2.wqflask.correlation.pre_computes import read_text_file
 from gn2.wqflask.correlation.pre_computes import write_db_to_textfile
 from gn2.wqflask.correlation.pre_computes import read_trait_metadata
 from gn2.wqflask.correlation.pre_computes import cache_trait_metadata
+from gn2.wqflask.correlation.pre_computes import MalformedTextFileError
 from gn3.computations.correlations import compute_all_lit_correlation
 from gn3.computations.rust_correlation import run_correlation
 from gn3.computations.rust_correlation import get_sample_corr_data
 from gn3.computations.rust_correlation import parse_tissue_corr_data
 
 from gn2.wqflask.correlation.exceptions import WrongCorrelationType
+
+
+logger = logging.getLogger(__name__)
 
 
 def query_probes_metadata(dataset, trait_list):
@@ -238,6 +244,24 @@ def merge_results(dict_a: dict, dict_b: dict, dict_c: dict) -> list[dict]:
     return [__merge__(tname, tcorrs) for tname, tcorrs in dict_a.items()]
 
 
+def __read_cached_data__(file_path, sample_data):
+    """Read a cached dataset file, discarding it when it is malformed.
+
+    A cache file that does not match its own header cannot be repaired by
+    reading it again, so it is deleted and `None` is returned to tell the
+    caller to regenerate it.
+    """
+
+    try:
+        return read_text_file(sample_data, file_path)
+    except MalformedTextFileError as error:
+        logger.warning(
+            "Discarding the malformed correlation cache file '%s' (%s).",
+            file_path, error)
+        discard_cached_text_file(file_path)
+        return None
+
+
 def __compute_sample_corr__(
         start_vars: dict,
         corr_type: str,
@@ -266,9 +290,21 @@ def __compute_sample_corr__(
     if target_dataset.type == "ProbeSet" and start_vars.get("use_cache") == "true":
         with database_connection(SQL_URI) as conn:
             file_path = fetch_text_file(target_dataset.name, conn)
-            if file_path:
-                (sample_vals, target_data) = read_text_file(
-                    sample_data, file_path)
+
+            # A malformed cache file is discarded as it is read, so a stale or
+            # half-written entry from an older writer cannot wedge a dataset
+            # out of the correlation page for good.
+            cached_data = (__read_cached_data__(file_path, sample_data)
+                           if file_path else None)
+
+            if cached_data is None:
+                write_db_to_textfile(target_dataset.name, this_dataset.group.samplelist, conn)
+                file_path = fetch_text_file(target_dataset.name, conn)
+                cached_data = (__read_cached_data__(file_path, sample_data)
+                               if file_path else None)
+
+            if cached_data is not None:
+                (sample_vals, target_data) = cached_data
 
                 return run_correlation(target_data,
                                        sample_vals,
@@ -277,21 +313,6 @@ def __compute_sample_corr__(
                                        tmpdir,
                                        corr_type=corr_type,
                                        top_n=n_top)
-
-            write_db_to_textfile(target_dataset.name, this_dataset.group.samplelist, conn)
-            file_path = fetch_text_file(target_dataset.name, conn)
-            if file_path:
-                (sample_vals, target_data) = read_text_file(
-                    sample_data, file_path)
-
-                return run_correlation(
-                    target_data,
-                    sample_vals,
-                    method,
-                    ",",
-                    tmpdir,
-                    corr_type=corr_type,
-                    top_n=n_top)
 
     target_dataset.get_trait_data(list(sample_data.keys()))
 

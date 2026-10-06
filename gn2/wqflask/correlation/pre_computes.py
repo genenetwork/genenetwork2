@@ -3,6 +3,7 @@ import json
 import os
 import hashlib
 import datetime
+import tempfile
 
 import lmdb
 import pickle
@@ -15,6 +16,27 @@ from json.decoder import JSONDecodeError
 from gn2.utility.tools import  assert_writable_dir
 
 assert_writable_dir(CACHEDIR)
+
+
+class MalformedTextFileError(Exception):
+    """Raised when a cached text file does not match its own header.
+
+    Cache files are written in one piece, with every row holding a value for
+    every sample named in the header.  A row that holds fewer fields means the
+    file was written with a different layout, or was only partially written, so
+    its values cannot be trusted to line up with the header.
+    """
+
+
+def discard_cached_text_file(file_path):
+    """Delete a cached text file so that the caller can regenerate it."""
+
+    try:
+        Path(file_path).unlink()
+        return True
+    except OSError:
+        return False
+
 
 def cache_trait_metadata(dataset_name, data):
 
@@ -105,6 +127,13 @@ def fetch_text_file(dataset_name, conn, text_dir=CACHEDIR):
 
 
 def read_text_file(sample_dict, file_path):
+    """Read the samples of interest out of a cached dataset text file.
+
+    Every row is checked against the header before its values are used.  A row
+    holding fewer fields than the header means the file was not written by the
+    code that writes it now, so `MalformedTextFileError` is raised instead of
+    silently reading values that line up with the wrong samples.
+    """
 
     def __fetch_id_positions__(all_ids, target_ids):
         _vals = []
@@ -119,9 +148,30 @@ def read_text_file(sample_dict, file_path):
 
     with open(file_path) as csv_file:
         csv_reader = csv.reader(csv_file, delimiter=',')
-        _posit, sample_vals = __fetch_id_positions__(
-            next(csv_reader)[1:], sample_dict)
-        return (sample_vals, [[line[i] for i in _posit] for line in csv_reader])
+
+        try:
+            header = next(csv_reader)
+        except StopIteration as stop:
+            raise MalformedTextFileError(
+                f"The cached text file '{file_path}' is empty.") from stop
+
+        _posit, sample_vals = __fetch_id_positions__(header[1:], sample_dict)
+
+        # NB: field 0 is the trait id, so a usable row needs one more field than
+        # the highest sample position we are going to read.
+        required_fields = max(_posit) + 1
+        sample_data = []
+
+        for line_number, line in enumerate(csv_reader, 2):
+            if len(line) < required_fields:
+                raise MalformedTextFileError(
+                    f"The cached text file '{file_path}' has {len(line)} "
+                    f"fields on line {line_number} but needs at least "
+                    f"{required_fields} for its {len(header)}-field header.")
+
+            sample_data.append([line[index] for index in _posit])
+
+        return (sample_vals, sample_data)
 
 
 def write_db_to_textfile(db_name, sample_list, conn, text_dir=CACHEDIR):
@@ -158,16 +208,38 @@ def write_db_to_textfile(db_name, sample_list, conn, text_dir=CACHEDIR):
         return data
 
     def __write_to_file__(file_path, data, sample_list):
-        with open(file_path, 'w+', encoding='UTF8') as file_handler:
-            writer = csv.writer(file_handler)
-            # Write header - ID column followed by all samples
-            header = ['ID'] + sample_list
-            writer.writerow(header)
+        """Write the whole dataset out in one atomic step.
 
-            # Write data rows
-            for trait in data:
-                row = [data[trait]['ID']] + [data[trait][sample] for sample in sample_list]
-                writer.writerow(row)
+        The file is built under a temporary name in the same directory and only
+        moved into place once it is complete, so an interrupted or concurrent
+        write can never leave a half-written file behind for `read_text_file`
+        to trip over.
+        """
+
+        directory = os.path.dirname(file_path) or "."
+        temporary_path = None
+
+        try:
+            with tempfile.NamedTemporaryFile(
+                    mode='w+', encoding='UTF8', dir=directory,
+                    prefix='.correlation_cache_', delete=False
+            ) as file_handler:
+                temporary_path = file_handler.name
+                writer = csv.writer(file_handler)
+                # Write header - ID column followed by all samples
+                header = ['ID'] + sample_list
+                writer.writerow(header)
+
+                # Write data rows
+                for trait in data:
+                    row = [data[trait]['ID']] + [data[trait][sample] for sample in sample_list]
+                    writer.writerow(row)
+
+            os.replace(temporary_path, file_path)
+        except BaseException:  # pylint: disable=broad-except
+            if temporary_path and os.path.exists(temporary_path):
+                os.unlink(temporary_path)
+            raise
 
     with conn.cursor() as cursor:
         cursor.execute(
