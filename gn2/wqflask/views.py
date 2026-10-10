@@ -98,7 +98,6 @@ from gn2.utility.tools import GN3_LOCAL_URL
 from gn2.utility.tools import JS_TWITTER_POST_FETCHER_PATH
 from gn2.utility.tools import JS_GUIX_PATH
 from gn2.utility.helper_functions import get_species_groups
-from gn2.utility.helper_functions import clean_xapian_query
 from gn2.utility.redis_tools import get_redis_conn
 from gn2.utility.responses import send_from_directory
 
@@ -263,49 +262,6 @@ def search_page():
         return render_template("search_error.html")
 
 
-def is_valid_gnqna_user(session_info, request) -> bool:
-    """
-    Determine if the request is from a valid GNQNA user — either logged in or a safe anonymous visitor.
-    Applies honeypot field logic, blocks headless bots, and validates referrer.
-    """
-    user_info = session_info.get("user", {})
-    if user_info.get("logged_in", False):
-        return True
-    #  Honeypot trap
-    honeypot = None
-    if request.is_json:
-        data = request.get_json(silent=True) or {}
-        honeypot = data.get("gnqna_username", "").strip()
-    elif request.form:
-        honeypot = request.form.get("gnqna_username", "").strip()
-    if not honeypot:
-        honeypot = request.args.get("gnqna_username", "").strip()
-    if honeypot:
-        return False
-    #  Reject known headless browser user agents
-    user_agent = request.headers.get("User-Agent", "").lower()
-    bot_indicators = ["headless", "selenium", "phantomjs"]
-    if any(bot in user_agent for bot in bot_indicators):
-        return False
-    referrer = request.referrer
-    if not referrer:
-        return False
-    parsed = urlparse(referrer)
-    hostname = parsed.hostname or ""
-    path = parsed.path
-    valid_host = (
-        (hostname.startswith("localhost") and current_app.config.get('TEST_FEATURE_SWITCH')) or
-        hostname == "genenetwork.org" or
-        hostname.endswith(".genenetwork.org")
-    ) # ???cors origin  handles  this anyways
-    query_params = parse_qs(parsed.query)
-    if path == "/gnqna":
-        has_query = "query" in query_params and any(query_params["query"]) # allow if referrer was gnqna had a  query
-        return valid_host and has_query
-    elif path == "/":
-        return False
-    return valid_host
-
 @app.route("/search_table", methods=('GET',))
 def search_page_table():
     the_search = search_results.SearchResultPage(request.args)
@@ -331,21 +287,9 @@ def gsearchact():
                 "were not provided. Please try your search again.")
         ) from _verr
     search_type = request.args["type"]
-    is_user_logged_in = session_info().get("user", {}).get("logged_in", False)
-
-    ai_search_enabled = current_app.config.get("AI_SEARCH_ENABLED")
-    search_count = result.get("trait_count", 0)
-    is_valid_user = is_valid_gnqna_user(session_info(), request)
-    do_ai_search = ai_search_enabled and is_valid_user and (search_count >= 30)
 
     if search_type == "gene":
-        return render_template("gsearch_gene.html", **result,
-                               ai_search_enabled=ai_search_enabled,
-                               do_ai_search=do_ai_search,
-                               llm_error_msg = ("Please login to View AI generated summary."
-                                                    if not
-                                                   is_valid_user else  ""),
-                               result=result)
+        return render_template("gsearch_gene.html", **result)
     elif search_type == "phenotype":
         return render_template("gsearch_pheno.html", **result)
 
@@ -369,75 +313,6 @@ def gsearchtable():
     ).get_page()
 
     return flask.jsonify(current_page)
-
-
-@app.route("/gnqna", methods=["POST", "GET"])
-def gnqna():
-    """Main endpoint to call gn3 gnqna Api endpoint"""
-    def _error_(resp):
-        return render_template(
-            "gnqa_errors.html", **{"status_code": resp.status_code, **resp.json()}
-        )
-
-    def _success_(resp):
-        return render_template("gnqa_answer.html", **resp.json())
-
-
-    if request.method == "GET" and not request.args.get("query"):
-        return render_template("gnqa.html")
-    if  not is_valid_gnqna_user(session_info(), request):
-        return render_template(
-            "gnqa_errors.html",
-            status_code=500,
-            error="Login/Verification required to make this request",
-            query= ""
-        )
-    content_type = request.headers.get("Content-Type")
-    from pymonad.either import Left, Right
-    token_monad = session_info()["user"]["token"]
-    if token_monad.is_left():
-         # example for this is : Left(INVALID-TOKEN)
-        token = token_monad.value
-        # add this extra metadata to allow verified anonymous  make request
-        anonymous_headers = {
-            "Anonymous-Id": str(uuid.uuid4()),
-            "Anonymous-Status" : "verified",
-            "Anony-Metadata" : json.dumps({"ip_address" : request.remote_addr})
-        }
-    else:
-        token = token_monad.value["access_token"]
-        anonymous_headers = {}
-    headers = {"Authorization": f"Bearer {token}", **anonymous_headers}
-    if request.method == "GET":
-        query = request.args.get("query")
-        query_type = request.args.get("type")
-        if query_type == "xapian":
-            query = clean_xapian_query(query)
-            # todo; check if is empty
-        safe_query = urllib.parse.urlencode({"query": query})
-
-        search_result = requests.get(
-            urljoin(GN3_LOCAL_URL, f"/api/llm/search?{safe_query}"),
-            headers=headers,
-        )
-        search_result.raise_for_status()
-        search_result = search_result.json()
-        if content_type == "application/json":
-            ai_result = {
-                "search_term": query,
-                "search_result": search_result["answer"],
-                "search_url": f"/gnqna?{safe_query}",
-            }
-            return jsonify(ai_result)
-        return render_template("gnqa.html", **search_result)
-
-    if request.method == "POST":
-        safe_query = urllib.parse.urlencode(
-            {"query": request.form.get("querygnqa")})
-        return monad_requests.get(
-            urljoin(GN3_LOCAL_URL, f"/api/llm/search?{safe_query}"),
-            headers=headers,
-        ).either(_error_, _success_)
 
 
 @app.route("/editor/edit", methods=["GET"])
@@ -507,119 +382,6 @@ def commit_gn_doc():
     data["filename"] = request.form.get("file_path")
     return render_template("gn_editor_results_page.html", **data)
 
-
-@app.route("/gnqna/records", methods=["GET"])
-@require_oauth2
-def get_gnqa_records():
-    """Call the Api endpoint for fetching all gnqa records"""
-    def _error_(resp):
-        return render_template("gnqa_errors.html",
-                               **{"status_code": resp.status_code,
-                                  **resp.json()})
-
-    def get_chunk(items, page, size):
-        start_idx = ((page-1) * size)
-        end_idx = (page*size)
-        return iter(items[start_idx:end_idx])
-
-    def _success_(resp):
-        response = resp.json()
-        page = int(request.args.get("page", 1))
-        pagination_size = int(request.args.get("max_size", 10))
-        prev_n_queries = get_chunk(response, page, pagination_size)
-        return render_template("gnqa_search_history.html",
-                               prev_queries=prev_n_queries,
-                               num_pages=math.ceil(
-                                   len(response)/pagination_size),
-                               current=page)
-    token = session_info()["user"]["token"].either(
-        lambda err: err, lambda tok: tok["access_token"])
-    response_url = "/api/llm/search/records"
-    return (monad_requests.get(urljoin(GN3_LOCAL_URL, response_url),
-                               headers={
-            "Authorization": f"Bearer {token}"
-            }
-    ).then(lambda resp: resp).either(
-        _error_, _success_))
-
-
-@app.route("/gnqna/record", methods=["GET"])
-@require_oauth2
-def get_gnqa_record_by_task_id():
-    """Get specific record using task"""
-    def _error_(resp):
-        return render_template("gnqa_errors.html",
-                               **{"status_code": resp.status_code,
-                                  **resp.json()})
-
-    def _success_(resp):
-        response = resp.json()
-        return render_template("gnqa_answer.html", **response)
-    token = session_info()["user"]["token"].either(
-        lambda err: err, lambda tok: tok["access_token"])
-    response_url = f"api/llm/search/record/{request.args.get('search_task_id')}"
-    return (monad_requests.get(urljoin(GN3_LOCAL_URL, response_url),
-                               headers={
-            "Authorization": f"Bearer {token}"
-            }).then(lambda resp: resp).either(
-            _error_, _success_))
-
-
-@app.route("/gnqna/records", methods=["DELETE"])
-@require_oauth2
-def delete_gnqa_records():
-    """Call the Api endpoint for fetching all gnqa records"""
-    def _error_(resp):
-        return render_template("gnqa_errors.html",
-                               **{"status_code": resp.status_code,
-                                  **resp.json()})
-
-    token = session_info()["user"]["token"].either(
-        lambda err: err, lambda tok: tok["access_token"])
-    return (monad_requests.delete(urljoin(GN3_LOCAL_URL,
-                                          "/api/llm/search/records"),
-                                  json=dict(request.form),
-                                  headers={
-            "Authorization": f"Bearer {token}"})
-            .then(lambda resp: resp).either(
-                _error_, lambda x: x.json()))
-
-
-@app.route("/gnqna/record", methods=["DELETE"])
-@require_oauth2
-def delete_gnqa_record_by_task_id():
-    """Get specific record using task"""
-    def _error_(resp):
-        return render_template("gnqa_errors.html",
-                               **{"status_code": resp.status_code,
-                                  **resp.json()})
-
-    token = session_info()["user"]["token"].either(
-        lambda err: err, lambda tok: tok["access_token"])
-    response_url = f"api/llm/search/record/{request.args.get('search_task_id')}"
-    return (monad_requests.get(urljoin(GN3_LOCAL_URL, response_url),
-                               headers={
-            "Authorization": f"Bearer {token}"}).then(lambda resp: resp)
-            .either(
-            _error_, lambda x: x.json()))
-
-
-@app.route("/gnqna/rating/<task_id>/<int(signed=True):weight>",
-           methods=["POST"])
-@require_oauth2
-def gnqna_rating(task_id, weight):
-    token = session_info()["user"]["token"].either(
-        lambda err: err, lambda tok: tok["access_token"])
-    return monad_requests.post(
-        urljoin(GN3_LOCAL_URL,
-                f"/api/llm/rating/{task_id}"),
-        json={**dict(request.form), "weight": weight},
-        headers={
-            "Authorization": f"Bearer {token}"
-        }
-    ).then(
-        lambda resp: resp).either(lambda x: (x.json(), x.status_code),
-                                  lambda x: (x.json(), x.status_code))
 
 
 @app.route("/gsearch_updating", methods=('POST',))
