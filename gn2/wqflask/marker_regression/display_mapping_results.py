@@ -465,7 +465,11 @@ class DisplayMappingResults:
         RISet = self.dataset.group.name
         if RISet in ('AXB', 'BXA', 'AXBXA'):
             self.diffCol = ['B6J', 'A/J']
-        elif RISet in ('BXD', 'BXD300', 'B6D2F2', 'BDF2-2005', 'BDF2-1999', 'BHHBF2', 'BXD-Harvested', 'BXD-Longevity', 'BXD-Micturition', 'BXD-AE', 'BXD-NIA-AD', 'B6D2RI', 'BXD-Bone', 'DOD-BXD-GWI', 'BXD-Heart-Metals', 'UTHSC-Cannabinoid'):
+        # Every BXD-type cross (BXD, BXD300, BXD-UTHSC-PC, BXD-MBD-UTHSC,
+        # BXD_UT-SJ, ...) is derived from C57BL/6J x DBA/2J, so match by
+        # prefix. Otherwise the SNP data in BXDSnpPosition is never queried
+        # and new groups get an uncolored (black) gene band.
+        elif RISet.startswith('BXD') or RISet in ('B6D2F2', 'BDF2-2005', 'BDF2-1999', 'BHHBF2', 'B6D2RI', 'DOD-BXD-GWI', 'UTHSC-Cannabinoid'):
             self.diffCol = ['B6J', 'D2J']
         elif RISet in ('CXB'):
             self.diffCol = ['CBY', 'B6J']
