@@ -181,6 +181,14 @@
                     </a>
                   <br>
                   {% endif %}
+                  {# SNP density, gene, haplotype and homology data are all
+                     positioned in Mb, so none of them can be plotted on a
+                     genetic (cM) axis - the figure leaves the tracks out for
+                     the same reason, so their controls go with them. Keyed on
+                     chr_lengths_in_cm rather than plotScale: a genetic-scale
+                     run whose results carry no cM (gemma) is still plotted in
+                     Mb, where these tracks do apply. #}
+                  {% if not chr_lengths_in_cm %}
                   <input type="checkbox" name="showSNP" class="checkbox gn-checkbox-inline" {% if SNPChecked|upper == "ON" %}value="ON" checked{% endif %}> <span class="gn-text-sm">SNP Track </span>
                     <a href="{{ url_for('gn_docs_blueprint.glossary') }}#snpSeismograph" target="_blank">
                       <sup class="text-danger"> ?</sup>
@@ -188,13 +196,14 @@
                     <span class="text-danger">*</span>
                   <br>
                   <input type="checkbox" name="showGenes" class="checkbox gn-checkbox-inline" {% if geneChecked|upper == "ON" %}value="ON" checked{% endif %}> <span class="gn-text-sm">Gene Track </span> <span class="text-danger">*</span><br>
-                  {% if plotScale != "morgan" %}
                   <input type="checkbox" name="haplotypeAnalystCheck" class="checkbox gn-checkbox-inline" {% if haplotypeAnalystChecked|upper == "ON" %}value="ON" checked{% endif %}> <span class="gn-text-sm">Haplotype Tracks </span> <span class="text-danger">*</span><br>
                   {% endif %}
                   <input type="checkbox" name="viewLegend" class="checkbox gn-checkbox-inline" {% if legendChecked|upper == "ON" %}value="ON" checked{% endif %}> <span class="gn-text-sm">Legend </span><br>
+                  {% if not chr_lengths_in_cm %}
                   <input type="checkbox" name="showHomology" class="checkbox gn-checkbox-inline" {% if homologyChecked|upper == "ON" %}value="ON" checked{% endif %}> <span class="gn-text-sm">Human Chromosomes <a href="http://hgdownload.cse.ucsc.edu/goldenpath/hg38/liftOver/"><sup class="text-danger" title="Human Syntenic Chromosomes taken from HG38 (Human Genome 38)"> ?</sup></a></span>
                   <br>
                   <span class="text-danger">*</span> <span class="gn-text-sm">only apply to single chromosome physical mapping</span>
+                  {% endif %}
             </div>
           </div>
         </div>

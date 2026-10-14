@@ -696,18 +696,22 @@ class DisplayMappingResults:
                 "mb": self.traitList[0].mb,
             }
 
+        # Whether the chromosome lengths (and therefore the plotted positions)
+        # are in cM rather than Mb. Set by run_mapping from the same choice that
+        # built the lengths, so the figure never has to re-derive it (and cannot
+        # disagree with it). Also exposed to the template: the controls for
+        # tracks whose positions are physical (SNP density, gene, haplotype,
+        # homology) are left out on a genetic axis, where they cannot be placed.
+        self.chr_lengths_in_cm = bool(
+            _mapping_js_data.get("chr_lengths_in_cm", False))
+
         self.mapping_data = json.dumps({
             # Use the same markers as the original PIL figure (self.qtlresults,
             # already capped by run_mapping if > 30000) so the interval-map and
             # additive lines keep the original density.
             "markers": self.qtlresults,
             "chr_lengths": _mapping_js_data.get("chr_lengths", []),
-            # Whether those lengths - and therefore the coordinate the markers
-            # must be plotted with - are in cM rather than Mb. Set by
-            # run_mapping from the same choice that built the lengths, so the
-            # figure never has to re-derive it (and cannot disagree with it).
-            "chr_lengths_in_cm": bool(
-                _mapping_js_data.get("chr_lengths_in_cm", False)),
+            "chr_lengths_in_cm": self.chr_lengths_in_cm,
             "significant": (
                 getattr(self, "significant", None)
                 if self.permChecked and self.nperm > 0 else None),
