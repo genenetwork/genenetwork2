@@ -157,12 +157,12 @@ def build_snp(chr_name, start_mb, end_mb, diff_col, nbins=400):
     return [float(c) / max_count for c in bins]
 
 
-# Cache the parsed genotype object per (dataset, genofile) so the haplotype
-# band does not re-read the .geno file on every chromosome focus.
+# Cache the parsed genotype object per (dataset, genofile, group) so the
+# haplotype band does not re-read the .geno file on every chromosome focus.
 _GENOTYPE_CACHE = {}
 
 
-def cache_genotype(dataset_name, genofile_string, genotype):
+def cache_genotype(dataset_name, genofile_string, genotype, group_name=None):
     """Pre-cache a genotype object that the mapping flow already parsed.
 
     Called at page-build time so the first client-side focus does not have
@@ -170,12 +170,13 @@ def cache_genotype(dataset_name, genofile_string, genotype):
     """
     if not dataset_name or genotype is None:
         return
-    key = (dataset_name, (genofile_string or "").split(":")[0])
+    key = (dataset_name, (genofile_string or "").split(":")[0],
+           group_name or "")
     _GENOTYPE_CACHE.setdefault(key, genotype)
 
 
 def build_haplotype(dataset_name, chr_name, genofile_string, sample_vals,
-                    start_mb=None, end_mb=None):
+                    start_mb=None, end_mb=None, group_name=None):
     """Per-strain genotype + expression data for the haplotype band.
 
     Returns ``None`` if the dataset/genotype cannot be resolved. Markers
@@ -184,12 +185,17 @@ def build_haplotype(dataset_name, chr_name, genofile_string, sample_vals,
     if not dataset_name or not chr_name:
         return None
     try:
-        dataset = data_set.create_dataset(dataset_name)
+        # Temporary traits (PCA and friends) live in the Temp dataset, and a
+        # Temp dataset cannot be built without its group: DataSet.__init__
+        # derives its DatasetGroup from group_name alone, since Temp has no
+        # query_for_group to fall back on.
+        dataset = data_set.create_dataset(dataset_name,
+                                          group_name=group_name)
     except Exception:
         return None
     if genofile_string:
         dataset.group.genofile = genofile_string.split(":")[0]
-    cache_key = (dataset_name, dataset.group.genofile)
+    cache_key = (dataset_name, dataset.group.genofile, group_name or "")
     if cache_key not in _GENOTYPE_CACHE:
         try:
             _GENOTYPE_CACHE[cache_key] = dataset.group.read_genotype_file()

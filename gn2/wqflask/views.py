@@ -1577,6 +1577,7 @@ def mapping_track_data():
     species = body.get("species") or ""
     diff_col = body.get("diff_col") or []
     dataset_name = body.get("dataset") or ""
+    group_name = body.get("group_name") or ""
     genofile_string = body.get("genofile_string") or ""
     sample_vals = body.get("sample_vals") or {}
 
@@ -1588,7 +1589,7 @@ def mapping_track_data():
     homology = _tracks.build_homology(chr_name, start_mb, end_mb, species)
     haplotype = _tracks.build_haplotype(
         dataset_name, chr_name, genofile_string, sample_vals,
-        start_mb=start_mb, end_mb=end_mb)
+        start_mb=start_mb, end_mb=end_mb, group_name=group_name)
     snp = _tracks.build_snp(chr_name, start_mb, end_mb, diff_col)
     return jsonify(genes=genes, homology=homology, haplotype=haplotype,
                    snp=snp)
