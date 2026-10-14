@@ -419,7 +419,11 @@
                 var mapStart = $('#map-range-start');
                 var mapEnd = $('#map-range-end');
 
-                /* build the chromosome dropdown from the payload */
+                /* build the chromosome dropdown from the payload, with a
+                   leading "All" entry: clicking a chromosome inside the
+                   figure now moves this control there, and returning to the
+                   whole genome has to be something it can show */
+                chrSel.append($('<option>').attr('value', '').text('All'));
                 (_md.chr_lengths || []).forEach(function (c) {
                     chrSel.append($('<option>').attr('value', c.chr).text(c.chr));
                 });
@@ -438,7 +442,12 @@
                     var chr = chrSel.val();
                     var s = parseFloat(mapStart.val());
                     var e = parseFloat(mapEnd.val());
-                    if (!chr) return;
+                    if (!chr) {
+                        /* "All" is selected - go back to the whole genome */
+                        window.MappingFigure.reset("mapping-figure", _md);
+                        mapStart.val(''); mapEnd.val('');
+                        return;
+                    }
                     window.MappingFigure.focusChromosome(chr);
                     if (!isNaN(s) && !isNaN(e) && e > s) {
                         window.MappingFigure.setRange({ startMb: s, endMb: e });
@@ -927,10 +936,57 @@
                 });
             }
 
+            /* The Chr dropdown and the Mb range boxes sit above the figure,
+               and clicking a chromosome (or "Back to all chromosomes") inside
+               the figure changes the view without touching them - so they
+               would keep showing the chromosome that was mapped on page load.
+               The figure reports every view change, so drive them from that.
+               These elements are built in the other ready() block, hence the
+               fresh lookups. */
+            var $chrSel = $('#map-chr-select');
+            var $mapStart = $('#map-range-start');
+            var $mapEnd = $('#map-range-end');
+
+            function chrSizeMb(chr) {
+                var list = _mapData.chr_lengths || [];
+                for (var i = 0; i < list.length; i += 1) {
+                    if (String(list[i].chr) === String(chr)) {
+                        return parseFloat(list[i].size) / 1e6;
+                    }
+                }
+                return null;
+            }
+
+            function syncMapControls(view) {
+                if (!view.chr) {
+                    /* whole genome */
+                    $chrSel.val('');
+                    $mapStart.val('');
+                    $mapEnd.val('');
+                    return;
+                }
+                $chrSel.val(String(view.chr));
+                /* a focused chromosome shown in full reports the whole span,
+                   which the range boxes should show as empty rather than as
+                   "0 to 195.4" */
+                var sizeMb = chrSizeMb(view.chr);
+                var wholeChr = view.startMb === null || sizeMb === null ||
+                    (Math.abs(view.startMb) < 1e-9 &&
+                     Math.abs(view.endMb - sizeMb) < 1e-9);
+                if (wholeChr) {
+                    $mapStart.val('');
+                    $mapEnd.val('');
+                } else {
+                    $mapStart.val(parseFloat(view.startMb.toFixed(3)));
+                    $mapEnd.val(parseFloat(view.endMb.toFixed(3)));
+                }
+            }
+
             var figureEl = document.getElementById('mapping-figure');
             if (figureEl) {
                 figureEl.addEventListener('mappingfigure:viewchange', function (ev) {
                     var view = ev.detail || {};
+                    syncMapControls(view);
                     if (!view.chr) {
                         showResultsSection('qtl');
                     } else if (iaAvailable) {
