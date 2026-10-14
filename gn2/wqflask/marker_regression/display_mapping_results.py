@@ -40,6 +40,7 @@ from gn2.utility import webqtlUtil
 from gn2.utility import Plot
 from gn2.utility.tools import get_setting
 from gn2.wqflask.interval_analyst import GeneUtil
+from gn2.wqflask.marker_regression.interval_analyst_table import build_gene_table
 from gn2.base.webqtlConfig import GENERATED_IMAGE_DIR
 from gn2.utility.pillow_utils import draw_rotated_text, draw_open_polygon
 from gn_libs.mysqldb import database_connection
@@ -87,16 +88,6 @@ ARIAL_FILE = "./gn2/wqflask/static/fonts/arial.ttf"
 
 assert(os.path.isfile(VERDANA_FILE))
 
-
-
-def _make_link(href, text, target=None, Class=None):
-    """Build an HTML <a> tag string."""
-    attrs = f'href="{href}"'
-    if target:
-        attrs += f' target="{target}"'
-    if Class:
-        attrs += f' class="{Class}"'
-    return f'<a {attrs}>{text}</a>'
 
 
 def _make_area(coords, href, title=None, target=None):
@@ -628,6 +619,191 @@ class DisplayMappingResults:
         btminfo_parts.append('</p>')
         btminfo = "".join(btminfo_parts)
 
+        # ---- Data for the client-side d3 mapping figure ----
+        # Built after plotIntMapping() has run so that self.js_data already
+        # contains the computed values (chr_lengths, significant, ...).
+        _mapping_js_data = json.loads(self.js_data)
+
+        # Metadata lines shown in the top-left of the d3 figure (mirrors the
+        # information drawn by the original PIL legend).
+        if self.selectedChr == -1:
+            _ident = "Mapping on All Chromosomes for Trait: %s" % (
+                self.this_trait.display_name)
+        else:
+            _ident = "Mapping on Chromosome %s for Trait: %s" % (
+                self.ChrList[self.selectedChr][0], self.this_trait.display_name)
+        _ident += " with %s samples" % self.n_samples
+
+        if self.dataset.type in ("Publish", "Geno"):
+            _dataset_label = self.dataset.fullname
+        else:
+            _dataset_label = "%s - %s" % (
+                self.dataset.group.name, self.dataset.fullname)
+
+        _metadata_lines = [
+            _ident,
+            "Dataset: %s" % _dataset_label,
+        ]
+        if self.genofile_string == "":
+            _metadata_lines.append(
+                "Genotype File: %s.geno" % self.dataset.group.name)
+        else:
+            _metadata_lines.append(
+                "Genotype File: %s" % self.genofile_string.split(":")[1])
+
+        _covariates = getattr(self, "covariates", "")
+        if getattr(self, "mapping_method", "") in ("gemma", "gemma_bimbam"):
+            _method = "Using GEMMA mapping method with "
+            if getattr(self, "use_loco", "") == "True":
+                _method += "LOCO and "
+            if _covariates != "":
+                _method += "the cofactors: %s" % ", ".join(
+                    _covar.split(":")[0] for _covar in _covariates.split(","))
+            else:
+                _method += "no cofactors"
+        elif getattr(self, "mapping_method", "") in (
+                "rqtl_plink", "rqtl_geno", "rqtl2_geno"):
+            _method = "Using R/qtl mapping method with "
+            if _covariates != "":
+                _method += "the cofactors: %s" % ", ".join(
+                    _covar.split(":")[0] for _covar in _covariates.split(","))
+            elif self.controlLocus and self.doControl != "false":
+                _method += "%s as control" % self.controlLocus
+            else:
+                _method += "no cofactors"
+        else:
+            _method = "Using Haldane mapping function with "
+            if self.controlLocus and self.doControl != "false":
+                _method += "%s as control" % self.controlLocus
+            else:
+                _method += "no control for other QTLs"
+        _metadata_lines.append(_method)
+
+        if self.transform:
+            if self.transform == "qnorm":
+                _metadata_lines.append("Transform - Quantile Normalized")
+            elif self.transform in ("log2", "log10"):
+                _metadata_lines.append(
+                    "Transform - %s" % self.transform.capitalize())
+
+        # Location of the trait's gene, used for the purple marker at the
+        # bottom of the d3 figure (mirrors drawProbeSetPosition).
+        _gene_position = None
+        if (self.traitList and hasattr(self.traitList[0], "chr")
+                and hasattr(self.traitList[0], "mb")):
+            _gene_position = {
+                "chr": str(self.traitList[0].chr),
+                "mb": self.traitList[0].mb,
+            }
+
+        # Whether the chromosome lengths (and therefore the plotted positions)
+        # are in cM rather than Mb. Set by run_mapping from the same choice that
+        # built the lengths, so the figure never has to re-derive it (and cannot
+        # disagree with it). Also exposed to the template: the controls for
+        # tracks whose positions are physical (SNP density, gene, haplotype,
+        # homology) are left out on a genetic axis, where they cannot be placed.
+        self.chr_lengths_in_cm = bool(
+            _mapping_js_data.get("chr_lengths_in_cm", False))
+
+        self.mapping_data = json.dumps({
+            # Use the same markers as the original PIL figure (self.qtlresults,
+            # already capped by run_mapping if > 30000) so the interval-map and
+            # additive lines keep the original density.
+            "markers": self.qtlresults,
+            "chr_lengths": _mapping_js_data.get("chr_lengths", []),
+            "chr_lengths_in_cm": self.chr_lengths_in_cm,
+            "significant": (
+                getattr(self, "significant", None)
+                if self.permChecked and self.nperm > 0 else None),
+            "suggestive": (
+                getattr(self, "suggestive", None)
+                if self.permChecked and self.nperm > 0 else None),
+            "lrsMax": self.lrsMax,
+            "LRS_LOD": self.LRS_LOD,
+            "LODFACTOR": self.LODFACTOR,
+            "plotScale": self.plotScale,
+            "manhattan_plot": (
+                str(self.manhattan_plot).strip().lower() in ("true", "1")),
+            "color_scheme": getattr(self, "color_scheme", "alternating"),
+            "manhattan_single_color": (
+                "#" + str(start_vars["manhattan_single_color"])
+                if (getattr(self, "color_scheme", "") == "single"
+                    and "manhattan_single_color" in start_vars)
+                else None),
+            "selected_chr": self.selectedChr,
+            "startMb": self.startMb,
+            "endMb": self.endMb,
+            "total_markers": _mapping_js_data.get(
+                "total_markers", len(self.qtlresults)),
+            "this_trait": {
+                "name": self.this_trait.name,
+                "display_name": getattr(
+                    self.this_trait, "display_name", self.this_trait.name),
+            },
+            "metadata_lines": _metadata_lines,
+            "gene_position": _gene_position,
+            "n_samples": self.n_samples,
+            "mapping_method": getattr(self, "mapping_method", ""),
+            "additive_checked": (
+                str(getattr(self, "additiveChecked", False)).strip().upper()
+                == "ON"),
+            # Reaper's bootstrap results. The flag says whether the figure
+            # should draw them and nboot is how many replicates the per-marker
+            # counts are out of - the counts themselves ride on the markers as
+            # boot_count (see run_mapping), so they cannot come adrift from the
+            # markers they belong to. Only reaper produces them.
+            "boot_checked": (
+                str(getattr(self, "bootChecked", False)).strip().upper()
+                == "ON"),
+            "num_bootstrap": getattr(self, "nboot", 0),
+            "species": self.dataset.group.species,
+            "ucsc_db": getattr(self, "_ucscDb", ""),
+            # Track toggles (mirror the mapping form checkboxes) + the context
+            # the client needs to fetch track data on demand for any chromosome.
+            "gene_checked": (
+                str(getattr(self, "geneChecked", False)).strip().upper()
+                == "ON"),
+            "homology_checked": (
+                str(getattr(self, "homologyChecked", False)).strip().upper()
+                == "ON"),
+            "haplotype_checked": (
+                str(getattr(self, "haplotypeAnalystChecked", False))
+                .strip().upper() == "ON"),
+            "snp_checked": (
+                str(getattr(self, "SNPChecked", False)).strip().upper()
+                == "ON"),
+            "diff_col": getattr(self, "diffCol", []),
+            "dataset_name": self.dataset.name,
+            # The mapping group (e.g. BXD). Temporary traits live in the Temp
+            # dataset, which can only be constructed from its group name, and
+            # carrying it also keeps the same dataset name in different
+            # populations apart in the genotype cache.
+            "group_name": self.dataset.group.name,
+            # Whether the genotype markers are databased (so the figure can
+            # link marker points to their /show_trait pages, like the results
+            # table does). Mirrors the template's `geno_db_exists` value, which
+            # is a string "True"/"False" (or bool False before the check runs).
+            "geno_db_exists": (
+                str(getattr(self, "geno_db_exists", False)).strip().upper()
+                == "TRUE"),
+            # Genotype dataset name used for marker trait links, matching the
+            # results-table links: /show_trait?trait_id=<name>&dataset=<group>Geno
+            "marker_dataset": self.dataset.group.name + "Geno",
+            "genofile_string": getattr(self, "genofile_string", ""),
+            "sample_vals": getattr(self, "sample_vals_dict", {}),
+            "strainlist": getattr(self, "strainlist", []),
+        }, default=str)
+
+        # Pre-cache the parsed genotype so the track-data endpoint does not
+        # re-read the .geno file on the first client-side chromosome focus.
+        try:
+            from gn2.wqflask.marker_regression import tracks as _tracks
+            _tracks.cache_genotype(
+                self.dataset.name, self.genofile_string,
+                getattr(self, "genotype", None), self.dataset.group.name)
+        except Exception:
+            pass
+
     def plotIntMapping(self, canvas, offset=(80, 120, 110, 100), zoom=1, startMb=None, endMb=None, showLocusForm=""):
         im_drawer = ImageDraw.Draw(canvas)
         # calculating margins
@@ -861,7 +1037,7 @@ class DisplayMappingResults:
 
         bootOffset = 50 * fontZoom
         bootScaleFont = ImageFont.truetype(
-            font=VERDANA_FILE, size=13 * fontZoom)
+            font=VERDANA_FILE, size=int(round(13 * fontZoom)))
         im_drawer.rectangle(
             xy=((canvas.size[0] - bootOffset, yZero - bootHeightThresh),
                 (canvas.size[0] - bootOffset - 15 * zoom, yZero)),
@@ -891,7 +1067,7 @@ class DisplayMappingResults:
             else:
                 startPosY = 15
             smallLabelFont = ImageFont.truetype(
-                font=TREBUC_FILE, size=12 * fontZoom)
+                font=TREBUC_FILE, size=int(round(12 * fontZoom)))
             leftOffset = canvas.size[0] - xRightOffset - 190
             im_drawer.rectangle(
                 xy=((leftOffset, startPosY - 6),
@@ -3017,239 +3193,21 @@ class DisplayMappingResults:
         return filename
 
     def geneTable(self, geneCol, refGene=None):
-        if self.dataset.group.species == 'mouse' or self.dataset.group.species == 'rat':
-            self.gene_table_header = self.getGeneTableHeaderList(refGene=None)
-            self.gene_table_body = self.getGeneTableBody(geneCol, refGene=None)
+        """Build the Interval Analyst table (header list + body rows).
+
+        The formatting lives in ``interval_analyst_table.build_gene_table`` so
+        that this initial render and the /mapping/interval_analyst_data
+        endpoint (used by the interactive figure when the chromosome or range
+        is changed client-side) produce identical markup.
+        """
+        species = self.dataset.group.species
+        if species in ('mouse', 'rat'):
+            self.gene_table_header, self.gene_table_body = build_gene_table(
+                geneCol, species, getattr(self, "diffCol", None),
+                debug_links=bool(self.ALEX_DEBUG_BOOL_PRINT_GENE_LIST))
         else:
             self.gene_table_header = None
             self.gene_table_body = None
-
-    def getGeneTableHeaderList(self, refGene=None):
-
-        gene_table_header_list = []
-        if self.dataset.group.species == "mouse":
-            if refGene:
-                gene_table_header_list = ["Index",
-                                          "Symbol",
-                                          "Mb Start",
-                                          "Length (Kb)",
-                                          "SNP Count",
-                                          "SNP Density",
-                                          "Avg Expr",
-                                          "Human Chr",
-                                          "Mb Start (hg19)",
-                                          "Literature Correlation",
-                                          "Gene Description"]
-            else:
-                gene_table_header_list = ["",
-                                          "Index",
-                                          "Symbol",
-                                          "Mb Start",
-                                          "Length (Kb)",
-                                          "SNP Count",
-                                          "SNP Density",
-                                          "Avg Expr",
-                                          "Human Chr",
-                                          "Mb Start (hg19)",
-                                          "Gene Description"]
-        elif self.dataset.group.species == "rat":
-            gene_table_header_list = ["",
-                                      "Index",
-                                      "Symbol",
-                                      "Mb Start",
-                                      "Length (Kb)",
-                                      "Avg Expr",
-                                      "Mouse Chr",
-                                      "Mb Start (mm9)",
-                                      "Human Chr",
-                                      "Mb Start (hg19)",
-                                      "Gene Description"]
-
-        return gene_table_header_list
-
-    def getGeneTableBody(self, geneCol, refGene=None):
-        gene_table_body = []
-
-        tableIterationsCnt = 0
-        if self.dataset.group.species == "mouse":
-            for gIndex, theGO in enumerate(geneCol):
-
-                tableIterationsCnt = tableIterationsCnt + 1
-
-                this_row = []  # container for the cells of each row
-                selectCheck = '<input type="checkbox" name="selectCheck" value="{}" class="checkbox trait_checkbox">'.format(theGO["GeneSymbol"])
-
-                geneLength = (theGO["TxEnd"] - theGO["TxStart"]) * 1000.0
-                tenPercentLength = geneLength * 0.0001
-                txStart = theGO["TxStart"]
-                txEnd = theGO["TxEnd"]
-                theGO["snpDensity"] = theGO["snpCount"] / geneLength
-                if self.ALEX_DEBUG_BOOL_PRINT_GENE_LIST:
-                    geneIdString = 'http://www.ncbi.nlm.nih.gov/entrez/query.fcgi?db=gene&cmd=Retrieve&dopt=Graphics&list_uids=%s' % theGO[
-                        "GeneID"]
-
-                    if theGO["snpCount"]:
-                        snpString = _make_link(
-                            (f"http://genenetwork.org/webqtl/main.py?FormID=snpBrowser&"
-                             f"chr={theGO['Chr']}&"
-                             f"start={theGO['TxStart']}&"
-                             f"end={theGO['TxEnd']}&"
-                             f"geneName={theGO['GeneSymbol']}&"
-                             f"s1={self.diffCol[0]}&s2=%d"),
-                            str(theGO["snpCount"]),
-                            target="_blank",
-                            Class="normalsize"
-                        )
-                    else:
-                        snpString = 0
-
-                    mouseStartString = "http://genome.ucsc.edu/cgi-bin/hgTracks?clade=vertebrate&org=Mouse&db=mm10&position=chr" + \
-                        theGO["Chr"] + "%3A" + str(int(theGO["TxStart"] * 1000000.0)) + "-" + str(
-                            int(theGO["TxEnd"] * 1000000.0)) + "&pix=620&Submit=submit"
-
-                    # the chromosomes for human 1 are 1qXX.XX
-                    if 'humanGene' in theGO:
-                        if theGO['humanGene']["TxStart"] == '':
-                            humanStartDisplay = ""
-                        else:
-                            humanStartDisplay = "%0.6f" % theGO['humanGene']["TxStart"]
-
-                        humanChr = theGO['humanGene']["Chr"]
-                        humanTxStart = theGO['humanGene']["TxStart"]
-
-                        humanStartString = "http://genome.ucsc.edu/cgi-bin/hgTracks?clade=vertebrate&org=Human&db=hg17&position=chr%s:%d-%d" % (
-                            humanChr, int(1000000 * theGO['humanGene']["TxStart"]), int(1000000 * theGO['humanGene']["TxEnd"]))
-                    else:
-                        humanStartString = humanChr = humanStartDisplay = "--"
-
-                    geneDescription = theGO["GeneDescription"]
-                    if len(geneDescription) > 70:
-                        geneDescription = geneDescription[:70] + "..."
-
-                    if theGO["snpDensity"] < 0.000001:
-                        snpDensityStr = "0"
-                    else:
-                        snpDensityStr = "%0.6f" % theGO["snpDensity"]
-
-                    avgExpr = []  # theGO["avgExprVal"]
-                    if avgExpr in ([], None):
-                        avgExpr = "--"
-                    else:
-                        avgExpr = "%0.6f" % avgExpr
-
-                    # If we have a referenceGene then we will show the Literature Correlation
-                    if theGO["Chr"] == "X":
-                        chr_as_int = 19
-                    else:
-                        chr_as_int = int(theGO["Chr"]) - 1
-                    if refGene:
-                        literatureCorrelationString = str(self.getLiteratureCorrelation(
-                            self.cursor, refGene, theGO['GeneID']) or "N/A")
-
-                        this_row = [selectCheck,
-                                    str(tableIterationsCnt),
-                                    _make_link(
-                                        geneIdString,
-                                        theGO["GeneSymbol"],
-                                        target="_blank"),
-                                    _make_link(
-                                        mouseStartString,
-                                        "{:.6f}".format(txStart),
-                                        target="_blank"),
-                                    _make_link(
-                                        "javascript:rangeView('{}', {:f}, {:f})".format(
-                                            str(chr_as_int),
-                                            txStart - tenPercentLength,
-                                            txEnd + tenPercentLength),
-                                        "{:.3f}".format(geneLength)),
-                                    snpString,
-                                    snpDensityStr,
-                                    avgExpr,
-                                    humanChr,
-                                    _make_link(humanStartString, humanStartDisplay, target="_blank"),
-                                    literatureCorrelationString,
-                                    geneDescription]
-                    else:
-                        this_row = [selectCheck,
-                                    str(tableIterationsCnt),
-                                    _make_link(geneIdString, theGO["GeneSymbol"], target="_blank"),
-                                    _make_link(mouseStartString, "{:.6f}".format(txStart), target="_blank"),
-                                    _make_link(
-                                        "javascript:rangeView('{}', {:f}, {:f})".format(
-                                            str(chr_as_int),
-                                            txStart - tenPercentLength,
-                                            txEnd + tenPercentLength),
-                                        "{:.3f}".format(geneLength)),
-                                    snpString,
-                                    snpDensityStr,
-                                    avgExpr,
-                                    humanChr,
-                                    _make_link(humanStartString, humanStartDisplay, target="_blank"),
-                                    geneDescription]
-
-                gene_table_body.append(this_row)
-
-        elif self.dataset.group.species == 'rat':
-            for gIndex, theGO in enumerate(geneCol):
-                this_row = []  # container for the cells of each row
-                selectCheck = '<input type="checkbox" name="selectCheck" class="checkbox trait_checkbox">'  # checkbox for each row
-
-                if theGO["GeneID"] != "":
-                    geneSymbolNCBI = _make_link("http://www.ncbi.nlm.nih.gov/entrez/query.fcgi?db=gene&cmd=Retrieve&dopt=Graphics&list_uids={}".format(
-                            theGO["GeneID"]), theGO["GeneSymbol"],
-                        Class="normalsize",
-                        target="_blank")
-                else:
-                    geneSymbolNCBI = theGO["GeneSymbol"]
-
-                if theGO["Chr"] == "X":
-                    chr_as_int = 20
-                else:
-                    chr_as_int = int(theGO["Chr"]) - 1
-
-                geneLength = (float(theGO["TxEnd"]) - float(theGO["TxStart"]))
-                geneLengthURL = "javascript:rangeView('%s', %f, %f)" % (theGO["Chr"], float(
-                    theGO["TxStart"]) - (geneLength * 0.1), float(theGO["TxEnd"]) + (geneLength * 0.1))
-
-                avgExprVal = []
-                if avgExprVal != "" and avgExprVal:
-                    avgExprVal = "%0.5f" % float(avgExprVal)
-                else:
-                    avgExprVal = ""
-
-                # Mouse Gene
-                if theGO['mouseGene']:
-                    mouseChr = theGO['mouseGene']["Chr"]
-                    mouseTxStart = "%0.6f" % theGO['mouseGene']["TxStart"]
-                else:
-                    mouseChr = mouseTxStart = ""
-
-                # the chromosomes for human 1 are 1qXX.XX
-                if 'humanGene' in theGO:
-                    humanChr = theGO['humanGene']["Chr"]
-                    humanTxStart = "%0.6f" % theGO['humanGene']["TxStart"]
-                else:
-                    humanChr = humanTxStart = ""
-
-                geneDesc = theGO["GeneDescription"]
-                if geneDesc == "---":
-                    geneDesc = ""
-
-                this_row = [selectCheck,
-                            str(gIndex + 1),
-                            geneSymbolNCBI,
-                            "%0.6f" % theGO["TxStart"],
-                            _make_link(geneLengthURL, "{:.3f}".format(geneLength * 1000.0)),
-                            avgExprVal,
-                            mouseChr,
-                            mouseTxStart,
-                            humanChr,
-                            humanTxStart,
-                            geneDesc]
-
-                gene_table_body.append(this_row)
-
-        return gene_table_body
 
     def getLiteratureCorrelation(cursor, geneId1=None, geneId2=None):
         if not geneId1 or not geneId2:
