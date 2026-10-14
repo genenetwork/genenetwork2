@@ -13,7 +13,7 @@
  *
  * `mapping_data` is provided by the server and has the shape:
  *   {
- *     markers: [ {chr, name, Mb|cM, lrs_value|lod_score, ...}, ... ],
+ *     markers: [ {chr, name, Mb|cM, lrs_value|lod_score, boot_count, ...} ],
  *     chr_lengths: [ {chr, size}, ... ],      // size in bases
  *     significant: <display-scale threshold> | null,
  *     suggestive:  <display-scale threshold> | null,
@@ -27,7 +27,9 @@
  *     selected_chr, startMb, endMb, total_markers, this_trait,
  *     metadata_lines: [ "...", ... ],       // top-left metadata block
  *     gene_position: { chr, mb } | null,    // trait gene location marker
- *     n_samples, mapping_method
+ *     n_samples, mapping_method,
+ *     boot_checked: bool,                   // reaper with Bootstrap Test on
+ *     num_bootstrap: <int>                  // replicates boot_count is out of
  *   }
  */
 window.MappingFigure = (function () {
@@ -704,6 +706,20 @@ window.MappingFigure = (function () {
     var TRACK_HEADER_H = 16;     // collapse/expand header height per track
     var SNP_MAX_H = 18;          // max SNP-density bar height (SNP_HEIGHT_MODIFIER)
 
+    /* Bootstrap bars (mirrors drawBootStrapResult). reaper reports, for each
+       marker, how many of nboot bootstrap replicates put that marker inside
+       the peak interval. The bars are drawn from the x-axis upwards, and
+       markers closer together than one bar-width are summed into a single bar,
+       so a whole-genome view gets at most MAX_BOOT_BARS_FULL bars rather than
+       one per marker. */
+    var BOOT_BAR_THRESHOLD = 3 / 4;   // bootHeightThresh: fraction of the plot
+    var MAX_BOOT_BARS_FULL = 200;     // whole-genome view
+    var MAX_BOOT_BARS_FOCUS = 80;     // single-chromosome view
+    var BOOT_BAR_COLOR = "#FFFF00";   // YELLOW (BOOTSTRAP_BOX_COLOR)
+    var BOOT_SCALE_OFFSET = 50;       // scale swatch, px from the figure's edge
+    var BOOT_SCALE_WIDTH = 15;        // scale swatch width
+    var BOOT_SCALE_SIZE = "13px";     // scale label size
+
     /* Strand chevrons along a gene/homology segment. The apex of each chevron
        sits at `ax`; the base is pushed left/right by the strand direction. */
     function drawStrandArrows(link, x0, x1, y, midY, dir, color, divisor) {
@@ -1032,6 +1048,169 @@ window.MappingFigure = (function () {
                 .attr("width", Math.max(1, x1 - x0))
                 .attr("height", 2 * h)
                 .attr("fill", "#FFA500");   // SNP_COLOR = ORANGE
+        });
+    }
+
+    /* ---- Bootstrap bars (mirrors drawBootStrapResult) ----
+       reaper adds a bootstrap count to each marker (how many of num_bootstrap
+       replicates placed it inside the peak interval), and the original draws
+       those counts as bars rising from the x-axis, with a percentage scale at
+       the right explaining what the heights mean. Markers are grouped into at
+       most `maxBars` bars across the plot, summing the counts within a group,
+       so the bars stay legible however many markers there are. */
+
+    /* Group markers into bars. `xFor(marker)` returns a marker's x in chart
+       coordinates, or null if it has no plottable position. Markers are walked
+       in the order the server sent them (chromosome, then position) and are
+       collected into the current bar until one lands more than a bar-width
+       from where that bar started, at which point a new bar begins - a bar
+       never spans two chromosomes. Like the original, a trailing sliver
+       narrower than half a bar is folded into the bar before it.
+
+       Returns the bars plus the largest count, which both the bar heights and
+       the percentage scale are measured against. */
+    function bootstrapBars(markers, xFor, plotW, maxBars) {
+        var bars = [];
+        var step = (maxBars > 0) ? plotW / maxBars : 0;
+        var current = null;
+        var currentChr = null;
+
+        function begin(marker, x) {
+            current = {
+                chr: String(marker.chr),
+                x0: x,
+                x1: x,
+                count: toNum(marker.boot_count) || 0
+            };
+        }
+        function finish() {
+            if (current) bars.push(current);
+            current = null;
+        }
+
+        (markers || []).forEach(function (m) {
+            var x = xFor(m);
+            if (x === null || isNaN(x)) return;
+            if (current && String(m.chr) !== currentChr) finish();
+            currentChr = String(m.chr);
+            if (!current) {
+                begin(m, x);
+            } else if (x - current.x0 < step) {
+                current.x1 = x;
+                current.count += toNum(m.boot_count) || 0;
+            } else {
+                finish();
+                begin(m, x);
+            }
+        });
+        finish();
+
+        if (bars.length > 1) {
+            var last = bars[bars.length - 1];
+            if (last.x1 - last.x0 < step / 2) {
+                var prev = bars[bars.length - 2];
+                prev.count += last.count;
+                if (last.x1 > prev.x1) prev.x1 = last.x1;
+                bars.pop();
+            }
+        }
+
+        var maxCount = 0;
+        bars.forEach(function (b) {
+            if (b.count > maxCount) maxCount = b.count;
+        });
+        return { bars: bars, maxCount: maxCount };
+    }
+
+    /* Percentage ticks for the bootstrap scale, mirroring the original's
+       Plot.detScale(0, highest) followed by frange(): a rounded step is chosen
+       so the scale carries roughly 5-15 ticks, and the list ends with the
+       highest percentage itself (the original drops frange's last entry, which
+       would otherwise sit above it). */
+    function bootstrapPercentTicks(highest) {
+        if (!(highest > 0)) return [];
+        var top = highest * 1.1;      // detScale pads the maximum by 10%
+        var c = Math.pow(10, Math.floor(Math.log(top) / Math.LN10));
+        var div = 2;
+        var n = Math.ceil(top / c);
+        for (var guard = 0; (n < 5 || n > 15) && guard < 60; guard++) {
+            c = (n < 5) ? ((div === 2) ? c / 2 : c / 5)
+                        : ((div === 2) ? c * 2 : c * 5);
+            div = (div === 2) ? 5 : 2;
+            n = Math.ceil(top / c);
+        }
+        var high = c * n;
+        var step = high / n;          // the original's frange(0, high, high/n)
+        var ticks = [];
+        /* frange's last entry is dropped because the original appends the
+           highest percentage in its place. Rounding can make that last step
+           land on or above the highest percentage, so only ticks that fall
+           below it are kept - anything above would be drawn above the top of
+           the scale. */
+        for (var i = 1; i <= n - 2; i++) {
+            if (step * i < highest - 1e-9) ticks.push(step * i);
+        }
+        ticks.push(highest);
+        return ticks;
+    }
+
+    /* Draw the bars, returning the largest count so the percentage scale can be
+       drawn against the same scale - or 0 when this view has no counts, in
+       which case the original draws nothing at all. */
+    function drawBootstrapBars(g, chartW, chartH, topInset, markers, xFor, maxBars) {
+        var grouped = bootstrapBars(markers, xFor, chartW, maxBars);
+        if (!grouped.maxCount) return 0;
+        var threshold = (chartH - topInset) * BOOT_BAR_THRESHOLD;
+        var barsG = g.append("g").attr("class", "mapping-bootstrap-bars");
+        grouped.bars.forEach(function (b) {
+            if (b.count <= 0) return;
+            var x0 = Math.max(0, Math.min(chartW, b.x0));
+            var x1 = Math.max(0, Math.min(chartW, b.x1));
+            if (x0 === x1) return;
+            var h = b.count * threshold / grouped.maxCount;
+            barsG.append("rect")
+                .attr("x", x0)
+                .attr("y", chartH - h)
+                .attr("width", x1 - x0)
+                .attr("height", h)
+                .attr("fill", BOOT_BAR_COLOR)
+                .attr("stroke", COLORS.text)
+                .attr("stroke-width", 1);
+        });
+        return grouped.maxCount;
+    }
+
+    /* The percentage scale: a swatch as tall as the fullest bar, with a tick
+       and label at 0% and at each chosen step, so a bar reads as "this marker
+       was inside the peak interval in N% of the bootstrap replicates". The
+       labels carry the unit on the zero tick only, as in the original. */
+    function drawBootstrapScale(g, chartH, topInset, maxCount, nboot, rightEdge) {
+        var highest = (maxCount * 100.0) / nboot;
+        if (!(highest > 0)) return;
+        var threshold = (chartH - topInset) * BOOT_BAR_THRESHOLD;
+        var scaleG = g.append("g").attr("class", "mapping-bootstrap-scale");
+        var xRight = rightEdge - BOOT_SCALE_OFFSET;
+        scaleG.append("rect")
+            .attr("x", xRight - BOOT_SCALE_WIDTH)
+            .attr("y", chartH - threshold)
+            .attr("width", BOOT_SCALE_WIDTH)
+            .attr("height", threshold)
+            .attr("fill", BOOT_BAR_COLOR)
+            .attr("stroke", COLORS.text)
+            .attr("stroke-width", 1);
+        [0].concat(bootstrapPercentTicks(highest)).forEach(function (pct) {
+            var y = chartH - threshold * pct / highest;
+            scaleG.append("line")
+                .attr("x1", xRight).attr("y1", y)
+                .attr("x2", xRight + 4).attr("y2", y)
+                .attr("stroke", COLORS.text)
+                .attr("stroke-width", 1);
+            scaleG.append("text")
+                .attr("x", xRight + 10).attr("y", y + 4)
+                .attr("font-family", FONT)
+                .attr("font-size", BOOT_SCALE_SIZE)
+                .attr("fill", COLORS.text)
+                .text(pct === 0 ? "0%" : pct.toFixed(1));
         });
     }
 
@@ -1436,6 +1615,24 @@ window.MappingFigure = (function () {
         if (hasBands && physicalTracksUsable() && trackData &&
             trackData.snp && trackData.snp.length && data.snp_checked) {
             drawSNPTrack(g, chartW, chartH, trackData.snp);
+        }
+
+        /* Bootstrap bars + their percentage scale (reaper with Bootstrap Test
+           on). Drawn before the scores so the peak lines and triangles stay on
+           top of them, as in the original. */
+        if (data.boot_checked && toNum(data.num_bootstrap) > 0) {
+            var bootMax = drawBootstrapBars(
+                g, chartW, chartH, topInset, focusMarkers,
+                function (m) {
+                    if (markerBases(m) === null) return null;
+                    return xScale(xForMarker(focusLayout, m));
+                },
+                focus === null ? MAX_BOOT_BARS_FULL : MAX_BOOT_BARS_FOCUS);
+            if (bootMax) {
+                drawBootstrapScale(g, chartH, topInset, bootMax,
+                                   toNum(data.num_bootstrap),
+                                   width - MARGIN.left);
+            }
         }
 
         /* Mb tick marks + labels (physic scale, mirrors PIL) */
