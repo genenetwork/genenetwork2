@@ -1691,6 +1691,22 @@ window.MappingFigure = (function () {
         setTimeout(function () { URL.revokeObjectURL(url); }, 1000);
     }
 
+    /* Store the manual Mb-range zoom (or clear it) without rendering, so a
+       caller can change the chromosome and the range together and draw once.
+       Rendering in between would fetch - and cache - the whole chromosome's
+       track data that the range then makes unnecessary. */
+    function applyRange(range) {
+        if (range && range.startMb !== undefined &&
+            range.endMb !== undefined) {
+            state.range = {
+                startMb: parseFloat(range.startMb),
+                endMb: parseFloat(range.endMb)
+            };
+        } else {
+            state.range = null;
+        }
+    }
+
     /* ------------------------------ public API --------------------------- */
 
     return {
@@ -1719,26 +1735,20 @@ window.MappingFigure = (function () {
                 haplotype: !!state.tracks.haplotype
             };
         },
-        /* focus a chromosome by name (used by the Chr dropdown) */
-        focusChromosome: function (chrName) {
+        /* focus a chromosome by name (used by the Chr dropdown), optionally
+           zooming to an Mb range in the same call so that only the requested
+           window is ever fetched */
+        focusChromosome: function (chrName, range) {
             if (!state.layout) return;
             var idx = chrIndex(state.layout, String(chrName));
             if (idx < 0) return;
             state.focusChr = idx;
-            state.range = null;
+            applyRange(range);
             if (state.containerId) render(state.containerId, state.data);
         },
         /* manual Mb-range zoom applied to the focused chromosome */
         setRange: function (range) {
-            if (range && range.startMb !== undefined &&
-                range.endMb !== undefined) {
-                state.range = {
-                    startMb: parseFloat(range.startMb),
-                    endMb: parseFloat(range.endMb)
-                };
-            } else {
-                state.range = null;
-            }
+            applyRange(range);
             if (state.containerId) render(state.containerId, state.data);
         },
         getRange: function () {
