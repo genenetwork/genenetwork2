@@ -747,9 +747,7 @@
 
             function initIntervalAnalystTable() {
               var $iaTable = $(IA_TABLE);
-              if ($.fn.DataTable.isDataTable($iaTable[0])) {
-                $iaTable.DataTable().destroy();
-              }
+              destroyIntervalAnalystTable();
               $iaTable.DataTable({
               "drawCallback": function( settings ) {
                   $iaTable.find('tr').off().on("click", function(event) {
@@ -877,7 +875,21 @@
                 if (!showIa) ensureQtlTable();
             }
 
+            /* Tear down any live DataTable on the Interval Analyst table. This
+               has to happen before the DOM is touched, because destroy()
+               restores the nodes DataTables captured when it was initialised:
+               replacing the rows first and destroying afterwards would undo
+               the replacement and leave the previous interval's genes on
+               screen. */
+            function destroyIntervalAnalystTable() {
+                var $iaTable = $(IA_TABLE);
+                if ($.fn.DataTable.isDataTable($iaTable[0])) {
+                    $iaTable.DataTable().destroy();
+                }
+            }
+
             function setIntervalAnalystTable(header, rows) {
+                destroyIntervalAnalystTable();
                 var $iaTable = $(IA_TABLE);
                 var thead = '<tr>' + $.map(header || [], function (h) {
                     return '<th>' + h + '</th>';
@@ -910,12 +922,16 @@
                 var cols = $iaTable.find('thead th').length || 11;
                 /* drop the current table before swapping in the placeholder,
                    otherwise DataTables redraws its cached rows over it */
-                if ($.fn.DataTable.isDataTable($iaTable[0])) {
-                    $iaTable.DataTable().destroy();
-                }
+                destroyIntervalAnalystTable();
                 $iaTable.find('tbody').html(
                     '<tr><td colspan="' + cols +
                     '" class="gn-dt-loading"><br>Loading...<br></td></tr>');
+                /* Nothing is loaded for the visible interval any more. Leaving
+                   the previous key here would make the early return above skip
+                   both the cached restore and the abort, so returning to an
+                   already-visited interval while another is still in flight
+                   would end up showing the in-flight response's genes. */
+                iaLoadedKey = null;
                 iaRequest = $.ajax({
                     url: '/mapping/interval_analyst_data',
                     method: 'POST',
