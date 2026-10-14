@@ -264,27 +264,56 @@ class TestRunMapping(unittest.TestCase):
 
         self.assertEqual(chr_lengths, results)
 
-        qtl_results = [{
-            "chr": "16",
-            "cM": "0.2"
-        },
-            {
-            "chr": "12",
-            "cM": "0.5"
-        },
-            {
-            "chr": "18",
-            "cM": "0.1"
-        },
-            {
-            "chr": "22",
-            "cM": "0.4"
-        },
+    def test_get_chr_length_genetic_scale_spans_each_chromosome(self):
+        """On a genetic scale each chromosome is as long as its markers span.
+
+        cM is the coordinate of record whenever the results carry it, and a
+        genetic map is numbered from the start of the first chromosome, so a
+        chromosome also reports where its band starts. Results with physical
+        positions only (gemma never emits cM) stay in Mb, which is already
+        relative to the start of its chromosome and needs no offset.
+        """
+        cursor = mock.MagicMock()
+        chromosomes = AttributeSetter({"chromosomes": self.chromosomes})
+        dataset = AttributeSetter({"species": chromosomes})
+
+        # cM numbered per chromosome: every chromosome starts at its own zero
+        per_chromosome_cm = [
+            {"chr": "1", "Mb": "40.0", "cM": "0.0"},
+            {"chr": "1", "Mb": "80.0", "cM": "5.0"},
+            {"chr": "2", "Mb": "30.0", "cM": "0.0"},
+            {"chr": "2", "Mb": "60.0", "cM": "8.0"},
         ]
+        self.assertEqual(
+            get_chr_lengths(mapping_scale="morgan", mapping_method="rqtl_geno",
+                            dataset=dataset, qtl_results=per_chromosome_cm),
+            [{"chr": "1", "size": "5000000.0", "start": "0.0"},
+             {"chr": "2", "size": "8000000.0", "start": "0.0"}])
 
-        result_with_other_mapping_scale = get_chr_lengths(
-            mapping_scale="other", mapping_method="reaper", dataset=dataset, qtl_results=qtl_results)
-        expected_value = [{'chr': '1', 'size': '0'}, {
-            'chr': '16', 'size': '500000.0'}, {'chr': '18', 'size': '400000.0'}]
+        # cM numbered across the whole map: chromosome 2's markers are 5 cM
+        # further along, so its band has to start there instead of at zero
+        genome_wide_cm = [
+            {"chr": "1", "cM": "0.0"},
+            {"chr": "1", "cM": "5.0"},
+            {"chr": "2", "cM": "5.0"},
+            {"chr": "2", "cM": "13.0"},
+        ]
+        self.assertEqual(
+            get_chr_lengths(mapping_scale="morgan", mapping_method="reaper",
+                            dataset=dataset, qtl_results=genome_wide_cm),
+            [{"chr": "1", "size": "5000000.0", "start": "0.0"},
+             {"chr": "2", "size": "8000000.0", "start": "5000000.0"}])
 
-        self.assertEqual(result_with_other_mapping_scale, expected_value)
+        # No cM in the results (gemma): physical positions are used, and no
+        # offset is reported because Mb starts at zero on each chromosome
+        results_without_cm = [
+            {"chr": "1", "Mb": "40.0"},
+            {"chr": "1", "Mb": "80.0"},
+            {"chr": "2", "Mb": "30.0"},
+            {"chr": "2", "Mb": "60.0"},
+        ]
+        self.assertEqual(
+            get_chr_lengths(mapping_scale="morgan", mapping_method="gemma",
+                            dataset=dataset, qtl_results=results_without_cm),
+            [{"chr": "1", "size": "40000000.0"},
+             {"chr": "2", "size": "30000000.0"}])

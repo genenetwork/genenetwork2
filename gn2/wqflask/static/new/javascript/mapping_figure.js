@@ -82,6 +82,13 @@ window.MappingFigure = (function () {
         trackLoading: {},
         containerId: null,
         data: null,
+        /* whether the payload's coordinates (and chromosome lengths) are in
+           cM rather than Mb - set per render from usesCmAxis() */
+        cmAxis: false,
+        /* chromosome name -> the position its band starts at (0 for Mb, and
+           for cM when the map is numbered per chromosome) - set per render by
+           layoutChromosomes() */
+        chrOrigins: null,
         /* signature of the last view we announced, so the page is only told
            about a change when the focused chromosome/range actually changes */
         lastViewKey: null
@@ -121,20 +128,46 @@ window.MappingFigure = (function () {
         return score > MAX_SCORE ? MAX_SCORE : score;
     }
 
-    /* Marker position in bases (Mb or cM -> bases). */
+    /* Which marker field carries the coordinate the figure plots against.
+       The server says so directly: run_mapping built the chromosome lengths
+       from the same field and reports it as chr_lengths_in_cm. Deriving it
+       from the mapping method here instead meant the figure and the domain
+       could disagree - rqtl on a genetic scale plots cM (as the results export
+       and the table header already do) but was drawn against Mb lengths. */
+    function usesCmAxis(data) {
+        return data.chr_lengths_in_cm === true;
+    }
+
+    /* Marker position in bases, on whichever of Mb/cM the axis is built from
+       (see usesCmAxis). Set once per render in state.cmAxis, so the plotting
+       code does not have to thread the payload through every call.
+
+       The value returned is the marker's position WITHIN its chromosome, which
+       is what the layout needs: chromosome bands are laid out end to end, so
+       xForMarker() adds the band's start. Mb is already measured from the start
+       of its chromosome, but a genetic map can be numbered from the start of
+       the first chromosome, so the server reports the offset the band leaves
+       for as chr_lengths[].start (see run_mapping.get_chr_lengths). Without
+       subtracting it, every chromosome's markers would be drawn at their
+       genome-wide distance from chromosome 1 and pile up beyond the layout. */
     function markerBases(marker) {
-        var mb = toNum(marker.Mb);
-        if (mb !== null) return mb * 1e6;
-        var cm = toNum(marker.cM);
-        if (cm !== null) return cm * 1e6;
-        return null;
+        var v = state.cmAxis ? toNum(marker.cM) : toNum(marker.Mb);
+        if (v === null) return null;
+        var origin = 0;
+        if (state.cmAxis && state.chrOrigins) {
+            origin = toNum(state.chrOrigins[String(marker.chr)]) || 0;
+        }
+        return (v - origin) * 1e6;
     }
 
     /* Build chromosome layout from chr_lengths (numeric first, then X/Y/...). */
     function layoutChromosomes(data) {
+        var origins = {};
         var lengths = (data.chr_lengths || []).map(function (c) {
+            origins[String(c.chr)] = toNum(c.start) || 0;
             return { chr: String(c.chr), size: toNum(c.size) || 0 };
         }).filter(function (c) { return c.size > 0; });
+        state.chrOrigins = origins;
 
         function sortKey(c) {
             var n = parseInt(c.chr, 10);
@@ -146,10 +179,13 @@ window.MappingFigure = (function () {
             return ka[1] < kb[1] ? -1 : (ka[1] > kb[1] ? 1 : 0);
         });
 
+        /* Gap between chromosome bands. Proportional to the layout - which is
+           what the physical scale already used - rather than a fixed 5e6: on a
+           genetic scale the coordinates are of the order of 1e6 per
+           chromosome, so a fixed physical gap swamped them and every band
+           collapsed to a hairline separated by empty space. */
         var total = lengths.reduce(function (s, c) { return s + c.size; }, 0);
-        var interval = data.plotScale !== "physic"
-            ? 5 * 1e6
-            : (lengths.length ? total / (lengths.length * 12) : 0);
+        var interval = lengths.length ? total / (lengths.length * 12) : 0;
 
         var startsInfo = computeStarts(lengths, interval);
         return {
@@ -300,11 +336,15 @@ window.MappingFigure = (function () {
         return tipEl;
     }
 
-    function markerPosLabel(marker) {
-        if (marker.Mb !== undefined && marker.Mb !== null) {
-            return "Chr" + marker.chr + ": " + (+marker.Mb).toFixed(3) + " Mb";
+    /* Position of a marker for the tooltip, in the units the axis uses.
+       Only plotted markers get a tooltip, and those always carry the axis
+       coordinate (markerBases() drops the others), so there is no need to
+       fall back to the other field here. */
+    function markerPosLabel(marker, data) {
+        if (usesCmAxis(data)) {
+            return "Chr" + marker.chr + ": " + (+marker.cM).toFixed(2) + " cM";
         }
-        return "Chr" + marker.chr + ": " + (+marker.cM).toFixed(2) + " cM";
+        return "Chr" + marker.chr + ": " + (+marker.Mb).toFixed(3) + " Mb";
     }
 
     function showTip(marker, data) {
@@ -312,7 +352,7 @@ window.MappingFigure = (function () {
         var link = markerTraitLink(marker, data);
         t.html(
             "<b>" + (marker.name || "") + "</b><br/>" +
-            markerPosLabel(marker) + "<br/>" +
+            markerPosLabel(marker, data) + "<br/>" +
             (data.LRS_LOD || "LRS") + ": " + markerScore(marker, data).toFixed(2) +
             (link ? "<br/><span style='color:#9fb6ff'>Click to view trait page</span>" : "")
         );
@@ -1106,6 +1146,8 @@ window.MappingFigure = (function () {
 
         state.containerId = containerId;
         state.data = data;
+        /* whether the markers and the chromosome lengths are both in cM */
+        state.cmAxis = usesCmAxis(data);
 
         /* initialise track toggles + carried-over view the first render */
         if (!state.tracksInitialized) {
@@ -1453,7 +1495,7 @@ window.MappingFigure = (function () {
                 .attr("font-family", FONT)
                 .attr("font-size", "20px")
                 .attr("fill", COLORS.text)
-                .text("Megabases");
+                .text(usesCmAxis(data) ? "Centimorgans" : "Megabases");
         }
 
         /* suggestive / significant threshold lines (with hover tooltips) */

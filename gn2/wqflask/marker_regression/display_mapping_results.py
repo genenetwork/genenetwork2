@@ -702,6 +702,12 @@ class DisplayMappingResults:
             # additive lines keep the original density.
             "markers": self.qtlresults,
             "chr_lengths": _mapping_js_data.get("chr_lengths", []),
+            # Whether those lengths - and therefore the coordinate the markers
+            # must be plotted with - are in cM rather than Mb. Set by
+            # run_mapping from the same choice that built the lengths, so the
+            # figure never has to re-derive it (and cannot disagree with it).
+            "chr_lengths_in_cm": bool(
+                _mapping_js_data.get("chr_lengths_in_cm", False)),
             "significant": (
                 getattr(self, "significant", None)
                 if self.permChecked and self.nperm > 0 else None),
