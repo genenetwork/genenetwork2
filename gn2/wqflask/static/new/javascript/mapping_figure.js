@@ -786,12 +786,31 @@ window.MappingFigure = (function () {
     /* Height (px) reserved for each track in the focused view. Every track
        that has data keeps its collapsible header; an expanded track adds the
        content height on top. */
+    /* Whether the tracks whose data is positioned in Mb can be shown at all.
+       Gene, homology, haplotype and SNP-density data all arrive from the track
+       endpoint in physical coordinates - genes and homology are queried by Mb,
+       the haplotype is taken from the genotype dataset's Mb, and the SNP bins
+       are Mb bins - so none of them can be placed on a genetic (cM) axis. (The
+       payload likewise sends no gene_position on that scale.)
+
+       Keyed on state.cmAxis rather than plotScale: a genetic-scale run whose
+       results carry no cM (gemma) is still plotted in Mb, and there these
+       tracks are valid. */
+    function physicalTracksUsable() {
+        return !state.cmAxis;
+    }
+
     function trackHeights(state, focus, trackData) {
         var h = { gene: 0, homology: 0, haplotype: 0 };
         if (focus === null || !trackData) return h;
-        var gd = trackData.genes && trackData.genes.length;
-        var hd = trackData.homology && trackData.homology.length;
-        var hap = trackData.haplotype && trackData.haplotype.markers &&
+        /* Leave the tracks out entirely rather than reserve space for one that
+           would be drawn in the wrong place. */
+        var showMbTracks = physicalTracksUsable();
+        var gd = showMbTracks && trackData.genes && trackData.genes.length;
+        var hd = showMbTracks && trackData.homology &&
+            trackData.homology.length;
+        var hap = showMbTracks && trackData.haplotype &&
+            trackData.haplotype.markers &&
             trackData.haplotype.markers.length;
         if (gd) h.gene = TRACK_HEADER_H + (state.tracks.gene ? GENE_TRACK_H : 0);
         if (hd) {
@@ -827,9 +846,12 @@ window.MappingFigure = (function () {
 
     /* fetch the gene/homology/haplotype data for the focused chromosome/range.
        Fetches whenever a track could be shown (mouse/rat) so the collapsible
-       track headers are always available. */
+       track headers are always available - except on a genetic axis, where no
+       track in the response has positions that can be placed (see
+       physicalTracksUsable), so there is nothing to fetch. */
     function ensureTrackData(containerId, data, focus, layout, rangeB) {
         if (focus === null) return;
+        if (!physicalTracksUsable()) return;
         var sp = String(data.species || "").toLowerCase();
         if (sp !== "mouse" && sp !== "rat") return;
         var chr = layout.lengths[focus].chr;
@@ -1210,6 +1232,7 @@ window.MappingFigure = (function () {
 
         /* on-demand track data for the focused chromosome/range */
         var trackData = null;
+        var trackKey = null;
         var rangeB = null;
         if (focus !== null) {
             var chrName = layout.lengths[focus].chr;
@@ -1222,7 +1245,8 @@ window.MappingFigure = (function () {
                     rangeB = { start: rs * 1e6, end: re * 1e6 };
                 }
             }
-            trackData = state.trackData[trackDataKey(chrName, rangeB)] || null;
+            trackKey = trackDataKey(chrName, rangeB);
+            trackData = state.trackData[trackKey] || null;
             ensureTrackData(containerId, data, focus, layout, rangeB);
         }
 
@@ -1385,9 +1409,15 @@ window.MappingFigure = (function () {
             }
         }
 
-        /* brief "loading" hint while track data for this chr is fetched */
+        /* brief "loading" hint, only while a track fetch for this chromosome
+           is genuinely in flight. Keyed on the request state rather than on
+           "no data yet", so it cannot outlive a request that failed - or one
+           that was never made at all, which is the case on a genetic axis
+           where nothing the endpoint returns can be placed (see
+           physicalTracksUsable). */
         var _species = String(data.species || "").toLowerCase();
-        if (hasBands && !trackData &&
+        if (hasBands && physicalTracksUsable() && trackKey &&
+            state.trackLoading[trackKey] &&
             (_species === "mouse" || _species === "rat")) {
             g.append("text")
                 .attr("class", "mapping-loading")
@@ -1398,9 +1428,13 @@ window.MappingFigure = (function () {
                 .text("Loading track data\u2026");
         }
 
-        /* SNP density track (orange bars at the bottom of the plot) */
-        if (hasBands && trackData && trackData.snp &&
-            trackData.snp.length && data.snp_checked) {
+        /* SNP density track (orange bars at the bottom of the plot). Its bins
+           are Mb bins, so - like the other physical tracks - it is left out on
+           a genetic axis. It would not even look wrong there: the bars are
+           placed by index across the whole width, so they would chart a
+           Mb-sized window of the chromosome stretched over the cM range. */
+        if (hasBands && physicalTracksUsable() && trackData &&
+            trackData.snp && trackData.snp.length && data.snp_checked) {
             drawSNPTrack(g, chartW, chartH, trackData.snp);
         }
 
