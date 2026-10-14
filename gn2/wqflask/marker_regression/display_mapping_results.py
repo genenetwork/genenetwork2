@@ -755,6 +755,11 @@ class DisplayMappingResults:
                 == "ON"),
             "diff_col": getattr(self, "diffCol", []),
             "dataset_name": self.dataset.name,
+            # The mapping group (e.g. BXD). Temporary traits live in the Temp
+            # dataset, which can only be constructed from its group name, and
+            # carrying it also keeps the same dataset name in different
+            # populations apart in the genotype cache.
+            "group_name": self.dataset.group.name,
             # Whether the genotype markers are databased (so the figure can
             # link marker points to their /show_trait pages, like the results
             # table does). Mirrors the template's `geno_db_exists` value, which
@@ -776,7 +781,7 @@ class DisplayMappingResults:
             from gn2.wqflask.marker_regression import tracks as _tracks
             _tracks.cache_genotype(
                 self.dataset.name, self.genofile_string,
-                getattr(self, "genotype", None))
+                getattr(self, "genotype", None), self.dataset.group.name)
         except Exception:
             pass
 

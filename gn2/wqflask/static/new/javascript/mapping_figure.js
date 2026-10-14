@@ -805,6 +805,7 @@ window.MappingFigure = (function () {
         state.trackLoading[key] = true;
         var body = {
             dataset: data.dataset_name || "",
+            group_name: data.group_name || "",
             species: data.species || "",
             chr: chr,
             start_mb: startMb,
