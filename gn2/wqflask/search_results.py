@@ -491,8 +491,9 @@ def get_alias_terms(symbol, species):
         return []
 
     filtered_aliases = []
-    response = requests.get(
-        urljoin(GN_GUILE_SERVER_URL, f"gene/aliases/{symbol_string}"))
+    aliases_uri = urljoin(GN_GUILE_SERVER_URL, f"gene/aliases/{symbol_string}")
+    logger.info("Aliases query URI is: %s", aliases_uri)
+    response = requests.get(aliases_uri)
     if response:
         alias_list = json.loads(response.content)
 
