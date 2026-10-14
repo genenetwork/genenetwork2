@@ -89,6 +89,15 @@ ARIAL_FILE = "./gn2/wqflask/static/fonts/arial.ttf"
 assert(os.path.isfile(VERDANA_FILE))
 
 
+def _make_link(href, text, target=None, Class=None):
+    """Build an HTML <a> tag string."""
+    attrs = f'href="{href}"'
+    if target:
+        attrs += f' target="{target}"'
+    if Class:
+        attrs += f' class="{Class}"'
+    return f'<a {attrs}>{text}</a>'
+
 
 def _make_area(coords, href, title=None, target=None):
     """Build an HTML <area> tag string."""
@@ -456,7 +465,11 @@ class DisplayMappingResults:
         RISet = self.dataset.group.name
         if RISet in ('AXB', 'BXA', 'AXBXA'):
             self.diffCol = ['B6J', 'A/J']
-        elif RISet in ('BXD', 'BXD300', 'B6D2F2', 'BDF2-2005', 'BDF2-1999', 'BHHBF2', 'BXD-Harvested', 'BXD-Longevity', 'BXD-Micturition', 'BXD-AE', 'BXD-NIA-AD', 'B6D2RI', 'BXD-Bone', 'DOD-BXD-GWI', 'BXD-Heart-Metals', 'UTHSC-Cannabinoid'):
+        # Every BXD-type cross (BXD, BXD300, BXD-UTHSC-PC, BXD-MBD-UTHSC,
+        # BXD_UT-SJ, ...) is derived from C57BL/6J x DBA/2J, so match by
+        # prefix. Otherwise the SNP data in BXDSnpPosition is never queried
+        # and new groups get an uncolored (black) gene band.
+        elif RISet.startswith('BXD') or RISet in ('B6D2F2', 'BDF2-2005', 'BDF2-1999', 'BHHBF2', 'B6D2RI', 'DOD-BXD-GWI', 'UTHSC-Cannabinoid'):
             self.diffCol = ['B6J', 'D2J']
         elif RISet in ('CXB'):
             self.diffCol = ['CBY', 'B6J']
@@ -775,6 +788,7 @@ class DisplayMappingResults:
                 getattr(self, "genotype", None))
         except Exception:
             pass
+
 
     def plotIntMapping(self, canvas, offset=(80, 120, 110, 100), zoom=1, startMb=None, endMb=None, showLocusForm=""):
         im_drawer = ImageDraw.Draw(canvas)
@@ -3180,6 +3194,234 @@ class DisplayMappingResults:
         else:
             self.gene_table_header = None
             self.gene_table_body = None
+
+
+    def getGeneTableHeaderList(self, refGene=None):
+
+        gene_table_header_list = []
+        if self.dataset.group.species == "mouse":
+            if refGene:
+                gene_table_header_list = ["Index",
+                                          "Symbol",
+                                          "Mb Start",
+                                          "Length (Kb)",
+                                          "SNP Count",
+                                          "SNP Density",
+                                          "Avg Expr",
+                                          "Human Chr",
+                                          "Mb Start (hg19)",
+                                          "Literature Correlation",
+                                          "Gene Description"]
+            else:
+                gene_table_header_list = ["",
+                                          "Index",
+                                          "Symbol",
+                                          "Mb Start",
+                                          "Length (Kb)",
+                                          "SNP Count",
+                                          "SNP Density",
+                                          "Avg Expr",
+                                          "Human Chr",
+                                          "Mb Start (hg19)",
+                                          "Gene Description"]
+        elif self.dataset.group.species == "rat":
+            gene_table_header_list = ["",
+                                      "Index",
+                                      "Symbol",
+                                      "Mb Start",
+                                      "Length (Kb)",
+                                      "Avg Expr",
+                                      "Mouse Chr",
+                                      "Mb Start (mm9)",
+                                      "Human Chr",
+                                      "Mb Start (hg19)",
+                                      "Gene Description"]
+
+        return gene_table_header_list
+
+    def getGeneTableBody(self, geneCol, refGene=None):
+        gene_table_body = []
+
+        tableIterationsCnt = 0
+        if self.dataset.group.species == "mouse":
+            for gIndex, theGO in enumerate(geneCol):
+
+                tableIterationsCnt = tableIterationsCnt + 1
+
+                this_row = []  # container for the cells of each row
+                selectCheck = '<input type="checkbox" name="selectCheck" value="{}" class="checkbox trait_checkbox">'.format(theGO["GeneSymbol"])
+
+                geneLength = (theGO["TxEnd"] - theGO["TxStart"]) * 1000.0
+                tenPercentLength = geneLength * 0.0001
+                txStart = theGO["TxStart"]
+                txEnd = theGO["TxEnd"]
+                theGO["snpDensity"] = theGO["snpCount"] / geneLength
+                if self.ALEX_DEBUG_BOOL_PRINT_GENE_LIST:
+                    geneIdString = 'http://www.ncbi.nlm.nih.gov/entrez/query.fcgi?db=gene&cmd=Retrieve&dopt=Graphics&list_uids=%s' % theGO[
+                        "GeneID"]
+
+                    if theGO["snpCount"]:
+                        snpString = _make_link(
+                            (f"http://genenetwork.org/webqtl/main.py?FormID=snpBrowser&"
+                             f"chr={theGO['Chr']}&"
+                             f"start={theGO['TxStart']}&"
+                             f"end={theGO['TxEnd']}&"
+                             f"geneName={theGO['GeneSymbol']}&"
+                             f"s1={self.diffCol[0]}&s2=%d"),
+                            str(theGO["snpCount"]),
+                            target="_blank",
+                            Class="normalsize"
+                        )
+                    else:
+                        snpString = 0
+
+                    mouseStartString = "http://genome.ucsc.edu/cgi-bin/hgTracks?clade=vertebrate&org=Mouse&db=mm10&position=chr" + \
+                        theGO["Chr"] + "%3A" + str(int(theGO["TxStart"] * 1000000.0)) + "-" + str(
+                            int(theGO["TxEnd"] * 1000000.0)) + "&pix=620&Submit=submit"
+
+                    # the chromosomes for human 1 are 1qXX.XX
+                    if 'humanGene' in theGO:
+                        if theGO['humanGene']["TxStart"] == '':
+                            humanStartDisplay = ""
+                        else:
+                            humanStartDisplay = "%0.6f" % theGO['humanGene']["TxStart"]
+
+                        humanChr = theGO['humanGene']["Chr"]
+                        humanTxStart = theGO['humanGene']["TxStart"]
+
+                        humanStartString = "http://genome.ucsc.edu/cgi-bin/hgTracks?clade=vertebrate&org=Human&db=hg17&position=chr%s:%d-%d" % (
+                            humanChr, int(1000000 * theGO['humanGene']["TxStart"]), int(1000000 * theGO['humanGene']["TxEnd"]))
+                    else:
+                        humanStartString = humanChr = humanStartDisplay = "--"
+
+                    geneDescription = theGO["GeneDescription"]
+                    if len(geneDescription) > 70:
+                        geneDescription = geneDescription[:70] + "..."
+
+                    if theGO["snpDensity"] < 0.000001:
+                        snpDensityStr = "0"
+                    else:
+                        snpDensityStr = "%0.6f" % theGO["snpDensity"]
+
+                    avgExpr = []  # theGO["avgExprVal"]
+                    if avgExpr in ([], None):
+                        avgExpr = "--"
+                    else:
+                        avgExpr = "%0.6f" % avgExpr
+
+                    # If we have a referenceGene then we will show the Literature Correlation
+                    if theGO["Chr"] == "X":
+                        chr_as_int = 19
+                    else:
+                        chr_as_int = int(theGO["Chr"]) - 1
+                    if refGene:
+                        literatureCorrelationString = str(self.getLiteratureCorrelation(
+                            self.cursor, refGene, theGO['GeneID']) or "N/A")
+
+                        this_row = [selectCheck,
+                                    str(tableIterationsCnt),
+                                    _make_link(
+                                        geneIdString,
+                                        theGO["GeneSymbol"],
+                                        target="_blank"),
+                                    _make_link(
+                                        mouseStartString,
+                                        "{:.6f}".format(txStart),
+                                        target="_blank"),
+                                    _make_link(
+                                        "javascript:rangeView('{}', {:f}, {:f})".format(
+                                            str(chr_as_int),
+                                            txStart - tenPercentLength,
+                                            txEnd + tenPercentLength),
+                                        "{:.3f}".format(geneLength)),
+                                    snpString,
+                                    snpDensityStr,
+                                    avgExpr,
+                                    humanChr,
+                                    _make_link(humanStartString, humanStartDisplay, target="_blank"),
+                                    literatureCorrelationString,
+                                    geneDescription]
+                    else:
+                        this_row = [selectCheck,
+                                    str(tableIterationsCnt),
+                                    _make_link(geneIdString, theGO["GeneSymbol"], target="_blank"),
+                                    _make_link(mouseStartString, "{:.6f}".format(txStart), target="_blank"),
+                                    _make_link(
+                                        "javascript:rangeView('{}', {:f}, {:f})".format(
+                                            str(chr_as_int),
+                                            txStart - tenPercentLength,
+                                            txEnd + tenPercentLength),
+                                        "{:.3f}".format(geneLength)),
+                                    snpString,
+                                    snpDensityStr,
+                                    avgExpr,
+                                    humanChr,
+                                    _make_link(humanStartString, humanStartDisplay, target="_blank"),
+                                    geneDescription]
+
+                gene_table_body.append(this_row)
+
+        elif self.dataset.group.species == 'rat':
+            for gIndex, theGO in enumerate(geneCol):
+                this_row = []  # container for the cells of each row
+                selectCheck = '<input type="checkbox" name="selectCheck" class="checkbox trait_checkbox">'  # checkbox for each row
+
+                if theGO["GeneID"] != "":
+                    geneSymbolNCBI = _make_link("http://www.ncbi.nlm.nih.gov/entrez/query.fcgi?db=gene&cmd=Retrieve&dopt=Graphics&list_uids={}".format(
+                            theGO["GeneID"]), theGO["GeneSymbol"],
+                        Class="normalsize",
+                        target="_blank")
+                else:
+                    geneSymbolNCBI = theGO["GeneSymbol"]
+
+                if theGO["Chr"] == "X":
+                    chr_as_int = 20
+                else:
+                    chr_as_int = int(theGO["Chr"]) - 1
+
+                geneLength = (float(theGO["TxEnd"]) - float(theGO["TxStart"]))
+                geneLengthURL = "javascript:rangeView('%s', %f, %f)" % (theGO["Chr"], float(
+                    theGO["TxStart"]) - (geneLength * 0.1), float(theGO["TxEnd"]) + (geneLength * 0.1))
+
+                avgExprVal = []
+                if avgExprVal != "" and avgExprVal:
+                    avgExprVal = "%0.5f" % float(avgExprVal)
+                else:
+                    avgExprVal = ""
+
+                # Mouse Gene
+                if theGO['mouseGene']:
+                    mouseChr = theGO['mouseGene']["Chr"]
+                    mouseTxStart = "%0.6f" % theGO['mouseGene']["TxStart"]
+                else:
+                    mouseChr = mouseTxStart = ""
+
+                # the chromosomes for human 1 are 1qXX.XX
+                if 'humanGene' in theGO:
+                    humanChr = theGO['humanGene']["Chr"]
+                    humanTxStart = "%0.6f" % theGO['humanGene']["TxStart"]
+                else:
+                    humanChr = humanTxStart = ""
+
+                geneDesc = theGO["GeneDescription"]
+                if geneDesc == "---":
+                    geneDesc = ""
+
+                this_row = [selectCheck,
+                            str(gIndex + 1),
+                            geneSymbolNCBI,
+                            "%0.6f" % theGO["TxStart"],
+                            _make_link(geneLengthURL, "{:.3f}".format(geneLength * 1000.0)),
+                            avgExprVal,
+                            mouseChr,
+                            mouseTxStart,
+                            humanChr,
+                            humanTxStart,
+                            geneDesc]
+
+                gene_table_body.append(this_row)
+
+        return gene_table_body
 
     def getLiteratureCorrelation(cursor, geneId1=None, geneId2=None):
         if not geneId1 or not geneId2:

@@ -3,12 +3,12 @@ var margin = {top: 20, right: 70, bottom: 60, left: 60}
   , height = 500 - margin.top - margin.bottom;
     
 var x = d3.scale.linear()
-          .domain([d3.min(loadings, function(d) { return d[0]; }) + 0.1*d3.min(loadings, function(d) { return d[0]; }), d3.max(loadings, function(d) { return d[0]; })])
+          .domain([Math.min(0, d3.min(loadings, function(d) { return d[0]; })) + 0.1*Math.min(0, d3.min(loadings, function(d) { return d[0]; })), Math.max(0, d3.max(loadings, function(d) { return d[0]; }))])
           .range([ 0, width ]);
     
 var y = d3.scale.linear()
-    	  .domain([d3.min(loadings, function(d) { return d[1]; }) + 0.1*d3.min(loadings, function(d) { return d[1]; }), d3.max(loadings, function(d) { return d[1]; })])
-    	  .range([ height, 0 ]);
+          .domain([Math.min(0, d3.min(loadings, function(d) { return d[1]; })) + 0.1*Math.min(0, d3.min(loadings, function(d) { return d[1]; })), Math.max(0, d3.max(loadings, function(d) { return d[1]; }))])
+          .range([ height, 0 ]);
  
 var chart = d3.select('#loadings_plot')
     .append('svg:svg')

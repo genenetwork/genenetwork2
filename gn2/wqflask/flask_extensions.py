@@ -27,7 +27,7 @@ def render_template(template, **context: Any) -> str:
         }
 
     return client.get(
-        "auth/system/roles"
+        "auth/resource/system/roles"
     ).then(
         lambda sys_roles: {
             **context,

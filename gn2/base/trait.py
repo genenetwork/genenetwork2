@@ -168,6 +168,7 @@ class GeneralTrait:
         if self.symbol:
             def __safe_query__(url) -> list[str]:
                 """Query the URL safely."""
+                logger.info("Aliases query URI is: %s", url)
                 return mrequests.get(url).either(
                     lambda err: [], lambda aliases: aliases)
 

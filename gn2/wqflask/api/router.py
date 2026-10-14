@@ -621,6 +621,8 @@ def trait_sample_data(dataset_name, trait_name, file_format="json"):
             "ProbeSetXRef.ProbeSetId = ProbeSet.Id "
             "AND ProbeSetXRef.ProbeSetFreezeId = ProbeSetFreeze.Id "
             "AND ProbeSetFreeze.Name = %s AND "
+            "ProbeSetFreeze.public > 0 AND "
+            "ProbeSetFreeze.confidentiality < 1 AND "
             "ProbeSetXRef.DataId = ProbeSetData.Id "
             "AND ProbeSetData.StrainId = Strain.Id "
             "ORDER BY Strain.Name",
@@ -668,6 +670,8 @@ def trait_sample_data(dataset_name, trait_name, file_format="json"):
                 "OR PublishFreeze.Name = %s OR "
                 "PublishFreeze.ShortName = %s OR "
                 "PublishXRef.InbredSetId = %s) AND "
+                "PublishFreeze.public > 0 AND "
+                "PublishFreeze.confidentiality < 1 AND "
                 "PublishData.StrainId = Strain.Id "
                 "ORDER BY Strain.Name",
                 (trait_name, *(dataset_or_group,)*4)
@@ -708,7 +712,9 @@ def get_trait_info(dataset_name, trait_name, file_format="json"):
             "WHERE ProbeSet.Name = %s AND "
             "ProbeSetXRef.ProbeSetId = ProbeSet.Id AND "
             "ProbeSetXRef.ProbeSetFreezeId = ProbeSetFreeze.Id "
-            "AND ProbeSetFreeze.Name = %s",
+            "AND ProbeSetFreeze.Name = %s AND "
+            "ProbeSetFreeze.public > 0 AND "
+            "ProbeSetFreeze.confidentiality < 1",
             (trait_name, dataset_name,)
         )
         if trait_info := cursor.fetchone():
@@ -739,9 +745,12 @@ def get_trait_info(dataset_name, trait_name, file_format="json"):
                 "SELECT PublishXRef.PhenotypeId, "
                 "PublishXRef.Locus, PublishXRef.LRS, "
                 "PublishXRef.additive FROM "
-                "PublishXRef WHERE "
+                "PublishXRef, PublishFreeze WHERE "
                 "PublishXRef.Id = %s AND "
-                "PublishXRef.InbredSetId = %s",
+                "PublishXRef.InbredSetId = %s AND "
+                "PublishFreeze.InbredSetId = PublishXRef.InbredSetId AND "
+                "PublishFreeze.public > 0 AND "
+                "PublishFreeze.confidentiality < 1",
                 (trait_name, group_id,)
             )
             if trait_info := cursor.fetchone():

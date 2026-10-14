@@ -49,17 +49,23 @@ def write_db_to_textfile(db_name, conn, text_dir="/tmp/gn2/cache"):
         for (trait, strain, val) in results:
             if strain not in ids:
                 ids.append(strain)
-            if trait in data:
-                data[trait].append(val)
-            else:
-                data[trait] = [trait, val]
+            if trait not in data:
+                data[trait] = {"ID": trait}
+            data[trait][strain] = val
         return (data, ids)
 
     def __write_to_file__(file_path, data, col_names):
+        # Each value is looked up by column name, and samples a trait has no
+        # value for are padded with "X", so every row holds exactly one field per
+        # column.  Appending values in query order instead shifts a trait's
+        # values against the header from the first sample it is missing, and
+        # yields rows of differing lengths - which `read_text_file` then rejects.
         with open(file_path, 'w+', encoding='UTF8') as file_handler:
             writer = csv.writer(file_handler)
             writer.writerow(col_names)
-            writer.writerows(data.values())
+            for trait in data:
+                writer.writerow([data[trait].get(column, "X")
+                                 for column in col_names])
 
     with conn.cursor() as cursor:
         cursor.execute(

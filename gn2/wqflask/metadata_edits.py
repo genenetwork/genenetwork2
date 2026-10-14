@@ -405,7 +405,7 @@ def __edit_with_authorisation__(thunk, dataset_name, trait_name, *auth_checkers)
         lambda wrapper: wrapper["access_token"]
     ).then(# Fetch system roles
         lambda token: mrequests.get(
-            urljoin(authserver_url, "auth/system/roles"),
+            urljoin(authserver_url, "auth/resource/system/roles"),
             headers=__headers__(token)
         ).then(
             lambda system_roles: {
@@ -467,7 +467,7 @@ def batch_edit_page() -> Response:
                 return render_template("batch_edit_complete.html", diffs=diff_data, data_type=data_type)
     else:
         return client.get(
-            "auth/system/roles"
+            "auth/resource/system/roles"
         ).then(
             lambda sysroles: tuple(
                 priv["privilege_id"] for role in sysroles
@@ -1072,7 +1072,7 @@ def list_diffs():
         lambda auths: auths["authorisation"]
     ).then(
         lambda lst: client.get(
-            "auth/system/roles"
+            "auth/resource/system/roles"
         ).then(
             lambda sysroles: [
                 priv["privilege_id"] for role in sysroles
@@ -1177,7 +1177,7 @@ def show_history(dataset_id: str = "", name: str = ""):
         version=current_app.config.get("GN_VERSION"),
     )
 
-@metadata_edit.route("<resource_id>/diffs/<file_name>/reject")
+@metadata_edit.route("<resource_id>/diffs/<file_name>/reject", methods=["POST"])
 @login_required(pagename="sample data rejection")
 def reject_data(resource_id: str, file_name: str):
     def __do_reject__(*args, **kwargs):
@@ -1203,7 +1203,7 @@ def reject_data(resource_id: str, file_name: str):
                                        resources.can_view,
                                        resources.can_edit)
 
-@metadata_edit.route("<resource_id>/diffs/<file_name>/approve")
+@metadata_edit.route("<resource_id>/diffs/<file_name>/approve", methods=["POST"])
 @login_required(pagename="Sample Data Approval")
 def approve_data(resource_id: str, file_name: str):
     def __do_approve__(*args, **kwargs):

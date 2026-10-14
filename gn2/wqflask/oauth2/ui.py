@@ -5,6 +5,7 @@ from flask import render_template
 from gn_libs.privileges import system
 
 from .client import oauth2_get
+from .request_utils import process_error
 
 logger = logging.getLogger(__name__)
 
@@ -33,7 +34,7 @@ def __display_p__(actual: tuple[str, ...], check_for: tuple[str, ...]) -> bool:
 def render_ui(templatepath: str, **kwargs):
     """Handle repetitive UI rendering stuff."""
     return oauth2_get(
-        f"auth/system/roles"
+        f"auth/resource/system/roles"
     ).then(
         lambda sysroles: {
             "user_system_roles": sysroles,

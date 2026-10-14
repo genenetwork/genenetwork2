@@ -219,7 +219,7 @@ def perform_bulk_action():
     match request.form["bulk-action"]:
         case "delete selected users":
             req = oauth2_post(
-                "auth/user/delete",
+                "auth/system/administration/users/delete",
                 json={
                     "user_ids": user_ids,
                 }

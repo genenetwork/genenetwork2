@@ -23,10 +23,14 @@ from typing import List
 import MySQLdb
 
 def conn():
+    # NOTE: DB_HOST must be an IP (e.g. 127.0.0.1), not "localhost" -- with
+    # "localhost" the client connects over the Unix socket and `port` is
+    # ignored, which would silently bypass the SSH tunnel.
     return MySQLdb.Connect(db=os.environ.get("DB_NAME"),
                            user=os.environ.get("DB_USER"),
                            passwd=os.environ.get("DB_PASS"),
-                           host=os.environ.get("DB_HOST"))
+                           host=os.environ.get("DB_HOST"),
+                           port=int(os.environ.get("DB_PORT") or 3306))
 
 def main(args):
 
@@ -80,18 +84,50 @@ def main(args):
     else:
         filename, samples = generate_new_genofile(source_files[0]['location'], target_file, par_f1s, out_dir)
 
-def get_strain_for_sample(sample):
-    query = (
-        "SELECT CaseAttributeXRefNew.Value "
-        "FROM CaseAttributeXRefNew, Strain "
-        "WHERE CaseAttributeXRefNew.CaseAttributeId=11 "
-        "AND CaseAttributeXRefNew.StrainId = Strain.Id "
-        "AND Strain.Name = %(name)s" )
+# Number of sample names to resolve per query. Keeps the IN(...) clause a sane
+# size for genotype files containing many (thousands of) samples.
+SAMPLE_LOOKUP_CHUNK_SIZE = 1000
 
+def strains_for_samples(samples):
+    """Resolve a batch of samples to their strain names.
+
+    Returns a dict mapping each sample name to its strain name, or to None for
+    samples that have no strain mapping in the database.
+
+    All of the lookups share one database connection (rather than opening a
+    connection per sample), and the names are resolved in batches, so this
+    costs a handful of round trips no matter how many samples there are.
+
+    The "Strain" attribute is looked up by name rather than by a hard-coded
+    CaseAttributeId: that id is only unique within an InbredSet, and the same
+    number means different things in different InbredSets (e.g. id 1 is
+    "Strain" for some InbredSets but "Status" for others).
+    """
+    query = (
+        "SELECT s.Name, x.Value "
+        "FROM CaseAttributeXRefNew x "
+        "JOIN Strain s ON s.Id = x.StrainId "
+        "JOIN CaseAttribute ca ON ca.InbredSetId = x.InbredSetId "
+        "                     AND ca.CaseAttributeId = x.CaseAttributeId "
+        "WHERE ca.Name = 'Strain' "
+        "AND s.Name IN %s")
+
+    sample_names = [sample.strip() for sample in samples]
+    found = {}
     with conn().cursor() as cursor:
-        cursor.execute(query, {"name": sample.strip()})
-        strain = cursor.fetchone()[0]
-        return strain
+        for start in range(0, len(sample_names), SAMPLE_LOOKUP_CHUNK_SIZE):
+            chunk = sample_names[start:start + SAMPLE_LOOKUP_CHUNK_SIZE]
+            cursor.execute(query, (tuple(chunk),))
+            found.update(cursor.fetchall())
+
+    # dict.fromkeys() de-duplicates while preserving the original order, so a
+    # sample listed twice does not warn twice.
+    for sample in dict.fromkeys(sample_names):
+        if sample not in found:
+            print(f"No strain mapping in the database for sample {sample!r}; "
+                  "writing 'U' for its genotypes.", file=sys.stderr)
+
+    return {sample: found.get(sample) for sample in sample_names}
 
 def generate_new_genofile(source_genofile, target_genofile, par_f1s, out_dir):
     source_samples = group_samples(source_genofile)
@@ -149,17 +185,29 @@ def map_strain_pos_to_target_group(source_samples, target_samples, par_f1s):
     Target samples: BXD1_1, BXD1_2, BXD2_1, BXD3_1, BXD3_2, BXD3_3
     Returns: [0, 0, 1, 2, 2, 2]
     """
+    strain_for_sample = strains_for_samples(target_samples)
+
     pos_map = []
     for sample in target_samples:
-        sample_strain = get_strain_for_sample(sample)
+        sample_strain = strain_for_sample.get(sample)
+
+        # Nothing in the database maps this sample to a strain, so there is
+        # nothing to look up. "U" is already the value generate_new_genofile()
+        # writes for any position that is neither a known strain nor a
+        # parent/F1 group, so just fall through to that.
+        if sample_strain is None:
+            pos_map.append("U")
+            continue
+
         if sample_strain in source_samples:
             pos_map.append(source_samples.index(sample_strain))
-        else:
-            val = "U"
-            for key in par_f1s.keys():
-                if sample_strain in par_f1s[key]:
-                    val = key
-            pos_map.append(val)
+            continue
+
+        val = "U"
+        for key in par_f1s.keys():
+            if sample_strain in par_f1s[key]:
+                val = key
+        pos_map.append(val)
 
     return pos_map
 
