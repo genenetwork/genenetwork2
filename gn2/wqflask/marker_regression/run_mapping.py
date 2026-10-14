@@ -825,7 +825,7 @@ def chromosome_length(chr_name, lowest_pos, highest_pos, relative_to_first):
 
     length = {
         "chr": str(chr_name),
-        "size": str((highest_pos - lowest_pos) * 1000000),
+        "size": str((highest_pos - lowest_pos if relative_to_first else highest_pos) * 1000000),
     }
     if relative_to_first:
         length["start"] = str(lowest_pos * 1000000)
