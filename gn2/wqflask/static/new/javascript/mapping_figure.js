@@ -245,6 +245,18 @@ window.MappingFigure = (function () {
         return step * mag;
     }
 
+    /* Decimals needed to tell two values a tick step apart from each other:
+       a step of 0.1 wants one decimal, 0.02 wants two, 5 wants none. Capped
+       at 6, which is base resolution on an Mb axis, so a step finer than
+       that still gets as much precision as is meaningful. */
+    function stepDecimals(step) {
+        if (!(step > 0)) return 0;
+        var decimals = Math.ceil(-Math.log(step) / Math.LN10);
+        if (!(decimals > 0)) decimals = 0;
+        if (decimals > 6) decimals = 6;
+        return decimals;
+    }
+
     /* Tick labels for a linear scale, formatted the way the original PIL
        plots do: whole numbers while every tick is a whole number, otherwise
        decimals. The number of decimals follows the tick step, so an axis
@@ -262,10 +274,9 @@ window.MappingFigure = (function () {
         var step = ticks.length > 1
             ? Math.abs(ticks[1] - ticks[0])
             : (Math.abs(ticks[0]) || 1);
-        var decimals = Math.ceil(-Math.log(step) / Math.LN10);
-        if (!(decimals >= 1)) decimals = 1;
-        if (decimals > 4) decimals = 4;
-        return d3.format("." + decimals + "f");
+        /* at least one decimal: this branch is only reached when the ticks
+           are not whole numbers */
+        return d3.format("." + Math.max(1, stepDecimals(step)) + "f");
     }
 
     /* ------------------------------ tooltip ------------------------------ */
@@ -1393,16 +1404,30 @@ window.MappingFigure = (function () {
                 });
             } else {
                 /* single chromosome / Mb range: nice continuous scale, with
-                   major + minor ticks labelled in absolute Mb */
+                   major + minor ticks labelled in absolute Mb. The grid is
+                   snapped to multiples of minorStep rather than starting at
+                   the range boundary: a range such as 10.013-11.013 used to
+                   generate ticks that never coincided with a multiple of
+                   step, so nothing was ever a major tick and the axis came
+                   out with no labels at all. */
                 var mbStart = rangeB ? rangeB.start / 1e6 : 0;
                 var lenMb = rangeB ? (rangeB.end - rangeB.start) / 1e6
                                    : focusLayout.lengths[0].size / 1e6;
                 var step = niceStep(lenMb);
                 var minorStep = step / 5;
-                var vi = 0;
-                for (var v = mbStart; v <= mbStart + lenMb + 1e-9;
-                     vi += 1, v = mbStart + vi * minorStep) {
-                    var nearMajor = Math.abs(v - Math.round(v / step) * step) < 1e-6;
+                var mbDecimals = stepDecimals(step);
+                var firstTick = Math.ceil(mbStart / minorStep - 1e-9) * minorStep;
+                var lastMb = mbStart + lenMb;
+                var nTicks = Math.floor((lastMb - firstTick) / minorStep + 1e-9);
+                for (var vi = 0; vi <= nTicks; vi += 1) {
+                    var v = firstTick + vi * minorStep;
+                    /* step is exactly five minor steps, so a tick within half
+                       a step of a multiple of step is a major one. Measured
+                       against the tick spacing rather than a fixed epsilon,
+                       which only worked while the grid happened to start on
+                       a multiple of step. */
+                    var nearMajor =
+                        Math.abs(v - Math.round(v / step) * step) < minorStep / 2;
                     var x = xScale(v * 1e6);
                     g.append("line")
                         .attr("x1", x).attr("y1", chartH)
@@ -1416,7 +1441,7 @@ window.MappingFigure = (function () {
                             .attr("font-family", FONT)
                             .attr("font-size", "14px")
                             .attr("fill", "#000")
-                            .text(String(Math.round(v)));
+                            .text(v.toFixed(mbDecimals));
                     }
                 }
             }
