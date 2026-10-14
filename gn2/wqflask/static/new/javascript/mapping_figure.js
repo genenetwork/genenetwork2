@@ -762,13 +762,16 @@ window.MappingFigure = (function () {
                 Math.max(0, Math.min(chartW, x1))];
     }
 
-    /* Cache key for track data: chromosome plus the visible Mb range, so a
-       manual range zoom refetches the data for the zoomed window. */
+    /* Cache key for track data: chromosome plus the visible range, so a
+       manual range zoom refetches the data for the zoomed window.
+       Keyed in bases rather than Mb: rounding the Mb endpoints to three
+       decimals merged distinct windows (anything closer together than a
+       kilobase produced the same key), so zooming into a neighbouring window
+       silently reused the previous one's genes, SNPs and haplotypes. */
     function trackDataKey(chr, rangeB) {
         if (!rangeB) return String(chr) + ":full";
         return String(chr) + ":" +
-            (rangeB.start / 1e6).toFixed(3) + "-" +
-            (rangeB.end / 1e6).toFixed(3);
+            Math.round(rangeB.start) + "-" + Math.round(rangeB.end);
     }
 
     /* fetch the gene/homology/haplotype data for the focused chromosome/range.
