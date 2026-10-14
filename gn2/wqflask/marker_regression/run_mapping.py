@@ -348,8 +348,15 @@ class RunMapping:
                 # displays, so the table cannot disagree with the figure and the
                 # results export about what the numbers mean.
                 plot_coord = genetic_scale_coord(self.mapping_scale, results)
+                # reaper reports one bootstrap count per marker, in the same
+                # order as the markers (see parse_reaper_output). Carry the
+                # count on the marker it belongs to rather than relying on that
+                # order downstream: the figure and the original PIL figure both
+                # draw the counts, and an index-based pairing breaks as soon as
+                # anything filters or thins the marker list.
+                boot_counts = self.bootstrap_results or []
                 highest_chr = 1  # This is needed in order to convert the highest chr to X/Y
-                for marker in results:
+                for marker_index, marker in enumerate(results):
                     marker['hmac'] = hmac.data_hmac('{}:{}'.format(marker['name'], self.dataset.group.name + "Geno"))
                     if 'Mb' in marker:
                         this_ps = marker['Mb'] * 1000000
@@ -417,6 +424,8 @@ class RunMapping:
                                     "{:.3f}".format(marker['cM'])
                             else:
                                 marker['display_pos'] = "N/A"
+                            if marker_index < len(boot_counts):
+                                marker['boot_count'] = boot_counts[marker_index]
                             self.qtl_results.append(marker)
 
                 total_markers = len(self.qtl_results)
@@ -424,7 +433,15 @@ class RunMapping:
                                        self.mapping_method, self.mapping_scale, self.score_type,
                                        self.transform, self.covariates, self.n_samples, self.vals_hash)
 
-                if len(self.qtl_results) > 30000:
+                # Only the methods that run against the very large genotype
+                # files - in practice GEMMA - need their markers thinned out
+                # for the figure. A reaper run's results are already small
+                # enough to send whole, and thinning them would additionally
+                # break the pairing between a marker and its bootstrap count,
+                # which is matched up by position rather than carried on the
+                # marker.
+                if (len(self.qtl_results) > 30000
+                        and self.mapping_method != "reaper"):
                     self.qtl_results = trim_markers_for_figure(
                         self.qtl_results)
                     self.results_for_browser = trim_markers_for_figure(

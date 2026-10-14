@@ -747,6 +747,15 @@ class DisplayMappingResults:
             "additive_checked": (
                 str(getattr(self, "additiveChecked", False)).strip().upper()
                 == "ON"),
+            # Reaper's bootstrap results. The flag says whether the figure
+            # should draw them and nboot is how many replicates the per-marker
+            # counts are out of - the counts themselves ride on the markers as
+            # boot_count (see run_mapping), so they cannot come adrift from the
+            # markers they belong to. Only reaper produces them.
+            "boot_checked": (
+                str(getattr(self, "bootChecked", False)).strip().upper()
+                == "ON"),
+            "num_bootstrap": getattr(self, "nboot", 0),
             "species": self.dataset.group.species,
             "ucsc_db": getattr(self, "_ucscDb", ""),
             # Track toggles (mirror the mapping form checkboxes) + the context
@@ -1028,7 +1037,7 @@ class DisplayMappingResults:
 
         bootOffset = 50 * fontZoom
         bootScaleFont = ImageFont.truetype(
-            font=VERDANA_FILE, size=13 * fontZoom)
+            font=VERDANA_FILE, size=int(round(13 * fontZoom)))
         im_drawer.rectangle(
             xy=((canvas.size[0] - bootOffset, yZero - bootHeightThresh),
                 (canvas.size[0] - bootOffset - 15 * zoom, yZero)),
@@ -1058,7 +1067,7 @@ class DisplayMappingResults:
             else:
                 startPosY = 15
             smallLabelFont = ImageFont.truetype(
-                font=TREBUC_FILE, size=12 * fontZoom)
+                font=TREBUC_FILE, size=int(round(12 * fontZoom)))
             leftOffset = canvas.size[0] - xRightOffset - 190
             im_drawer.rectangle(
                 xy=((leftOffset, startPosY - 6),
