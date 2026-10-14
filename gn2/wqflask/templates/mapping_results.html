@@ -448,12 +448,16 @@
                         mapStart.val(''); mapEnd.val('');
                         return;
                     }
-                    window.MappingFigure.focusChromosome(chr);
-                    if (!isNaN(s) && !isNaN(e) && e > s) {
-                        window.MappingFigure.setRange({ startMb: s, endMb: e });
-                    } else {
-                        window.MappingFigure.setRange(null);
-                    }
+                    /* Apply the chromosome and the range together: focusing
+                       renders straight away, so doing these as two calls
+                       would fetch - and cache - the whole chromosome's track
+                       data before the range supersedes it. That is an extra
+                       /mapping/track_data round trip, and for strain
+                       comparisons it costs a SNP query per gene. */
+                    window.MappingFigure.focusChromosome(chr,
+                        (!isNaN(s) && !isNaN(e) && e > s)
+                            ? { startMb: s, endMb: e }
+                            : null);
                 });
                 $('#map-range-reset').on('click', function () {
                     window.MappingFigure.reset("mapping-figure", _md);
