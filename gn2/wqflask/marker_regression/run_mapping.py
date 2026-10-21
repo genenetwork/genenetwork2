@@ -343,8 +343,20 @@ class RunMapping:
                 self.qtl_results = []
                 self.results_for_browser = []
                 self.annotations_for_browser = []
+                # Whichever of Mb/cM this run is plotted on (see
+                # genetic_scale_coord). Used below for the position each marker
+                # displays, so the table cannot disagree with the figure and the
+                # results export about what the numbers mean.
+                plot_coord = genetic_scale_coord(self.mapping_scale, results)
+                # reaper reports one bootstrap count per marker, in the same
+                # order as the markers (see parse_reaper_output). Carry the
+                # count on the marker it belongs to rather than relying on that
+                # order downstream: the figure and the original PIL figure both
+                # draw the counts, and an index-based pairing breaks as soon as
+                # anything filters or thins the marker list.
+                boot_counts = self.bootstrap_results or []
                 highest_chr = 1  # This is needed in order to convert the highest chr to X/Y
-                for marker in results:
+                for marker_index, marker in enumerate(results):
                     marker['hmac'] = hmac.data_hmac('{}:{}'.format(marker['name'], self.dataset.group.name + "Geno"))
                     if 'Mb' in marker:
                         this_ps = marker['Mb'] * 1000000
@@ -392,7 +404,17 @@ class RunMapping:
                         if str(marker['chr']) > str(highest_chr) or str(marker['chr']) == "X" or str(marker['chr']) == "X/Y":
                             highest_chr = marker['chr']
                         if ('lod_score' in marker.keys()) or ('lrs_value' in marker.keys()):
-                            if 'Mb' in marker.keys():
+                            # The position shown is on the scale the figure and
+                            # the results export use (see genetic_scale_coord),
+                            # not whichever of Mb/cM the marker happens to
+                            # carry. reaper emits both, so always preferring Mb
+                            # displayed a genetic-scale run's positions in Mb
+                            # while the table heading still said cM.
+                            if plot_coord == 'cM' and 'cM' in marker.keys():
+                                marker['display_pos'] = "Chr" + \
+                                    str(marker['chr']) + ": " + \
+                                    "{:.3f}".format(marker['cM'])
+                            elif 'Mb' in marker.keys():
                                 marker['display_pos'] = "Chr" + \
                                     str(marker['chr']) + ": " + \
                                     "{:.6f}".format(marker['Mb'])
@@ -402,6 +424,8 @@ class RunMapping:
                                     "{:.3f}".format(marker['cM'])
                             else:
                                 marker['display_pos'] = "N/A"
+                            if marker_index < len(boot_counts):
+                                marker['boot_count'] = boot_counts[marker_index]
                             self.qtl_results.append(marker)
 
                 total_markers = len(self.qtl_results)
@@ -409,7 +433,15 @@ class RunMapping:
                                        self.mapping_method, self.mapping_scale, self.score_type,
                                        self.transform, self.covariates, self.n_samples, self.vals_hash)
 
-                if len(self.qtl_results) > 30000:
+                # Only the methods that run against the very large genotype
+                # files - in practice GEMMA - need their markers thinned out
+                # for the figure. A reaper run's results are already small
+                # enough to send whole, and thinning them would additionally
+                # break the pairing between a marker and its bootstrap count,
+                # which is matched up by position rather than carried on the
+                # marker.
+                if (len(self.qtl_results) > 30000
+                        and self.mapping_method != "reaper"):
                     self.qtl_results = trim_markers_for_figure(
                         self.qtl_results)
                     self.results_for_browser = trim_markers_for_figure(
@@ -431,6 +463,12 @@ class RunMapping:
 
                 chr_lengths = get_chr_lengths(
                     self.mapping_scale, self.mapping_method, self.dataset, self.qtl_results)
+                # Whether those lengths (and so the plotted positions) are in
+                # cM. Passed to the client so the figure reads the decision
+                # instead of re-deriving it from the mapping method.
+                chr_lengths_in_cm = (
+                    genetic_scale_coord(self.mapping_scale, self.qtl_results)
+                    == "cM")
 
                 # ZS: For zooming into genome browser, need to pass chromosome name instead of number
                 if self.dataset.group.species == "mouse":
@@ -468,6 +506,7 @@ class RunMapping:
                         #qtl_results = self.qtl_results,
                         categorical_vars=self.categorical_vars,
                         chr_lengths=chr_lengths,
+                        chr_lengths_in_cm=chr_lengths_in_cm,
                         num_perm=self.num_perm,
                         perm_results=self.perm_output,
                         significant=significant_for_browser,
@@ -478,6 +517,7 @@ class RunMapping:
                 else:
                     self.js_data = dict(
                         chr_lengths=chr_lengths,
+                        chr_lengths_in_cm=chr_lengths_in_cm,
                         browser_files=browser_files,
                         selected_chr=this_chr,
                         total_markers=total_markers
@@ -701,7 +741,30 @@ def geno_db_exists(this_dataset, first_marker):
         return "False"
 
 
+def genetic_scale_coord(mapping_scale, qtl_results):
+    """Which marker field holds the plotted position for these results.
+
+    Returns None on a physical scale. On a genetic scale a run is plotted on
+    the genetic map, so cM is the coordinate of record: that is what the
+    results export (export_mapping_results), the results table header and the
+    original figure all already use. Results that only carry physical
+    positions - gemma never emits cM - keep using Mb, so this follows the data
+    rather than the method name.
+
+    The caller and the client both derive the coordinate from this one
+    function, so the plotted positions cannot disagree with the chromosome
+    lengths they are drawn against.
+    """
+    if mapping_scale == "physic":
+        return None
+    if qtl_results and 'cM' in qtl_results[0]:
+        return 'cM'
+    return 'Mb'
+
+
 def get_chr_lengths(mapping_scale, mapping_method, dataset, qtl_results):
+    # mapping_method is kept for callers, but the coordinate now follows the
+    # results themselves (see genetic_scale_coord) rather than the method name.
     chr_lengths = []
     if mapping_scale == "physic":
         with database_connection(get_setting("SQL_URI")) as conn, conn.cursor() as db_cursor:
@@ -712,35 +775,68 @@ def get_chr_lengths(mapping_scale, mapping_method, dataset, qtl_results):
                 }
                 chr_lengths.append(this_chr)
     else:
-        this_chr = 1
-        highest_pos = 0
-        for i, result in enumerate(qtl_results):
-            chr_as_num = 0
-            try:
-                chr_as_num = int(result['chr'])
-            except:
-                chr_as_num = 20
-            if chr_as_num > this_chr or i == (len(qtl_results) - 1):
-                if i == (len(qtl_results) - 1):
-                    if mapping_method == "reaper":
-                        highest_pos = float(result['cM']) * 1000000
-                    else:
-                        highest_pos = float(result['Mb']) * 1000000
-                    chr_lengths.append(
-                        {"chr": str(this_chr), "size": str(highest_pos)})
-                else:
-                    chr_lengths.append(
-                        {"chr": str(this_chr), "size": str(highest_pos)})
-                    this_chr = chr_as_num
+        coord = genetic_scale_coord(mapping_scale, qtl_results)
+        # A genetic map runs along each chromosome, so a chromosome's length is
+        # the span its own markers cover, and each marker is plotted at its
+        # distance from the first marker of that chromosome. That is what the
+        # original figure does: display_mapping_results builds ChrLengthCMList
+        # from _chr[-1].cM - _chr[0].cM and draws loci at cM - first cM.
+        # Mb is already measured from the start of its chromosome, so its
+        # positions are left alone and it only needs the span.
+        relative_to_first = coord == "cM"
+
+        # Group the markers by the chromosome name they carry, keeping that
+        # name as it is. Coercing the names to integers (and folding every
+        # symbolic name, such as X, into "20") produced lengths that the
+        # markers could not be matched against - the figure looks a marker's
+        # chromosome up by name - so those chromosomes silently disappeared.
+        spans = {}
+        for result in qtl_results:
+            chr_name = str(result['chr'])
+            position = float(result[coord])
+            if chr_name in spans:
+                lowest_pos, highest_pos = spans[chr_name]
+                spans[chr_name] = (min(lowest_pos, position),
+                                   max(highest_pos, position))
             else:
-                if mapping_method == "reaper":
-                    if float(result['cM']) > highest_pos:
-                        highest_pos = float(result['cM']) * 1000000
-                else:
-                    if float(result['Mb']) > highest_pos:
-                        highest_pos = float(result['Mb']) * 1000000
+                spans[chr_name] = (position, position)
+
+        # Numeric chromosomes first, in order, then the symbolic ones: the
+        # figure and the chromosome selector both assume this order.
+        def sort_key(chr_name):
+            try:
+                return (0, int(chr_name), "")
+            except ValueError:
+                return (1, 0, chr_name)
+
+        for chr_name in sorted(spans, key=sort_key):
+            lowest_pos, highest_pos = spans[chr_name]
+            chr_lengths.append(chromosome_length(
+                chr_name, lowest_pos, highest_pos, relative_to_first))
 
     return chr_lengths
+
+
+def chromosome_length(chr_name, lowest_pos, highest_pos, relative_to_first):
+    """One chr_lengths entry: how much of the mapped coordinate a chromosome covers.
+
+    Markers are drawn inside their chromosome's band, so an entry may also
+    carry the position its band has to start at ("start") when the coordinate is
+    not already relative to the chromosome. cM is the case that needs it: a
+    genetic map is numbered from the start of the first chromosome, so without
+    the offset every chromosome's markers would be drawn at their genome-wide
+    distance from chromosome 1.
+    """
+    if lowest_pos is None or highest_pos is None:
+        return {"chr": str(chr_name), "size": "0"}
+
+    length = {
+        "chr": str(chr_name),
+        "size": str((highest_pos - lowest_pos if relative_to_first else highest_pos) * 1000000),
+    }
+    if relative_to_first:
+        length["start"] = str(lowest_pos * 1000000)
+    return length
 
 
 def get_genofile_samplelist(dataset):

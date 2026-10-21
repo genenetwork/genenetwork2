@@ -39,6 +39,7 @@ from gn_libs.privileges import resources
 from gn_libs.mysqldb import database_connection
 from gn3.computations.gemma import generate_hash_of_string
 from flask import current_app
+from flask import abort
 from flask import jsonify
 from flask import g
 from flask import Response
@@ -1408,6 +1409,15 @@ def mapping_results_page(hash_of_inputs=None):
         initial_start_vars['hash_of_inputs'] = hash_of_inputs
     else:
         initial_start_vars = request.form
+        if not initial_start_vars:
+            # Nothing to run a mapping from. Either a /run_mapping/<hash> URL
+            # we have no stored inputs for (an expired share link, or an asset
+            # the browser resolved relative to the results page, e.g.
+            # /run_mapping/static/new/css/...), or a POST with no body at all.
+            # Without this the empty form reaches RunMapping() and dies with a
+            # KeyError on 'dataset', and the empty dict is cached as the inputs
+            # for that URL.
+            abort(404 if hash_of_inputs else 400)
 
         # Get hash of inputs (as JSON) for sharing results
         inputs_json = json.dumps(initial_start_vars, sort_keys=True)
@@ -1551,6 +1561,93 @@ def cache_mapping_inputs():
     Redis.set(cache_id, inputs_json)
 
     return "Success"
+
+
+@app.route("/mapping/track_data", methods=("POST",))
+def mapping_track_data():
+    """Return gene / homology / haplotype track data for a chromosome/range.
+
+    Used by the interactive d3 mapping figure to draw the Gene Band,
+    Homology Band and Haplotype Band when a chromosome is focused
+    client-side. Because the figure focuses chromosomes without a page
+    reload, this endpoint is queried on demand for the focused chr/range
+    (which also keeps it compatible with future pan/zoom).
+    """
+    from gn2.wqflask.marker_regression import tracks as _tracks
+
+    body = request.get_json(force=True, silent=True) or {}
+    chr_name = body.get("chr")
+    if not chr_name:
+        return jsonify(error="missing 'chr'"), 400
+    try:
+        start_mb = float(body.get("start_mb", 0) or 0)
+        end_mb = float(body.get("end_mb", 0) or 0)
+    except (TypeError, ValueError):
+        return jsonify(error="invalid start_mb/end_mb"), 400
+    species = body.get("species") or ""
+    diff_col = body.get("diff_col") or []
+    dataset_name = body.get("dataset") or ""
+    group_name = body.get("group_name") or ""
+    genofile_string = body.get("genofile_string") or ""
+    sample_vals = body.get("sample_vals") or {}
+
+    # Gene exon detail is only needed when zoomed in close enough
+    # (mirrors DRAW_DETAIL_MB = 4).
+    detail = (end_mb - start_mb) <= 4.0
+    genes = _tracks.build_genes(
+        chr_name, diff_col, start_mb, end_mb, species, detail=detail)
+    homology = _tracks.build_homology(chr_name, start_mb, end_mb, species)
+    haplotype = _tracks.build_haplotype(
+        dataset_name, chr_name, genofile_string, sample_vals,
+        start_mb=start_mb, end_mb=end_mb, group_name=group_name)
+    snp = _tracks.build_snp(chr_name, start_mb, end_mb, diff_col)
+    return jsonify(genes=genes, homology=homology, haplotype=haplotype,
+                   snp=snp)
+
+
+@app.route("/mapping/interval_analyst_data", methods=("POST",))
+def mapping_interval_analyst_data():
+    """Return the Interval Analyst table (header + rows) for a chr/range.
+
+    The Interval Analyst table on the mapping-results page is rendered
+    server-side for the chromosome that was initially mapped. The interactive
+    d3 figure changes the chromosome/range client-side without reloading the
+    page, so it calls this endpoint to refresh the table for the interval it
+    is currently showing. The markup is produced by the same helper as the
+    initial render (``interval_analyst_table.build_gene_table``) so the two
+    stay in agreement.
+    """
+    from gn2.wqflask.interval_analyst import GeneUtil
+    from gn2.wqflask.marker_regression import interval_analyst_table as _iat
+
+    body = request.get_json(force=True, silent=True) or {}
+    chr_name = body.get("chr")
+    if not chr_name:
+        return jsonify(error="missing 'chr'"), 400
+
+    species = str(body.get("species") or "").lower()
+    if species not in ("mouse", "rat"):
+        # The page only shows this table for mouse and rat.
+        return jsonify(header=[], body=[], count=0)
+
+    try:
+        start_mb = float(body.get("start_mb", 0) or 0)
+        end_mb = float(body.get("end_mb", 0) or 0)
+    except (TypeError, ValueError):
+        return jsonify(error="invalid start_mb/end_mb"), 400
+    if end_mb <= start_mb:
+        return jsonify(error="end_mb must be greater than start_mb"), 400
+
+    diff_col = body.get("diff_col") or []
+
+    # merge_other_species defaults to True, which is what supplies the
+    # Human Chr / Mb Start (hg19) columns. It issues one query per gene, so
+    # this is the same work the initial page render already does - it is just
+    # done lazily here instead.
+    gene_col = GeneUtil.loadGenes(
+        str(chr_name), diff_col, start_mb, end_mb, species)
+    header, rows = _iat.build_gene_table(gene_col, species, diff_col)
+    return jsonify(header=header, body=rows, count=len(rows))
 
 
 @app.route("/export_mapping_results", methods=('POST',))

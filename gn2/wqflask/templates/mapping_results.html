@@ -5,7 +5,7 @@
     <link rel="stylesheet" type="text/css" href="{{ url_for('css', filename='DataTables/css/buttons.dataTables.css') }}" />
     <link rel="stylesheet" type="text/css" href="{{ url_for('css', filename='purescript-genome-browser/css/purescript-genetics-browser.css') }}" />
     <link rel="stylesheet" type="text/css" href="/static/new/css/marker_regression.css" />
-    <link rel="stylesheet" type="text/css" href="static/new/css/show_trait.css" />
+    <link rel="stylesheet" type="text/css" href="/static/new/css/show_trait.css" />
 
 {% endblock %}
 {% from "base_macro.html" import header %}
@@ -181,6 +181,14 @@
                     </a>
                   <br>
                   {% endif %}
+                  {# SNP density, gene, haplotype and homology data are all
+                     positioned in Mb, so none of them can be plotted on a
+                     genetic (cM) axis - the figure leaves the tracks out for
+                     the same reason, so their controls go with them. Keyed on
+                     chr_lengths_in_cm rather than plotScale: a genetic-scale
+                     run whose results carry no cM (gemma) is still plotted in
+                     Mb, where these tracks do apply. #}
+                  {% if not chr_lengths_in_cm %}
                   <input type="checkbox" name="showSNP" class="checkbox gn-checkbox-inline" {% if SNPChecked|upper == "ON" %}value="ON" checked{% endif %}> <span class="gn-text-sm">SNP Track </span>
                     <a href="{{ url_for('gn_docs_blueprint.glossary') }}#snpSeismograph" target="_blank">
                       <sup class="text-danger"> ?</sup>
@@ -188,19 +196,32 @@
                     <span class="text-danger">*</span>
                   <br>
                   <input type="checkbox" name="showGenes" class="checkbox gn-checkbox-inline" {% if geneChecked|upper == "ON" %}value="ON" checked{% endif %}> <span class="gn-text-sm">Gene Track </span> <span class="text-danger">*</span><br>
-                  {% if plotScale != "morgan" %}
                   <input type="checkbox" name="haplotypeAnalystCheck" class="checkbox gn-checkbox-inline" {% if haplotypeAnalystChecked|upper == "ON" %}value="ON" checked{% endif %}> <span class="gn-text-sm">Haplotype Tracks </span> <span class="text-danger">*</span><br>
                   {% endif %}
                   <input type="checkbox" name="viewLegend" class="checkbox gn-checkbox-inline" {% if legendChecked|upper == "ON" %}value="ON" checked{% endif %}> <span class="gn-text-sm">Legend </span><br>
+                  {% if not chr_lengths_in_cm %}
                   <input type="checkbox" name="showHomology" class="checkbox gn-checkbox-inline" {% if homologyChecked|upper == "ON" %}value="ON" checked{% endif %}> <span class="gn-text-sm">Human Chromosomes <a href="http://hgdownload.cse.ucsc.edu/goldenpath/hg38/liftOver/"><sup class="text-danger" title="Human Syntenic Chromosomes taken from HG38 (Human Genome 38)"> ?</sup></a></span>
                   <br>
                   <span class="text-danger">*</span> <span class="gn-text-sm">only apply to single chromosome physical mapping</span>
+                  {% endif %}
             </div>
           </div>
         </div>
  
+        <style>
+            /* Keep the page from jumping when the interactive figure re-renders
+               (scroll anchoring can otherwise snap to the results table below). */
+            #interactive_map, #interactive_map * {
+                overflow-anchor: none;
+            }
+        </style>
         <div class="tabbable" style="width: 100%; overflow-x: auto; margin: 10px; float: left;">
           <ul class="nav nav-tabs">
+            {% if mapping_data %}
+            <li id="interactive_map_tab">
+                <a href="#interactive_map" data-toggle="tab" aria-expanded="true">Interactive Map</a>
+            </li>
+            {% endif %}
             <li id="gn1_map_tab">
               <a href="#gn1_map" data-toggle="tab" aria-expanded="true">GN1 Map</a>
             </li>
@@ -211,7 +232,7 @@
             {% endif %}
           </ul>
           <div class="tab-content">
-            <div class="tab-pane active" id="gn1_map">
+            <div class="tab-pane" id="gn1_map">
               <div class="qtlcharts">
                   {{ gifmap|safe }}
                   <img src="/generated/{{ filename }}.png" usemap="#WebQTLImageMap">
@@ -219,6 +240,25 @@
                   <br>
                   <span style="white-space: nowrap;">A positive additive coefficient (green line) indicates that {{ dataset.group.parlist[1] }} alleles increase trait values. In contrast, a negative additive coefficient (orange line) indicates that {{ dataset.group.parlist[0] }} alleles increase trait values.</span>
                   {% endif %}
+              </div>
+            </div>
+            <div class="tab-pane active" id="interactive_map">
+              <div class="qtlcharts">
+                  <div id="mapping-figure-controls" style="margin: 16px 0 10px 0; padding: 8px 10px; font-size: 14px; background: #f7f7fa; border: 1px solid #ddd; border-radius: 4px;">
+                      <span style="font-weight: bold;">Chr:</span>&nbsp;
+                      <select id="map-chr-select" style="margin-right: 18px; font-size: 14px; padding: 2px 4px;"></select>
+                      <span style="font-weight: bold;">View ({{ 'cM' if chr_lengths_in_cm else 'Mb' }}):</span>&nbsp;
+                      <input type="text" id="map-range-start" size="6" placeholder="Start" style="font-size: 14px; padding: 2px 4px; width: 64px;"> to
+                      <input type="text" id="map-range-end" size="6" placeholder="End" style="font-size: 14px; padding: 2px 4px; width: 64px;">
+                      <button type="button" id="map-range-go" class="btn btn-primary btn-sm" style="margin-left: 8px;">Go</button>
+                      <button type="button" id="map-range-reset" class="btn btn-sm">Reset</button>
+                      <span style="display: inline-block; width: 1px; height: 18px; background: #ccc; margin: 0 10px; vertical-align: middle;"></span>
+                      <span style="font-weight: bold;">Download:</span>&nbsp;
+                      <button type="button" id="map-export-map" class="btn btn-default btn-sm">SVG (map)</button>
+                      <button type="button" id="map-export-full" class="btn btn-default btn-sm" style="margin-left: 4px;">SVG (full)</button>
+                      <span class="text-muted" style="font-size: 12px; margin-left: 10px;">(the track headers in the figure collapse/expand each track; "full" includes currently-maximized tracks)</span>
+                  </div>
+                  <div id="mapping-figure"></div>
               </div>
             </div>
             {% if mapping_method == "gemma" or mapping_method == "reaper" %}
@@ -256,8 +296,11 @@
         </div>
 
         </form>
-        {% if selectedChr == -1 %}
-        <div class="container" style="padding-left: 30px; margin-top: 50px; position: relative; float: left;">
+        {# The interactive figure can move between the whole-genome view and a
+           chromosome/range view without reloading the page, so both results
+           tables live in the DOM and their visibility is toggled by the
+           view-change listener in the JS block below. #}
+        <div id="qtl_results_section" class="container" style="padding-left: 30px; margin-top: 50px; position: relative; float: left; display: {% if selectedChr == -1 %}block{% else %}none{% endif %};">
           <h2>Mapping Statistics</h2>
         <br />
         <div class="btn-toolbar" role="toolbar">
@@ -285,31 +328,41 @@
             </table>
           </div>
         </div>
-        {% elif selectedChr != -1 and plotScale =="physic" and (dataset.group.species == 'mouse' or dataset.group.species == 'rat') %}
-        <div class="container" style="padding-left: 30px; margin-top: 50px; position: relative; float: left;">
+
+        {% if plotScale == "physic" and (dataset.group.species == 'mouse' or dataset.group.species == 'rat') %}
+        <div id="interval_analyst_section" class="container" style="padding-left: 30px; margin-top: 50px; position: relative; float: left; display: {% if selectedChr != -1 %}block{% else %}none{% endif %};">
           <h2>Interval Analyst</h2>
           <br />
           <div class="btn-toolbar" role="toolbar" style="margin-bottom: 20px;">
             <div class="btn-group">
-              <button class="btn btn-default" id="select_all"><span class="glyphicon glyphicon-ok"></span> Select All</button>
-              <button class="btn btn-default" id="deselect_all"><span class="glyphicon glyphicon-remove"></span> Deselect All</button>
-              <button class="btn btn-default" id="invert"><span class="glyphicon glyphicon-resize-vertical"></span> Invert</button>
+              <button class="btn btn-default" id="ia_select_all"><span class="glyphicon glyphicon-ok"></span> Select All</button>
+              <button class="btn btn-default" id="ia_deselect_all"><span class="glyphicon glyphicon-remove"></span> Deselect All</button>
+              <button class="btn btn-default" id="ia_invert"><span class="glyphicon glyphicon-resize-vertical"></span> Invert</button>
             </div>
             <div class="btn-group gn-ml-sm">
               <button class="btn btn-default dt-button buttons-excel buttons-html5">Export to Excel</button>
               <button class="btn btn-default dt-button buttons-csv buttons-html5">Export to CSV</button>
             </div>
           </div>
-          <div id="table_container" style="width: 1000px;">
-          <table id="trait_table" class="table-hover table-striped cell-border dataTable gn-dt-table" style="width:100%;">
+          <div id="ia_table_container" style="width: 1000px;">
+          <table id="interval_analyst_table" class="table-hover table-striped cell-border dataTable gn-dt-table" style="width:100%;">
             <thead>
               <tr>
+                {% if gene_table_header %}
                 {% for header in gene_table_header %}
                 <th>{{ header|safe }}</th>
                 {% endfor %}
+                {% elif dataset.group.species == 'rat' %}
+                <th></th><th>Index</th><th>Symbol</th><th>Mb Start</th><th>Length (Kb)</th><th>Avg Expr</th><th>Mouse Chr</th><th>Mb Start (mm9)</th><th>Human Chr</th><th>Mb Start (hg19)</th><th>Gene Description</th>
+                {% else %}
+                {# nothing mapped to a chromosome yet - emit the header the
+                   table will carry once a chromosome/range is focused #}
+                <th></th><th>Index</th><th>Symbol</th><th>Mb Start</th><th>Length (Kb)</th><th>SNP Count</th><th>SNP Density</th><th>Avg Expr</th><th>Human Chr</th><th>Mb Start (hg19)</th><th>Gene Description</th>
+                {% endif %}
               </tr>
             </thead>
-            <tbody>
+            <tbody id="interval_analyst_body">
+              {% if gene_table_body %}
               {% for row in gene_table_body %}
               <tr>
                 {% for n in range(row|length) %}
@@ -321,6 +374,7 @@
                 {% endfor %}
               </tr>
               {% endfor %}
+              {% endif %}
             </tbody>
           </table>
           </div>
@@ -359,6 +413,87 @@
     <script>
         var js_data = {{ js_data | safe }};
         var markersJson = {{ trimmed_markers|safe }};
+        {% if mapping_data %}
+        var mapping_data = JSON.parse({{ mapping_data | tojson }});
+        {% endif %}
+    </script>
+
+    <script language="javascript" type="text/javascript" src="/static/new/javascript/mapping_figure.js"></script>
+    <script type="text/javascript">
+        $(document).ready(function () {
+            if (window.MappingFigure && window.mapping_data) {
+                /* ---- Chr + Mb-range controls for the interactive figure ---- */
+                var _md = window.mapping_data;
+                var chrSel = $('#map-chr-select');
+                var mapStart = $('#map-range-start');
+                var mapEnd = $('#map-range-end');
+
+                /* build the chromosome dropdown from the payload, with a
+                   leading "All" entry: clicking a chromosome inside the
+                   figure now moves this control there, and returning to the
+                   whole genome has to be something it can show */
+                chrSel.append($('<option>').attr('value', '').text('All'));
+                (_md.chr_lengths || []).forEach(function (c) {
+                    chrSel.append($('<option>').attr('value', c.chr).text(c.chr));
+                });
+                /* carry over Chr + range from the original form when present */
+                var _oc = $('select[name=chromosomes]').val();
+                if (_oc !== undefined && _oc !== null && _oc !== '' &&
+                    _md.chr_lengths[parseInt(_oc, 10)]) {
+                    chrSel.val(_md.chr_lengths[parseInt(_oc, 10)].chr);
+                }
+                var _os = $('input[name=startMb]').val();
+                var _oe = $('input[name=endMb]').val();
+                if (_os && _os !== '-1') { mapStart.val(_os); }
+                if (_oe && _oe !== '-1') { mapEnd.val(_oe); }
+
+                $('#map-range-go').on('click', function () {
+                    var chr = chrSel.val();
+                    var s = parseFloat(mapStart.val());
+                    var e = parseFloat(mapEnd.val());
+                    if (!chr) {
+                        /* "All" is selected - go back to the whole genome */
+                        window.MappingFigure.reset("mapping-figure", _md);
+                        mapStart.val(''); mapEnd.val('');
+                        return;
+                    }
+                    /* Apply the chromosome and the range together: focusing
+                       renders straight away, so doing these as two calls
+                       would fetch - and cache - the whole chromosome's track
+                       data before the range supersedes it. That is an extra
+                       /mapping/track_data round trip, and for strain
+                       comparisons it costs a SNP query per gene. */
+                    window.MappingFigure.focusChromosome(chr,
+                        (!isNaN(s) && !isNaN(e) && e > s)
+                            ? { startMb: s, endMb: e }
+                            : null);
+                });
+                $('#map-range-reset').on('click', function () {
+                    window.MappingFigure.reset("mapping-figure", _md);
+                    mapStart.val(''); mapEnd.val('');
+                });
+                $('#map-export-map').on('click', function () {
+                    window.MappingFigure.downloadSVG("map");
+                });
+                $('#map-export-full').on('click', function () {
+                    window.MappingFigure.downloadSVG("full");
+                });
+
+                var renderInteractiveMap = function () {
+                    window.MappingFigure.render("mapping-figure", _md);
+                };
+                $('#interactive_map_tab').on('shown.bs.tab', function () {
+                    $('div#gn1_map_options').css("display", "none");
+                    renderInteractiveMap();
+                });
+                $('#gn1_map_tab').on('shown.bs.tab', function () {
+                    $('div#gn1_map_options').css("display", "block");
+                });
+                if ($('#interactive_map').hasClass('active')) {
+                    renderInteractiveMap();
+                }
+            }
+        });
     </script>
 
     <script language="javascript" type="text/javascript" src="/static/new/javascript/search_results.js"></script>
@@ -373,22 +508,26 @@
             // Set up event handlers for custom export buttons
             $('.dt-buttons').hide();
 
+            /* The Export to Excel/CSV buttons belong to the Interval Analyst
+               table, which now has its own id because the QTL results table
+               is present on the page at the same time. */
             $('.buttons-excel.btn').click(function() {
-                var table = $('#trait_table').DataTable();
-                var excelButton = table.buttons('.buttons-excel:first');
+                var $iaTable = $('#interval_analyst_table');
+                if (!$iaTable.length || !$.fn.DataTable.isDataTable($iaTable[0])) return;
+                var excelButton = $iaTable.DataTable().buttons('.buttons-excel:first');
                 if (excelButton.length > 0) {
                     excelButton.trigger();
                 }
             });
 
             $('.buttons-csv.btn').click(function() {
-                var table = $('#trait_table').DataTable();
-                var csvButton = table.buttons('.buttons-csv:first');
+                var $iaTable = $('#interval_analyst_table');
+                if (!$iaTable.length || !$.fn.DataTable.isDataTable($iaTable[0])) return;
+                var csvButton = $iaTable.DataTable().buttons('.buttons-csv:first');
                 if (csvButton.length > 0) {
                     csvButton.trigger();
                 }
             });
-            {% if selectedChr == -1 %}
             tableId = "trait_table"
 
             columnDefs = [
@@ -594,12 +733,33 @@
               "dom": 'frtip',
             }
 
-            create_table(tableId, markersJson, columnDefs, tableSettings)
+            /* ---- whole-genome QTL results table ----
+               Built on demand: a page loaded straight into a single
+               chromosome only needs it once the figure is reset back to the
+               whole genome. */
+            var qtlTableBuilt = false;
+            function ensureQtlTable() {
+                if (qtlTableBuilt) return;
+                qtlTableBuilt = true;
+                create_table(tableId, markersJson, columnDefs, tableSettings);
+            }
+            {% if selectedChr == -1 %}
+            ensureQtlTable();
+            {% endif %}
 
-            {% elif selectedChr != -1 and plotScale =="physic" and (dataset.group.species == 'mouse' or dataset.group.species == 'rat') %}
-            var table = $('#trait_table').DataTable({
+            {% if plotScale == "physic" and (dataset.group.species == 'mouse' or dataset.group.species == 'rat') %}
+            /* ---- Interval Analyst table ----
+               Rendered server-side for the chromosome the page was mapped
+               with, then rebuilt in place whenever the interactive figure
+               moves to another chromosome or range. */
+            var IA_TABLE = '#interval_analyst_table';
+
+            function initIntervalAnalystTable() {
+              var $iaTable = $(IA_TABLE);
+              destroyIntervalAnalystTable();
+              $iaTable.DataTable({
               "drawCallback": function( settings ) {
-                  $('#trait_table tr').off().on("click", function(event) {
+                  $iaTable.find('tr').off().on("click", function(event) {
                     if (event.target.type !== 'checkbox' && event.target.tagName.toLowerCase() !== 'a') {
                       var obj =$(this).find('input');
                       obj.prop('checked', !obj.is(':checked'));
@@ -653,7 +813,7 @@
                       columns: ':visible',
                       rows: function ( idx, data, rowNode ) {
                         // If any checkboxes are checked, export only checked rows; otherwise export all rows
-                        var anyChecked = $('#trait_table').find('input[name="selectCheck"]:checked').length > 0;
+                        var anyChecked = $(IA_TABLE).find('input[name="selectCheck"]:checked').length > 0;
                         if (!anyChecked) return true;
                         return $(rowNode).find('input[name="selectCheck"]').is(':checked');
                       }
@@ -667,7 +827,7 @@
                     exportOptions: {
                       columns: ':visible',
                       rows: function ( idx, data, rowNode ) {
-                        var anyChecked = $('#trait_table').find('input[name="selectCheck"]:checked').length > 0;
+                        var anyChecked = $(IA_TABLE).find('input[name="selectCheck"]:checked').length > 0;
                         if (!anyChecked) return true;
                         return $(rowNode).find('input[name="selectCheck"]').is(':checked');
                       }
@@ -677,8 +837,219 @@
                 "bSortClasses": false,
                 "scrollCollapse": false,
                 "paging": false
-            } );
+              });
+            }
+            initIntervalAnalystTable();
             {% endif %}
+
+            /* ---- keep the results tables in step with the figure --------
+               The figure reports its view through a mappingfigure:viewchange
+               event. The whole-genome view shows the QTL results table; a
+               chromosome or range shows the Interval Analyst gene table,
+               which is (re)fetched for the newly visible interval. */
+            var _mapData = window.mapping_data || {};
+            var $qtlSection = $('#qtl_results_section');
+            var $iaSection = $('#interval_analyst_section');
+            var iaAvailable = $iaSection.length > 0;
+            var iaLoadedKey = null;
+            var iaCache = {};          // viewKey -> {header, body}
+            var iaRequest = null;
+
+            function iaViewKey(chr, startMb, endMb) {
+                return String(chr) + ":" + Number(startMb).toFixed(6) + "-" +
+                    Number(endMb).toFixed(6);
+            }
+
+            /* The server rendered the gene table for the chromosome the page
+               was mapped with, so record that interval to avoid refetching it
+               when the figure first announces its view. */
+            {% if selectedChr != -1 %}
+            (function () {
+                var sc = parseInt("{{ selectedChr }}", 10);
+                var chrs = _mapData.chr_lengths || [];
+                if (!(sc > 0) || !chrs[sc - 1]) return;
+                var sizeMb = parseFloat(chrs[sc - 1].size) / 1e6;
+                var s = parseFloat("{{ startMb }}");
+                var e = parseFloat("{{ endMb }}");
+                if (isNaN(s) || s < 0) s = 0;
+                if (isNaN(e) || e <= s) e = sizeMb;
+                iaLoadedKey = iaViewKey(chrs[sc - 1].chr, s, e);
+            })();
+            {% endif %}
+
+            function showResultsSection(which) {
+                var showIa = (which === 'ia' && iaAvailable);
+                $qtlSection.toggle(!showIa);
+                if (iaAvailable) $iaSection.toggle(showIa);
+                if (!showIa) ensureQtlTable();
+            }
+
+            /* Tear down any live DataTable on the Interval Analyst table. This
+               has to happen before the DOM is touched, because destroy()
+               restores the nodes DataTables captured when it was initialised:
+               replacing the rows first and destroying afterwards would undo
+               the replacement and leave the previous interval's genes on
+               screen. */
+            function destroyIntervalAnalystTable() {
+                var $iaTable = $(IA_TABLE);
+                if ($.fn.DataTable.isDataTable($iaTable[0])) {
+                    $iaTable.DataTable().destroy();
+                }
+            }
+
+            function setIntervalAnalystTable(header, rows) {
+                destroyIntervalAnalystTable();
+                var $iaTable = $(IA_TABLE);
+                var thead = '<tr>' + $.map(header || [], function (h) {
+                    return '<th>' + h + '</th>';
+                }).join('') + '</tr>';
+                var body = $.map(rows || [], function (row) {
+                    return '<tr>' + $.map(row, function (cell, i) {
+                        return i === 0
+                            ? '<td align="center" style="padding: 1px 0px 1px 0px;">' + cell + '</td>'
+                            : '<td>' + cell + '</td>';
+                    }).join('') + '</tr>';
+                }).join('');
+                $iaTable.find('thead').html(thead);
+                $iaTable.find('tbody').html(body);
+                initIntervalAnalystTable();
+            }
+
+            function refreshIntervalAnalyst(view) {
+                var key = iaViewKey(view.chr, view.startMb, view.endMb);
+                if (key === iaLoadedKey) return;
+                if (iaRequest && iaRequest.abort) iaRequest.abort();
+                /* The gene lookup is expensive (one ortholog query per gene),
+                   so reuse anything already fetched for this interval. */
+                var cached = iaCache[key];
+                if (cached) {
+                    iaLoadedKey = key;
+                    setIntervalAnalystTable(cached.header, cached.body);
+                    return;
+                }
+                var $iaTable = $(IA_TABLE);
+                var cols = $iaTable.find('thead th').length || 11;
+                /* drop the current table before swapping in the placeholder,
+                   otherwise DataTables redraws its cached rows over it */
+                destroyIntervalAnalystTable();
+                $iaTable.find('tbody').html(
+                    '<tr><td colspan="' + cols +
+                    '" class="gn-dt-loading"><br>Loading...<br></td></tr>');
+                /* Nothing is loaded for the visible interval any more. Leaving
+                   the previous key here would make the early return above skip
+                   both the cached restore and the abort, so returning to an
+                   already-visited interval while another is still in flight
+                   would end up showing the in-flight response's genes. */
+                iaLoadedKey = null;
+                iaRequest = $.ajax({
+                    url: '/mapping/interval_analyst_data',
+                    method: 'POST',
+                    contentType: 'application/json',
+                    dataType: 'json',
+                    data: JSON.stringify({
+                        chr: view.chr,
+                        start_mb: view.startMb,
+                        end_mb: view.endMb,
+                        species: _mapData.species || '',
+                        diff_col: _mapData.diff_col || []
+                    })
+                }).done(function (resp) {
+                    iaLoadedKey = key;
+                    iaCache[key] = { header: resp.header, body: resp.body };
+                    setIntervalAnalystTable(resp.header, resp.body);
+                }).fail(function (xhr, status) {
+                    if (status === 'abort') return;
+                    $(IA_TABLE).find('tbody').html(
+                        '<tr><td colspan="100%">Could not load interval ' +
+                        'data.</td></tr>');
+                });
+            }
+
+            /* The Chr dropdown and the Mb range boxes sit above the figure,
+               and clicking a chromosome (or "Back to all chromosomes") inside
+               the figure changes the view without touching them - so they
+               would keep showing the chromosome that was mapped on page load.
+               The figure reports every view change, so drive them from that.
+               These elements are built in the other ready() block, hence the
+               fresh lookups. */
+            var $chrSel = $('#map-chr-select');
+            var $mapStart = $('#map-range-start');
+            var $mapEnd = $('#map-range-end');
+
+            function chrSizeMb(chr) {
+                var list = _mapData.chr_lengths || [];
+                for (var i = 0; i < list.length; i += 1) {
+                    if (String(list[i].chr) === String(chr)) {
+                        return parseFloat(list[i].size) / 1e6;
+                    }
+                }
+                return null;
+            }
+
+            function syncMapControls(view) {
+                if (!view.chr) {
+                    /* whole genome */
+                    $chrSel.val('');
+                    $mapStart.val('');
+                    $mapEnd.val('');
+                    return;
+                }
+                $chrSel.val(String(view.chr));
+                /* a focused chromosome shown in full reports the whole span,
+                   which the range boxes should show as empty rather than as
+                   "0 to 195.4" */
+                var sizeMb = chrSizeMb(view.chr);
+                var wholeChr = view.startMb === null || sizeMb === null ||
+                    (Math.abs(view.startMb) < 1e-9 &&
+                     Math.abs(view.endMb - sizeMb) < 1e-9);
+                if (wholeChr) {
+                    $mapStart.val('');
+                    $mapEnd.val('');
+                } else {
+                    $mapStart.val(parseFloat(view.startMb.toFixed(3)));
+                    $mapEnd.val(parseFloat(view.endMb.toFixed(3)));
+                }
+            }
+
+            var figureEl = document.getElementById('mapping-figure');
+            if (figureEl) {
+                figureEl.addEventListener('mappingfigure:viewchange', function (ev) {
+                    var view = ev.detail || {};
+                    syncMapControls(view);
+                    if (!view.chr) {
+                        showResultsSection('qtl');
+                    } else if (iaAvailable) {
+                        showResultsSection('ia');
+                        refreshIntervalAnalyst(view);
+                    } else {
+                        /* no gene table for this dataset/scale */
+                        showResultsSection('qtl');
+                    }
+                });
+            }
+
+            /* The Interval Analyst toolbar needs its own ids because the QTL
+               results toolbar is now present on the page at the same time. */
+            function iaSetChecked(state) {
+                var $iaTable = $(IA_TABLE);
+                if (!$.fn.DataTable.isDataTable($iaTable[0])) return;
+                $iaTable.DataTable().column(0).nodes().to$().each(function () {
+                    $(this).find('input').prop('checked', state);
+                    $(this).closest('tr').toggleClass('selected', state);
+                });
+            }
+            $('#ia_select_all').click(function () { iaSetChecked(true); });
+            $('#ia_deselect_all').click(function () { iaSetChecked(false); });
+            $('#ia_invert').click(function () {
+                var $iaTable = $(IA_TABLE);
+                if (!$.fn.DataTable.isDataTable($iaTable[0])) return;
+                $iaTable.DataTable().column(0).nodes().to$().each(function () {
+                    var $cb = $(this).find('input');
+                    var now = !$cb.prop('checked');
+                    $cb.prop('checked', now);
+                    $(this).closest('tr').toggleClass('selected', now);
+                });
+            });
 
             $('#vector_map_tab').click(function(){
                 $('div#gn1_map_options').hide();
