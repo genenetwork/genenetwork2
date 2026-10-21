@@ -157,7 +157,7 @@ window.MappingFigure = (function () {
         if (v === null) return null;
         var origin = 0;
         if (state.cmAxis && state.chrOrigins) {
-            origin = toNum(state.chrOrigins[String(marker.chr)]) || 0;
+            origin = (toNum(state.chrOrigins[String(marker.chr)]) || 0) / 1e6;
         }
         return (v - origin) * 1e6;
     }
