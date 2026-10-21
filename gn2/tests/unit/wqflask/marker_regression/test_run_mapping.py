@@ -317,3 +317,43 @@ class TestRunMapping(unittest.TestCase):
                             dataset=dataset, qtl_results=results_without_cm),
             [{"chr": "1", "size": "40000000.0"},
              {"chr": "2", "size": "30000000.0"}])
+
+    def test_get_chr_length_genetic_scale_keeps_symbolic_chromosomes(self):
+        """Symbolic chromosome names survive the length calculation.
+
+        The markers keep the names they are reported with (reaper reports X as
+        "X", see qtlreaper_mapping.parse_reaper_output), and the figure looks a
+        marker's chromosome up by name. Coercing non-numeric names to "20" left
+        the X markers with no length entry to match, so chromosome X was
+        missing from the genetic map.
+        """
+        cursor = mock.MagicMock()
+        chromosomes = AttributeSetter({"chromosomes": self.chromosomes})
+        dataset = AttributeSetter({"species": chromosomes})
+
+        results = [
+            {"chr": "1", "cM": "0.0"},
+            {"chr": "1", "cM": "4.0"},
+            {"chr": "X", "cM": "6.0"},
+            {"chr": "X", "cM": "9.0"},
+        ]
+        self.assertEqual(
+            get_chr_lengths(mapping_scale="morgan", mapping_method="reaper",
+                            dataset=dataset, qtl_results=results),
+            [{"chr": "1", "size": "4000000.0", "start": "0.0"},
+             {"chr": "X", "size": "3000000.0", "start": "6000000.0"}])
+
+        # Numeric names keep working, are still reported in numeric order, and
+        # markers given out of order are grouped by name rather than by a
+        # running maximum.
+        numeric = [
+            {"chr": 2, "cM": "10.0"},
+            {"chr": 1, "cM": "0.0"},
+            {"chr": 2, "cM": "14.0"},
+            {"chr": 1, "cM": "3.0"},
+        ]
+        self.assertEqual(
+            get_chr_lengths(mapping_scale="morgan", mapping_method="rqtl_geno",
+                            dataset=dataset, qtl_results=numeric),
+            [{"chr": "1", "size": "3000000.0", "start": "0.0"},
+             {"chr": "2", "size": "4000000.0", "start": "10000000.0"}])

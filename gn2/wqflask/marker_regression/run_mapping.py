@@ -785,27 +785,34 @@ def get_chr_lengths(mapping_scale, mapping_method, dataset, qtl_results):
         # positions are left alone and it only needs the span.
         relative_to_first = coord == "cM"
 
-        this_chr = 1
-        lowest_pos = None
-        highest_pos = None
+        # Group the markers by the chromosome name they carry, keeping that
+        # name as it is. Coercing the names to integers (and folding every
+        # symbolic name, such as X, into "20") produced lengths that the
+        # markers could not be matched against - the figure looks a marker's
+        # chromosome up by name - so those chromosomes silently disappeared.
+        spans = {}
         for result in qtl_results:
-            try:
-                chr_as_num = int(result['chr'])
-            except:
-                chr_as_num = 20
-            if chr_as_num > this_chr:
-                chr_lengths.append(chromosome_length(
-                    this_chr, lowest_pos, highest_pos, relative_to_first))
-                this_chr = chr_as_num
-                lowest_pos = None
-                highest_pos = None
+            chr_name = str(result['chr'])
             position = float(result[coord])
-            if lowest_pos is None or position < lowest_pos:
-                lowest_pos = position
-            if highest_pos is None or position > highest_pos:
-                highest_pos = position
-        chr_lengths.append(chromosome_length(
-            this_chr, lowest_pos, highest_pos, relative_to_first))
+            if chr_name in spans:
+                lowest_pos, highest_pos = spans[chr_name]
+                spans[chr_name] = (min(lowest_pos, position),
+                                   max(highest_pos, position))
+            else:
+                spans[chr_name] = (position, position)
+
+        # Numeric chromosomes first, in order, then the symbolic ones: the
+        # figure and the chromosome selector both assume this order.
+        def sort_key(chr_name):
+            try:
+                return (0, int(chr_name), "")
+            except ValueError:
+                return (1, 0, chr_name)
+
+        for chr_name in sorted(spans, key=sort_key):
+            lowest_pos, highest_pos = spans[chr_name]
+            chr_lengths.append(chromosome_length(
+                chr_name, lowest_pos, highest_pos, relative_to_first))
 
     return chr_lengths
 
