@@ -1166,7 +1166,10 @@ window.MappingFigure = (function () {
             if (b.count <= 0) return;
             var x0 = Math.max(0, Math.min(chartW, b.x0));
             var x1 = Math.max(0, Math.min(chartW, b.x1));
-            if (x0 === x1) return;
+            if (x0 === x1) {
+                x0 = Math.max(0, Math.min(chartW - 1, x0));
+                x1 = Math.min(chartW, x0 + 1);
+            }
             var h = b.count * threshold / grouped.maxCount;
             barsG.append("rect")
                 .attr("x", x0)
