@@ -414,7 +414,7 @@
         var js_data = {{ js_data | safe }};
         var markersJson = {{ trimmed_markers|safe }};
         {% if mapping_data %}
-        var mapping_data = {{ mapping_data | safe }};
+        var mapping_data = JSON.parse({{ mapping_data | tojson }});
         {% endif %}
     </script>
 
