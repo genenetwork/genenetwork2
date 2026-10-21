@@ -39,6 +39,7 @@ from gn_libs.privileges import resources
 from gn_libs.mysqldb import database_connection
 from gn3.computations.gemma import generate_hash_of_string
 from flask import current_app
+from flask import abort
 from flask import jsonify
 from flask import g
 from flask import Response
@@ -1408,6 +1409,15 @@ def mapping_results_page(hash_of_inputs=None):
         initial_start_vars['hash_of_inputs'] = hash_of_inputs
     else:
         initial_start_vars = request.form
+        if not initial_start_vars:
+            # Nothing to run a mapping from. Either a /run_mapping/<hash> URL
+            # we have no stored inputs for (an expired share link, or an asset
+            # the browser resolved relative to the results page, e.g.
+            # /run_mapping/static/new/css/...), or a POST with no body at all.
+            # Without this the empty form reaches RunMapping() and dies with a
+            # KeyError on 'dataset', and the empty dict is cached as the inputs
+            # for that URL.
+            abort(404 if hash_of_inputs else 400)
 
         # Get hash of inputs (as JSON) for sharing results
         inputs_json = json.dumps(initial_start_vars, sort_keys=True)
