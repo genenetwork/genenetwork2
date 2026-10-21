@@ -247,7 +247,7 @@
                   <div id="mapping-figure-controls" style="margin: 16px 0 10px 0; padding: 8px 10px; font-size: 14px; background: #f7f7fa; border: 1px solid #ddd; border-radius: 4px;">
                       <span style="font-weight: bold;">Chr:</span>&nbsp;
                       <select id="map-chr-select" style="margin-right: 18px; font-size: 14px; padding: 2px 4px;"></select>
-                      <span style="font-weight: bold;">View (Mb):</span>&nbsp;
+                      <span style="font-weight: bold;">View ({{ 'cM' if chr_lengths_in_cm else 'Mb' }}):</span>&nbsp;
                       <input type="text" id="map-range-start" size="6" placeholder="Start" style="font-size: 14px; padding: 2px 4px; width: 64px;"> to
                       <input type="text" id="map-range-end" size="6" placeholder="End" style="font-size: 14px; padding: 2px 4px; width: 64px;">
                       <button type="button" id="map-range-go" class="btn btn-primary btn-sm" style="margin-left: 8px;">Go</button>
