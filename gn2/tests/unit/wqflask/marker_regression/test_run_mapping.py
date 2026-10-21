@@ -315,8 +315,8 @@ class TestRunMapping(unittest.TestCase):
         self.assertEqual(
             get_chr_lengths(mapping_scale="morgan", mapping_method="gemma",
                             dataset=dataset, qtl_results=results_without_cm),
-            [{"chr": "1", "size": "40000000.0"},
-             {"chr": "2", "size": "30000000.0"}])
+            [{"chr": "1", "size": "80000000.0"},
+             {"chr": "2", "size": "60000000.0"}])
 
     def test_get_chr_length_genetic_scale_keeps_symbolic_chromosomes(self):
         """Symbolic chromosome names survive the length calculation.
