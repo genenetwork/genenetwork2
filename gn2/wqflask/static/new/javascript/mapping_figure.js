@@ -1440,7 +1440,7 @@ window.MappingFigure = (function () {
         var chartW = width - MARGIN.left - MARGIN.right - rightExtra;
 
         /* extra vertical room for the browser-link bands + tracks (focused) */
-        var hasBands = focus !== null;
+        var hasBands = focus !== null && physicalTracksUsable();
         var bandStack = hasBands
             ? (BAND_PAD + 3 * (BAND_H + BAND_PAD))
             : 0;
