@@ -705,6 +705,13 @@ class DisplayMappingResults:
         self.chr_lengths_in_cm = bool(
             _mapping_js_data.get("chr_lengths_in_cm", False))
 
+        # Thresholds in the units the client-side figure plots marker scores
+        # in. Derived from the raw permutation values rather than from the
+        # values the PNG renders leave behind, so the 2x render cannot convert
+        # them a second time.
+        _interactive_significant, _interactive_suggestive = (
+            self._display_scale_thresholds())
+
         self.mapping_data = json.dumps({
             # Use the same markers as the original PIL figure (self.qtlresults,
             # already capped by run_mapping if > 30000) so the interval-map and
@@ -713,10 +720,10 @@ class DisplayMappingResults:
             "chr_lengths": _mapping_js_data.get("chr_lengths", []),
             "chr_lengths_in_cm": self.chr_lengths_in_cm,
             "significant": (
-                getattr(self, "significant", None)
+                _interactive_significant
                 if self.permChecked and self.nperm > 0 else None),
             "suggestive": (
-                getattr(self, "suggestive", None)
+                _interactive_suggestive
                 if self.permChecked and self.nperm > 0 else None),
             "lrsMax": self.lrsMax,
             "LRS_LOD": self.LRS_LOD,
@@ -1330,6 +1337,7 @@ class DisplayMappingResults:
             startPosY += stepPosY
 
         if self.permChecked and self.nperm > 0:
+            significant, suggestive = self._display_scale_thresholds()
             thisStartX = startPosX
             if self.multipleInterval and not self.bootChecked:
                 thisStartX = canvas.size[0] - xRightOffset - 205
@@ -1342,10 +1350,10 @@ class DisplayMappingResults:
                 fill=self.SUGGESTIVE_COLOR, width=self.SUGGESTIVE_WIDTH)
             im_drawer.text(
                 text='Significant %s = %2.2f' % (
-                    self.LRS_LOD, self.significant),
+                    self.LRS_LOD, significant),
                 xy=(thisStartX + 40, startPosY + TEXT_Y_DISPLACEMENT), font=labelFont, fill=BLACK)
             im_drawer.text(
-                text='Suggestive %s = %2.2f' % (self.LRS_LOD, self.suggestive),
+                text='Suggestive %s = %2.2f' % (self.LRS_LOD, suggestive),
                 xy=(thisStartX + 40, startPosY + TEXT_Y_DISPLACEMENT + stepPosY), font=labelFont,
                 fill=BLACK)
 
@@ -2495,6 +2503,35 @@ class DisplayMappingResults:
         im_drawer.line(xy=((xLeftOffset, yZero), (xLeftOffset + plotWidth, yZero)),
                        fill=BLACK, width=X_AXIS_THICKNESS)  # Draw the X axis itself
 
+    def _display_scale_thresholds(self):
+        """The significant/suggestive thresholds in the units the figure plots
+        marker scores in (LRS, LOD or -logP).
+
+        ``self.significant`` and ``self.suggestive`` hold the raw permutation
+        thresholds for the lifetime of the object; the conversion happens here,
+        derived from those raw values every time it is needed. It must not be
+        applied to the shared attributes in place: the figure is rendered twice
+        (and the interactive payload is built after the renders), so an in-place
+        conversion ran once per render and the second render - and the payload -
+        saw thresholds divided (or multiplied) twice.
+        """
+        significant = getattr(self, "significant", None)
+        suggestive = getattr(self, "suggestive", None)
+        if (not self.qtlresults
+                or significant in (None, "")
+                or suggestive in (None, "")):
+            return significant, suggestive
+        # Mapping methods report either LRS or LOD. The thresholds are on the
+        # same scale as the marker scores, so they follow whichever conversion
+        # drawQTL applies to those scores.
+        if "lrs_value" in self.qtlresults[0]:
+            factor = (1 / self.LODFACTOR
+                      if self.LRS_LOD in ("LOD", "-logP") else 1)
+        else:
+            factor = self.LODFACTOR if self.LRS_LOD == "LRS" else 1
+        return (min(significant * factor, webqtlConfig.MAXLRS),
+                min(suggestive * factor, webqtlConfig.MAXLRS))
+
     def drawQTL(self, canvas, drawAreaHeight, gifmap, plotXScale, offset=(40, 120, 80, 10), zoom=1, startMb=None, endMb=None):
         im_drawer = ImageDraw.Draw(canvas)
         xLeftOffset, xRightOffset, yTopOffset, yBottomOffset = offset
@@ -2513,46 +2550,25 @@ class DisplayMappingResults:
         # if we are using a set-scale, then we set LRSTop to be the user's value, and LRS_LOD_Max doesn't matter.
 
         # ZS: This is a mess, but I don't know a better way to account for different mapping methods returning results in different formats + the option to change between LRS and LOD
+        # The thresholds are normalised once here, from the raw permutation
+        # values; drawQTL works on locals so that neither the 2x render nor the
+        # interactive payload can convert them a second time.
+        significant, suggestive = self._display_scale_thresholds()
+
         if self.lrsMax <= 0:  # sliding scale
             if "lrs_value" in self.qtlresults[0]:
                 LRS_LOD_Max = max([result['lrs_value']
                                    for result in self.qtlresults])
                 if self.LRS_LOD == "LOD" or self.LRS_LOD == "-logP":
                     LRS_LOD_Max = LRS_LOD_Max / self.LODFACTOR
-                    if self.permChecked and self.nperm > 0 and not self.multipleInterval:
-                        self.significant = min(
-                            self.significant / self.LODFACTOR, webqtlConfig.MAXLRS)
-                        self.suggestive = min(
-                            self.suggestive / self.LODFACTOR, webqtlConfig.MAXLRS)
-                else:
-                    if self.permChecked and self.nperm > 0 and not self.multipleInterval:
-                        self.significant = min(
-                            self.significant, webqtlConfig.MAXLRS)
-                        self.suggestive = min(
-                            self.suggestive, webqtlConfig.MAXLRS)
-                    else:
-                        pass
             else:
                 LRS_LOD_Max = max([result['lod_score']
                                    for result in self.qtlresults]) + 1
                 if self.LRS_LOD == "LRS":
                     LRS_LOD_Max = LRS_LOD_Max * self.LODFACTOR
-                    if self.permChecked and self.nperm > 0 and not self.multipleInterval:
-                        self.significant = min(
-                            self.significant * self.LODFACTOR, webqtlConfig.MAXLRS)
-                        self.suggestive = min(
-                            self.suggestive * self.LODFACTOR, webqtlConfig.MAXLRS)
-                else:
-                    if self.permChecked and self.nperm > 0 and not self.multipleInterval:
-                        self.significant = min(
-                            self.significant, webqtlConfig.MAXLRS)
-                        self.suggestive = min(
-                            self.suggestive, webqtlConfig.MAXLRS)
-                    else:
-                        pass
 
             if self.permChecked and self.nperm > 0 and not self.multipleInterval:
-                LRS_LOD_Max = max(self.significant, LRS_LOD_Max)
+                LRS_LOD_Max = max(significant, LRS_LOD_Max)
 
             # genotype trait will give infinite LRS
             LRS_LOD_Max = min(LRS_LOD_Max, webqtlConfig.MAXLRS)
@@ -2643,8 +2659,8 @@ class DisplayMappingResults:
                     yLRS + TEXT_Y_DISPLACEMENT),
                 font=LRSScaleFont, fill=self.LRS_COLOR)
         if self.permChecked and self.nperm > 0 and not self.multipleInterval:
-            significantY = yZero - self.significant * LRSHeightThresh / LRS_LOD_Max
-            suggestiveY = yZero - self.suggestive * LRSHeightThresh / LRS_LOD_Max
+            significantY = yZero - significant * LRSHeightThresh / LRS_LOD_Max
+            suggestiveY = yZero - suggestive * LRSHeightThresh / LRS_LOD_Max
             # significantY = yZero - self.significant*LRSHeightThresh/LRSAxisList[-1]
             # suggestiveY = yZero - self.suggestive*LRSHeightThresh/LRSAxisList[-1]
             startPosX = xLeftOffset
@@ -2674,13 +2690,11 @@ class DisplayMappingResults:
                     start_pos_x, significantY - 2, rightEdge + 2 * zoom, significantY + 2)
 
                 if self.LRS_LOD == 'LRS':
-                    sugg_title = "Suggestive LRS = %0.2f" % self.suggestive
-                    sig_title = "Significant LRS = %0.2f" % self.significant
+                    sugg_title = "Suggestive LRS = %0.2f" % suggestive
+                    sig_title = "Significant LRS = %0.2f" % significant
                 else:
-                    sugg_title = "Suggestive LOD = %0.2f" % (
-                        self.suggestive / 4.61)
-                    sig_title = "Significant LOD = %0.2f" % (
-                        self.significant / 4.61)
+                    sugg_title = "Suggestive LOD = %0.2f" % suggestive
+                    sig_title = "Significant LOD = %0.2f" % significant
                 Areas1 = _make_area(coords=sugg_coords,
                     href="",
                     title=sugg_title)
