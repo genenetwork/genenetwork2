@@ -77,8 +77,8 @@ class SearchResultPage:
         rx = re.compile(
             r'.*\W(href|http|sql|select|update)\W.*', re.IGNORECASE)
         if rx.match(search):
-            logger.debug("Search term did not match the regular expression. "
-                         "Setting 'search_term_exists' to 'False'.")
+            logger.warning("Search term did not match the regular expression. "
+                           "Setting 'search_term_exists' to 'False'.")
             self.search_term_exists = False
             return
         else:
@@ -106,8 +106,9 @@ class SearchResultPage:
             # HTTP call -- so an exception here means NO fallback ran. Log the
             # traceback, otherwise those failures are indistinguishable from
             # "the search legitimately found nothing".
-            logger.exception(
-                "Search failed. Setting 'search_term_exists' to 'False'.")
+            logger.exceptio(
+                "Search failed. Setting 'search_term_exists' to 'False'.",
+                exc_info=True)
             self.search_term_exists = False
 
         self.too_many_results = False
@@ -116,6 +117,8 @@ class SearchResultPage:
                 self.trait_list = []
                 self.too_many_results = True
             else:
+                logger.warning("search_term_exists is False. Generating a new "
+                               "search result.")
                 self.gen_search_result()
 
     def gen_search_result(self):
