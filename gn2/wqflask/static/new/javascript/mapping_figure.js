@@ -1638,99 +1638,112 @@ window.MappingFigure = (function () {
             }
         }
 
-        /* Mb tick marks + labels (physic scale, mirrors PIL) */
-        if (data.plotScale === "physic") {
-            if (focus === null) {
-                /* whole-genome: the original works out one tick step from the
-                   first chromosome and then reuses it for every chromosome
-                   (its distScale is only ever assigned while it is still
-                   zero), so the gap between ticks is the same all the way
-                   across the figure. A chromosome shorter than the step just
-                   gets no tick, or a single one where the step falls inside
-                   it - far better than a per-chromosome step that packs
-                   labels on top of each other wherever a chromosome is small
-                   relative to the others. */
-                var firstMb = fullLayout.lengths.length
-                    ? fullLayout.lengths[0].size / 1e6
-                    : 0;
-                var distScale = firstMb > 75 ? 25 : (firstMb > 30 ? 10 : 5);
-                focusLayout.lengths.forEach(function (c, i) {
-                    var lenMb = c.size / 1e6;
-                    var j = 0;
-                    for (var tick = distScale; tick < Math.ceil(lenMb); tick += distScale) {
-                        var x = xScale(focusLayout.starts[i] + tick * 1e6);
-                        g.append("line")
-                            .attr("x1", x).attr("y1", chartH)
-                            .attr("x2", x).attr("y2", chartH + 8)
-                            .attr("stroke", "#000")
-                            .attr("stroke-width", 1);
-                        if (j % 2 === 0) {
-                            /* labels read downwards, as in the original (which
-                               draws them with PIL at angle 270, i.e. a quarter
-                               turn clockwise) and hang below their tick */
-                            g.append("text")
-                                .attr("transform", "translate(" + x + "," + (chartH + 10) + ") rotate(90)")
-                                .attr("text-anchor", "start")
-                                .attr("font-family", FONT)
-                                .attr("font-size", "14px")
-                                .attr("fill", "#000")
-                                .text(String(tick));
-                        }
-                        j += 1;
-                    }
-                });
-            } else {
-                /* single chromosome / Mb range: nice continuous scale, with
-                   major + minor ticks labelled in absolute Mb. The grid is
-                   snapped to multiples of minorStep rather than starting at
-                   the range boundary: a range such as 10.013-11.013 used to
-                   generate ticks that never coincided with a multiple of
-                   step, so nothing was ever a major tick and the axis came
-                   out with no labels at all. */
-                var mbStart = rangeB ? rangeB.start / 1e6 : 0;
-                var lenMb = rangeB ? (rangeB.end - rangeB.start) / 1e6
-                                   : focusLayout.lengths[0].size / 1e6;
-                var step = niceStep(lenMb);
-                var minorStep = step / 5;
-                var mbDecimals = stepDecimals(step);
-                var firstTick = Math.ceil(mbStart / minorStep - 1e-9) * minorStep;
-                var lastMb = mbStart + lenMb;
-                var nTicks = Math.floor((lastMb - firstTick) / minorStep + 1e-9);
-                for (var vi = 0; vi <= nTicks; vi += 1) {
-                    var v = firstTick + vi * minorStep;
-                    /* step is exactly five minor steps, so a tick within half
-                       a step of a multiple of step is a major one. Measured
-                       against the tick spacing rather than a fixed epsilon,
-                       which only worked while the grid happened to start on
-                       a multiple of step. */
-                    var nearMajor =
-                        Math.abs(v - Math.round(v / step) * step) < minorStep / 2;
-                    var x = xScale(v * 1e6);
+        /* X axis ticks + labels, in the units of the plotted coordinate:
+           cM on a genetic map, Mb otherwise */
+        if (focus === null) {
+            /* whole-genome: the original works out one tick step from the
+               first chromosome and then reuses it for every chromosome
+               (its distScale is only ever assigned while it is still
+               zero), so the gap between ticks is the same all the way
+               across the figure. A chromosome shorter than the step just
+               gets no tick, or a single one where the step falls inside
+               it - far better than a per-chromosome step that packs
+               labels on top of each other wherever a chromosome is small
+               relative to the others. */
+            var firstLen = fullLayout.lengths.length
+                ? fullLayout.lengths[0].size / 1e6
+                : 0;
+            var distScale = firstLen > 75 ? 25 : (firstLen > 30 ? 10 : 5);
+            focusLayout.lengths.forEach(function (c, i) {
+                /* Ticks sit on multiples of the step in the units the axis
+                   reports, because that is what the tooltips quote. Mb is
+                   numbered from the start of the chromosome, so its origin
+                   is zero and its ticks are exactly where they always were;
+                   a genetic map is numbered from the start of the first
+                   chromosome, so a band starts at its own lowest cM and its
+                   ticks have to account for that offset. */
+                var origin = (toNum(state.chrOrigins[String(c.chr)]) || 0) / 1e6;
+                var firstTick = Math.ceil(origin / distScale + 1e-9) * distScale;
+                if (firstTick <= origin) firstTick += distScale;
+                var end = origin + c.size / 1e6;
+                var j = 0;
+                for (var tick = firstTick; tick < end; tick += distScale) {
+                    var x = xScale(focusLayout.starts[i] +
+                                   (tick - origin) * 1e6);
                     g.append("line")
                         .attr("x1", x).attr("y1", chartH)
-                        .attr("x2", x).attr("y2", chartH + (nearMajor ? 12 : 6))
+                        .attr("x2", x).attr("y2", chartH + 8)
                         .attr("stroke", "#000")
-                        .attr("stroke-width", nearMajor ? 2 : 1);
-                    if (nearMajor && v > mbStart) {
+                        .attr("stroke-width", 1);
+                    if (j % 2 === 0) {
+                        /* labels read downwards */
                         g.append("text")
-                            .attr("transform", "translate(" + x + "," + (chartH + 26) + ") rotate(-90)")
-                            .attr("text-anchor", "middle")
+                            .attr("transform", "translate(" + x + "," + (chartH + 10) + ") rotate(90)")
+                            .attr("text-anchor", "start")
                             .attr("font-family", FONT)
                             .attr("font-size", "14px")
                             .attr("fill", "#000")
-                            .text(v.toFixed(mbDecimals));
+                            .text(String(tick));
                     }
+                    j += 1;
+                }
+            });
+        } else {
+            /* single chromosome / range: nice continuous scale, with major +
+               minor ticks labelled in the axis units. The grid is snapped to
+               multiples of minorStep rather than starting at the range
+               boundary: a range such as 10.013-11.013 used to generate ticks
+               that never coincided with a multiple of step, so nothing was
+               ever a major tick and the axis came out with no labels at all.
+               As above, the ticks are the absolute values the tooltips show,
+               so the genetic offset of the chromosome is added back in. */
+            var origin = focusLayout.lengths.length
+                ? (toNum(state.chrOrigins[String(focusLayout.lengths[0].chr)]) || 0) / 1e6
+                : 0;
+            var span = rangeB ? (rangeB.end - rangeB.start) / 1e6
+                              : focusLayout.lengths[0].size / 1e6;
+            var axisStart = origin + (rangeB ? rangeB.start / 1e6 : 0);
+            var axisEnd = axisStart + span;
+            var step = niceStep(span);
+            var minorStep = step / 5;
+            var decimals = stepDecimals(step);
+            var firstTick = Math.ceil(axisStart / minorStep - 1e-9) * minorStep;
+            var nTicks = Math.floor((axisEnd - firstTick) / minorStep + 1e-9);
+            for (var vi = 0; vi <= nTicks; vi += 1) {
+                var v = firstTick + vi * minorStep;
+                /* step is exactly five minor steps, so a tick within half
+                   a step of a multiple of step is a major one. Measured
+                   against the tick spacing rather than a fixed epsilon,
+                   which only worked while the grid happened to start on
+                   a multiple of step. */
+                var nearMajor =
+                    Math.abs(v - Math.round(v / step) * step) < minorStep / 2;
+                var x = xScale((v - origin) * 1e6);
+                g.append("line")
+                    .attr("x1", x).attr("y1", chartH)
+                    .attr("x2", x).attr("y2", chartH + (nearMajor ? 12 : 6))
+                    .attr("stroke", "#000")
+                    .attr("stroke-width", nearMajor ? 2 : 1);
+                if (nearMajor && v > axisStart) {
+                    g.append("text")
+                        .attr("transform", "translate(" + x + "," + (chartH + 26) + ") rotate(-90)")
+                        .attr("text-anchor", "middle")
+                        .attr("font-family", FONT)
+                        .attr("font-size", "14px")
+                        .attr("fill", "#000")
+                        .text(v.toFixed(decimals));
                 }
             }
-            g.append("text")
-                .attr("x", chartW / 2)
-                .attr("y", chartH + 82)
-                .attr("text-anchor", "middle")
-                .attr("font-family", FONT)
-                .attr("font-size", "20px")
-                .attr("fill", COLORS.text)
-                .text(usesCmAxis(data) ? "Centimorgans" : "Megabases");
         }
+
+        g.append("text")
+            .attr("x", chartW / 2)
+            .attr("y", chartH + 82)
+            .attr("text-anchor", "middle")
+            .attr("font-family", FONT)
+            .attr("font-size", "20px")
+            .attr("fill", COLORS.text)
+            .text(usesCmAxis(data) ? "Centimorgans" : "Megabases");
 
         /* suggestive / significant threshold lines (with hover tooltips) */
         var sugg = toNum(data.suggestive);
