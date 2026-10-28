@@ -615,7 +615,7 @@ window.MappingFigure = (function () {
         var fl = layout.lengths[focus];
         var chr = fl.chr;
         var bands = [
-            { key: "phenogen", fill: "#A2FB94", text: "#1FD504",
+            { key: "phenogen", fill: "#A2FB94", text: "#149400",
               divider: "#FFFFFF",
               msg: "Click to view the corresponding section of the genome in " +
                    "PhenoGen" },
