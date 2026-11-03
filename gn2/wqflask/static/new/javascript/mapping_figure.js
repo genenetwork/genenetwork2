@@ -696,6 +696,8 @@ window.MappingFigure = (function () {
     var GENE_TRACK_H = NUM_GENE_ROWS * EACH_GENE_HEIGHT;
     var HAPLOTYPE_ROW_H = 2 * EACH_GENE_HEIGHT;    // 12 px per strain row
     var HAPLOTYPE_LINE_W = EACH_GENE_HEIGHT + 2;   // 8 px line thickness
+    var HAPLOTYPE_LABEL_GAP = 6;   // gap between the band and the SNP names
+    var HAPLOTYPE_LABEL_PAD = 8;   // slack below the longest SNP name
     var DRAW_DETAIL_MB = 4;      // zoom level at which exon detail is drawn
     var HAPLOTYPE_COLORS = {
         pos: "#0000FF",          // BLUE
@@ -799,6 +801,43 @@ window.MappingFigure = (function () {
         return rows;
     }
 
+    /* Width of `text` as drawn at 12px in FONT. The rotated marker names take
+       up a vertical band below the haplotype rows, so the band is sized from
+       the widest name rather than from a per-character guess: a name wider
+       than the band would spill onto the plot below the track. */
+    var _labelMeasureCtx = null;
+    function labelTextWidth(text) {
+        if (_labelMeasureCtx === null) {
+            try {
+                _labelMeasureCtx =
+                    document.createElement("canvas").getContext("2d");
+                _labelMeasureCtx.font = "12px " + FONT;
+            } catch (err) {
+                _labelMeasureCtx = false;
+            }
+        }
+        return _labelMeasureCtx
+            ? _labelMeasureCtx.measureText(text).width
+            : text.length * 8;
+    }
+
+    /* Height taken by the rotated marker names below the haplotype band. */
+    function haplotypeLabelHeight(haplotype) {
+        var longest = 0;
+        ((haplotype && haplotype.markers) || []).forEach(function (m) {
+            var name = (m.n === undefined || m.n === null) ? "" : String(m.n);
+            longest = Math.max(longest, labelTextWidth(name));
+        });
+        return HAPLOTYPE_LABEL_GAP + longest + HAPLOTYPE_LABEL_PAD;
+    }
+
+    /* Content height of the haplotype track: the strain rows plus the marker
+       names drawn underneath them. */
+    function haplotypeTrackHeight(haplotype) {
+        return haplotypePlottedStrains(haplotype).length * HAPLOTYPE_ROW_H
+            + haplotypeLabelHeight(haplotype);
+    }
+
     /* Height (px) reserved for each track in the focused view. Every track
        that has data keeps its collapsible header; an expanded track adds the
        content height on top. */
@@ -835,8 +874,7 @@ window.MappingFigure = (function () {
         }
         if (hap) {
             h.haplotype = TRACK_HEADER_H + (state.tracks.haplotype
-                ? (haplotypePlottedStrains(trackData.haplotype).length + 8)
-                    * HAPLOTYPE_ROW_H
+                ? haplotypeTrackHeight(trackData.haplotype)
                 : 0);
         }
         return h;
@@ -1250,8 +1288,8 @@ window.MappingFigure = (function () {
             }
         }
 
-        /* black marker ticks + rotated marker names at the bottom */
-        var lastRow = rows.length - 1;
+        /* black marker ticks + rotated marker names below the band */
+        var bandBottom = yTop + rows.length * HAPLOTYPE_ROW_H;
         markers.forEach(function (m, j) {
             var mx = mX[j];
             if (mx < 0 || mx > chartW) return;
@@ -1260,11 +1298,12 @@ window.MappingFigure = (function () {
                 .attr("width", 2)
                 .attr("height", rows.length * HAPLOTYPE_ROW_H)
                 .attr("fill", "#000000");
+            /* anchored at the end of the text so the name hangs below the
+               band rather than straddling the last strain rows */
             g.append("text")
                 .attr("transform", "translate(" + mx + "," +
-                       (yTop + 17 + 2 * lastRow * EACH_GENE_HEIGHT) +
-                       ") rotate(-90)")
-                .attr("text-anchor", "middle")
+                       (bandBottom + HAPLOTYPE_LABEL_GAP) + ") rotate(-90)")
+                .attr("text-anchor", "end")
                 .attr("font-family", FONT)
                 .attr("font-size", "12px")
                 .attr("fill", "#000000")
@@ -1586,8 +1625,7 @@ window.MappingFigure = (function () {
                         drawHaplotypeTrack(trackG, xScale, chartW, y,
                                            trackData.haplotype);
                     },
-                    (haplotypePlottedStrains(
-                        trackData.haplotype).length + 8) * HAPLOTYPE_ROW_H);
+                    haplotypeTrackHeight(trackData.haplotype));
             }
         }
 
