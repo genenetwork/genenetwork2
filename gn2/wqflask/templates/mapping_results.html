@@ -214,15 +214,27 @@
             #interactive_map, #interactive_map * {
                 overflow-anchor: none;
             }
+            /* The options above the figure (Chr, View, units, the track
+               checkboxes, ...) configure the server-rendered GN1 map, which
+               only changes on a full re-render. The interactive figure has
+               its own controls, so they are revealed only while the GN1 map
+               tab is the visible one (see the tab handler in the script
+               below). */
+            #gn1_map_options {
+                display: none;
+            }
+            #gn1_map_options.gn1-visible {
+                display: block;
+            }
         </style>
         <div class="tabbable" style="width: 100%; overflow-x: auto; margin: 10px; float: left;">
           <ul class="nav nav-tabs">
             {% if mapping_data %}
-            <li id="interactive_map_tab">
+            <li id="interactive_map_tab" class="active">
                 <a href="#interactive_map" data-toggle="tab" aria-expanded="true">Interactive Map</a>
             </li>
             {% endif %}
-            <li id="gn1_map_tab">
+            <li id="gn1_map_tab"{% if not mapping_data %} class="active"{% endif %}>
               <a href="#gn1_map" data-toggle="tab" aria-expanded="true">GN1 Map</a>
             </li>
             {% if mapping_method == "gemma" or mapping_method == "reaper" %}
@@ -232,7 +244,7 @@
             {% endif %}
           </ul>
           <div class="tab-content">
-            <div class="tab-pane" id="gn1_map">
+            <div class="tab-pane{% if not mapping_data %} active{% endif %}" id="gn1_map">
               <div class="qtlcharts">
                   {{ gifmap|safe }}
                   <img src="/generated/{{ filename }}.png" usemap="#WebQTLImageMap">
@@ -242,7 +254,7 @@
                   {% endif %}
               </div>
             </div>
-            <div class="tab-pane active" id="interactive_map">
+            <div class="tab-pane{% if mapping_data %} active{% endif %}" id="interactive_map">
               <div class="qtlcharts">
                   <div id="mapping-figure-controls" style="margin: 16px 0 10px 0; padding: 8px 10px; font-size: 14px; background: #f7f7fa; border: 1px solid #ddd; border-radius: 4px;">
                       <span style="font-weight: bold;">Chr:</span>&nbsp;
@@ -421,6 +433,18 @@
     <script language="javascript" type="text/javascript" src="/static/new/javascript/mapping_figure.js"></script>
     <script type="text/javascript">
         $(document).ready(function () {
+            /* The options above the figure configure the GN1 map only, so they
+               follow the tabs rather than always being on screen. This is
+               wired up even without an interactive figure, so the GN1 map is
+               never left without its controls. */
+            var gn1Options = $('div#gn1_map_options');
+            var syncGn1Options = function () {
+                var activePane = $('.tab-content .tab-pane.active').attr('id');
+                gn1Options.toggleClass('gn1-visible', activePane === 'gn1_map');
+            };
+            syncGn1Options();
+            $(document).on('shown.bs.tab', '.nav-tabs a', syncGn1Options);
+
             if (window.MappingFigure && window.mapping_data) {
                 /* ---- Chr + Mb-range controls for the interactive figure ---- */
                 var _md = window.mapping_data;
@@ -483,11 +507,7 @@
                     window.MappingFigure.render("mapping-figure", _md);
                 };
                 $('#interactive_map_tab').on('shown.bs.tab', function () {
-                    $('div#gn1_map_options').css("display", "none");
                     renderInteractiveMap();
-                });
-                $('#gn1_map_tab').on('shown.bs.tab', function () {
-                    $('div#gn1_map_options').css("display", "block");
                 });
                 if ($('#interactive_map').hasClass('active')) {
                     renderInteractiveMap();
@@ -1051,14 +1071,6 @@
                 });
             });
 
-            $('#vector_map_tab').click(function(){
-                $('div#gn1_map_options').hide();
-            });
-
-            $('#gn1_map_tab').click(function(){
-                $('div#gn1_map_options').show();
-            });
-
         });
 
       var mapping_input_list = ['temp_uuid', "run_id",  'trait_id', 'dataset', 'tool_used', 'form_url', 'method', 'transform', 'trimmed_markers', 'selected_chr', 'chromosomes', 'mapping_scale', 'sample_vals',
@@ -1210,13 +1222,6 @@
         }
 
         $('.export_mapping_results').click(export_mapping_results);
-
-        $('#browser_tab').click(function() {
-          $('#gn1_map_options').css("display", "none")
-        })
-        $('#gn1_map_tab').click(function() {
-          $('#gn1_map_options').css("display", "block")
-        })
 
         hash = $('input[name=inputs_hash]').val();
         mappingLink = window.location.origin + "/run_mapping/"+ hash;
