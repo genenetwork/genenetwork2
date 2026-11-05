@@ -52,16 +52,22 @@
                         {% set reject_url = url_for('metadata_edit.reject_data', resource_id=data.meta.get('resource_id'), file_name=data.filepath.name, dataset_name=data.diff.dataset_name, trait_name=data.diff.trait_name) %}
                         {% set approve_url = url_for('metadata_edit.approve_data', resource_id=data.meta.get('resource_id'), file_name=data.filepath.name, dataset_name=data.diff.dataset_name, trait_name=data.diff.trait_name) %}
                         <td>
-                            <button type="button"
-                                    class="btn btn-secondary btn-sm">
-                                <a href="{{ reject_url }}">Reject</a>
-                            </button>
+                            <form action="{{ reject_url }}" method="POST">
+                                <button type="submit"
+                                        class="btn btn-secondary btn-sm"
+                                        aria-label="Reject changes to {{ data.diff.get('dataset_name') }}:{{ data.diff.get('trait_name') }}">
+                                    Reject
+                                </button>
+                            </form>
                         </td>
                         <td>
-                            <button type="button"
-                                    class="btn btn-warning btn-sm">
-                                <a href="{{ approve_url }}">Approve</a>
-                            </button>
+                            <form action="{{ approve_url }}" method="POST">
+                                <button type="submit"
+                                        class="btn btn-warning btn-sm"
+                                        aria-label="Approve changes to {{ data.diff.get('dataset_name') }}:{{ data.diff.get('trait_name') }}">
+                                    Approve
+                                </button>
+                            </form>
                         </td>
                     </tr>
                     {% endfor %}
