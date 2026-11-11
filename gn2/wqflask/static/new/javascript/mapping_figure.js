@@ -44,6 +44,16 @@ window.MappingFigure = (function () {
     var TOP_LABEL_INSET = 32;        // room at the top of the plot for chr labels
     var FONT = "Verdana, sans-serif";
 
+    /* Absolute floor for the plot area. It is only a floor: the real minimum is
+       derived from the x-axis labels themselves (see minChartWidth), so a
+       narrow window scrolls the figure rather than squeezing the axis until
+       its labels collide. */
+    var MIN_CHART_WIDTH = 600;
+    var CHR_LABEL_SIZE = 22;         // chromosome name font size (px)
+    var CHR_LABEL_MIN_SIZE = 12;     // smallest a name may shrink to in a narrow band
+    var TICK_LABEL_SIZE = 14;        // x-axis tick label font size (px)
+    var TICK_LABEL_CLEARANCE = 20;   // px between neighbouring rotated tick labels
+
     /* Colours mirror display_mapping_results.py */
     var COLORS = {
         backLight: "#FBFBFF",
@@ -801,24 +811,32 @@ window.MappingFigure = (function () {
         return rows;
     }
 
-    /* Width of `text` as drawn at 12px in FONT. The rotated marker names take
-       up a vertical band below the haplotype rows, so the band is sized from
-       the widest name rather than from a per-character guess: a name wider
-       than the band would spill onto the plot below the track. */
+    /* Width of `text` as drawn at `fontSize` in FONT. Sizing bands and labels
+       from the measured text (rather than a per-character guess) is what lets
+       the figure work out how much room its labels really need - see
+       minChartWidth - so a name wider than its space is never drawn. */
     var _labelMeasureCtx = null;
-    function labelTextWidth(text) {
+    function textWidth(text, fontSize) {
+        var size = fontSize || 12;
         if (_labelMeasureCtx === null) {
             try {
                 _labelMeasureCtx =
                     document.createElement("canvas").getContext("2d");
-                _labelMeasureCtx.font = "12px " + FONT;
             } catch (err) {
                 _labelMeasureCtx = false;
             }
         }
-        return _labelMeasureCtx
-            ? _labelMeasureCtx.measureText(text).width
-            : text.length * 8;
+        if (_labelMeasureCtx === false) {
+            return String(text).length * size * 0.62;
+        }
+        _labelMeasureCtx.font = size + "px " + FONT;
+        return _labelMeasureCtx.measureText(String(text)).width;
+    }
+
+    /* Width of `text` as drawn at 12px - the font the rotated marker names
+       below the haplotype rows use. */
+    function labelTextWidth(text) {
+        return textWidth(text, 12);
     }
 
     /* Height taken by the rotated marker names below the haplotype band. */
@@ -1377,6 +1395,48 @@ window.MappingFigure = (function () {
         container.dispatchEvent(evt);
     }
 
+    /* Universal x-axis step used across the whole-genome view, in the units
+       the axis reports (Mb or cM): the original figure works it out once from
+       the first chromosome and then reuses it for every band. */
+    function wholeGenomeTickStep(layout) {
+        var firstLen = layout.lengths.length
+            ? layout.lengths[0].size / 1e6
+            : 0;
+        return firstLen > 75 ? 25 : (firstLen > 30 ? 10 : 5);
+    }
+
+    /* How many ticks to skip between x-axis labels so that neighbouring
+       rotated labels stay TICK_LABEL_CLEARANCE apart. Always whole doubles of
+       the base stride (every second tick), so the labels keep a regular
+       rhythm across the whole genome. */
+    function tickLabelStride(chartW, totalBases, stepBases) {
+        if (!(chartW > 0) || !(totalBases > 0) || !(stepBases > 0)) return 2;
+        var pxPerTick = chartW * stepBases / totalBases;
+        var stride = 2;
+        while (stride * pxPerTick < TICK_LABEL_CLEARANCE && stride < 4096) {
+            stride *= 2;
+        }
+        return stride;
+    }
+
+    /* Narrowest plot at which the whole-genome x-axis stays legible: the
+       rotated tick labels have to clear each other, which is what decides how
+       much room a genome needs. Measured from the layout rather than fixed, so
+       a species with many chromosomes (or a finer tick step) gets a wider
+       figure while a compact one is not stretched.
+
+       Chromosome names are not part of this: a band narrower than its name
+       shrinks the name instead of widening the whole figure (see the label
+       drawing below). */
+    function minChartWidth(layout, focus, maxChartW) {
+        var stepB = wholeGenomeTickStep(layout) * 1e6;
+        if (focus !== null || !(layout.totalBases > 0) || !(stepB > 0)) {
+            return Math.min(MIN_CHART_WIDTH, maxChartW);
+        }
+        var needed = TICK_LABEL_CLEARANCE * layout.totalBases / (2 * stepB);
+        return Math.min(Math.max(MIN_CHART_WIDTH, needed), maxChartW);
+    }
+
     function render(containerId, data) {
         var container = document.getElementById(containerId);
         if (!container) return;
@@ -1471,12 +1531,19 @@ window.MappingFigure = (function () {
             ensureTrackData(containerId, data, focus, layout, rangeB);
         }
 
-        var width = Math.min(
-            Math.max(container.clientWidth || DEFAULT_WIDTH, 600), MAX_WIDTH);
         /* extra right room for haplotype strain labels when that track is on */
         var th = trackHeights(state, focus, trackData);
         var rightExtra = (focus !== null && th.haplotype > 0) ? 110 : 0;
-        var chartW = width - MARGIN.left - MARGIN.right - rightExtra;
+
+        /* The figure follows the window, but never shrinks below what its
+           labels need (minChartWidth): on a narrow window the wrapper scrolls
+           horizontally instead of squeezing the axis until labels overlap. */
+        var maxChartW = MAX_WIDTH - MARGIN.left - MARGIN.right - rightExtra;
+        var availW = Math.min(container.clientWidth || DEFAULT_WIDTH, MAX_WIDTH)
+            - MARGIN.left - MARGIN.right - rightExtra;
+        var chartW = Math.ceil(Math.max(
+            availW, minChartWidth(focusLayout, focus, maxChartW)));
+        var width = chartW + MARGIN.left + MARGIN.right + rightExtra;
 
         /* extra vertical room for the browser-link bands + tracks (focused) */
         var hasBands = focus !== null && physicalTracksUsable();
@@ -1533,21 +1600,41 @@ window.MappingFigure = (function () {
                         render(containerId, data);
                     });
                 /* chromosome label at the TOP of the band (like the original:
-                   regular weight, sitting just inside the top of the plot) */
-                g.append("text")
-                    .attr("x", (x0 + x1) / 2)
-                    .attr("y", chrLabelY)
-                    .attr("text-anchor", "middle")
-                    .attr("font-family", FONT)
-                    .attr("font-size", "22px")
-                    .attr("fill", COLORS.text)
-                    .style("cursor", "pointer")
-                    .text(c.chr)
-                    .on("click", function () {
-                        state.focusChr = i;
-                        state.range = null;
-                        render(containerId, data);
-                    });
+                   regular weight, sitting just inside the top of the plot).
+                   A band too narrow for the name at full size shrinks the name
+                   until it fits (down to CHR_LABEL_MIN_SIZE), because widening
+                   the whole figure for a single short chromosome is worse than
+                   a slightly smaller label. Names are centred and bands are
+                   separated by a gap, so a name that fits cannot reach past the
+                   middle of either gap and into its neighbour. */
+                var chrBandW = x1 - x0;
+                var chrGapW = chartW * focusLayout.interval /
+                    focusLayout.totalBases;
+                var chrRoom = chrBandW + chrGapW;
+                var chrNameW = textWidth(c.chr, CHR_LABEL_SIZE);
+                var chrSize = CHR_LABEL_SIZE;
+                if (chrNameW > chrRoom) {
+                    chrSize = Math.max(
+                        CHR_LABEL_MIN_SIZE,
+                        Math.floor(CHR_LABEL_SIZE * chrRoom / chrNameW));
+                    chrNameW = textWidth(c.chr, chrSize);
+                }
+                if (chrNameW <= chrRoom) {
+                    g.append("text")
+                        .attr("x", (x0 + x1) / 2)
+                        .attr("y", chrLabelY)
+                        .attr("text-anchor", "middle")
+                        .attr("font-family", FONT)
+                        .attr("font-size", chrSize + "px")
+                        .attr("fill", COLORS.text)
+                        .style("cursor", "pointer")
+                        .text(c.chr)
+                        .on("click", function () {
+                            state.focusChr = i;
+                            state.range = null;
+                            render(containerId, data);
+                        });
+                }
             });
         } else {
             /* focused single chromosome: fixed-width alternating vertical
@@ -1567,7 +1654,7 @@ window.MappingFigure = (function () {
                 .attr("y", chrLabelY)
                 .attr("text-anchor", "middle")
                 .attr("font-family", FONT)
-                .attr("font-size", "22px")
+                .attr("font-size", CHR_LABEL_SIZE + "px")
                 .attr("fill", COLORS.text)
                 .text(focusLayout.lengths[0].chr);
         }
@@ -1688,10 +1775,14 @@ window.MappingFigure = (function () {
                it - far better than a per-chromosome step that packs
                labels on top of each other wherever a chromosome is small
                relative to the others. */
-            var firstLen = fullLayout.lengths.length
-                ? fullLayout.lengths[0].size / 1e6
-                : 0;
-            var distScale = firstLen > 75 ? 25 : (firstLen > 30 ? 10 : 5);
+            var distScale = wholeGenomeTickStep(focusLayout);
+            /* Labels thin out as the plot narrows so that neighbouring rotated
+               labels never touch. minChartWidth already keeps the plot wide
+               enough for a label every second tick, so the stride only grows
+               past 2 when MAX_WIDTH caps the figure or a species packs in far
+               more ticks than that. */
+            var labelStride = tickLabelStride(chartW, focusLayout.totalBases,
+                                              distScale * 1e6);
             focusLayout.lengths.forEach(function (c, i) {
                 /* Ticks sit on multiples of the step in the units the axis
                    reports, because that is what the tooltips quote. Mb is
@@ -1704,7 +1795,6 @@ window.MappingFigure = (function () {
                 var firstTick = Math.ceil(origin / distScale + 1e-9) * distScale;
                 if (firstTick <= origin) firstTick += distScale;
                 var end = origin + c.size / 1e6;
-                var j = 0;
                 for (var tick = firstTick; tick < end; tick += distScale) {
                     var x = xScale(focusLayout.starts[i] +
                                    (tick - origin) * 1e6);
@@ -1713,17 +1803,24 @@ window.MappingFigure = (function () {
                         .attr("x2", x).attr("y2", chartH + 8)
                         .attr("stroke", "#000")
                         .attr("stroke-width", 1);
-                    if (j % 2 === 0) {
+                    /* Counted in absolute steps rather than restarted on each
+                       band, so the labels keep their spacing across a
+                       chromosome boundary. On the offset (genetic) axis a
+                       band can start between two steps, and a per-band count
+                       would then put its first label one step after the
+                       previous band's last one. */
+                    var tickIndex =
+                        Math.round(tick / distScale + 1e-9);
+                    if ((tickIndex - 1) % labelStride === 0) {
                         /* labels read downwards */
                         g.append("text")
                             .attr("transform", "translate(" + x + "," + (chartH + 10) + ") rotate(90)")
                             .attr("text-anchor", "start")
                             .attr("font-family", FONT)
-                            .attr("font-size", "14px")
+                            .attr("font-size", TICK_LABEL_SIZE + "px")
                             .attr("fill", "#000")
                             .text(String(tick));
                     }
-                    j += 1;
                 }
             });
         } else {
@@ -1767,7 +1864,7 @@ window.MappingFigure = (function () {
                         .attr("transform", "translate(" + x + "," + (chartH + 26) + ") rotate(-90)")
                         .attr("text-anchor", "middle")
                         .attr("font-family", FONT)
-                        .attr("font-size", "14px")
+                        .attr("font-size", TICK_LABEL_SIZE + "px")
                         .attr("fill", "#000")
                         .text(v.toFixed(decimals));
                 }
