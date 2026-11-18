@@ -209,6 +209,24 @@ class TestCorrelations(unittest.TestCase):
         self.assertAlmostEqual(sample_r("pearson"), 0.6243797383, places=6)
         self.assertAlmostEqual(sample_r("spearman"), 1.0, places=6)
 
+    @mock.patch("gn2.wqflask.api.correlation.do_tissue_correlation_for_all_traits")
+    def test_calculate_results_tissue_without_primary_tissue_data(
+            self, tissue_correlation):
+        tissue_correlation.return_value = None
+
+        this_dataset = MockDataset({})
+        target_dataset = MockDataset({})
+        this_trait = AttributeSetter({"symbol": "S1"})
+
+        results = calculate_results(
+            this_trait=this_trait,
+            this_dataset=this_dataset,
+            target_dataset=target_dataset,
+            corr_params={"type": "tissue"},
+        )
+
+        self.assertEqual(results, OrderedDict())
+
     def test_get_sample_r_and_p_values_rejects_unsupported_method(self):
         samplelist = [f"S{i}" for i in range(1, 8)]
         target_dataset = MockDataset(

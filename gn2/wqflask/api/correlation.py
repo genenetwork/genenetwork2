@@ -67,7 +67,7 @@ def calculate_results(this_trait, this_dataset, target_dataset, corr_params):
     if corr_params['type'] == "tissue":
         trait_symbol_dict = this_dataset.retrieve_genes("Symbol")
         corr_results = do_tissue_correlation_for_all_traits(
-            this_trait, trait_symbol_dict, corr_params)
+            this_trait, trait_symbol_dict, corr_params) or {}
         sorted_results = collections.OrderedDict(sorted(list(corr_results.items()),
                                                         key=lambda t: -abs(t[1][1])))
     # ZS: Just so a user can use either "lit" or "literature"
