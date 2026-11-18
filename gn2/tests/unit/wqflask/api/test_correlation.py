@@ -39,6 +39,14 @@ class TestCorrelations(unittest.TestCase):
 
         self.assertEqual(corr_params_results, expected_results)
 
+    def test_init_corr_params_defaults_to_pearson(self):
+        self.assertEqual(
+            init_corr_params(start_vars={})["method"], "pearson")
+
+    def test_init_corr_params_rejects_unsupported_method(self):
+        with self.assertRaises(ValueError):
+            init_corr_params(start_vars={"method": "kendall"})
+
     @mock.patch("gn2.wqflask.api.correlation.database_connection")
     def test_convert_to_mouse_gene_id(self, mock_db):
         conn = mock.MagicMock()
@@ -122,21 +130,21 @@ class TestCorrelations(unittest.TestCase):
             this_dataset={},
             target_vals=target_vals,
             target_dataset=target_dataset,
-            type="pearson",
+            method="pearson",
         )
         results_spearmanr = get_sample_r_and_p_values(
             this_trait=this_trait,
             this_dataset={},
             target_vals=target_vals,
             target_dataset=target_dataset,
-            type="spearman",
+            method="spearman",
         )
         results_num_overlap = get_sample_r_and_p_values(
             this_trait=this_trait,
             this_dataset={},
             target_vals=target_vals,
             target_dataset=target_dataset,
-            type="pearson",
+            method="pearson",
         )
         expected_pearsonr = [-0.21618688834430866, 0.680771605997119, 6]
         expected_spearmanr = [-0.11595420713048969, 0.826848213385815, 6]
@@ -173,3 +181,50 @@ class TestCorrelations(unittest.TestCase):
 
         self.assertTrue(isinstance(sorted_results, OrderedDict))
         self.assertEqual(dict(sorted_results), expected_results)
+
+    def test_calculate_results_uses_requested_method(self):
+        samplelist = [f"S{i}" for i in range(1, 9)]
+        target_dataset = MockDataset({
+            "group": AttributeSetter({"samplelist": samplelist}),
+            "trait_data": {
+                "TT-1": [1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 100.0]
+            },
+        })
+        this_trait = AttributeSetter({
+            "data": {
+                sample: AttributeSetter({"value": float(index)})
+                for index, sample in enumerate(samplelist, start=1)
+            }
+        })
+
+        def sample_r(method):
+            return calculate_results(
+                this_trait=this_trait,
+                this_dataset={},
+                target_dataset=target_dataset,
+                corr_params={"type": "sample", "method": method},
+            )["TT-1"][0]
+
+        # Monotonic but non-linear data: rho == 1 while r < 1
+        self.assertAlmostEqual(sample_r("pearson"), 0.6243797383, places=6)
+        self.assertAlmostEqual(sample_r("spearman"), 1.0, places=6)
+
+    def test_get_sample_r_and_p_values_rejects_unsupported_method(self):
+        samplelist = [f"S{i}" for i in range(1, 8)]
+        target_dataset = MockDataset(
+            {"group": AttributeSetter({"samplelist": samplelist})})
+        this_trait = AttributeSetter({
+            "data": {
+                sample: AttributeSetter({"value": float(index)})
+                for index, sample in enumerate(samplelist, start=1)
+            }
+        })
+
+        with self.assertRaises(ValueError):
+            get_sample_r_and_p_values(
+                this_trait=this_trait,
+                this_dataset={},
+                target_vals=[1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0],
+                target_dataset=target_dataset,
+                method="sample",
+            )

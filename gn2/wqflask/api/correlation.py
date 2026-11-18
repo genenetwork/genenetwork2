@@ -80,7 +80,7 @@ def calculate_results(this_trait, this_dataset, target_dataset, corr_params):
     else:
         for target_trait, target_vals in list(target_dataset.trait_data.items()):
             result = get_sample_r_and_p_values(
-                this_trait, this_dataset, target_vals, target_dataset, corr_params['type'])
+                this_trait, this_dataset, target_vals, target_dataset, corr_params['method'])
             if result is not None:
                 corr_results[target_trait] = result
 
@@ -155,7 +155,7 @@ def do_literature_correlation_for_all_traits(this_trait, target_dataset, trait_g
     return lit_corr_data
 
 
-def get_sample_r_and_p_values(this_trait, this_dataset, target_vals, target_dataset, type):
+def get_sample_r_and_p_values(this_trait, this_dataset, target_vals, target_dataset, method):
     """
     Calculates the sample r (or rho) and p-value
 
@@ -176,12 +176,16 @@ def get_sample_r_and_p_values(this_trait, this_dataset, target_vals, target_data
     this_trait_vals, shared_target_vals, num_overlap = corr_result_helpers.normalize_values(
         this_trait_vals, shared_target_vals)
 
-    if type == 'pearson':
+    if method == 'pearson':
         sample_r, sample_p = scipy.stats.pearsonr(
             this_trait_vals, shared_target_vals)
-    else:
+    elif method == 'spearman':
         sample_r, sample_p = scipy.stats.spearmanr(
             this_trait_vals, shared_target_vals)
+    else:
+        raise ValueError(
+            f"Unsupported correlation method '{method}'. "
+            "Expected 'pearson' or 'spearman'.")
 
     if num_overlap > 5:
         if numpy.isnan(sample_r):
@@ -222,9 +226,11 @@ def convert_to_mouse_gene_id(species=None, gene_id=None):
 
 
 def init_corr_params(start_vars):
-    method = "pearson"
-    if 'method' in start_vars:
-        method = start_vars['method']
+    method = start_vars.get('method', 'pearson').lower()
+    if method not in ('pearson', 'spearman'):
+        raise ValueError(
+            f"Unsupported correlation method '{method}'. "
+            "Expected 'pearson' or 'spearman'.")
 
     type = "sample"
     if 'type' in start_vars:
