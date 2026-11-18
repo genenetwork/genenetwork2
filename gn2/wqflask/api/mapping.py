@@ -69,13 +69,9 @@ def do_mapping_for_api(start_vars):
 
     if mapping_params.get('mapping_method') == "gemma":
         header_row = ["name", "chr", "Mb", "lod_score", "p_value"]
-        # gemma_mapping returns both results and the filename for LOCO, so need to only grab the former for api
-        if mapping_params.get('use_loco') == "True":
-            result_markers = gemma_mapping.run_gemma(
-                this_trait, dataset, samples, vals, covariates, mapping_params['use_loco'], mapping_params['maf'])[0]
-        else:
-            result_markers = gemma_mapping.run_gemma(
-                this_trait, dataset, samples, vals, covariates, mapping_params['use_loco'], mapping_params['maf'])
+        # run_gemma always returns (results, output_filename); the API only needs the results
+        result_markers = gemma_mapping.run_gemma(
+            this_trait, dataset, samples, vals, covariates, mapping_params['use_loco'], mapping_params['maf'])[0]
     elif mapping_params.get('mapping_method') == "rqtl":
         header_row = ["name", "chr", "cM", "lod_score"]
         if mapping_params['num_perm'] > 0:

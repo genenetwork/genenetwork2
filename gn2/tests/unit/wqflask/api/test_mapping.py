@@ -111,3 +111,29 @@ class TestMapping(unittest.TestCase):
         run_gemma.return_value = ["results"]
         results = do_mapping_for_api(start_vars=start_vars)
         self.assertEqual(results, ("results", None))
+
+    @mock.patch("gn2.wqflask.api.mapping.gemma_mapping.run_gemma")
+    @mock.patch("gn2.wqflask.api.mapping.retrieve_sample_data")
+    @mock.patch("gn2.wqflask.api.mapping.create_trait")
+    @mock.patch("gn2.wqflask.api.mapping.data_set.create_dataset")
+    def test_do_mapping_for_api_unwraps_gemma_results(
+            self, mock_create_dataset, mock_create_trait,
+            mock_retrieve_sample_data, mock_run_gemma):
+        dataset = mock.MagicMock()
+        dataset.group.samplelist = ["S1", "S2"]
+        mock_create_dataset.return_value = dataset
+
+        this_trait = mock.MagicMock()
+        this_trait.data = {
+            "S1": AttributeSetter({"name": "S1", "value": 1.5}),
+            "S2": AttributeSetter({"name": "S2", "value": 2.5}),
+        }
+        mock_create_trait.return_value = this_trait
+        mock_retrieve_sample_data.return_value = this_trait
+
+        mock_run_gemma.return_value = ([{"name": "m1"}], "output_file.json")
+
+        results = do_mapping_for_api(
+            start_vars={"db": "BXD", "trait_id": "T1", "method": "gemma"})
+
+        self.assertEqual(results, ([{"name": "m1"}], "json"))
