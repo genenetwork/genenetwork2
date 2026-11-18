@@ -768,7 +768,10 @@ def get_trait_info(dataset_name, trait_name, file_format="json"):
 
 @app.route("/api/v_{}/correlation".format(version), methods=("GET",))
 def get_corr_results():
-    results = correlation.do_correlation(request.args)
+    try:
+        results = correlation.do_correlation(request.args)
+    except ValueError as error:
+        return invalid_parameters_error(error)
 
     if len(results) > 0:
         # ZS: I think flask.jsonify expects a dict/list instead of JSON
@@ -779,7 +782,10 @@ def get_corr_results():
 
 @app.route("/api/v_{}/mapping".format(version), methods=("GET",))
 def get_mapping_results():
-    results, format = mapping.do_mapping_for_api(request.args)
+    try:
+        results, format = mapping.do_mapping_for_api(request.args)
+    except ValueError as error:
+        return invalid_parameters_error(error)
 
     if len(results) > 0:
         if format == "csv":
@@ -925,6 +931,12 @@ def return_error(code, source, title, details):
     ]}
 
     return flask.jsonify(json_ob)
+
+
+def invalid_parameters_error(error):
+    return (return_error(code=400, source=request.url_rule.rule,
+                         title="Invalid Parameters", details=str(error)),
+            400)
 
 
 def get_dataset_trait_ids(dataset_name, start_vars):
