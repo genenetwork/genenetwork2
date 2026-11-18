@@ -958,7 +958,7 @@ def get_dataset_trait_ids(dataset_name, start_vars):
 
             trait_ids = [result[0] for result in results]
             trait_names = [result[1] for result in results]
-            dataset_id = results[0][2]
+            dataset_id = results[0][2] if results else None
             return trait_ids, trait_names, data_type, dataset_id
 
         elif "Publish" in dataset_name or get_group_id(dataset_name):
@@ -997,7 +997,7 @@ def get_dataset_trait_ids(dataset_name, start_vars):
             results = cursor.fetchall()
             trait_ids = [result[0] for result in results]
             trait_names = [result[1] for result in results]
-            dataset_id = results[0][2]
+            dataset_id = results[0][2] if results else None
             return trait_ids, trait_names, data_type, dataset_id
 
 
