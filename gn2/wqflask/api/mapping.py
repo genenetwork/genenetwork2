@@ -117,6 +117,10 @@ def initialize_parameters(start_vars, dataset, this_trait):
     mapping_params['mapping_method'] = "gemma"
     if 'method' in start_vars:
         mapping_params['mapping_method'] = start_vars['method']
+    if mapping_params['mapping_method'] not in ("gemma", "rqtl"):
+        raise ValueError(
+            f"Unsupported mapping method '{mapping_params['mapping_method']}'. "
+            "Expected 'gemma' or 'rqtl'.")
 
     if mapping_params['mapping_method'] == "rqtl":
         mapping_params['rqtl_method'] = "hk"

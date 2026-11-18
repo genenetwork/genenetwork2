@@ -63,6 +63,11 @@ class TestMapping(unittest.TestCase):
 
         self.assertEqual(results_2, expected_results)
 
+    def test_initialize_parameters_rejects_unsupported_method(self):
+        with self.assertRaises(ValueError):
+            initialize_parameters(
+                start_vars={"method": "reaper"}, dataset={}, this_trait={})
+
     @mock.patch("gn2.wqflask.api.mapping.rqtl_mapping.run_rqtl")
     @mock.patch("gn2.wqflask.api.mapping.gemma_mapping.run_gemma")
     @mock.patch("gn2.wqflask.api.mapping.initialize_parameters")
