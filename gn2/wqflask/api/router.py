@@ -448,9 +448,8 @@ def fetch_traits(dataset_name, file_format="json"):
                 field_list = ["Id", "Description", "Authors", "Year", "PubMedID", "Mean",
                               "LRS", "Additive", "Locus", "Chr", "Mb"]
 
-            if 'limit_to' in request.args:
-                limit_number = request.args['limit_to']
-                query += "LIMIT " + str(limit_number)
+            if request.args.get('limit_to', '').isdigit():
+                query += "LIMIT " + request.args['limit_to']
             with database_connection(get_setting("SQL_URI")) as conn, conn.cursor() as cursor:
                 if file_format == "json":
                     filename = dataset_name + "_traits.json"
@@ -941,10 +940,8 @@ def invalid_parameters_error(error):
 
 def get_dataset_trait_ids(dataset_name, start_vars):
 
-    if 'limit_to' in start_vars:
-        limit_string = "LIMIT " + str(start_vars['limit_to'])
-    else:
-        limit_string = ""
+    limit_to = str(start_vars.get('limit_to', ''))
+    limit_string = f"LIMIT {limit_to}" if limit_to.isdigit() else ""
     with database_connection(get_setting("SQL_URI")) as conn, conn.cursor() as cursor:
         if "Geno" in dataset_name:
             data_type = "Geno"  # ZS: Need to pass back the dataset type
