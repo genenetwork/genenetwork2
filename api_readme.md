@@ -111,7 +111,7 @@ Each method's query takes the following parameters respectively (more will be ad
 ### GEMMA ###
 * trait_id (*required*) - ID for trait being mapped
 * db (*required*) - DB name for trait above (Short_Abbreviation listed when you query for datasets)
-* use_loco - Whether to use LOCO (leave one chromosome out) method (default = false)
+* use_loco - Whether to use LOCO (leave one chromosome out) method (default = true)
 * maf - minor allele frequency (default = 0.01)
 
 Example query:
@@ -146,7 +146,7 @@ This query currently takes the following parameters (though more will be added):
 * target_db (*required*) - Target DB name to be correlated against
 * type - sample (default) | tissue
 * method - pearson (default) | spearman
-* return - Number of results to return (default = 500)
+* return_count - Number of results to return (default = 500)
 
 Example query:
 ```
