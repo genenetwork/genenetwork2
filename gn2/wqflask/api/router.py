@@ -193,7 +193,7 @@ def get_datasets_for_group(group_name, species_name=None):
                 "InbredSet.SpeciesId = Species.Id AND "
                 "(Species.SpeciesName = %s OR "
                 "Species.MenuName = %s OR Species.FullName = %s);",
-                (*(group_name,)*3, *(species_name)*3)
+                (*(group_name,)*3, *(species_name,)*3)
             )
         else:
             cursor.execute(
