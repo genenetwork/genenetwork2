@@ -117,7 +117,7 @@ def run_rqtl(trait_name, vals, samples, dataset, pair_scan,
         covarstruct_file = write_covarstruct_file(cofactors)
         post_data["covarstruct"] = covarstruct_file
 
-    if do_control == "true" and control_marker:
+    if str(do_control).lower() == "true" and control_marker:
         post_data["control"] = control_marker
 
     if not manhattan_plot and not pair_scan:

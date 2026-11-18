@@ -41,3 +41,24 @@ class TestRqtlMapping(unittest.TestCase):
         mock_post.assert_called_once()
 
         self.assertEqual(results, ([], 3, 4, []))
+
+    @mock.patch("gn2.wqflask.marker_regression.rqtl_mapping.requests.post")
+    @mock.patch("gn2.wqflask.marker_regression.rqtl_mapping.locate")
+    @mock.patch("gn2.wqflask.marker_regression.rqtl_mapping.write_phenotype_file")
+    def test_run_rqtl_with_control_marker(
+            self, mock_write_pheno_file, mock_locate, mock_post):
+        """A boolean do_control (as passed by the REST API) applies the control marker"""
+        dataset = MockDataset(MockGroup("GP1", "file_geno"))
+
+        mock_write_pheno_file.return_value = "pheno_filename"
+        mock_locate.return_value = "geno_filename"
+        mock_post.return_value = mock.Mock(ok=True)
+        mock_post.return_value.json.return_value = {"results": []}
+
+        run_rqtl(trait_name="the_trait", vals=[], samples=[], dataset=dataset,
+                 pair_scan=False, mapping_scale="cM", model="normal",
+                 method="hk", num_perm=0, perm_strata_list=[], do_control=True,
+                 control_marker="rs123", manhattan_plot=True, cofactors="")
+
+        self.assertEqual(
+            mock_post.call_args.kwargs["data"]["control"], "rs123")
