@@ -1948,13 +1948,37 @@ window.MappingFigure = (function () {
         if (data.manhattan_plot) {
             /* scatter points (larger when focused on a single chromosome) */
             var dotR = focus === null ? 2 : 3.5;
+            /* 1px white halo so overlapping points stay visually distinct
+               instead of merging into a solid blob of colour. Focused (single
+               chromosome / zoomed range) views only: in the whole-genome view
+               markers pile up along the baseline, where the halos would paint
+               over the x-axis rule. */
+            var dotHalo = focus !== null;
+            /* Thousands of markers overlap in the whole-genome view, where a
+               halo is not enough (and was painting over the axis before the
+               lift below). Fading the fill there lets stacked points darken,
+               so dense regions read as denser - the focused view has few
+               enough points per band to stay opaque and separate on the halo
+               alone. */
+            var dotFillOpacity = focus === null ? 0.8 : 1;
+            /* The dot sits ON its value rather than centred on it, so a marker
+               at the bottom of the scale does not straddle the x-axis. The PIL
+               drew its symbol glyph a few pixels above the position for the
+               same reason. Lifting by the visual radius (half the halo
+               included) plus 1px keeps a small gap above the rule. */
+            var dotLift = dotR + (dotHalo ? 0.5 : 0) + 1;
             var pts = g.append("g").attr("class", "points");
             attachMarkerInteractions(
                 pts.selectAll("circle").data(focusMarkers).enter().append("circle")
                     .attr("r", dotR)
                     .attr("cx", function (m) { return xScale(xForMarker(focusLayout, m)); })
-                    .attr("cy", function (m) { return yScale(markerScore(m, data)); })
+                    .attr("cy", function (m) {
+                        return yScale(markerScore(m, data)) - dotLift;
+                    })
                     .attr("fill", function (m) { return pointColor(data, layout, m); })
+                    .attr("fill-opacity", dotFillOpacity)
+                    .attr("stroke", dotHalo ? "#FFFFFF" : null)
+                    .attr("stroke-width", dotHalo ? 1 : null)
                     .style("opacity", 1.0),
                 data);
 
