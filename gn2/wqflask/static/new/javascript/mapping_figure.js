@@ -591,13 +591,71 @@ window.MappingFigure = (function () {
             .attr("font-size", "15px");
     }
 
-    /* ---- browser-link bands (PhenoGen / UCSC / Ensembl) ----
+    /* ---- clickable bands (zoom / PhenoGen / UCSC / Ensembl) ----
        Shown only in the single-chromosome (focused) view. Each band spans the
        plot width and is divided into clickable segments; clicking a segment
-       links to the proportional genomic range underneath it (mirroring the
-       original clickable-region bands). */
+       acts on the proportional genomic range underneath it - following a link
+       for the browser bands (mirroring the original clickable-region bands), or
+       zooming this figure for the zoom band (the original WebQTL band). */
     var BAND_H = 18;
     var BAND_PAD = 4;
+
+    /* The clickable bands. The first one is the original WebQTL "zoom" band:
+       it looks like the browser bands but zooms this figure instead of opening
+       a new tab. Defined here rather than inline in drawBrowserBands so that
+       the number of bands drawn and the vertical room reserved for them
+       (bandStack, in render) always come from the same list. */
+    function browserBands() {
+        return [
+            { key: "zoom", fill: "#F5D3D3", text: "#912828",
+              divider: "#FFFFFF", zoom: true,
+              msg: "Click to zoom into the corresponding section of the genome" },
+            { key: "phenogen", fill: "#A2FB94", text: "#149400",
+              divider: "#FFFFFF",
+              msg: "Click to view the corresponding section of the genome in " +
+                   "PhenoGen" },
+            { key: "ucsc", fill: "#DDDDEE", text: "#333366",
+              divider: "#FFFFFF",
+              msg: "Click to view the corresponding section of the genome in " +
+                   "the UCSC Genome Browser" },
+            { key: "ensembl", fill: "#EEEEDD", text: "#555500",
+              divider: "#FFFFFF",
+              msg: "Click to view the corresponding section of the genome in " +
+                   "the Ensembl Genome Browser" }
+        ];
+    }
+
+    /* Where the zoom band sends the view: the clicked position +/- 1/16 of the
+       visible span, i.e. an 8x expansion - the original band's
+       `webqtlZoomWidth = numBasesCurrentlyOnScreen / 16`. Clamped to the
+       chromosome so clicking near an edge stays inside it. */
+    function zoomWindow(calBase, chrSizeB, startB, endB) {
+        var half = (endB - startB) / 16;
+        return {
+            startMb: Math.max(0, calBase - half) / 1e6,
+            endMb: Math.min(chrSizeB, calBase + half) / 1e6
+        };
+    }
+
+    /* One clickable zoom segment. Kept out of the segment loop so each one
+       captures its own `calBase`: a handler made inside the loop would see the
+       last segment's value. */
+    function addZoomSegment(bandsG, x0, x1, yTop, calBase, chrSizeB,
+                            startB, endB, msg) {
+        var seg = bandsG.append("rect")
+            .attr("x", x0).attr("y", yTop)
+            .attr("width", Math.max(1, x1 - x0))
+            .attr("height", BAND_H)
+            .attr("fill", "transparent")
+            .style("cursor", "zoom-in")
+            .on("click", function () {
+                var target = zoomWindow(calBase, chrSizeB, startB, endB);
+                if (target.endMb <= target.startMb) return;
+                state.range = target;
+                render(state.containerId, state.data);
+            });
+        seg.append("title").text(msg);
+    }
 
     function browserBandURL(data, band, chr, calBase, startB, endB) {
         var flank = Math.min((endB - startB) / 2, 5e6);
@@ -624,20 +682,7 @@ window.MappingFigure = (function () {
         if (focus === null) return;
         var fl = layout.lengths[focus];
         var chr = fl.chr;
-        var bands = [
-            { key: "phenogen", fill: "#A2FB94", text: "#149400",
-              divider: "#FFFFFF",
-              msg: "Click to view the corresponding section of the genome in " +
-                   "PhenoGen" },
-            { key: "ucsc", fill: "#DDDDEE", text: "#333366",
-              divider: "#FFFFFF",
-              msg: "Click to view the corresponding section of the genome in " +
-                   "the UCSC Genome Browser" },
-            { key: "ensembl", fill: "#EEEEDD", text: "#555500",
-              divider: "#FFFFFF",
-              msg: "Click to view the corresponding section of the genome in " +
-                   "the Ensembl Genome Browser" }
-        ];
+        var bands = browserBands();
         /* The number of on-screen intervals is fixed by the plot width (mirrors
            the original MAX_CLICKABLE_REGION_DIVISIONS = 100). When pan/zoom is
            added, startB/endB just become the currently visible window and every
@@ -661,6 +706,12 @@ window.MappingFigure = (function () {
                 var x1 = segW * (s + 1);
                 var frac = (x0 + x1) / 2 / chartW;
                 var calBase = startB + (endB - startB) * frac;
+                if (band.zoom) {
+                    /* zooms this figure instead of opening a new tab */
+                    addZoomSegment(bandsG, x0, x1, yTop, calBase, fl.size,
+                                   startB, endB, band.msg);
+                    continue;
+                }
                 bandsG.append("a")
                     .attr("xlink:href", browserBandURL(
                         data, band.key, chr, calBase, startB, endB))
@@ -1548,7 +1599,7 @@ window.MappingFigure = (function () {
         /* extra vertical room for the browser-link bands + tracks (focused) */
         var hasBands = focus !== null && physicalTracksUsable();
         var bandStack = hasBands
-            ? (BAND_PAD + 3 * (BAND_H + BAND_PAD))
+            ? (BAND_PAD + browserBands().length * (BAND_H + BAND_PAD))
             : 0;
         var topStack = bandStack + th.gene + th.homology + th.haplotype;
         var height = PLOT_HEIGHT + MARGIN.top + MARGIN.bottom + topStack;
