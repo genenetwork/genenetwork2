@@ -1871,6 +1871,17 @@ window.MappingFigure = (function () {
             }
         }
 
+        /* The x axis itself: one black 1px rule across the full plot width at
+           the baseline, as the original PIL figure draws it (X_AXIS_THICKNESS
+           = 1) for every view. The chromosome bands only contribute their own
+           light-grey stroke, which leaves the ticks looking like they float. */
+        g.append("line")
+            .attr("class", "x-axis-line")
+            .attr("x1", 0).attr("y1", chartH)
+            .attr("x2", chartW).attr("y2", chartH)
+            .attr("stroke", "#000")
+            .style("stroke-width", 1);
+
         g.append("text")
             .attr("x", chartW / 2)
             .attr("y", chartH + 82)
