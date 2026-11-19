@@ -62,17 +62,75 @@ class TestRunMapping(unittest.TestCase):
         result_2 = get_genofile_samplelist(self.dataset)
         self.assertEqual(result_2, [])
 
-    @mock.patch("gn2.wqflask.marker_regression.run_mapping.data_set")
-    def test_if_geno_db_exists(self, mock_data_set):
-        mock_data_set.create_dataset.side_effect = [
-            AttributeSetter({}), Exception()]
-        run_mapping.create_trait = mock.Mock()
-        results_no_error = geno_db_exists(self.dataset, "dataset_1")
-        results_with_error = geno_db_exists(self.dataset, "dataset_1")
+    @staticmethod
+    def _script_db(mock_db, fetchone_side_effect):
+        """Point run_mapping's database_connection at a scripted cursor."""
+        cursor = mock.MagicMock()
+        cursor.fetchone.side_effect = fetchone_side_effect
+        conn = mock.MagicMock()
+        conn.cursor.return_value.__enter__.return_value = cursor
+        mock_db.return_value.__enter__.return_value = conn
+        return cursor
 
-        self.assertEqual(mock_data_set.create_dataset.call_count, 2)
-        self.assertEqual(results_with_error, "False")
-        self.assertEqual(results_no_error, "True")
+    @mock.patch("gn2.wqflask.marker_regression.run_mapping.get_setting",
+                mock.Mock(return_value="sql://test"))
+    @mock.patch("gn2.wqflask.marker_regression.run_mapping.database_connection")
+    def test_geno_db_absent(self, mock_db):
+        """No GenoFreeze for the group: the marker links stay off"""
+        self._script_db(mock_db, [None])
+
+        self.assertEqual(
+            geno_db_exists(self.dataset, [{"name": "MK1"}]), "False")
+
+    @mock.patch("gn2.wqflask.marker_regression.run_mapping.get_setting",
+                mock.Mock(return_value="sql://test"))
+    @mock.patch("gn2.wqflask.marker_regression.run_mapping.database_connection")
+    def test_geno_db_exists(self, mock_db):
+        """Every linked marker is databased: links allowed"""
+        self._script_db(mock_db, [(7,), (2,)])
+
+        self.assertEqual(
+            geno_db_exists(
+                self.dataset, [{"name": "MK1"}, {"name": "MK2"}]),
+            "True")
+
+    @mock.patch("gn2.wqflask.marker_regression.run_mapping.get_setting",
+                mock.Mock(return_value="sql://test"))
+    @mock.patch("gn2.wqflask.marker_regression.run_mapping.database_connection")
+    def test_geno_db_missing_marker(self, mock_db):
+        """One marker missing from the database disables every link"""
+        cursor = self._script_db(mock_db, [(7,), (1,)])
+
+        self.assertEqual(
+            geno_db_exists(
+                self.dataset, [{"name": "MK1"}, {"name": "MK2"}]),
+            "False")
+        # freeze lookup plus one short batch: it stops at the gap
+        self.assertEqual(cursor.execute.call_count, 2)
+        presence_sql = cursor.execute.call_args_list[1][0][0]
+        # a GenoXRef row without GenoData rows cannot make a scatterplot
+        self.assertIn("GenoData", presence_sql)
+        self.assertIn("GenoXRef.GenoFreezeId", presence_sql)
+
+    @mock.patch("gn2.wqflask.marker_regression.run_mapping.get_setting",
+                mock.Mock(return_value="sql://test"))
+    @mock.patch("gn2.wqflask.marker_regression.run_mapping.database_connection")
+    def test_geno_db_stops_at_first_incomplete_batch(self, mock_db):
+        """Several batches' worth of markers do not all get queried"""
+        markers = [{"name": "MK%d" % i}
+                   for i in range(run_mapping.GENO_DB_CHECK_BATCH + 10)]
+        cursor = self._script_db(mock_db, [(7,), (0,)])
+
+        self.assertEqual(geno_db_exists(self.dataset, markers), "False")
+        self.assertEqual(cursor.execute.call_count, 2)
+
+    @mock.patch("gn2.wqflask.marker_regression.run_mapping.get_setting",
+                mock.Mock(return_value="sql://test"))
+    @mock.patch("gn2.wqflask.marker_regression.run_mapping.database_connection")
+    def test_geno_db_no_markers(self, mock_db):
+        """Nothing to link, and no database round trip to make"""
+        self.assertEqual(geno_db_exists(self.dataset, []), "False")
+        self.assertFalse(mock_db.called)
 
     def test_trim_markers_for_figure(self):
 

@@ -1,5 +1,4 @@
 from gn2.base.trait import GeneralTrait
-from gn2.base import data_set  # import create_dataset
 
 from pprint import pformat as pf
 
@@ -12,6 +11,9 @@ import datetime
 import os
 import collections
 import uuid
+
+import logging
+logger = logging.getLogger(__name__)
 
 import numpy as np
 
@@ -26,8 +28,7 @@ Redis = Redis()
 from flask import Flask, g
 from gn_libs.mysqldb import database_connection
 
-from gn2.base.trait import GeneralTrait, create_trait
-from gn2.base import data_set
+from gn2.base.trait import GeneralTrait
 from gn2.base import species
 from gn2.base import webqtlConfig
 from gn2.utility import webqtlUtil, helper_functions, hmac, Plot, Bunch, temp_data
@@ -40,6 +41,8 @@ from gn2.utility.external import shell
 from gn2.base.webqtlConfig import TMPDIR, GENERATED_TEXT_DIR
 
 Redis = get_redis_conn()
+
+GENO_DB_CHECK_BATCH = 1000   # marker names per genotype-DB presence query
 
 class RunMapping:
 
@@ -333,13 +336,22 @@ class RunMapping:
         if len(results) == 0:
             self.no_results = True
         else:
-            # Check if genotypes exist in the DB in order to create links for markers
-            # use the first marker as name refer to geno_db_exists docs
-            self.geno_db_exists = geno_db_exists(self.dataset, results[0]['name'])
             if self.pair_scan == True:
                 self.figure_data = results[0]
                 self.table_data = results[1]
+                # pair scans link from the figure rather than the results
+                # table, so they keep the single-marker check
+                self.geno_db_exists = geno_db_exists(
+                    self.dataset, [self.figure_data])
             else:
+                # Check the genotypes are databased, so the marker/additive
+                # links that read them from the DB are only rendered when they
+                # will work. Only the markers in the results table are linked,
+                # so those are the ones checked (the full run can be millions
+                # of markers). See geno_db_exists.
+                self.trimmed_markers = trim_markers_for_table(results)
+                self.geno_db_exists = geno_db_exists(
+                    self.dataset, self.trimmed_markers)
                 self.qtl_results = []
                 self.results_for_browser = []
                 self.annotations_for_browser = []
@@ -458,8 +470,6 @@ class RunMapping:
                 else:
                     browser_files = write_input_for_browser(
                         self.dataset, self.results_for_browser, self.annotations_for_browser)
-
-                self.trimmed_markers = trim_markers_for_table(results)
 
                 chr_lengths = get_chr_lengths(
                     self.mapping_scale, self.mapping_method, self.dataset, self.qtl_results)
@@ -722,23 +732,79 @@ def write_input_for_browser(this_dataset, gwas_results, annotations):
     return [gwas_filename, annot_filename]
 
 
-def geno_db_exists(this_dataset, first_marker):
-    """
-    Check if genotypes are databased
+def geno_db_exists(this_dataset, markers):
+    """Whether the genotypes for `markers` are in the database.
 
-    This checks two things:
-    - A genotypes dataset exists for this group
-    - The first marker in the genotype file is in the genotypes dataset, 
-    since there might be a mismatch between the file and databased markers
+    The marker and additive-effect links in the results table are built from
+    the *databased* genotypes, so a marker that is in the genotype file used
+    for mapping but not in the database produces a link that errors out
+    (CorrScatterPlot ends up doing linregress on no data).
+
+    One missing marker disables every link: a partly-linked table gives no way
+    to tell which rows are trustworthy, and a marker being databased says
+    nothing about its databased *values* matching the file either.
+
+    Only the markers that are actually linked are checked - the trimmed results
+    table, which `trim_markers_for_table` caps - because a dense SNP run has
+    millions of markers and scanning them all would not be worth the cost. The
+    check therefore stops at the first incomplete batch rather than counting
+    everything.
+
+    Two things are checked:
+    - a genotypes dataset/freeze exists for this group
+    - each of those markers is in that freeze, with data. Resolved through
+      GenoXRef rather than Geno.Name alone (Geno rows are shared between
+      freezes and species, so a bare name match can hit another freeze's row),
+      and requiring a GenoData row because a marker whose every strain value
+      was blank/unmapped is still written to GenoXRef while getting no data at
+      all - it would fail the same way.
+
+    Returns "True"/"False" as a string: the value is cached with the run's
+    inputs and the templates compare it against "True".
+
+    A database error is treated as "not databased" (links off) rather than
+    failing the whole mapping, which is what this function has always done.
     """
-    geno_db_name = this_dataset.group.name + "Geno"
-    try:
-        geno_db = data_set.create_dataset(
-            dataset_name=geno_db_name, get_samplelist=False)
-        geno_trait = create_trait(name=first_marker, dataset_name=geno_db_name)
-        return "True"
-    except:
+    names = set()
+    for marker in markers or ():
+        name = (marker.get("name") if isinstance(marker, dict)
+                else getattr(marker, "name", None))
+        if name:
+            names.add(str(name))
+    if not names:
         return "False"
+
+    try:
+        with database_connection(get_setting("SQL_URI")) as conn:
+            with conn.cursor() as cursor:
+                cursor.execute(
+                    "SELECT Id FROM GenoFreeze WHERE Name = %s",
+                    (this_dataset.group.name + "Geno",))
+                freeze = cursor.fetchone()
+                if not freeze:
+                    return "False"
+                freeze_id = freeze[0]
+
+                ordered = sorted(names)
+                for start in range(0, len(ordered), GENO_DB_CHECK_BATCH):
+                    batch = ordered[start:start + GENO_DB_CHECK_BATCH]
+                    cursor.execute(
+                        "SELECT COUNT(DISTINCT Geno.Name) FROM Geno, GenoXRef "
+                        "WHERE GenoXRef.GenoId = Geno.Id "
+                        "AND GenoXRef.GenoFreezeId = %s "
+                        "AND Geno.Name IN (" +
+                        ", ".join(["%s"] * len(batch)) + ") "
+                        "AND EXISTS (SELECT 1 FROM GenoData "
+                        "WHERE GenoData.Id = GenoXRef.DataId)",
+                        (freeze_id, *batch))
+                    if cursor.fetchone()[0] != len(batch):
+                        return "False"
+    except Exception:
+        logger.exception(
+            "Could not check the genotype database for %sGeno; "
+            "hiding the marker links", this_dataset.group.name)
+        return "False"
+    return "True"
 
 
 def genetic_scale_coord(mapping_scale, qtl_results):
