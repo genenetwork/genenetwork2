@@ -591,7 +591,7 @@ window.MappingFigure = (function () {
             .attr("font-size", "15px");
     }
 
-    /* ---- clickable bands (zoom / PhenoGen / UCSC / Ensembl) ----
+    /* ---- clickable bands (zoom / UCSC / Ensembl) ----
        Shown only in the single-chromosome (focused) view. Each band spans the
        plot width and is divided into clickable segments; clicking a segment
        acts on the proportional genomic range underneath it - following a link
@@ -610,10 +610,6 @@ window.MappingFigure = (function () {
             { key: "zoom", fill: "#F5D3D3", text: "#912828",
               divider: "#FFFFFF", zoom: true,
               msg: "Click to zoom into the corresponding section of the genome" },
-            { key: "phenogen", fill: "#A2FB94", text: "#149400",
-              divider: "#FFFFFF",
-              msg: "Click to view the corresponding section of the genome in " +
-                   "PhenoGen" },
             { key: "ucsc", fill: "#DDDDEE", text: "#333366",
               divider: "#FFFFFF",
               msg: "Click to view the corresponding section of the genome in " +
@@ -662,13 +658,8 @@ window.MappingFigure = (function () {
         var s = Math.max(0, Math.round(calBase - flank));
         var e = Math.round(calBase + flank);
         var ucsc = data.ucsc_db || "";
-        var genomeVer = ucsc || (data.species === "rat" ? "rn6" : "mm10");
         var ensSpecies = data.species === "rat"
             ? "Rattus_norvegicus" : "Mus_musculus";
-        if (band === "phenogen") {
-            return "https://phenogen.org/gene.jsp?speciesCB=Mm&auto=Y&" +
-                "geneTxt=chr" + chr + ":" + s + "-" + e + "&genomeVer=" + genomeVer;
-        }
         if (band === "ucsc") {
             return "http://genome.ucsc.edu/cgi-bin/hgTracks?db=" + ucsc +
                 "&position=chr" + chr + ":" + s + "-" + e;
