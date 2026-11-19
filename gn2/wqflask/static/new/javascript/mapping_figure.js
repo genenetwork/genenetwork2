@@ -1902,9 +1902,15 @@ window.MappingFigure = (function () {
                     .attr("stroke", "#000")
                     .attr("stroke-width", nearMajor ? 2 : 1);
                 if (nearMajor && v > axisStart) {
+                    /* Labels read downwards, as in the original figure (and as
+                       the whole-genome view does). `dominant-baseline` centres
+                       the rotated glyph body on the tick: with rotate(90) the
+                       baseline sits on x and the glyphs extend to its right,
+                       which left the label looking shifted off its tick. */
                     g.append("text")
-                        .attr("transform", "translate(" + x + "," + (chartH + 26) + ") rotate(-90)")
-                        .attr("text-anchor", "middle")
+                        .attr("transform", "translate(" + x + "," + (chartH + 16) + ") rotate(90)")
+                        .attr("text-anchor", "start")
+                        .attr("dominant-baseline", "central")
                         .attr("font-family", FONT)
                         .attr("font-size", TICK_LABEL_SIZE + "px")
                         .attr("fill", "#000")
