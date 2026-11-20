@@ -263,34 +263,62 @@ window.MappingFigure = (function () {
         return (idx % 2 === 1) ? COLORS.red : COLORS.blue;
     }
 
+    /* The y domain: the highest marker score plus a little headroom, widened
+       to the significant/suggestive lines so they stay inside the plot
+       (mirroring drawQTL, where LRS_LOD_Max = max(significant, ...) and the
+       significant line then defines the top of the y axis, as in the original
+       figure). `peak` is returned alongside, because whether the axis needs to
+       be rounded up to a tick depends on the points, not on the thresholds. */
     function yDomain(data, markers) {
-        if (data.lrsMax && data.lrsMax > 0) return [0, data.lrsMax];
-        var max = 0;
+        var peak = 0;
         markers.forEach(function (m) {
             var s = markerScore(m, data);
-            if (s > max) max = s;
+            if (s > peak) peak = s;
         });
-        if (max === 0) max = 1;
-        max = max * 1.05;
-        /* Mirror drawQTL: LRS_LOD_Max = max(significant, LRS_LOD_Max) so the
-           significant/suggestive lines stay inside the plot when they exceed
-           the highest marker score (the significant line then defines the top
-           of the y axis, as in the original figure). */
+        if (data.lrsMax && data.lrsMax > 0) {
+            return {top: data.lrsMax, peak: peak};
+        }
+        var top = (peak > 0 ? peak : 1) * 1.05;
         var sig = toNum(data.significant);
-        if (sig !== null && sig > max) max = sig;
+        if (sig !== null && sig > top) top = sig;
         var sugg = toNum(data.suggestive);
-        if (sugg !== null && sugg > max) max = sugg;
-        return [0, max];
+        if (sugg !== null && sugg > top) top = sugg;
+        return {top: top, peak: peak};
     }
 
-    /* "Nice" tick step for a range (1, 2, 5 x 10^n) aiming for ~8 ticks. */
-    function niceStep(range) {
+    /* "Nice" tick step for a range (1, 2, 5 x 10^n) aiming for ~count ticks
+       (8 by default, which suits the Mb axis; the y axis asks for 5). */
+    function niceStep(range, count) {
         if (range <= 0) return 1;
-        var raw = range / 8;
+        var raw = range / (count || 8);
         var mag = Math.pow(10, Math.floor(Math.log(raw) / Math.LN10));
         var norm = raw / mag;
         var step = norm < 1.5 ? 1 : (norm < 3 ? 2 : (norm < 7 ? 5 : 10));
         return step * mag;
+    }
+
+    /* The ticks for a y domain, and the top of the axis they imply.
+       Ticks are always whole multiples of a nice step, so the last one can fall
+       short of the domain top - and with the domain top set by the height of
+       the tallest peak, the peak itself can end up above that last tick, drawn
+       above every label on the axis. In that case the axis is stretched up to
+       the next tick, so there is always a tick at or above the highest point;
+       otherwise the domain is left alone, so thresholds still define the top
+       the way the original figure draws it. */
+    function yAxisTicks(domain) {
+        var step = niceStep(domain.top, 5);
+        var last = Math.floor(domain.top / step + 1e-9) * step;
+        var top = domain.top;
+        if (domain.peak > last + 1e-9) {
+            while (last + 1e-9 < domain.peak) last += step;
+            top = last;
+        }
+        var values = [];
+        for (var i = 0; i * step <= last + step * 1e-6; i += 1) {
+            /* steps like 0.1 are not exact in binary, so settle each value */
+            values.push(Math.round(i * step * 1e9) / 1e9);
+        }
+        return {top: top, values: values};
     }
 
     /* Decimals needed to tell two values a tick step apart from each other:
@@ -309,9 +337,12 @@ window.MappingFigure = (function () {
        plots do: whole numbers while every tick is a whole number, otherwise
        decimals. The number of decimals follows the tick step, so an axis
        spanning a very small range still tells its ticks apart (a single
-       decimal would otherwise print, say, "0.0" for every one of them). */
-    function tickNumberFormat(scale, count) {
-        var ticks = scale.ticks(count);
+       decimal would otherwise print, say, "0.0" for every one of them).
+       `values` supplies the ticks when the axis defines them itself (the y
+       axis rounds its domain up to a whole tick, so d3's own ticks would no
+       longer line up with them). */
+    function tickNumberFormat(scale, count, values) {
+        var ticks = values || scale.ticks(count);
         var wholeNumbers = true;
         ticks.forEach(function (v) {
             if (v !== Math.round(v)) wholeNumbers = false;
@@ -1610,7 +1641,8 @@ window.MappingFigure = (function () {
                 return b !== null && b >= rangeB.start && b <= rangeB.end;
             });
         }
-        var yMax = yDomain(data, focusMarkers)[1];
+        var yAxisSpec = yAxisTicks(yDomain(data, focusMarkers));
+        var yMax = yAxisSpec.top;
         var yScale = d3.scale.linear()
             .domain([0, yMax])
             .range([chartH, topInset]);
@@ -2071,8 +2103,8 @@ window.MappingFigure = (function () {
            axis stylesheet (which normally supplies the stroke), so it has to
            be set explicitly or the line and ticks do not render at all. */
         var yAxis = d3.svg.axis().scale(yScale).orient("left")
-            .ticks(5).tickSize(4, 0).tickPadding(5)
-            .tickFormat(tickNumberFormat(yScale, 5));
+            .tickValues(yAxisSpec.values).tickSize(4, 0).tickPadding(5)
+            .tickFormat(tickNumberFormat(yScale, 5, yAxisSpec.values));
         var yAxisG = g.append("g").attr("class", "y axis").call(yAxis);
         /* The original runs this line from the bottom of the plot all the way
            up to its top edge, which is above the highest tick: the scale's
