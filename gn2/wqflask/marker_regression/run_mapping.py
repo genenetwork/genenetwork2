@@ -43,6 +43,11 @@ from gn2.base.webqtlConfig import TMPDIR, GENERATED_TEXT_DIR
 Redis = get_redis_conn()
 
 GENO_DB_CHECK_BATCH = 1000   # marker names per genotype-DB presence query
+# A few markers out of sync should not cost the whole results table its links:
+# they are only hidden once more than this percentage of the linked markers
+# cannot be resolved in the database. Every BXD-derived group currently has
+# exactly one marker in its genotype file that never reached the database.
+GENO_DB_MISSING_TOLERANCE_PERCENT = 20
 
 class RunMapping:
 
@@ -732,6 +737,16 @@ def write_input_for_browser(this_dataset, gwas_results, annotations):
     return [gwas_filename, annot_filename]
 
 
+def _missing_percent(missing, total):
+    """`missing` as a percentage of `total`, rounded up to one decimal.
+
+    Rounded up so a ratio just over the tolerance cannot print as exactly the
+    tolerance, which reads like a contradiction next to "over the 20%
+    tolerance" when it comes from 5001 of 25000 markers.
+    """
+    return ((missing * 1000 + total - 1) // total) / 10.0
+
+
 def geno_db_exists(this_dataset, markers):
     """Whether the genotypes for `markers` are in the database.
 
@@ -740,15 +755,21 @@ def geno_db_exists(this_dataset, markers):
     for mapping but not in the database produces a link that errors out
     (CorrScatterPlot ends up doing linregress on no data).
 
-    One missing marker disables every link: a partly-linked table gives no way
-    to tell which rows are trustworthy, and a marker being databased says
-    nothing about its databased *values* matching the file either.
+    The links are only hidden when more than GENO_DB_MISSING_TOLERANCE_PERCENT
+    of the linked markers cannot be resolved: one or two markers out of sync -
+    every BXD-derived group currently has exactly one in its .geno file that
+    never reached the database - should not cost the whole table its links,
+    while a genuinely stale database leaves most of them dangling. The
+    tolerance is a trade-off rather than a guarantee: a partly-linked table
+    gives no way to tell which rows are trustworthy, and a marker being
+    databased says nothing about its databased *values* matching the file
+    either.
 
     Only the markers that are actually linked are checked - the trimmed results
     table, which `trim_markers_for_table` caps - because a dense SNP run has
-    millions of markers and scanning them all would not be worth the cost. The
-    check therefore stops at the first incomplete batch rather than counting
-    everything.
+    millions of markers and scanning them all would not be worth the cost.
+    Names are counted in batches of GENO_DB_CHECK_BATCH, and the scan stops as
+    soon as the tolerance is exceeded.
 
     Two things are checked:
     - a genotypes dataset/freeze exists for this group
@@ -786,7 +807,9 @@ def geno_db_exists(this_dataset, markers):
                 freeze_id = freeze[0]
 
                 ordered = sorted(names)
-                for start in range(0, len(ordered), GENO_DB_CHECK_BATCH):
+                total = len(ordered)
+                missing = 0
+                for start in range(0, total, GENO_DB_CHECK_BATCH):
                     batch = ordered[start:start + GENO_DB_CHECK_BATCH]
                     cursor.execute(
                         "SELECT COUNT(DISTINCT Geno.Name) FROM Geno, GenoXRef "
@@ -797,8 +820,25 @@ def geno_db_exists(this_dataset, markers):
                         "AND EXISTS (SELECT 1 FROM GenoData "
                         "WHERE GenoData.Id = GenoXRef.DataId)",
                         (freeze_id, *batch))
-                    if cursor.fetchone()[0] != len(batch):
+                    missing += len(batch) - cursor.fetchone()[0]
+                    if (missing * 100
+                            > total * GENO_DB_MISSING_TOLERANCE_PERCENT):
+                        logger.info(
+                            "%sGeno: %d of %d linked markers (%.1f%%) are "
+                            "missing from the database, over the %d%% "
+                            "tolerance; hiding the marker links",
+                            this_dataset.group.name, missing, total,
+                            _missing_percent(missing, total),
+                            GENO_DB_MISSING_TOLERANCE_PERCENT)
                         return "False"
+                if missing:
+                    logger.info(
+                        "%sGeno: %d of %d linked markers (%.1f%%) are missing "
+                        "from the database, within the %d%% tolerance; keeping "
+                        "the marker links",
+                        this_dataset.group.name, missing, total,
+                        _missing_percent(missing, total),
+                        GENO_DB_MISSING_TOLERANCE_PERCENT)
     except Exception:
         logger.exception(
             "Could not check the genotype database for %sGeno; "

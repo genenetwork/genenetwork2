@@ -98,14 +98,12 @@ class TestRunMapping(unittest.TestCase):
                 mock.Mock(return_value="sql://test"))
     @mock.patch("gn2.wqflask.marker_regression.run_mapping.database_connection")
     def test_geno_db_missing_marker(self, mock_db):
-        """One marker missing from the database disables every link"""
-        cursor = self._script_db(mock_db, [(7,), (1,)])
+        """Markers over the tolerance disable every link"""
+        markers = [{"name": "MK%d" % i} for i in range(10)]
+        cursor = self._script_db(mock_db, [(7,), (7,)])   # 3 of 10 missing
 
-        self.assertEqual(
-            geno_db_exists(
-                self.dataset, [{"name": "MK1"}, {"name": "MK2"}]),
-            "False")
-        # freeze lookup plus one short batch: it stops at the gap
+        self.assertEqual(geno_db_exists(self.dataset, markers), "False")
+        # freeze lookup plus one batch: no point reading further
         self.assertEqual(cursor.execute.call_count, 2)
         presence_sql = cursor.execute.call_args_list[1][0][0]
         # a GenoXRef row without GenoData rows cannot make a scatterplot
@@ -115,7 +113,30 @@ class TestRunMapping(unittest.TestCase):
     @mock.patch("gn2.wqflask.marker_regression.run_mapping.get_setting",
                 mock.Mock(return_value="sql://test"))
     @mock.patch("gn2.wqflask.marker_regression.run_mapping.database_connection")
-    def test_geno_db_stops_at_first_incomplete_batch(self, mock_db):
+    def test_geno_db_small_gap_keeps_links(self, mock_db):
+        """One missing marker is tolerated: every BXD-derived group has one"""
+        markers = [{"name": "MK%d" % i} for i in range(10)]
+        self._script_db(mock_db, [(7,), (9,)])            # 1 of 10 missing
+
+        self.assertEqual(geno_db_exists(self.dataset, markers), "True")
+
+    @mock.patch("gn2.wqflask.marker_regression.run_mapping.get_setting",
+                mock.Mock(return_value="sql://test"))
+    @mock.patch("gn2.wqflask.marker_regression.run_mapping.database_connection")
+    def test_geno_db_tolerance_boundary(self, mock_db):
+        """Exactly the tolerance keeps the links, anything over drops them"""
+        markers = [{"name": "MK%d" % i} for i in range(5)]
+
+        self._script_db(mock_db, [(7,), (4,)])            # 1 of 5 = 20%
+        self.assertEqual(geno_db_exists(self.dataset, markers), "True")
+
+        self._script_db(mock_db, [(7,), (3,)])            # 2 of 5 = 40%
+        self.assertEqual(geno_db_exists(self.dataset, markers), "False")
+
+    @mock.patch("gn2.wqflask.marker_regression.run_mapping.get_setting",
+                mock.Mock(return_value="sql://test"))
+    @mock.patch("gn2.wqflask.marker_regression.run_mapping.database_connection")
+    def test_geno_db_stops_once_over_tolerance(self, mock_db):
         """Several batches' worth of markers do not all get queried"""
         markers = [{"name": "MK%d" % i}
                    for i in range(run_mapping.GENO_DB_CHECK_BATCH + 10)]
@@ -123,6 +144,19 @@ class TestRunMapping(unittest.TestCase):
 
         self.assertEqual(geno_db_exists(self.dataset, markers), "False")
         self.assertEqual(cursor.execute.call_count, 2)
+
+    @mock.patch("gn2.wqflask.marker_regression.run_mapping.get_setting",
+                mock.Mock(return_value="sql://test"))
+    @mock.patch("gn2.wqflask.marker_regression.run_mapping.database_connection")
+    def test_geno_db_scans_every_batch_within_tolerance(self, mock_db):
+        """A small gap spread over batches does not stop the count early"""
+        markers = [{"name": "MK%d" % i}
+                   for i in range(run_mapping.GENO_DB_CHECK_BATCH + 10)]
+        cursor = self._script_db(
+            mock_db, [(7,), (run_mapping.GENO_DB_CHECK_BATCH,), (9,)])
+
+        self.assertEqual(geno_db_exists(self.dataset, markers), "True")
+        self.assertEqual(cursor.execute.call_count, 3)
 
     @mock.patch("gn2.wqflask.marker_regression.run_mapping.get_setting",
                 mock.Mock(return_value="sql://test"))
