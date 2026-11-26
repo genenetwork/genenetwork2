@@ -19,23 +19,6 @@
         </h3>
       </div>
 
-      {% if ai_search_enabled %}
-        {% if do_ai_search %}
-        <div class="row" id="ai_result_info">
-          <div class="text-center">
-          </div>
-        </div>
-        {% else %}
-        <div class="row" id="ai_result_info">
-          <div class="col-sm-6">
-            {% if llm_error_msg %}
-	    <div class="alert alert-warning"> {{ llm_error_msg }}</div>
-	    {% endif %}
-          </div>
-        </div>
-        {% endif %}
-      {% endif %}
-
         <p>To study a record, click on its Record ID below.<br />Check records below and click Add button to add to selection.</p>
         <div>
             <br />
@@ -294,79 +277,4 @@
         });
         
     </script>
-    {% if ai_search_enabled and do_ai_search %}
-    <script type='text/javascript'>
-      function ai_content_div(search_term, search_result, search_uri) {
-        let header_length = 40;
-        let max_header_length = 180;
-        while (header_length <= search_result.length) {
-            let next_dot = search_result.indexOf(".", header_length+1);
-	    if (next_dot == -1) {
-		next_dot = search_result.length+1
-	    }
-          if (next_dot > max_header_length) {
-            let next_comma = search_result.indexOf(",", header_length+1);
-            if (next_comma > max_header_length || next_comma == -1) {
-              break;
-            }
-            header_length = next_comma;
-          } else {
-            header_length = next_dot;
-          }
-        }
-        let header = search_result.slice(0, header_length+1);
-        return `
-          <div class="col-sm-6">
-            <div class="panel panel-info">
-              <div class="panel-heading" role="tab" id="ai_heading">
-                <h4 class="panel-title">
-                  <a id="panel-title-content" class="collapsed" role="button" data-toggle="collapse" data-parent="#accordion" href="#ai_results" aria-expanded="false" aria-controls="ai_results">
-                    ${header} ... (Click for more details)
-                  </a>
-                </h4>
-              </div>
-              <div id="ai_results" class="panel-collapse collapse" role="tabpanel" aria-labelledby="ai_heading">
-                  <div class="panel-body">
-                    <p>${ search_result }</p>
-                    <p><a class="btn btn-default" href="${ search_uri }" role="button">See References</a></p>
-                  </div>
-              </div>
-            </div>
-          </div>
-          `
-      }
-
-      $('#ai_result_info').on('hidden.bs.collapse', function () {
-        let original_text = $("#panel-title-content").text();
-        let new_text = original_text.replace("(Click to fold)", "(Click for more details)");
-        $("#panel-title-content").text(new_text);
-      })
-
-      $('#ai_result_info').on('shown.bs.collapse', function () {
-        let original_text = $("#panel-title-content").text();
-        let new_text = original_text.replace("(Click for more details)", "(Click to fold)");
-        $("#panel-title-content").text(new_text);
-      })
-
-
-
-      $(document).ready( function () {
-        $.ajax({url: "gnqna",
-          contentType: "application/json",
-          data: {
-            query: "{{ terms }}",
-            type: "xapian",
-            gnqna_username : ""
-          },
-          success: function(result) {
-            let ai_div = ai_content_div(result.search_term, result.search_result, result.search_url)
-            $("#ai_result_info").append(ai_div);
-          },
-          complete: function() {
-          }
-        })
-      })
-
-    </script>
-    {% endif %}
 {% endblock %}
